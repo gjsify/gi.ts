@@ -37,11 +37,16 @@ export abstract class GirBase {
   abstract asString(modName: string, registry: GirNSRegistry): string;
 }
 
-// TODO Fix upstream bugs! (and add support for C type resolution)
+// TODO Fix upstream bugs! (and add support for C type resolution maybe?)
 const patches = {
   "Gee.FutureMapFunc": "Gee.MapFunc",
   "Gee.FutureLightMapFunc": "Gee.LightMapFunc",
-  "Gee.FutureFlatMapFunc": "Gee.FlatMapFunc"
+  "Gee.FutureFlatMapFunc": "Gee.FlatMapFunc",
+  "Gee.FutureZipFunc": "Gee.ZipFunc",
+  "Granite.WidgetsSourceListVisibleFunc": "Granite.VisibleFunc",
+  "Gitg.AsyncThreadFunc": "Gitg.ThreadFunc",
+  "Gitg.WhenMappedOnMapped": "Gitg.OnMapped",
+  "Tracker.SparqlError": "Tracker.Error"
 };
 
 // Inspired by gir2dts' resolveType
@@ -71,7 +76,15 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
   let current_rns = rns.namespace(modName);
   let ns = rns.namespace(ns_name);
 
-  let isArray = type.isArray ? "[]" : "";
+  let isArray: string;
+
+  if (typeof type.isArray === "boolean") {
+    isArray = type.isArray ? "[]" : "";
+  } else {
+    isArray = "".padStart(2 * type.isArray, "[]");
+  }
+
+  // TODO Check that this doesn't mean the array type itself can be null.
   isArray = type.nullable ? isArray + " | null" : isArray;
 
   // Handle primitive overrides (w/ namespace)
@@ -141,6 +154,8 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
       return "any" + isArray;
     case "never": // Support TS "never"
       return "never";
+    case "guintptr": // You can't use pointers in GJS! (at least that I'm aware of)
+      return "never";
     case "any": // Support TS "any"
       return "any";
     case "object": // Support TS "object"
@@ -157,6 +172,14 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
           return `${ns_name}.${name}${isArray}`;
         }
       } else {
+        // Handle "class callback" types (they're in a definition-merged module)
+        const [cb, corrected_name] = ns.findClassCallback(name);
+
+        if (cb) {
+          console.log(`Callback found: ${cb}.${corrected_name}${isArray}`);
+          return `${cb}.${corrected_name}${isArray}`;
+        }
+
         if (modName === ns_name) {
           return `unknown${isArray}`;
         } else {
@@ -196,7 +219,7 @@ function resolveParent(
 }
 
 interface Type {
-  isArray: boolean;
+  isArray: boolean | number;
   name: string;
   raw_type: string;
   nullable: boolean;
@@ -204,14 +227,25 @@ interface Type {
 
 /* Decode the type */
 function getType(_modName, _ns: GirNamespace, param: any): Type {
-  let [name, isArray] = ["", false];
-  name = getName(name);
+  let name = "";
+  let isArray: boolean | number = false;
 
   let parameter = param as ClassMethodParameter;
   if (parameter.array) {
     isArray = true;
     if (parameter.array[0].type && parameter.array[0].type[0].$) {
       name = parameter.array[0].type[0].$["name"];
+    } else if (parameter.array[0].array) {
+      let arr = parameter.array[0];
+      let depth = 1;
+
+      while (Array.isArray(arr.array)) {
+        arr = arr.array[0];
+        depth++;
+      }
+
+      name = arr.type[0].$["name"] || "unknown";
+      isArray = depth;
     } else {
       name = "unknown";
     }
@@ -426,6 +460,8 @@ export function ${this.name}(${this.params(modName, registry)}): ${this.return(
 }
 
 export class GirCallback extends GirFunction {
+  resolve_names: string[] = [];
+
   static fromXML(
     modName: string,
     ns: GirNamespace,
@@ -443,6 +479,12 @@ export class GirCallback extends GirFunction {
     } = fn;
 
     const cb = new GirCallback(name);
+
+    cb.resolve_names = [func.$.name];
+
+    if (func.$["glib:type-name"]) {
+      cb.resolve_names.push(func.$["glib:type-name"]);
+    }
 
     Object.assign(cb, {
       comment,
@@ -474,6 +516,8 @@ export class GirClass extends GirBase {
   _isForeign: boolean = false;
   props: GirProperty[] = [];
   violates_parent = [];
+  callbacks: GirCallback[] = [];
+  resolve_names: string[] = [];
 
   isInterface(): this is Interface {
     return this._isInterface;
@@ -493,6 +537,11 @@ export class GirClass extends GirBase {
     );
 
     const clazz = new this(getName(klass.$.name));
+    clazz.resolve_names = [klass.$.name];
+
+    if (klass.$["glib:type-name"]) {
+      clazz.resolve_names.push(klass.$["glib:type-name"]);
+    }
 
     // TODO Fix this is_interface check.
     const is_interface: (k: typeof klass) => k is Interface = (
@@ -527,9 +576,18 @@ export class GirClass extends GirBase {
       if (has_constructor(klass) && Array.isArray(klass.constructor)) {
         for (let constructor of klass.constructor) {
           if (!constructor || !constructor.$) continue;
+
           if (constructor.$["name"] === "new") {
             continue;
           }
+
+          if (
+            constructor.$.introspectable &&
+            constructor.$.introspectable === "0"
+          ) {
+            continue;
+          }
+
           clazz.constructors.push(
             GirConstructor.fromXML(modName, ns, constructor)
           );
@@ -546,6 +604,17 @@ export class GirClass extends GirBase {
           clazz.members.push(
             GirClassFunction.fromXML(modName, ns, method as ClassFunction)
           );
+        }
+      }
+
+      // Callback Types
+      if (has_constructor(klass) && klass.callback) {
+        for (let callback of klass.callback) {
+          if (callback.$.introspectable && callback.$.introspectable === "0") {
+            continue;
+          }
+
+          clazz.callbacks.push(GirCallback.fromXML(modName, ns, callback));
         }
       }
 
@@ -681,7 +750,14 @@ export class GirClass extends GirBase {
 
     const name = this.name;
 
-    return `export ${
+    return `${
+      this.callbacks.length > 0
+        ? `export module ${name} {
+          ${this.callbacks.map(c => c.asString(modName, registry)).join(EOL)}
+}
+`
+        : ``
+    }export ${
       this.isInterface() ? "interface" : "class"
     } ${name} ${this.extends(modName, registry)}${this.implements()} {${
       this.isInterface() || this.isForeign()
@@ -717,7 +793,6 @@ ${this.props
     [] as Array<GirProperty>
   )
   .map(p => p.asString(modName, registry))
-
   .join(EOL)}${this.constructors
       .filter(p => p.name)
       .reduce(
@@ -825,11 +900,15 @@ export class GirProperty extends GirBase {
 
   asString(modName: string, registry: GirNSRegistry): string {
     const ns = registry.namespace(modName);
+    const invalid = this.name !== getName(this.name);
     if (this.writable) {
-      return `${this.name}: ${resolveType(modName, registry, this.typeName) ||
-        "any"};`;
+      return `${invalid ? `"${this.name}"` : this.name}: ${resolveType(
+        modName,
+        registry,
+        this.typeName
+      ) || "any"};`;
     } else {
-      return `readonly ${this.name}: ${resolveType(
+      return `readonly ${invalid ? `"${this.name}"` : this.name}: ${resolveType(
         modName,
         registry,
         this.typeName
@@ -844,7 +923,6 @@ export class GirProperty extends GirBase {
   ): GirProperty {
     let name = prop.$["name"];
     let _name = name.replace(/[-]/g, "_");
-    _name = getName(_name);
     const property = new GirProperty(_name);
     property.writable = prop.$["writable"] === "1";
     property.typeName = getType(modName, ns, prop);
@@ -960,17 +1038,22 @@ export class GirEnumMember extends GirBase {
     _ns: GirNamespace,
     m: MemberElement
   ): GirEnumMember {
-    const em = new GirEnumMember(getName(m.$.name.toUpperCase()));
+    const upper = m.$.name.toUpperCase();
+    const em = new GirEnumMember(upper);
     em.value = m.$.value;
     return em;
   }
 
   asString(_: string, __: GirNSRegistry): string {
     if (this.name[0] >= "0" && this.name[0] <= "9") return `_${this.name},`;
+    const sanitized = getName(this.name);
+    const invalid = sanitized !== this.name;
     if (this.value != null) {
-      return `${this.name} = ${this.value},`;
+      return invalid
+        ? `"${this.name}" = ${this.value},`
+        : `${this.name} = ${this.value},`;
     } else {
-      return `${this.name},`;
+      return invalid ? `"${this.name}",` : `${this.name},`;
     }
   }
 }
@@ -1081,7 +1164,29 @@ export class GirNamespace extends GirBase {
   }
 
   hasSymbol(name: string) {
-    return this.members.some(m => m.name === name);
+    return this.members.some(
+      m => m.name === name
+      // TODO Support better lookups here (we do for class callbacks)
+      // (m instanceof GirClass && m.resolve_names.includes(name))
+    );
+  }
+
+  findClassCallback(name: string): [string | null, string] {
+    const clazzes = this.members.filter(
+      (m): m is GirClass => m instanceof GirClass
+    );
+    const res = clazzes
+      .map<[GirClass, GirCallback]>(m => [
+        m,
+        m.callbacks.find(c => c.name === name || c.resolve_names.includes(name))
+      ])
+      .find(([_, m]) => m != null);
+
+    if (res) {
+      return [res[0].name, res[1].name];
+    } else {
+      return [null, name];
+    }
   }
 
   asString(modName: string, registry: GirNSRegistry) {
@@ -1153,9 +1258,9 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
 
     if (ns.callback)
       building.members.push(
-        ...ns.callback.map(callback =>
-          GirCallback.fromXML(modName, building, callback)
-        )
+        ...ns.callback
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+          .map(callback => GirCallback.fromXML(modName, building, callback))
       );
 
     // Constants
@@ -1187,6 +1292,23 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
         ...ns.alias
           .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
           .map(alias => GirAlias.fromXML(modName, building, alias))
+      );
+    }
+
+    if (ns["glib:boxed"]) {
+      building.members.push(
+        ...ns["glib:boxed"]
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+          .map(boxed => {
+            let alias = new GirAlias(boxed.$["glib:name"]);
+            alias.type = {
+              name: "object",
+              raw_type: "object",
+              isArray: false,
+              nullable: false
+            };
+            return alias;
+          })
       );
     }
 
@@ -1306,6 +1428,10 @@ const reservedWords = [
 
 // TODO Prevent reserved keywords from being used in identifiers
 function getName(name) {
+  if (name === "") {
+    return `""`;
+  }
+
   if (reservedWords.includes(name)) {
     return `_${name}`;
   }

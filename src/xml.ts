@@ -53,6 +53,16 @@ export interface NamespaceElement extends Element<Namespace> {
   enumeration: Enumeration[];
   constant: ConstantElement[];
   function: NamespaceFunction[];
+  ["glib:boxed"]: GLibBoxedElement[];
+}
+
+export interface GLibBoxedElement extends Element<GLibBoxed> {}
+
+export interface GLibBoxed {
+  "glib:name": string;
+  "c:symbol-prefix"?: string;
+  "glib:type-name"?: string;
+  "glib:get-type"?: string;
 }
 
 export interface Namespace {
@@ -142,8 +152,7 @@ export interface Constant {
   value?: string;
 }
 
-export interface CallbackParameter {
-  $: Callback;
+export interface CallbackParameter extends Element<Callback> {
   type?: AliasType[];
   doc?: DocElement[];
   array?: Arrays[];
@@ -183,6 +192,7 @@ export enum TransferOwnership {
 export interface Arrays {
   $: XmlArray;
   type: AliasType[];
+  array?: Arrays[];
 }
 
 export interface XmlArray {
@@ -207,6 +217,7 @@ export interface ClassElement extends Element<Class> {
   field?: ClassField[];
   "glib:signal"?: ClassGLibSignal[];
   function?: ClassFunction[];
+  callback?: NamespaceCallback[]; // TODO Rename now!
 }
 
 export interface Class {
