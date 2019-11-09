@@ -37,6 +37,13 @@ export abstract class GirBase {
   abstract asString(modName: string, registry: GirNSRegistry): string;
 }
 
+// TODO Fix upstream bugs! (and add support for C type resolution)
+const patches = {
+  "Gee.FutureMapFunc": "Gee.MapFunc",
+  "Gee.FutureLightMapFunc": "Gee.LightMapFunc",
+  "Gee.FutureFlatMapFunc": "Gee.FlatMapFunc"
+};
+
 // Inspired by gir2dts' resolveType
 function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
   let ns_name = modName;
@@ -47,6 +54,10 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
     case "GLib.SList":
       // GJS translates GLib lists to JS arrays
       return "string[]";
+  }
+
+  if (name in patches) {
+    name = patches[name];
   }
 
   const parts = name.split(".");
@@ -67,11 +78,18 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
   switch (name) {
     case "":
       return "any" + isArray;
+    case "filename":
+      return "string" + isArray;
+    // Pass this through
+    case "GType":
+      return "GType";
     case "utf8":
       return "string" + isArray;
     case "none":
       return "void" + isArray;
     case "double":
+      return "number" + isArray;
+    case "gshort":
       return "number" + isArray;
     case "guint32":
       return "number" + isArray;
@@ -123,6 +141,10 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
       return "any" + isArray;
     case "never": // Support TS "never"
       return "never";
+    case "any": // Support TS "any"
+      return "any";
+    case "object": // Support TS "object"
+      return "object";
     default:
       if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
         if (current_rns) {
@@ -195,7 +217,7 @@ function getType(_modName, _ns: GirNamespace, param: any): Type {
     }
   } else if (parameter.type && parameter.type[0] && parameter.type[0].$) {
     name = parameter.type[0].$["name"] || "unknown";
-  } else if (parameter.$ && parameter.$.name === "...") {
+  } else if (parameter.varargs || (parameter.$ && parameter.$.name === "...")) {
     isArray = true;
     name = "any";
   } else {
@@ -517,6 +539,10 @@ export class GirClass extends GirBase {
       // Instance Methods
       if (klass.method) {
         for (let method of klass.method) {
+          if (method.$.introspectable && method.$.introspectable === "0") {
+            continue;
+          }
+
           clazz.members.push(
             GirClassFunction.fromXML(modName, ns, method as ClassFunction)
           );
@@ -526,6 +552,10 @@ export class GirClass extends GirBase {
       // Virtual Methods
       if (has_constructor(klass) && klass["virtual-method"]) {
         for (let method of klass["virtual-method"]) {
+          if (method.$.introspectable && method.$.introspectable === "0") {
+            continue;
+          }
+
           clazz.members.push(
             GirVirtualClassFunction.fromXML(modName, ns, method)
           );
@@ -535,6 +565,10 @@ export class GirClass extends GirBase {
       // Static methods (functions)
       if (!is_interface(klass) && klass.function) {
         for (let func of klass.function) {
+          if (func.$.introspectable && func.$.introspectable === "0") {
+            continue;
+          }
+
           if (func.$["name"] === "newv") continue; // TODO
           clazz.members.push(
             GirStaticClassFunction.fromXML(modName, ns, func as ClassFunction)
@@ -547,6 +581,10 @@ export class GirClass extends GirBase {
       // Properties
       if (has_props(klass) && klass.property) {
         for (let prop of klass.property) {
+          if (prop.$.introspectable && prop.$.introspectable === "0") {
+            continue;
+          }
+
           const property = GirProperty.fromXML(modName, ns, prop);
           if (
             !clazz.members.some(n => n.name === property.name) &&
@@ -568,6 +606,19 @@ export class GirClass extends GirBase {
       // Fields (for "non-class" records)
       if (!has_constructor(klass) && has_field(klass) && klass.field) {
         for (let field of klass.field) {
+          if (field.$.introspectable && field.$.introspectable === "0") {
+            continue;
+          }
+
+          // TODO investigate these field callbacks.
+          if (field.callback) {
+            continue;
+          }
+
+          if (field.$.name.startsWith("_")) {
+            continue;
+          }
+
           const property = GirProperty.fromXML(modName, ns, field);
           if (
             !clazz.members.some(n => n.name === property.name) &&
@@ -635,7 +686,7 @@ export class GirClass extends GirBase {
     } ${name} ${this.extends(modName, registry)}${this.implements()} {${
       this.isInterface() || this.isForeign()
         ? ""
-        : "constructor(config?: properties);\n"
+        : "\nconstructor(config?: properties);\n"
     }
 ${this.props
   .filter(p => p.name)
@@ -678,7 +729,7 @@ ${this.props
           // constructor with the "never" type. This overloads the child constructor
           // and makes it compatible with the parent but because you can never
           // use a never type, when a user tries to use the constructor it
-          // defaults to the correct one.          
+          // defaults to the correct one.
           const conflicts = resolved_parents.some(resolved_parent =>
             resolved_parent.constructors.some(
               p =>
@@ -1041,6 +1092,7 @@ export class GirNamespace extends GirBase {
  * ${name.toLowerCase()}.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
 
     // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
@@ -1110,14 +1162,16 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
     if (ns.constant)
       building.members.push(
         ...ns.constant
-          .filter(b => !b.introspectable || b.introspectable !== "0")
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
           .map(constant => GirConst.fromXML(modName, building, constant))
       );
 
     // Get the requested functions
     if (ns.function)
       building.members.push(
-        ...ns.function.map(func => GirFunction.fromXML(modName, building, func))
+        ...ns.function
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+          .map(func => GirFunction.fromXML(modName, building, func))
       );
 
     if (ns.enumeration)
@@ -1131,7 +1185,7 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
     if (ns.alias) {
       building.members.push(
         ...ns.alias
-          .filter(b => !b.introspectable || b.introspectable !== "0")
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
           .map(alias => GirAlias.fromXML(modName, building, alias))
       );
     }
@@ -1140,7 +1194,7 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
     if (ns.bitfield)
       building.members.push(
         ...ns.bitfield
-          .filter(b => !b.introspectable || b.introspectable !== "0")
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
           .map(field => GirEnum.fromXML(modName, building, field))
       );
 
@@ -1148,21 +1202,25 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
     if (ns.class)
       building.members.push(
         ...ns.class
-          .filter(b => !b.introspectable || b.introspectable !== "0")
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
           .map(klass => GirClass.fromXML(modName, building, klass))
       );
 
     if (ns.record)
       building.members.push(
         ...ns.record
-          .filter(b => !b.introspectable || b.introspectable !== "0")
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+          // _ marks these records as private.
+          .filter(b => !b.$.name.startsWith("_"))
+          // Don't generate records for structs
+          .filter(b => typeof b.$["glib:is-gtype-struct-for"] !== "string")
           .map(record => GirClass.fromXML(modName, building, record))
       );
 
     if (ns.union) {
       building.members.push(
         ...ns.union
-          .filter(b => !b.introspectable || b.introspectable !== "0")
+          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
           .map(union => GirClass.fromXML(modName, building, union))
       );
     }

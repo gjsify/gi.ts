@@ -7,8 +7,7 @@ type Parameter<T> = [
 ];
 
 type Element<T> = {
-  $: T;
-  introspectable?: "0" | "1";
+  $: T & { introspectable?: "0" | "1" };
 };
 
 export interface GirXML {
@@ -99,7 +98,6 @@ export interface AliasType {
 }
 
 export interface BitfieldElement extends Element<Bitfield> {
-  $: Bitfield;
   doc?: DocElement[];
   member: MemberElement[];
 }
@@ -126,8 +124,7 @@ export interface Member {
   "glib:nick": string;
 }
 
-export interface NamespaceCallback {
-  $: Constant;
+export interface NamespaceCallback extends Element<Constant> {
   "source-position": SourcePositionElement[];
   "return-value": FunctionReturnValue[];
   parameters: Parameter<CallbackParameter>;
@@ -399,8 +396,7 @@ export interface ClassMethodReturnValue {
   array?: Arrays[];
 }
 
-export interface ClassProperty {
-  $: Property;
+export interface ClassProperty extends Element<Property> {
   doc?: DocElement[];
   array?: PropertyArray[];
   type?: ParameterType[];
@@ -459,7 +455,6 @@ export interface ClassVirtualMethodParameter {
 }
 
 export interface ConstantElement extends Element<Constant> {
-  $: Constant;
   doc?: DocElement[];
   "source-position": SourcePositionElement[];
   type: AliasType[];
@@ -549,8 +544,7 @@ export interface InterfaceMethodParameter {
   parameter?: ClassMethodParameter[];
 }
 
-export interface InterfaceProperty {
-  $: Property;
+export interface InterfaceProperty extends Element<Property> {
   type: AliasType[];
   doc?: DocElement[];
 }
@@ -570,7 +564,6 @@ export interface InterfaceVirtualMethodParameter {
 }
 
 export interface RecordElement extends Element<Record> {
-  $: Record;
   "source-position": SourcePositionElement[];
   field?: RecordField[];
   doc?: DocElement[];

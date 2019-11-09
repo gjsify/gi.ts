@@ -7,6 +7,7 @@ import * as Zeitgeist from "zeitgeist";
  * zeitgeist.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const SIG_DATASOURCES: string;
 export const SECOND: number;
 export const MINUTE: number;
@@ -343,367 +344,291 @@ export enum DataModelError {
     NULL_EVENT = 1,
     TOO_MANY_RESULTS = 2,
 }
-export class DataSourceRegistry extends QueuedProxyWrapper {constructor(config?: properties);
-get_data_sources(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-get_data_sources_finish(_res_: Gio.AsyncResult): DataSource[];
-get_data_source_from_id(unique_id: string, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-get_data_source_from_id_finish(_res_: Gio.AsyncResult): DataSource;
-register_data_source(data_source: DataSource, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-register_data_source_finish(_res_: Gio.AsyncResult): boolean;
-set_data_source_enabled(unique_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-set_data_source_enabled_finish(_res_: Gio.AsyncResult): void;
+export class DataSourceRegistry extends QueuedProxyWrapper {
+    constructor(config?: properties);
+    get_data_sources(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_data_sources_finish(_res_: Gio.AsyncResult): DataSource[];
+    get_data_source_from_id(unique_id: string, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_data_source_from_id_finish(_res_: Gio.AsyncResult): DataSource;
+    register_data_source(data_source: DataSource, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    register_data_source_finish(_res_: Gio.AsyncResult): boolean;
+    set_data_source_enabled(unique_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    set_data_source_enabled_finish(_res_: Gio.AsyncResult): void;
 }
-export class Index extends QueuedProxyWrapper {constructor(config?: properties);
-search(query: string, time_range: TimeRange, event_templates: Event[], offset: number, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-search_finish(_res_: Gio.AsyncResult): ResultSet;
-search_with_relevancies(query: string, time_range: TimeRange, event_templates: Event[], storage_state: StorageState, offset: number, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-search_with_relevancies_finish(_res_: Gio.AsyncResult): [ResultSet, number[],number];
+export class Index extends QueuedProxyWrapper {
+    constructor(config?: properties);
+    search(query: string, time_range: TimeRange, event_templates: Event[], offset: number, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    search_finish(_res_: Gio.AsyncResult): ResultSet;
+    search_with_relevancies(query: string, time_range: TimeRange, event_templates: Event[], storage_state: StorageState, offset: number, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    search_with_relevancies_finish(_res_: Gio.AsyncResult): [ResultSet, number[],number];
 }
-export class Log extends QueuedProxyWrapper {constructor(config?: properties);
-insert_event(event: Event, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-insert_event_finish(_res_: Gio.AsyncResult): number[];
-insert_events(events: Event[], cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-insert_events_finish(_res_: Gio.AsyncResult): number[];
-insert_event_no_reply(event: Event): void;
-insert_events_no_reply(events: Event[]): void;
-find_events(time_range: TimeRange, event_templates: Event[], storage_state: StorageState, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-find_events_finish(_res_: Gio.AsyncResult): ResultSet;
-find_event_ids(time_range: TimeRange, event_templates: Event[], storage_state: StorageState, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-find_event_ids_finish(_res_: Gio.AsyncResult): [number[], number];
-get_events(event_ids: number[], cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-get_events_finish(_res_: Gio.AsyncResult): ResultSet;
-find_related_uris(time_range: TimeRange, event_templates: Event[], result_event_templates: Event[], storage_state: StorageState, num_events: number, result_type: RelevantResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-find_related_uris_finish(_res_: Gio.AsyncResult): [string[], number];
-delete_events(event_ids: number[], cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-delete_events_finish(_res_: Gio.AsyncResult): TimeRange;
-quit(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-quit_finish(_res_: Gio.AsyncResult): void;
-install_monitor(monitor: Monitor): void;
-remove_monitor(monitor: Monitor): void;
-get_version(): [number,number,number];
-get_extensions(): [string[], number];
-datapath(): string;
-static get_default(): Log;
+export class Log extends QueuedProxyWrapper {
+    constructor(config?: properties);
+    insert_event(event: Event, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    insert_event_finish(_res_: Gio.AsyncResult): number[];
+    insert_events(events: Event[], cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    insert_events_finish(_res_: Gio.AsyncResult): number[];
+    insert_event_no_reply(event: Event): void;
+    insert_events_no_reply(events: Event[]): void;
+    find_events(time_range: TimeRange, event_templates: Event[], storage_state: StorageState, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_events_finish(_res_: Gio.AsyncResult): ResultSet;
+    find_event_ids(time_range: TimeRange, event_templates: Event[], storage_state: StorageState, num_events: number, result_type: ResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_event_ids_finish(_res_: Gio.AsyncResult): [number[], number];
+    get_events(event_ids: number[], cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_events_finish(_res_: Gio.AsyncResult): ResultSet;
+    find_related_uris(time_range: TimeRange, event_templates: Event[], result_event_templates: Event[], storage_state: StorageState, num_events: number, result_type: RelevantResultType, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_related_uris_finish(_res_: Gio.AsyncResult): [string[], number];
+    delete_events(event_ids: number[], cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    delete_events_finish(_res_: Gio.AsyncResult): TimeRange;
+    quit(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    quit_finish(_res_: Gio.AsyncResult): void;
+    install_monitor(monitor: Monitor): void;
+    remove_monitor(monitor: Monitor): void;
+    get_version(): [number,number,number];
+    get_extensions(): [string[], number];
+    datapath(): string;
+    static get_default(): Log;
 }
-export class Monitor extends GObject.Object {constructor(config?: properties);
-time_range: TimeRange;
-event_templates: Event[];
-get_templates(): Event[];
-get_path(): GLib.ObjectPath;
-get_time_range(): TimeRange;
-set_time_range(value: TimeRange): void;
-get_event_templates(): Event[];
-set_event_templates(value: Event[]): void;
+export class Monitor extends GObject.Object {
+    constructor(config?: properties);
+    time_range: TimeRange;
+    event_templates: Event[];
+    get_templates(): Event[];
+    get_path(): GLib.ObjectPath;
+    get_time_range(): TimeRange;
+    set_time_range(value: TimeRange): void;
+    get_event_templates(): Event[];
+    set_event_templates(value: Event[]): void;
 }
-export class QueuedProxyWrapper  {constructor(config?: properties);
-proxy_created: boolean;
-is_connected: boolean;
-readonly priv: QueuedProxyWrapperPrivate;
-proxy_acquired(proxy: GObject.Object): void;
-proxy_unavailable(err: Gio.IOErrorEnum): void;
-process_queued_methods(): void;
-name_owner_changed(pspec: GObject.ParamSpec): void;
-on_connection_established(): void;
-on_connection_lost(): void;
-wait_for_proxy(_callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-wait_for_proxy_finish(_res_: Gio.AsyncResult): void;
-get_proxy_created(): boolean;
-get_is_connected(): boolean;
+export class QueuedProxyWrapper  {
+    constructor(config?: properties);
+    proxy_created: boolean;
+    is_connected: boolean;
+    readonly priv: QueuedProxyWrapperPrivate;
+    proxy_acquired(proxy: GObject.Object): void;
+    proxy_unavailable(err: Gio.IOErrorEnum): void;
+    process_queued_methods(): void;
+    name_owner_changed(pspec: GObject.ParamSpec): void;
+    on_connection_established(): void;
+    on_connection_lost(): void;
+    wait_for_proxy(_callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    wait_for_proxy_finish(_res_: Gio.AsyncResult): void;
+    get_proxy_created(): boolean;
+    get_is_connected(): boolean;
 }
-export class DataSource extends GObject.Object {constructor(config?: properties);
-unique_id: string;
-name: string;
-description: string;
-event_templates: Event[];
-enabled: boolean;
-running: boolean;
-timestamp: number;static full(unique_id: string, name: string, description: string, templates: Event[] | null): DataSource;
-static from_variant(variant: GLib.Variant, reset_running: boolean): DataSource;
-to_variant(): GLib.Variant;
-get_unique_id(): string;
-set_unique_id(value: string): void;
-get_name(): string;
-set_name(value: string): void;
-get_description(): string;
-set_description(value: string): void;
-get_event_templates(): Event[] | null;
-set_event_templates(value: Event[] | null): void;
-get_enabled(): boolean;
-set_enabled(value: boolean): void;
-get_running(): boolean;
-set_running(value: boolean): void;
-get_timestamp(): number;
-set_timestamp(value: number): void;
+export class DataSource extends GObject.Object {
+    constructor(config?: properties);
+    unique_id: string;
+    name: string;
+    description: string;
+    event_templates: Event[];
+    enabled: boolean;
+    running: boolean;
+    timestamp: number;static full(unique_id: string, name: string, description: string, templates: Event[] | null): DataSource;
+    static from_variant(variant: GLib.Variant, reset_running: boolean): DataSource;
+    to_variant(): GLib.Variant;
+    get_unique_id(): string;
+    set_unique_id(value: string): void;
+    get_name(): string;
+    set_name(value: string): void;
+    get_description(): string;
+    set_description(value: string): void;
+    get_event_templates(): Event[] | null;
+    set_event_templates(value: Event[] | null): void;
+    get_enabled(): boolean;
+    set_enabled(value: boolean): void;
+    get_running(): boolean;
+    set_running(value: boolean): void;
+    get_timestamp(): number;
+    set_timestamp(value: number): void;
 }
-export class Event extends GObject.Object {constructor(config?: properties);
-id: number;
-timestamp: number;
-origin: string;
-actor: string;
-interpretation: string;
-manifestation: string;
-subjects: Subject[];
-payload: GLib.ByteArray;static full(interpretation: string | null, manifestation: string | null, actor: string | null, origin: string | null, ___: unknown[]): Event;
-static from_variant(event_variant: GLib.Variant): Event;
-get_subject(index: number): Subject;
-num_subjects(): number;
-add_subject(subject: Subject): void;
-take_subject(subject: Subject): void;
-set_actor_from_app_info(info: Gio.AppInfo): void;
-to_variant(): GLib.Variant;
-debug_print(): void;
-matches_template(template_event: Event): boolean;
-get_id(): number;
-set_id(value: number): void;
-get_timestamp(): number;
-set_timestamp(value: number): void;
-get_origin(): string | null;
-set_origin(value: string | null): void;
-get_actor(): string | null;
-set_actor(value: string | null): void;
-get_interpretation(): string | null;
-set_interpretation(value: string | null): void;
-get_manifestation(): string | null;
-set_manifestation(value: string | null): void;
-get_subjects(): Subject[];
-set_subjects(value: Subject[]): void;
-get_payload(): GLib.ByteArray | null;
-set_payload(value: GLib.ByteArray | null): void;
+export class Event extends GObject.Object {
+    constructor(config?: properties);
+    id: number;
+    timestamp: number;
+    origin: string;
+    actor: string;
+    interpretation: string;
+    manifestation: string;
+    subjects: Subject[];
+    payload: GLib.ByteArray;static full(interpretation: string | null, manifestation: string | null, actor: string | null, origin: string | null, ___: any): Event;
+    static from_variant(event_variant: GLib.Variant): Event;
+    get_subject(index: number): Subject;
+    num_subjects(): number;
+    add_subject(subject: Subject): void;
+    take_subject(subject: Subject): void;
+    set_actor_from_app_info(info: Gio.AppInfo): void;
+    to_variant(): GLib.Variant;
+    debug_print(): void;
+    matches_template(template_event: Event): boolean;
+    get_id(): number;
+    set_id(value: number): void;
+    get_timestamp(): number;
+    set_timestamp(value: number): void;
+    get_origin(): string | null;
+    set_origin(value: string | null): void;
+    get_actor(): string | null;
+    set_actor(value: string | null): void;
+    get_interpretation(): string | null;
+    set_interpretation(value: string | null): void;
+    get_manifestation(): string | null;
+    set_manifestation(value: string | null): void;
+    get_subjects(): Subject[];
+    set_subjects(value: Subject[]): void;
+    get_payload(): GLib.ByteArray | null;
+    set_payload(value: GLib.ByteArray | null): void;
 }
-export class Subject extends GObject.Object {constructor(config?: properties);
-uri: string;
-origin: string;
-text: string;
-storage: string;
-current_uri: string;
-current_origin: string;
-mimetype: string;
-interpretation: string;
-manifestation: string;static full(uri: string | null, interpretation: string | null, manifestation: string | null, mimetype: string | null, origin: string | null, text: string | null, storage: string | null): Subject;
-static move_event(source_uri: string | null, source_origin: string | null, destination_uri: string | null, destination_origin: string | null, interpretation: string | null, manifestation: string | null, mimetype: string | null, text: string | null, storage: string | null): Subject;
-static from_variant(subject_variant: GLib.Variant): Subject;
-to_variant(): GLib.Variant;
-matches_template(template_subject: Subject): boolean;
-get_uri(): string | null;
-set_uri(value: string | null): void;
-get_origin(): string | null;
-set_origin(value: string | null): void;
-get_text(): string | null;
-set_text(value: string | null): void;
-get_storage(): string | null;
-set_storage(value: string | null): void;
-get_current_uri(): string | null;
-set_current_uri(value: string | null): void;
-get_current_origin(): string | null;
-set_current_origin(value: string | null): void;
-get_mimetype(): string | null;
-set_mimetype(value: string | null): void;
-get_interpretation(): string | null;
-set_interpretation(value: string | null): void;
-get_manifestation(): string | null;
-set_manifestation(value: string | null): void;
+export class Subject extends GObject.Object {
+    constructor(config?: properties);
+    uri: string;
+    origin: string;
+    text: string;
+    storage: string;
+    current_uri: string;
+    current_origin: string;
+    mimetype: string;
+    interpretation: string;
+    manifestation: string;static full(uri: string | null, interpretation: string | null, manifestation: string | null, mimetype: string | null, origin: string | null, text: string | null, storage: string | null): Subject;
+    static move_event(source_uri: string | null, source_origin: string | null, destination_uri: string | null, destination_origin: string | null, interpretation: string | null, manifestation: string | null, mimetype: string | null, text: string | null, storage: string | null): Subject;
+    static from_variant(subject_variant: GLib.Variant): Subject;
+    to_variant(): GLib.Variant;
+    matches_template(template_subject: Subject): boolean;
+    get_uri(): string | null;
+    set_uri(value: string | null): void;
+    get_origin(): string | null;
+    set_origin(value: string | null): void;
+    get_text(): string | null;
+    set_text(value: string | null): void;
+    get_storage(): string | null;
+    set_storage(value: string | null): void;
+    get_current_uri(): string | null;
+    set_current_uri(value: string | null): void;
+    get_current_origin(): string | null;
+    set_current_origin(value: string | null): void;
+    get_mimetype(): string | null;
+    set_mimetype(value: string | null): void;
+    get_interpretation(): string | null;
+    set_interpretation(value: string | null): void;
+    get_manifestation(): string | null;
+    set_manifestation(value: string | null): void;
 }
-export class TimeRange extends GObject.Object {constructor(config?: properties);
-start: number;
-end: number;static anytime(): TimeRange;
-static to_now(): TimeRange;
-static from_now(): TimeRange;
-static from_variant(variant: GLib.Variant): TimeRange;
-to_variant(): GLib.Variant;
-intersect(time_range: TimeRange): TimeRange | null;
-get_start(): number;
-get_end(): number;
+export class TimeRange extends GObject.Object {
+    constructor(config?: properties);
+    start: number;
+    end: number;static anytime(): TimeRange;
+    static to_now(): TimeRange;
+    static from_now(): TimeRange;
+    static from_variant(variant: GLib.Variant): TimeRange;
+    to_variant(): GLib.Variant;
+    intersect(time_range: TimeRange): TimeRange | null;
+    get_start(): number;
+    get_end(): number;
 }
-export class SimpleResultSet extends GObject.Object {constructor(config?: properties);
-static with_num_matches(events: Event[], matches: number): SimpleResultSet;
+export class SimpleResultSet extends GObject.Object {
+    constructor(config?: properties);
+    static with_num_matches(events: Event[], matches: number): SimpleResultSet;
 }
-export class DataSourceRegistryClass  {constructor(config?: properties);
-readonly parent_class: QueuedProxyWrapperClass;
+export class DataSourceRegistryPrivate  {
+    constructor(config?: properties);
 }
-export class DataSourceRegistryPrivate  {constructor(config?: properties);
+export class IndexPrivate  {
+    constructor(config?: properties);
 }
-export class IndexClass  {constructor(config?: properties);
-readonly parent_class: QueuedProxyWrapperClass;
+export class LogPrivate  {
+    constructor(config?: properties);
 }
-export class IndexPrivate  {constructor(config?: properties);
+export class MonitorPrivate  {
+    constructor(config?: properties);
 }
-export class LogClass  {constructor(config?: properties);
-readonly parent_class: QueuedProxyWrapperClass;
+export class QueuedProxyWrapperPrivate  {
+    constructor(config?: properties);
 }
-export class LogPrivate  {constructor(config?: properties);
+export class QueuedProxyWrapperQueuedMethod  {
+    constructor(config?: properties);
+    queued_method: GLib.SourceFunc;
+    get_queued_method(): [GLib.SourceFunc, object | null];
 }
-export class MonitorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class DataSourcePrivate  {
+    constructor(config?: properties);
 }
-export class MonitorPrivate  {constructor(config?: properties);
+export class EventPrivate  {
+    constructor(config?: properties);
 }
-export class QueuedProxyWrapperClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly on_connection_established: unknown;
-readonly on_connection_lost: unknown;
+export class SubjectPrivate  {
+    constructor(config?: properties);
 }
-export class QueuedProxyWrapperPrivate  {constructor(config?: properties);
+export class TimeRangePrivate  {
+    constructor(config?: properties);
 }
-export class QueuedProxyWrapperQueuedMethod  {constructor(config?: properties);
-queued_method: GLib.SourceFunc;
-get_queued_method(): [GLib.SourceFunc, object | null];
+export class SimpleResultSetPrivate  {
+    constructor(config?: properties);
 }
-export class DataSourceClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class DataSourcePrivate  {constructor(config?: properties);
-}
-export class EventClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class EventPrivate  {constructor(config?: properties);
-}
-export class SubjectClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class SubjectPrivate  {constructor(config?: properties);
-}
-export class TimeRangeClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class TimeRangePrivate  {constructor(config?: properties);
-}
-export class SimpleResultSetClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class SimpleResultSetPrivate  {constructor(config?: properties);
-}
-export class RemoteRegistryIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly get_data_sources: unknown;
-readonly get_data_sources_finish: unknown;
-readonly register_data_source: unknown;
-readonly register_data_source_finish: unknown;
-readonly set_data_source_enabled: unknown;
-readonly set_data_source_enabled_finish: unknown;
-readonly get_data_source_from_id: unknown;
-readonly get_data_source_from_id_finish: unknown;
-}
-export class RemoteLogIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly delete_events: unknown;
-readonly delete_events_finish: unknown;
-readonly find_event_ids: unknown;
-readonly find_event_ids_finish: unknown;
-readonly find_events: unknown;
-readonly find_events_finish: unknown;
-readonly find_related_uris: unknown;
-readonly find_related_uris_finish: unknown;
-readonly get_events: unknown;
-readonly get_events_finish: unknown;
-readonly insert_events: unknown;
-readonly insert_events_finish: unknown;
-readonly install_monitor: unknown;
-readonly install_monitor_finish: unknown;
-readonly remove_monitor: unknown;
-readonly remove_monitor_finish: unknown;
-readonly quit: unknown;
-readonly quit_finish: unknown;
-readonly get_extensions: unknown;
-readonly get_version: unknown;
-readonly get_datapath: unknown;
-}
-export class RemoteMonitorIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly notify_insert: unknown;
-readonly notify_insert_finish: unknown;
-readonly notify_delete: unknown;
-readonly notify_delete_finish: unknown;
-}
-export class RemoteSimpleIndexerIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly search: unknown;
-readonly search_finish: unknown;
-readonly search_with_relevancies: unknown;
-readonly search_with_relevancies_finish: unknown;
-}
-export class NetworkManagerDBusIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly state: unknown;
-}
-export class ConnmanManagerDBusIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly get_state: unknown;
-}
-export class ResultSetIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly size: unknown;
-readonly estimated_matches: unknown;
-readonly next_value: unknown;
-readonly has_next: unknown;
-readonly tell: unknown;
-readonly reset: unknown;
-}
-export class VersionStruct  {constructor(config?: properties);
-readonly major: number;
-readonly minor: number;
-readonly micro: number;
+export class VersionStruct  {
+    constructor(config?: properties);
+    readonly major: number;
+    readonly minor: number;
+    readonly micro: number;
 }
 export interface RemoteRegistry  {
-get_data_sources(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-get_data_sources_finish(_res_: Gio.AsyncResult): GLib.Variant;
-register_data_source(unique_id: string, name: string, description: string, event_templates: GLib.Variant, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-register_data_source_finish(_res_: Gio.AsyncResult): boolean;
-set_data_source_enabled(unique_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-set_data_source_enabled_finish(_res_: Gio.AsyncResult): void;
-get_data_source_from_id(unique_id: string, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-get_data_source_from_id_finish(_res_: Gio.AsyncResult): GLib.Variant;
+    get_data_sources(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_data_sources_finish(_res_: Gio.AsyncResult): GLib.Variant;
+    register_data_source(unique_id: string, name: string, description: string, event_templates: GLib.Variant, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    register_data_source_finish(_res_: Gio.AsyncResult): boolean;
+    set_data_source_enabled(unique_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    set_data_source_enabled_finish(_res_: Gio.AsyncResult): void;
+    get_data_source_from_id(unique_id: string, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_data_source_from_id_finish(_res_: Gio.AsyncResult): GLib.Variant;
 }
 export interface RemoteLog  {
-readonly extensions: string[];
-readonly version: VersionStruct;
-readonly datapath: string;
-delete_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-delete_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
-find_event_ids(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-find_event_ids_finish(_res_: Gio.AsyncResult): [number[], number];
-find_events(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-find_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
-find_related_uris(time_range: GLib.Variant, event_templates: GLib.Variant, result_event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-find_related_uris_finish(_res_: Gio.AsyncResult): [string[], number];
-get_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-get_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
-insert_events(events: GLib.Variant, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-insert_events_finish(_res_: Gio.AsyncResult): [number[], number];
-install_monitor(monitor_path: GLib.ObjectPath, time_range: GLib.Variant, event_templates: GLib.Variant, owner: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-install_monitor_finish(_res_: Gio.AsyncResult): void;
-remove_monitor(monitor_path: GLib.ObjectPath, owner: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-remove_monitor_finish(_res_: Gio.AsyncResult): void;
-quit(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-quit_finish(_res_: Gio.AsyncResult): void;
-get_extensions(): [string[], number];
-get_version(): [VersionStruct];
-get_datapath(): string;
+    readonly extensions: string[];
+    readonly version: VersionStruct;
+    readonly datapath: string;
+    delete_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    delete_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
+    find_event_ids(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_event_ids_finish(_res_: Gio.AsyncResult): [number[], number];
+    find_events(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
+    find_related_uris(time_range: GLib.Variant, event_templates: GLib.Variant, result_event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_related_uris_finish(_res_: Gio.AsyncResult): [string[], number];
+    get_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
+    insert_events(events: GLib.Variant, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    insert_events_finish(_res_: Gio.AsyncResult): [number[], number];
+    install_monitor(monitor_path: GLib.ObjectPath, time_range: GLib.Variant, event_templates: GLib.Variant, owner: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    install_monitor_finish(_res_: Gio.AsyncResult): void;
+    remove_monitor(monitor_path: GLib.ObjectPath, owner: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    remove_monitor_finish(_res_: Gio.AsyncResult): void;
+    quit(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    quit_finish(_res_: Gio.AsyncResult): void;
+    get_extensions(): [string[], number];
+    get_version(): [VersionStruct];
+    get_datapath(): string;
 }
 export interface RemoteMonitor  {
-notify_insert(time_range: GLib.Variant, events: GLib.Variant, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-notify_insert_finish(_res_: Gio.AsyncResult): void;
-notify_delete(time_range: GLib.Variant, event_ids: number[], event_ids_length1: number, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-notify_delete_finish(_res_: Gio.AsyncResult): void;
+    notify_insert(time_range: GLib.Variant, events: GLib.Variant, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    notify_insert_finish(_res_: Gio.AsyncResult): void;
+    notify_delete(time_range: GLib.Variant, event_ids: number[], event_ids_length1: number, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    notify_delete_finish(_res_: Gio.AsyncResult): void;
 }
 export interface RemoteSimpleIndexer  {
-search(query_string: string, time_range: GLib.Variant, filter_templates: GLib.Variant, offset: number, count: number, result_type: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-search_finish(_res_: Gio.AsyncResult): [GLib.Variant,number];
-search_with_relevancies(query_string: string, time_range: GLib.Variant, filter_templates: GLib.Variant, storage_state: number, offset: number, count: number, result_type: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-search_with_relevancies_finish(_res_: Gio.AsyncResult): [GLib.Variant,number[],number,number];
+    search(query_string: string, time_range: GLib.Variant, filter_templates: GLib.Variant, offset: number, count: number, result_type: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    search_finish(_res_: Gio.AsyncResult): [GLib.Variant,number];
+    search_with_relevancies(query_string: string, time_range: GLib.Variant, filter_templates: GLib.Variant, storage_state: number, offset: number, count: number, result_type: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    search_with_relevancies_finish(_res_: Gio.AsyncResult): [GLib.Variant,number[],number,number];
 }
 export interface NetworkManagerDBus  {
-state(): number;
+    state(): number;
 }
 export interface ConnmanManagerDBus  {
-get_state(): string;
+    get_state(): string;
 }
 export interface ResultSet  {
-size(): number;
-estimated_matches(): number;
-next_value(): Event | null;
-has_next(): boolean;
-tell(): number;
-reset(): void;
-iterator(): ResultSet;
+    size(): number;
+    estimated_matches(): number;
+    next_value(): Event | null;
+    has_next(): boolean;
+    tell(): number;
+    reset(): void;
+    iterator(): ResultSet;
 }
