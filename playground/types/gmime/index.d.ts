@@ -7,6 +7,7 @@ import * as GMime from "gmime";
  * gmime.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type HeaderForeachFunc = (name: string, value: string, user_data: object | null) => void;
 export type HeaderWriter = (stream: Stream, name: string, value: string) => number;
 export type ObjectForeachFunc = (parent: Object, part: Object, user_data: object | null) => void;
@@ -158,11 +159,6 @@ export function encoding_uuencode_close(inbuf: number, inlen: number, outbuf: nu
  */
 export function encoding_uuencode_step(inbuf: number, inlen: number, outbuf: number, uubuf: number, state: number, save: number): number;
 /**
- * Closes the iconv descriptor @cd.
- * See the manual page for iconv_close(3) for further details.
- */
-export function iconv_close(cd: unknown): number;
-/**
  * Initialize GMime's iconv cache. This *MUST* be called before any
  * gmime-iconv interfaces will work correctly.
  * Note: this function is called for you by g_mime_init().
@@ -178,30 +174,10 @@ export function iconv_locale_to_utf8(str: string): string;
  */
 export function iconv_locale_to_utf8_length(str: string, n: number): string;
 /**
- * Allocates a coversion descriptor suitable for converting byte
- * sequences from charset @from to charset @to. The resulting
- * descriptor can be used with iconv() (or the g_mime_iconv() wrapper) an
- * y
- * number of times until closed using g_mime_iconv_close().
- * See the manual page for iconv_open(3) for further details.
- */
-export function iconv_open(to: string, from: string): unknown;
-/**
  * Frees internal iconv caches created in g_mime_iconv_init().
  * Note: this function is called for you by g_mime_shutdown().
  */
 export function iconv_shutdown(): void;
-/**
- * Allocates a new string buffer containing @str converted to the
- * destination charset described in @cd.
- */
-export function iconv_strdup(cd: unknown, str: string): string;
-/**
- * Allocates a new string buffer containing the first @n bytes of @str
- * converted to the destination charset as described by the conversion
- * descriptor @cd.
- */
-export function iconv_strndup(cd: unknown, str: string, n: number): string;
 /**
  * Allocates a new string buffer containing @str converted to the
  * user's locale charset.
@@ -307,11 +283,6 @@ export function utils_header_fold(header: string): string;
  * string represented by @time and @tz_offset.
  */
 export function utils_header_format_date(date: number, tz_offset: number): string;
-/**
- * Allocates a buffer containing a formatted header specified by the
- * @Varargs.
- */
-export function utils_header_printf(format: string, ___: unknown[]): string;
 /**
  * Quotes @string as needed according to the rules in rfc2045.
  */
@@ -464,758 +435,607 @@ export enum SignatureError {
     REVKEYSIG = 8,
     UNSUPP_ALGO = 16,
 }
-export class Certificate extends GObject.Object {constructor(config?: properties);
-get_created(): number;
-get_digest_algo(): DigestAlgo;
-get_email(): string;
-get_expires(): number;
-get_fingerprint(): string;
-get_issuer_name(): string;
-get_issuer_serial(): string;
-get_key_id(): string;
-get_name(): string;
-get_pubkey_algo(): PubKeyAlgo;
-get_trust(): CertificateTrust;
-set_created(created: number): void;
-set_digest_algo(algo: DigestAlgo): void;
-set_email(email: string): void;
-set_expires(expires: number): void;
-set_fingerprint(fingerprint: string): void;
-set_issuer_name(issuer_name: string): void;
-set_issuer_serial(issuer_serial: string): void;
-set_key_id(key_id: string): void;
-set_name(name: string): void;
-set_pubkey_algo(algo: PubKeyAlgo): void;
-set_trust(trust: CertificateTrust): void;
-}
-export class CertificateList extends GObject.Object {constructor(config?: properties);
-add(cert: Certificate): number;
-clear(): void;
-contains(cert: Certificate): boolean;
-get_certificate(index: number): Certificate;
-index_of(cert: Certificate): number;
-insert(index: number, cert: Certificate): void;
-length(): number;
-remove(cert: Certificate): boolean;
-remove_at(index: number): boolean;
-set_certificate(index: number, cert: Certificate): void;
-}
-export class ContentDisposition extends GObject.Object {constructor(config?: properties);
-static new_from_string(str: string): ContentDisposition;
-get_disposition(): string;
-get_parameter(name: string): string;
-get_params(): Param;
-is_attachment(): boolean;
-set_disposition(value: string): void;
-set_parameter(name: string, value: string): void;
-set_params(params: Param): void;
-to_string(fold: boolean): string;
-}
-export class ContentType extends GObject.Object {constructor(config?: properties);
-static new_from_string(str: string): ContentType;
-get_media_subtype(): string;
-get_media_type(): string;
-get_parameter(name: string): string;
-get_params(): Param;
-is_type(type: string, subtype: string): boolean;
-set_media_subtype(subtype: string): void;
-set_media_type(type: string): void;
-set_parameter(name: string, value: string): void;
-set_params(params: Param): void;
-to_string(): string;
-}
-export class CryptoContext  {constructor(config?: properties);
-readonly parent_object: GObject.Object;
-readonly request_passwd: PasswordRequestFunc;
-decrypt(istream: Stream, ostream: Stream): DecryptResult;
-decrypt_session(session_key: string, istream: Stream, ostream: Stream): DecryptResult;
-digest_id(name: string): DigestAlgo;
-digest_name(digest: DigestAlgo): string;
-encrypt(sign: boolean, userid: string, digest: DigestAlgo, recipients: string[], istream: Stream, ostream: Stream): number;
-export_keys(keys: string[], ostream: Stream): number;
-get_encryption_protocol(): string;
-get_key_exchange_protocol(): string;
-get_retrieve_session_key(): boolean;
-get_signature_protocol(): string;
-import_keys(istream: Stream): number;
-set_request_password(request_passwd: PasswordRequestFunc): void;
-set_retrieve_session_key(retrieve_session_key: boolean): number;
-sign(userid: string, digest: DigestAlgo, istream: Stream, ostream: Stream): number;
-verify(digest: DigestAlgo, istream: Stream, sigstream: Stream): SignatureList;
-}
-export class DataWrapper extends GObject.Object {constructor(config?: properties);
-static new_with_stream(stream: Stream, encoding: ContentEncoding): DataWrapper;
-get_encoding(): ContentEncoding;
-get_stream(): Stream;
-set_encoding(encoding: ContentEncoding): void;
-set_stream(stream: Stream): void;
-write_to_stream(stream: Stream): number;
-vfunc_write_to_stream(stream: Stream): number;
-}
-export class DecryptResult extends GObject.Object {constructor(config?: properties);
-get_cipher(): CipherAlgo;
-get_mdc(): DigestAlgo;
-get_recipients(): CertificateList;
-get_session_key(): string;
-get_signatures(): SignatureList;
-set_cipher(cipher: CipherAlgo): void;
-set_mdc(mdc: DigestAlgo): void;
-set_recipients(recipients: CertificateList): void;
-set_session_key(session_key: string): void;
-set_signatures(signatures: SignatureList): void;
-}
-export class Filter  {constructor(config?: properties);
-readonly parent_object: GObject.Object;
-readonly priv: object;
-readonly outreal: number[];
-readonly outbuf: string;
-readonly outptr: string;
-readonly outsize: number;
-readonly outpre: number;
-readonly backbuf: string;
-readonly backsize: number;
-readonly backlen: number;
-backup(data: number[], length: number): void;
-complete(inbuf: number[], inlen: number, prespace: number): [number[],number,number];
-copy(): Filter;
-filter(inbuf: number[], inlen: number, prespace: number): [number[],number,number];
-reset(): void;
-set_size(size: number, keep: boolean): void;
-}
-export class FilterBasic extends Filter {constructor(config?: properties);
-}
-export class FilterBest extends Filter {constructor(config?: properties);
-charset(): string;
-encoding(constraint: EncodingConstraint): ContentEncoding;
-}
-export class FilterCRLF extends Filter {constructor(config?: properties);
-}
-export class FilterCharset extends Filter {constructor(config?: properties);
-}
-export class FilterEnriched extends Filter {constructor(config?: properties);
-}
-export class FilterFrom extends Filter {constructor(config?: properties);
-}
-export class FilterGZip extends Filter {constructor(config?: properties);
-}
-export class FilterHTML extends Filter {constructor(config?: properties);
-}
-export class FilterMd5 extends Filter {constructor(config?: properties);
-get_digest(digest: number): void;
-}
-export class FilterStrip extends Filter {constructor(config?: properties);
-}
-export class FilterWindows extends Filter {constructor(config?: properties);
-is_windows_charset(): boolean;
-real_charset(): string;
-}
-export class FilterYenc extends Filter {constructor(config?: properties);
-get_crc(): number;
-get_pcrc(): number;
-set_crc(crc: number): void;
-set_state(state: number): void;
-}
-export class GpgContext extends CryptoContext {constructor(config?: properties);
-get_always_trust(): boolean;
-get_auto_key_retrieve(): boolean;
-get_use_agent(): boolean;
-set_always_trust(always_trust: boolean): void;
-set_auto_key_retrieve(auto_key_retrieve: boolean): void;
-set_use_agent(use_agent: boolean): void;
-}
-export class InternetAddress  {constructor(config?: properties);
-readonly parent_object: GObject.Object;
-readonly priv: object;
-readonly name: string;
-get_name(): string;
-set_name(name: string): void;
-to_string(encode: boolean): string;
-}
-export class InternetAddressGroup extends InternetAddress {constructor(config?: properties);
-add_member(member: InternetAddress): number;
-get_members(): InternetAddressList;
-set_members(members: InternetAddressList): void;
-}
-export class InternetAddressList extends GObject.Object {constructor(config?: properties);
-add(ia: InternetAddress): number;
-append(append: InternetAddressList): void;
-clear(): void;
-contains(ia: InternetAddress): boolean;
-get_address(index: number): InternetAddress;
-index_of(ia: InternetAddress): number;
-insert(index: number, ia: InternetAddress): void;
-length(): number;
-prepend(prepend: InternetAddressList): void;
-remove(ia: InternetAddress): boolean;
-remove_at(index: number): boolean;
-set_address(index: number, ia: InternetAddress): void;
-to_string(encode: boolean): string;
-writer(str: GLib.String): void;
-static parse_string(str: string): InternetAddressList;
-}
-export class InternetAddressMailbox extends InternetAddress {constructor(config?: properties);
-get_addr(): string;
-set_addr(addr: string): void;
-}
-export class Message extends Object {constructor(config?: properties);
-add_recipient(type: RecipientType, name: string, addr: string): void;
-foreach(callback: ObjectForeachFunc, user_data: object | null): void;
-get_all_recipients(): InternetAddressList;
-get_body(): Object;
-get_date(): [number,number];
-get_date_as_string(): string;
-get_message_id(): string;
-get_mime_part(): Object;
-get_recipients(type: RecipientType): InternetAddressList;
-get_reply_to(): string;
-get_sender(): string;
-get_subject(): string;
-partial_split_message(max_size: number, nparts: number): Message;
-set_date(date: number, tz_offset: number): void;
-set_date_as_string(str: string): void;
-set_message_id(message_id: string): void;
-set_mime_part(mime_part: Object): void;
-set_reply_to(reply_to: string): void;
-set_sender(sender: string): void;
-set_subject(subject: string): void;
-}
-export class MessagePart extends Object {constructor(config?: properties);
-static new_with_message(subtype: string, message: Message): MessagePart;
-get_message(): Message;
-set_message(message: Message): void;
-}
-export class MessagePartial extends Part {constructor(config?: properties);
-get_id(): string;
-get_number(): number;
-get_total(): number;
-static reconstruct_message(partials: MessagePartial, num: number): Message;
-}
-export class Multipart extends Object {constructor(config?: properties);
-static new_with_subtype(subtype: string): Multipart;
-add(part: Object): void;
-clear(): void;
-contains(part: Object): boolean;
-foreach(callback: ObjectForeachFunc, user_data: object | null): void;
-get_boundary(): string;
-get_count(): number;
-get_part(index: number): Object;
-get_postface(): string;
-get_preface(): string;
-get_subpart_from_content_id(content_id: string): Object;
-index_of(part: Object): number;
-insert(index: number, part: Object): void;
-remove(part: Object): boolean;
-remove_at(index: number): Object;
-replace(index: number, replacement: Object): Object;
-set_boundary(boundary: string): void;
-set_postface(postface: string): void;
-set_preface(preface: string): void;
-vfunc_add(part: Object): void;
-vfunc_clear(): void;
-vfunc_contains(part: Object): boolean;
-vfunc_get_boundary(): string;
-vfunc_get_count(): number;
-vfunc_get_part(index: number): Object;
-vfunc_index_of(part: Object): number;
-vfunc_insert(index: number, part: Object): void;
-vfunc_remove(part: Object): boolean;
-vfunc_remove_at(index: number): Object;
-vfunc_set_boundary(boundary: string): void;
-}
-export class MultipartEncrypted extends Multipart {constructor(config?: properties);
-decrypt(ctx: CryptoContext, result: DecryptResult): Object;
-decrypt_session(ctx: CryptoContext, session_key: string, result: DecryptResult): Object;
-encrypt(content: Object, ctx: CryptoContext, sign: boolean, userid: string, digest: DigestAlgo, recipients: string[]): number;
-}
-export class MultipartSigned extends Multipart {constructor(config?: properties);
-sign(content: Object, ctx: CryptoContext, userid: string, digest: DigestAlgo): number;
-verify(ctx: CryptoContext): SignatureList;
-}
-export class Object extends GObject.Object {constructor(config?: properties);
-static new_type(type: string, subtype: string): Object;
-append_header(header: string, value: string): void;
-encode(constraint: EncodingConstraint): void;
-get_content_disposition(): ContentDisposition;
-get_content_disposition_parameter(name: string): string;
-get_content_id(): string;
-get_content_type(): ContentType;
-get_content_type_parameter(name: string): string;
-get_disposition(): string;
-get_header(header: string): string;
-get_header_list(): HeaderList;
-get_headers(): string;
-prepend_header(header: string, value: string): void;
-remove_header(header: string): boolean;
-set_content_disposition(disposition: ContentDisposition): void;
-set_content_disposition_parameter(name: string, value: string): void;
-set_content_id(content_id: string): void;
-set_content_type(content_type: ContentType): void;
-set_content_type_parameter(name: string, value: string): void;
-set_disposition(disposition: string): void;
-set_header(header: string, value: string): void;
-to_string(): string;
-write_to_stream(stream: Stream): number;
-vfunc_append_header(header: string, value: string): void;
-vfunc_encode(constraint: EncodingConstraint): void;
-vfunc_get_header(header: string): string;
-vfunc_get_headers(): string;
-vfunc_prepend_header(header: string, value: string): void;
-vfunc_remove_header(header: string): boolean;
-vfunc_set_content_type(content_type: ContentType): void;
-vfunc_set_header(header: string, value: string): void;
-vfunc_write_to_stream(stream: Stream): number;
-static register_type(type: string, subtype: string, object_type: unknown): void;
-static type_registry_init(): void;
-static type_registry_shutdown(): void;
-}
-export class Parser extends GObject.Object {constructor(config?: properties);
-static new_with_stream(stream: Stream): Parser;
-construct_message(): Message;
-construct_part(): Object;
-eos(): boolean;
-get_from(): string;
-get_from_offset(): number;
-get_headers_begin(): number;
-get_headers_end(): number;
-get_persist_stream(): boolean;
-get_respect_content_length(): boolean;
-get_scan_from(): boolean;
-init_with_stream(stream: Stream): void;
-set_header_regex(regex: string, header_cb: ParserHeaderRegexFunc, user_data: object | null): void;
-set_persist_stream(persist: boolean): void;
-set_respect_content_length(respect_content_length: boolean): void;
-set_scan_from(scan_from: boolean): void;
-tell(): number;
-}
-export class Part extends Object {constructor(config?: properties);
-static new_with_type(type: string, subtype: string): Part;
-get_best_content_encoding(constraint: EncodingConstraint): ContentEncoding;
-get_content_description(): string;
-get_content_encoding(): ContentEncoding;
-get_content_id(): string;
-get_content_location(): string;
-get_content_md5(): string;
-get_content_object(): DataWrapper;
-get_filename(): string;
-is_attachment(): boolean;
-set_content_description(description: string): void;
-set_content_encoding(encoding: ContentEncoding): void;
-set_content_id(content_id: string): void;
-set_content_location(content_location: string): void;
-set_content_md5(content_md5: string): void;
-set_content_object(content: DataWrapper): void;
-set_filename(filename: string): void;
-verify_content_md5(): boolean;
-vfunc_set_content_object(content: DataWrapper): void;
-}
-export class Pkcs7Context extends CryptoContext {constructor(config?: properties);
-get_always_trust(): boolean;
-set_always_trust(always_trust: boolean): void;
-}
-export class Signature extends GObject.Object {constructor(config?: properties);
-get_certificate(): Certificate;
-get_created(): number;
-get_errors(): SignatureError;
-get_expires(): number;
-get_status(): SignatureStatus;
-set_certificate(cert: Certificate): void;
-set_created(created: number): void;
-set_errors(errors: SignatureError): void;
-set_expires(expires: number): void;
-set_status(status: SignatureStatus): void;
-}
-export class SignatureList extends GObject.Object {constructor(config?: properties);
-add(sig: Signature): number;
-clear(): void;
-contains(sig: Signature): boolean;
-get_signature(index: number): Signature;
-index_of(sig: Signature): number;
-insert(index: number, sig: Signature): void;
-length(): number;
-remove(sig: Signature): boolean;
-remove_at(index: number): boolean;
-set_signature(index: number, sig: Signature): void;
-}
-export class Stream  {constructor(config?: properties);
-readonly parent_object: GObject.Object;
-readonly super_stream: Stream;
-readonly position: number;
-readonly bound_start: number;
-readonly bound_end: number;
-buffer_gets(buf: string, max: number): number;
-buffer_readln(buffer: number[]): void;
-close(): number;
-construct(start: number, end: number): void;
-eos(): boolean;
-flush(): number;
-length(): number;
-printf(fmt: string, ___: unknown[]): number;
-read(buf: number[], len: number): number;
-reset(): number;
-seek(offset: number, whence: SeekWhence): number;
-set_bounds(start: number, end: number): void;
-substream(start: number, end: number): Stream;
-tell(): number;
-write(buf: string, len: number): number;
-write_string(str: string): number;
-write_to_stream(dest: Stream): number;
-writev(vector: StreamIOVector, count: number): number;
-}
-export class StreamBuffer extends Stream {constructor(config?: properties);
-}
-export class StreamCat extends Stream {constructor(config?: properties);
-add_source(source: Stream): number;
-}
-export class StreamFile extends Stream {constructor(config?: properties);
-static new_for_path(path: string, mode: string): Stream;
-static new_with_bounds(fp: object | null, start: number, end: number): Stream;
-get_owner(): boolean;
-set_owner(owner: boolean): void;
-}
-export class StreamFilter extends Stream {constructor(config?: properties);
-add(filter: Filter): number;
-remove(id: number): void;
-}
-export class StreamFs extends Stream {constructor(config?: properties);
-static new_for_path(path: string, flags: number, mode: number): Stream;
-static new_with_bounds(fd: number, start: number, end: number): Stream;
-get_owner(): boolean;
-set_owner(owner: boolean): void;
-}
-export class StreamGIO extends Stream {constructor(config?: properties);
-static new_with_bounds(file: Gio.File, start: number, end: number): Stream;
-get_owner(): boolean;
-set_owner(owner: boolean): void;
-}
-export class StreamMem extends Stream {constructor(config?: properties);
-static new_with_buffer(buffer: number[], len: number): Stream;
-static new_with_byte_array(array: number[]): Stream;
-get_byte_array(): number[];
-get_owner(): boolean;
-set_byte_array(array: number[]): void;
-set_owner(owner: boolean): void;
-}
-export class StreamMmap extends Stream {constructor(config?: properties);
-static new_with_bounds(fd: number, prot: number, flags: number, start: number, end: number): Stream;
-}
-export class StreamNull extends Stream {constructor(config?: properties);
-}
-export class StreamPipe extends Stream {constructor(config?: properties);
-get_owner(): boolean;
-set_owner(owner: boolean): void;
-}
-export class CertificateClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class CertificateListClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class Charset  {constructor(config?: properties);
-mask: number;
-level: number;
-best_name(): string;
-can_encode(charset: string, text: string, len: number): boolean;
-init(): void;
-step(inbuf: string, inlen: number): void;
-static best(inbuf: string, inlen: number): string;
-static canon_name(charset: string): string;
-static iconv_name(charset: string): string;
-static iso_to_windows(isocharset: string): string;
-static language(charset: string): string;
-static locale_name(): string;
-static map_init(): void;
-static map_shutdown(): void;
-static name(charset: string): string;
-}
-export class ContentDispositionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ContentTypeClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class CryptoContextClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly digest_id: unknown;
-readonly digest_name: unknown;
-readonly get_signature_protocol: unknown;
-readonly get_encryption_protocol: unknown;
-readonly get_key_exchange_protocol: unknown;
-readonly sign: unknown;
-readonly verify: unknown;
-readonly encrypt: unknown;
-readonly decrypt: unknown;
-readonly import_keys: unknown;
-readonly export_keys: unknown;
-readonly decrypt_session: unknown;
-readonly get_retrieve_session_key: unknown;
-readonly set_retrieve_session_key: unknown;
-}
-export class DataWrapperClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly write_to_stream: unknown;
-}
-export class DecryptResultClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class Encoding  {constructor(config?: properties);
-encoding: ContentEncoding;
-uubuf: number[];
-encode: boolean;
-save: number;
-state: number;
-flush(inbuf: string, inlen: number, outbuf: string): number;
-init_decode(encoding: ContentEncoding): void;
-init_encode(encoding: ContentEncoding): void;
-outlen(inlen: number): number;
-reset(): void;
-step(inbuf: string, inlen: number, outbuf: string): number;
-static base64_decode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static base64_encode_close(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static base64_encode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static quoted_decode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static quoted_encode_close(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static quoted_encode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static uudecode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
-static uuencode_close(inbuf: number, inlen: number, outbuf: number, uubuf: number, state: number, save: number): number;
-static uuencode_step(inbuf: number, inlen: number, outbuf: number, uubuf: number, state: number, save: number): number;
-}
-export class FilterBasicClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterBestClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterCRLFClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterCharsetClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly copy: unknown;
-readonly filter: unknown;
-readonly complete: unknown;
-readonly reset: unknown;
-}
-export class FilterEnrichedClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterFromClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterGZipClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterHTMLClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterMd5Class  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterStripClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterWindowsClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class FilterYencClass  {constructor(config?: properties);
-readonly parent_class: FilterClass;
-}
-export class GpgContextClass  {constructor(config?: properties);
-readonly parent_class: CryptoContextClass;
-}
-export class Header  {constructor(config?: properties);
-}
-export class HeaderIter  {constructor(config?: properties);
-hdrlist: HeaderList;
-cursor: Header;
-version: number;
-copy(): HeaderIter;
-copy_to(dest: HeaderIter): void;
-equal(iter2: HeaderIter): boolean;
-first(): boolean;
-free(): void;
-get_name(): string;
-get_value(): string;
-is_valid(): boolean;
-last(): boolean;
-next(): boolean;
-prev(): boolean;
-remove(): boolean;
-set_value(value: string): boolean;
-static _new(): HeaderIter;
-}
-export class HeaderList  {constructor(config?: properties);
-append(name: string, value: string): void;
-clear(): void;
-contains(name: string): boolean;
-destroy(): void;
-foreach(func: HeaderForeachFunc, user_data: object | null): void;
-get(name: string): string;
-get_iter(): [boolean, HeaderIter];
-get_stream(): Stream;
-prepend(name: string, value: string): void;
-register_writer(name: string, writer: HeaderWriter): void;
-remove(name: string): boolean;
-set(name: string, value: string): void;
-set_stream(stream: Stream): void;
-to_string(): string;
-write_to_stream(stream: Stream): number;
-static _new(): HeaderList;
-}
-export class InternetAddressClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly to_string: unknown;
-}
-export class InternetAddressGroupClass  {constructor(config?: properties);
-readonly parent_class: InternetAddressClass;
-}
-export class InternetAddressListClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class InternetAddressMailboxClass  {constructor(config?: properties);
-readonly parent_class: InternetAddressClass;
-}
-export class MessageClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-}
-export class MessagePartClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-}
-export class MessagePartialClass  {constructor(config?: properties);
-readonly parent_class: PartClass;
-}
-export class MultipartClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly clear: unknown;
-readonly add: unknown;
-readonly insert: unknown;
-readonly remove: unknown;
-readonly remove_at: unknown;
-readonly get_part: unknown;
-readonly contains: unknown;
-readonly index_of: unknown;
-readonly get_count: unknown;
-readonly set_boundary: unknown;
-readonly get_boundary: unknown;
-}
-export class MultipartEncryptedClass  {constructor(config?: properties);
-readonly parent_class: MultipartClass;
-}
-export class MultipartSignedClass  {constructor(config?: properties);
-readonly parent_class: MultipartClass;
-}
-export class ObjectClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly prepend_header: unknown;
-readonly append_header: unknown;
-readonly set_header: unknown;
-readonly get_header: unknown;
-readonly remove_header: unknown;
-readonly set_content_type: unknown;
-readonly get_headers: unknown;
-readonly write_to_stream: unknown;
-readonly encode: unknown;
-}
-export class Param  {constructor(config?: properties);
-name: string;
-value: string;
-append(name: string, value: string): Param;
-append_param(param: Param): Param;
-destroy(): void;
-get_name(): string;
-get_value(): string;
-next(): Param;
-write_to_string(fold: boolean, str: GLib.String): void;
-static _new(name: string, value: string): Param;
-static new_from_string(str: string): Param;
-}
-export class ParserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class PartClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly set_content_object: unknown;
-}
-export class PartIter  {constructor(config?: properties);
-free(): void;
-get_current(): Object;
-get_parent(): Object;
-get_path(): string;
-get_toplevel(): Object;
-is_valid(): boolean;
-jump_to(path: string): boolean;
-next(): boolean;
-prev(): boolean;
-remove(): boolean;
-replace(replacement: Object): boolean;
-reset(): void;
-static _new(toplevel: Object): PartIter;
-}
-export class Pkcs7ContextClass  {constructor(config?: properties);
-readonly parent_class: CryptoContextClass;
-}
-export class References  {constructor(config?: properties);
-next: References;
-msgid: string;
-free(): void;
-get_message_id(): string;
-get_next(): References;
-static append(refs: References, msgid: string): void;
-static clear(refs: References): void;
-static decode(text: string): References;
-}
-export class SignatureClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class SignatureListClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class StreamBufferClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamCatClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly read: unknown;
-readonly write: unknown;
-readonly flush: unknown;
-readonly close: unknown;
-readonly eos: unknown;
-readonly reset: unknown;
-readonly seek: unknown;
-readonly tell: unknown;
-readonly length: unknown;
-readonly substream: unknown;
-}
-export class StreamFileClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamFilterClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamFsClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamGIOClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamIOVector  {constructor(config?: properties);
-data: object;
-len: number;
-}
-export class StreamMemClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamMmapClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamNullClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
-}
-export class StreamPipeClass  {constructor(config?: properties);
-readonly parent_class: StreamClass;
+export class Certificate extends GObject.Object {
+    constructor(config?: properties);
+    get_created(): number;
+    get_digest_algo(): DigestAlgo;
+    get_email(): string;
+    get_expires(): number;
+    get_fingerprint(): string;
+    get_issuer_name(): string;
+    get_issuer_serial(): string;
+    get_key_id(): string;
+    get_name(): string;
+    get_pubkey_algo(): PubKeyAlgo;
+    get_trust(): CertificateTrust;
+    set_created(created: number): void;
+    set_digest_algo(algo: DigestAlgo): void;
+    set_email(email: string): void;
+    set_expires(expires: number): void;
+    set_fingerprint(fingerprint: string): void;
+    set_issuer_name(issuer_name: string): void;
+    set_issuer_serial(issuer_serial: string): void;
+    set_key_id(key_id: string): void;
+    set_name(name: string): void;
+    set_pubkey_algo(algo: PubKeyAlgo): void;
+    set_trust(trust: CertificateTrust): void;
+}
+export class CertificateList extends GObject.Object {
+    constructor(config?: properties);
+    add(cert: Certificate): number;
+    clear(): void;
+    contains(cert: Certificate): boolean;
+    get_certificate(index: number): Certificate;
+    index_of(cert: Certificate): number;
+    insert(index: number, cert: Certificate): void;
+    length(): number;
+    remove(cert: Certificate): boolean;
+    remove_at(index: number): boolean;
+    set_certificate(index: number, cert: Certificate): void;
+}
+export class ContentDisposition extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_string(str: string): ContentDisposition;
+    get_disposition(): string;
+    get_parameter(name: string): string;
+    get_params(): Param;
+    is_attachment(): boolean;
+    set_disposition(value: string): void;
+    set_parameter(name: string, value: string): void;
+    set_params(params: Param): void;
+    to_string(fold: boolean): string;
+}
+export class ContentType extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_string(str: string): ContentType;
+    get_media_subtype(): string;
+    get_media_type(): string;
+    get_parameter(name: string): string;
+    get_params(): Param;
+    is_type(type: string, subtype: string): boolean;
+    set_media_subtype(subtype: string): void;
+    set_media_type(type: string): void;
+    set_parameter(name: string, value: string): void;
+    set_params(params: Param): void;
+    to_string(): string;
+}
+export class CryptoContext  {
+    constructor(config?: properties);
+    readonly parent_object: GObject.Object;
+    readonly request_passwd: PasswordRequestFunc;
+    decrypt(istream: Stream, ostream: Stream): DecryptResult;
+    decrypt_session(session_key: string, istream: Stream, ostream: Stream): DecryptResult;
+    digest_id(name: string): DigestAlgo;
+    digest_name(digest: DigestAlgo): string;
+    encrypt(sign: boolean, userid: string, digest: DigestAlgo, recipients: string[], istream: Stream, ostream: Stream): number;
+    export_keys(keys: string[], ostream: Stream): number;
+    get_encryption_protocol(): string;
+    get_key_exchange_protocol(): string;
+    get_retrieve_session_key(): boolean;
+    get_signature_protocol(): string;
+    import_keys(istream: Stream): number;
+    set_retrieve_session_key(retrieve_session_key: boolean): number;
+    sign(userid: string, digest: DigestAlgo, istream: Stream, ostream: Stream): number;
+    verify(digest: DigestAlgo, istream: Stream, sigstream: Stream): SignatureList;
+}
+export class DataWrapper extends GObject.Object {
+    constructor(config?: properties);
+    static new_with_stream(stream: Stream, encoding: ContentEncoding): DataWrapper;
+    get_encoding(): ContentEncoding;
+    get_stream(): Stream;
+    set_encoding(encoding: ContentEncoding): void;
+    set_stream(stream: Stream): void;
+    write_to_stream(stream: Stream): number;
+    vfunc_write_to_stream(stream: Stream): number;
+}
+export class DecryptResult extends GObject.Object {
+    constructor(config?: properties);
+    get_cipher(): CipherAlgo;
+    get_mdc(): DigestAlgo;
+    get_recipients(): CertificateList;
+    get_session_key(): string;
+    get_signatures(): SignatureList;
+    set_cipher(cipher: CipherAlgo): void;
+    set_mdc(mdc: DigestAlgo): void;
+    set_recipients(recipients: CertificateList): void;
+    set_session_key(session_key: string): void;
+    set_signatures(signatures: SignatureList): void;
+}
+export class Filter  {
+    constructor(config?: properties);
+    readonly parent_object: GObject.Object;
+    readonly priv: object;
+    readonly outreal: number[];
+    readonly outbuf: string;
+    readonly outptr: string;
+    readonly outsize: number;
+    readonly outpre: number;
+    readonly backbuf: string;
+    readonly backsize: number;
+    readonly backlen: number;
+    backup(data: number[], length: number): void;
+    complete(inbuf: number[], inlen: number, prespace: number): [number[],number,number];
+    copy(): Filter;
+    filter(inbuf: number[], inlen: number, prespace: number): [number[],number,number];
+    reset(): void;
+    set_size(size: number, keep: boolean): void;
+}
+export class FilterBasic extends Filter {
+    constructor(config?: properties);
+}
+export class FilterBest extends Filter {
+    constructor(config?: properties);
+    charset(): string;
+    encoding(constraint: EncodingConstraint): ContentEncoding;
+}
+export class FilterCRLF extends Filter {
+    constructor(config?: properties);
+}
+export class FilterCharset extends Filter {
+    constructor(config?: properties);
+}
+export class FilterEnriched extends Filter {
+    constructor(config?: properties);
+}
+export class FilterFrom extends Filter {
+    constructor(config?: properties);
+}
+export class FilterGZip extends Filter {
+    constructor(config?: properties);
+}
+export class FilterHTML extends Filter {
+    constructor(config?: properties);
+}
+export class FilterMd5 extends Filter {
+    constructor(config?: properties);
+    get_digest(digest: number): void;
+}
+export class FilterStrip extends Filter {
+    constructor(config?: properties);
+}
+export class FilterWindows extends Filter {
+    constructor(config?: properties);
+    is_windows_charset(): boolean;
+    real_charset(): string;
+}
+export class FilterYenc extends Filter {
+    constructor(config?: properties);
+    get_crc(): number;
+    get_pcrc(): number;
+    set_crc(crc: number): void;
+    set_state(state: number): void;
+}
+export class GpgContext extends CryptoContext {
+    constructor(config?: properties);
+    get_always_trust(): boolean;
+    get_auto_key_retrieve(): boolean;
+    get_use_agent(): boolean;
+    set_always_trust(always_trust: boolean): void;
+    set_auto_key_retrieve(auto_key_retrieve: boolean): void;
+    set_use_agent(use_agent: boolean): void;
+}
+export class InternetAddress  {
+    constructor(config?: properties);
+    readonly parent_object: GObject.Object;
+    readonly priv: object;
+    readonly name: string;
+    get_name(): string;
+    set_name(name: string): void;
+    to_string(encode: boolean): string;
+}
+export class InternetAddressGroup extends InternetAddress {
+    constructor(config?: properties);
+    add_member(member: InternetAddress): number;
+    get_members(): InternetAddressList;
+    set_members(members: InternetAddressList): void;
+}
+export class InternetAddressList extends GObject.Object {
+    constructor(config?: properties);
+    add(ia: InternetAddress): number;
+    append(append: InternetAddressList): void;
+    clear(): void;
+    contains(ia: InternetAddress): boolean;
+    get_address(index: number): InternetAddress;
+    index_of(ia: InternetAddress): number;
+    insert(index: number, ia: InternetAddress): void;
+    length(): number;
+    prepend(prepend: InternetAddressList): void;
+    remove(ia: InternetAddress): boolean;
+    remove_at(index: number): boolean;
+    set_address(index: number, ia: InternetAddress): void;
+    to_string(encode: boolean): string;
+    writer(str: GLib.String): void;
+    static parse_string(str: string): InternetAddressList;
+}
+export class InternetAddressMailbox extends InternetAddress {
+    constructor(config?: properties);
+    get_addr(): string;
+    set_addr(addr: string): void;
+}
+export class Message extends Object {
+    constructor(config?: properties);
+    add_recipient(type: RecipientType, name: string, addr: string): void;
+    foreach(callback: ObjectForeachFunc, user_data: object | null): void;
+    get_all_recipients(): InternetAddressList;
+    get_body(): Object;
+    get_date(): [number,number];
+    get_date_as_string(): string;
+    get_message_id(): string;
+    get_mime_part(): Object;
+    get_recipients(type: RecipientType): InternetAddressList;
+    get_reply_to(): string;
+    get_sender(): string;
+    get_subject(): string;
+    partial_split_message(max_size: number, nparts: number): Message;
+    set_date(date: number, tz_offset: number): void;
+    set_date_as_string(str: string): void;
+    set_message_id(message_id: string): void;
+    set_mime_part(mime_part: Object): void;
+    set_reply_to(reply_to: string): void;
+    set_sender(sender: string): void;
+    set_subject(subject: string): void;
+}
+export class MessagePart extends Object {
+    constructor(config?: properties);
+    static new_with_message(subtype: string, message: Message): MessagePart;
+    get_message(): Message;
+    set_message(message: Message): void;
+}
+export class MessagePartial extends Part {
+    constructor(config?: properties);
+    get_id(): string;
+    get_number(): number;
+    get_total(): number;
+    static reconstruct_message(partials: MessagePartial, num: number): Message;
+}
+export class Multipart extends Object {
+    constructor(config?: properties);
+    static new_with_subtype(subtype: string): Multipart;
+    add(part: Object): void;
+    clear(): void;
+    contains(part: Object): boolean;
+    foreach(callback: ObjectForeachFunc, user_data: object | null): void;
+    get_boundary(): string;
+    get_count(): number;
+    get_part(index: number): Object;
+    get_postface(): string;
+    get_preface(): string;
+    get_subpart_from_content_id(content_id: string): Object;
+    index_of(part: Object): number;
+    insert(index: number, part: Object): void;
+    remove(part: Object): boolean;
+    remove_at(index: number): Object;
+    replace(index: number, replacement: Object): Object;
+    set_boundary(boundary: string): void;
+    set_postface(postface: string): void;
+    set_preface(preface: string): void;
+    vfunc_add(part: Object): void;
+    vfunc_clear(): void;
+    vfunc_contains(part: Object): boolean;
+    vfunc_get_boundary(): string;
+    vfunc_get_count(): number;
+    vfunc_get_part(index: number): Object;
+    vfunc_index_of(part: Object): number;
+    vfunc_insert(index: number, part: Object): void;
+    vfunc_remove(part: Object): boolean;
+    vfunc_remove_at(index: number): Object;
+    vfunc_set_boundary(boundary: string): void;
+}
+export class MultipartEncrypted extends Multipart {
+    constructor(config?: properties);
+    decrypt(ctx: CryptoContext, result: DecryptResult): Object;
+    decrypt_session(ctx: CryptoContext, session_key: string, result: DecryptResult): Object;
+    encrypt(content: Object, ctx: CryptoContext, sign: boolean, userid: string, digest: DigestAlgo, recipients: string[]): number;
+}
+export class MultipartSigned extends Multipart {
+    constructor(config?: properties);
+    sign(content: Object, ctx: CryptoContext, userid: string, digest: DigestAlgo): number;
+    verify(ctx: CryptoContext): SignatureList;
+}
+export class Object extends GObject.Object {
+    constructor(config?: properties);
+    static new_type(type: string, subtype: string): Object;
+    append_header(header: string, value: string): void;
+    encode(constraint: EncodingConstraint): void;
+    get_content_disposition(): ContentDisposition;
+    get_content_disposition_parameter(name: string): string;
+    get_content_id(): string;
+    get_content_type(): ContentType;
+    get_content_type_parameter(name: string): string;
+    get_disposition(): string;
+    get_header(header: string): string;
+    get_header_list(): HeaderList;
+    get_headers(): string;
+    prepend_header(header: string, value: string): void;
+    remove_header(header: string): boolean;
+    set_content_disposition(disposition: ContentDisposition): void;
+    set_content_disposition_parameter(name: string, value: string): void;
+    set_content_id(content_id: string): void;
+    set_content_type(content_type: ContentType): void;
+    set_content_type_parameter(name: string, value: string): void;
+    set_disposition(disposition: string): void;
+    set_header(header: string, value: string): void;
+    to_string(): string;
+    write_to_stream(stream: Stream): number;
+    vfunc_append_header(header: string, value: string): void;
+    vfunc_encode(constraint: EncodingConstraint): void;
+    vfunc_get_header(header: string): string;
+    vfunc_get_headers(): string;
+    vfunc_prepend_header(header: string, value: string): void;
+    vfunc_remove_header(header: string): boolean;
+    vfunc_set_content_type(content_type: ContentType): void;
+    vfunc_set_header(header: string, value: string): void;
+    vfunc_write_to_stream(stream: Stream): number;
+    static register_type(type: string, subtype: string, object_type: GType): void;
+    static type_registry_init(): void;
+    static type_registry_shutdown(): void;
+}
+export class Parser extends GObject.Object {
+    constructor(config?: properties);
+    static new_with_stream(stream: Stream): Parser;
+    construct_message(): Message;
+    construct_part(): Object;
+    eos(): boolean;
+    get_from(): string;
+    get_from_offset(): number;
+    get_headers_begin(): number;
+    get_headers_end(): number;
+    get_persist_stream(): boolean;
+    get_respect_content_length(): boolean;
+    get_scan_from(): boolean;
+    init_with_stream(stream: Stream): void;
+    set_persist_stream(persist: boolean): void;
+    set_respect_content_length(respect_content_length: boolean): void;
+    set_scan_from(scan_from: boolean): void;
+    tell(): number;
+}
+export class Part extends Object {
+    constructor(config?: properties);
+    static new_with_type(type: string, subtype: string): Part;
+    get_best_content_encoding(constraint: EncodingConstraint): ContentEncoding;
+    get_content_description(): string;
+    get_content_encoding(): ContentEncoding;
+    get_content_id(): string;
+    get_content_location(): string;
+    get_content_md5(): string;
+    get_content_object(): DataWrapper;
+    get_filename(): string;
+    is_attachment(): boolean;
+    set_content_description(description: string): void;
+    set_content_encoding(encoding: ContentEncoding): void;
+    set_content_id(content_id: string): void;
+    set_content_location(content_location: string): void;
+    set_content_md5(content_md5: string): void;
+    set_content_object(content: DataWrapper): void;
+    set_filename(filename: string): void;
+    verify_content_md5(): boolean;
+    vfunc_set_content_object(content: DataWrapper): void;
+}
+export class Pkcs7Context extends CryptoContext {
+    constructor(config?: properties);
+    get_always_trust(): boolean;
+    set_always_trust(always_trust: boolean): void;
+}
+export class Signature extends GObject.Object {
+    constructor(config?: properties);
+    get_certificate(): Certificate;
+    get_created(): number;
+    get_errors(): SignatureError;
+    get_expires(): number;
+    get_status(): SignatureStatus;
+    set_certificate(cert: Certificate): void;
+    set_created(created: number): void;
+    set_errors(errors: SignatureError): void;
+    set_expires(expires: number): void;
+    set_status(status: SignatureStatus): void;
+}
+export class SignatureList extends GObject.Object {
+    constructor(config?: properties);
+    add(sig: Signature): number;
+    clear(): void;
+    contains(sig: Signature): boolean;
+    get_signature(index: number): Signature;
+    index_of(sig: Signature): number;
+    insert(index: number, sig: Signature): void;
+    length(): number;
+    remove(sig: Signature): boolean;
+    remove_at(index: number): boolean;
+    set_signature(index: number, sig: Signature): void;
+}
+export class Stream  {
+    constructor(config?: properties);
+    readonly parent_object: GObject.Object;
+    readonly super_stream: Stream;
+    readonly position: number;
+    readonly bound_start: number;
+    readonly bound_end: number;
+    buffer_gets(buf: string, max: number): number;
+    buffer_readln(buffer: number[]): void;
+    close(): number;
+    construct(start: number, end: number): void;
+    eos(): boolean;
+    flush(): number;
+    length(): number;
+    read(buf: number[], len: number): number;
+    reset(): number;
+    seek(offset: number, whence: SeekWhence): number;
+    set_bounds(start: number, end: number): void;
+    substream(start: number, end: number): Stream;
+    tell(): number;
+    write(buf: string, len: number): number;
+    write_string(str: string): number;
+    write_to_stream(dest: Stream): number;
+    writev(vector: StreamIOVector, count: number): number;
+}
+export class StreamBuffer extends Stream {
+    constructor(config?: properties);
+}
+export class StreamCat extends Stream {
+    constructor(config?: properties);
+    add_source(source: Stream): number;
+}
+export class StreamFile extends Stream {
+    constructor(config?: properties);
+    static new_for_path(path: string, mode: string): Stream;
+    static new_with_bounds(fp: object | null, start: number, end: number): Stream;
+    get_owner(): boolean;
+    set_owner(owner: boolean): void;
+}
+export class StreamFilter extends Stream {
+    constructor(config?: properties);
+    add(filter: Filter): number;
+    remove(id: number): void;
+}
+export class StreamFs extends Stream {
+    constructor(config?: properties);
+    static new_for_path(path: string, flags: number, mode: number): Stream;
+    static new_with_bounds(fd: number, start: number, end: number): Stream;
+    get_owner(): boolean;
+    set_owner(owner: boolean): void;
+}
+export class StreamGIO extends Stream {
+    constructor(config?: properties);
+    static new_with_bounds(file: Gio.File, start: number, end: number): Stream;
+    get_owner(): boolean;
+    set_owner(owner: boolean): void;
+}
+export class StreamMem extends Stream {
+    constructor(config?: properties);
+    static new_with_buffer(buffer: number[], len: number): Stream;
+    static new_with_byte_array(array: number[]): Stream;
+    get_byte_array(): number[];
+    get_owner(): boolean;
+    set_byte_array(array: number[]): void;
+    set_owner(owner: boolean): void;
+}
+export class StreamMmap extends Stream {
+    constructor(config?: properties);
+    static new_with_bounds(fd: number, prot: number, flags: number, start: number, end: number): Stream;
+}
+export class StreamNull extends Stream {
+    constructor(config?: properties);
+}
+export class StreamPipe extends Stream {
+    constructor(config?: properties);
+    get_owner(): boolean;
+    set_owner(owner: boolean): void;
+}
+export class Charset  {
+    constructor(config?: properties);
+    mask: number;
+    level: number;
+    best_name(): string;
+    can_encode(charset: string, text: string, len: number): boolean;
+    init(): void;
+    step(inbuf: string, inlen: number): void;
+    static best(inbuf: string, inlen: number): string;
+    static canon_name(charset: string): string;
+    static iconv_name(charset: string): string;
+    static iso_to_windows(isocharset: string): string;
+    static language(charset: string): string;
+    static locale_name(): string;
+    static map_init(): void;
+    static map_shutdown(): void;
+    static name(charset: string): string;
+}
+export class Encoding  {
+    constructor(config?: properties);
+    encoding: ContentEncoding;
+    uubuf: number[];
+    encode: boolean;
+    save: number;
+    state: number;
+    flush(inbuf: string, inlen: number, outbuf: string): number;
+    init_decode(encoding: ContentEncoding): void;
+    init_encode(encoding: ContentEncoding): void;
+    outlen(inlen: number): number;
+    reset(): void;
+    step(inbuf: string, inlen: number, outbuf: string): number;
+    static base64_decode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static base64_encode_close(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static base64_encode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static quoted_decode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static quoted_encode_close(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static quoted_encode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static uudecode_step(inbuf: number, inlen: number, outbuf: number, state: number, save: number): number;
+    static uuencode_close(inbuf: number, inlen: number, outbuf: number, uubuf: number, state: number, save: number): number;
+    static uuencode_step(inbuf: number, inlen: number, outbuf: number, uubuf: number, state: number, save: number): number;
+}
+export class Header  {
+    constructor(config?: properties);
+}
+export class HeaderIter  {
+    constructor(config?: properties);
+    hdrlist: HeaderList;
+    cursor: Header;
+    version: number;
+    copy_to(dest: HeaderIter): void;
+    equal(iter2: HeaderIter): boolean;
+    first(): boolean;
+    free(): void;
+    get_name(): string;
+    get_value(): string;
+    is_valid(): boolean;
+    last(): boolean;
+    next(): boolean;
+    prev(): boolean;
+    remove(): boolean;
+    set_value(value: string): boolean;
+}
+export class HeaderList  {
+    constructor(config?: properties);
+    append(name: string, value: string): void;
+    clear(): void;
+    contains(name: string): boolean;
+    destroy(): void;
+    foreach(func: HeaderForeachFunc, user_data: object | null): void;
+    get(name: string): string;
+    get_iter(): [boolean, HeaderIter];
+    get_stream(): Stream;
+    prepend(name: string, value: string): void;
+    remove(name: string): boolean;
+    set(name: string, value: string): void;
+    set_stream(stream: Stream): void;
+    to_string(): string;
+    write_to_stream(stream: Stream): number;
+}
+export class Param  {
+    constructor(config?: properties);
+    name: string;
+    value: string;
+    destroy(): void;
+    get_name(): string;
+    get_value(): string;
+    next(): Param;
+    write_to_string(fold: boolean, str: GLib.String): void;
+}
+export class PartIter  {
+    constructor(config?: properties);
+    free(): void;
+    get_current(): Object;
+    get_parent(): Object;
+    get_path(): string;
+    get_toplevel(): Object;
+    is_valid(): boolean;
+    jump_to(path: string): boolean;
+    next(): boolean;
+    prev(): boolean;
+    remove(): boolean;
+    replace(replacement: Object): boolean;
+    reset(): void;
+}
+export class References  {
+    constructor(config?: properties);
+    next: References;
+    msgid: string;
+    free(): void;
+    get_message_id(): string;
+    get_next(): References;
+    static append(refs: References, msgid: string): void;
+    static clear(refs: References): void;
+}
+export class StreamIOVector  {
+    constructor(config?: properties);
+    data: object;
+    len: number;
 }

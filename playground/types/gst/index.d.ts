@@ -8,6 +8,7 @@ import * as Gst from "gst";
  * gst.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type BufferForeachMetaFunc = (buffer: Buffer, user_data: object | null) => boolean;
 export type BufferListFunc = (idx: number, user_data: object | null) => boolean;
 export type BusFunc = (bus: Bus, message: Message, user_data: object | null) => boolean;
@@ -133,13 +134,11 @@ export const ELEMENT_METADATA_DOC_URI: string;
 export const ELEMENT_METADATA_ICON_NAME: string;
 export const ELEMENT_METADATA_KLASS: string;
 export const ELEMENT_METADATA_LONGNAME: string;
-export const ERROR_SYSTEM: string;
 export const EVENT_NUM_SHIFT: number;
 export const EVENT_TYPE_BOTH: EventTypeFlags;
 export const FLAG_SET_MASK_EXACT: number;
 export const FORMAT_PERCENT_MAX: number;
 export const FORMAT_PERCENT_SCALE: number;
-export const FOURCC_FORMAT: string;
 export const GROUP_ID_INVALID: number;
 export const LICENSE_UNKNOWN: string;
 export const LOCK_FLAG_READWRITE: LockFlags;
@@ -154,13 +153,10 @@ export const PARAM_MUTABLE_READY: number;
 export const PARAM_USER_SHIFT: number;
 export const PROTECTION_SYSTEM_ID_CAPS_FIELD: string;
 export const PROTECTION_UNSPECIFIED_SYSTEM_ID: string;
-export const PTR_FORMAT: string;
 export const QUERY_NUM_SHIFT: number;
 export const QUERY_TYPE_BOTH: QueryTypeFlags;
 export const SECOND: ClockTimeDiff;
-export const SEGMENT_FORMAT: string;
 export const SEQNUM_INVALID: number;
-export const STIME_FORMAT: string;
 export const TAG_ALBUM: string;
 export const TAG_ALBUM_ARTIST: string;
 export const TAG_ALBUM_ARTIST_SORTNAME: string;
@@ -246,7 +242,6 @@ export const TAG_TRACK_PEAK: string;
 export const TAG_USER_RATING: string;
 export const TAG_VERSION: string;
 export const TAG_VIDEO_CODEC: string;
-export const TIME_FORMAT: string;
 export const TOC_REPEAT_COUNT_INFINITE: number;
 export const URI_NO_PORT: number;
 export const USECOND: ClockTimeDiff;
@@ -268,26 +263,6 @@ export const VERSION_NANO: number;
  */
 export function buffer_get_max_memory(): number;
 /**
- * Calculates the linear regression of the values @xy and places the
- * result in @m_num, @m_denom, @b and @xbase, representing the function
- *   y(x) = m_num/m_denom * (x - xbase) + b
- * that has the least-square distance from all points @x and @y.
- * @r_squared will contain the remaining error.
- * If @temp is not %NULL, it will be used as temporary space for the func
- * tion,
- * in which case the function works without any allocation at all. If @te
- * mp is
- * %NULL, an allocation will take place. @temp should have at least the s
- * ame
- * amount of memory allocated as @xy, i.e. 2*n*sizeof(GstClockTime).
- * > This function assumes (x,y) values with reasonable large differences
- * > between them. It will not calculate the exact results if the differe
- * nces
- * > between neighbouring values are too small due to not being able to
- * > represent sub-integer values during the calculations.
- */
-export function calculate_linear_regression(xy: ClockTime, temp: ClockTime, n: number): [boolean, ClockTime,ClockTime,ClockTime,ClockTime,number];
-/**
  * Creates a #GstCapsFeatures from a string representation.
  * Free-function: gst_caps_features_free
  */
@@ -299,36 +274,6 @@ export function caps_features_from_string(features: string): CapsFeatures | null
  * when there are nested #GstCaps / #GstStructure deeper than one level.
  */
 export function caps_from_string(string: string): Caps | null;
-/**
- * Clears a reference to a #GstMiniObject.
- * @object_ptr must not be %NULL.
- * If the reference is %NULL then this function does nothing.
- * Otherwise, the reference count of the object is decreased using
- * gst_mini_object_unref() and the pointer is set to %NULL.
- * A macro is also included that allows this function to be used without
- * pointer casts.
- */
-export function clear_mini_object(object_ptr: MiniObject): void;
-/**
- * Clears a reference to a #GstObject.
- * @object_ptr must not be %NULL.
- * If the reference is %NULL then this function does nothing.
- * Otherwise, the reference count of the object is decreased using
- * gst_object_unref() and the pointer is set to %NULL.
- * A macro is also included that allows this function to be used without
- * pointer casts.
- */
-export function clear_object(object_ptr: Object): void;
-/**
- * Clears a reference to a #GstStructure.
- * @structure_ptr must not be %NULL.
- * If the reference is %NULL then this function does nothing.
- * Otherwise, the structure is free'd using gst_structure_free() and the
- * pointer is set to %NULL.
- * A macro is also included that allows this function to be used without
- * pointer casts.
- */
-export function clear_structure(structure_ptr: Structure): void;
 /**
  * 
  */
@@ -366,13 +311,13 @@ export function debug_bin_to_dot_data(bin: Bin, details: DebugGraphDetails): str
  *  dot -Tpng -oimage.png graph_lowlevel.dot
  * </programlisting></informalexample>
  */
-export function debug_bin_to_dot_file(bin: Bin, details: DebugGraphDetails, file_name: unknown): void;
+export function debug_bin_to_dot_file(bin: Bin, details: DebugGraphDetails, file_name: string): void;
 /**
  * This works like gst_debug_bin_to_dot_file(), but adds the current time
  * stamp
  * to the filename, so that it can be used to take multiple snapshots.
  */
-export function debug_bin_to_dot_file_with_ts(bin: Bin, details: DebugGraphDetails, file_name: unknown): void;
+export function debug_bin_to_dot_file_with_ts(bin: Bin, details: DebugGraphDetails, file_name: string): void;
 /**
  * Constructs a string that can be used for getting the desired color in 
  * color
@@ -421,11 +366,6 @@ export function debug_is_colored(): boolean;
  */
 export function debug_level_get_name(level: DebugLevel): string;
 /**
- * Logs the given message using the currently registered debugging handle
- * rs.
- */
-export function debug_log(category: DebugCategory, level: DebugLevel, file: string, _function: string, line: number, object: GObject.Object | null, format: string, ___: unknown[]): void;
-/**
  * The default logging handler used by GStreamer. Logging functions get c
  * alled
  * whenever a macro like GST_DEBUG or similar is used. By default this fu
@@ -439,11 +379,6 @@ export function debug_log(category: DebugCategory, level: DebugLevel, file: stri
  * gst_debug_remove_log_function(gst_debug_log_default);
  */
 export function debug_log_default(category: DebugCategory, level: DebugLevel, file: string, _function: string, line: number, object: GObject.Object | null, message: DebugMessage, user_data: object | null): void;
-/**
- * Logs the given message using the currently registered debugging handle
- * rs.
- */
-export function debug_log_valist(category: DebugCategory, level: DebugLevel, file: string, _function: string, line: number, object: GObject.Object | null, format: string, args: any): void;
 /**
  * If libunwind, glibc backtrace or DbgHelp are present
  * a stack trace is printed.
@@ -533,7 +468,7 @@ export function deinit(): void;
 /**
  * 
  */
-export function dynamic_type_register(plugin: Plugin, type: unknown): boolean;
+export function dynamic_type_register(plugin: Plugin, type: GType): boolean;
 /**
  * Get a string describing the error message in the current locale.
  */
@@ -561,7 +496,7 @@ export function event_type_to_quark(type: EventType): GLib.Quark;
  * ments.
  * On Windows #filename should be in UTF-8 encoding.
  */
-export function filename_to_uri(filename: unknown): string;
+export function filename_to_uri(filename: string): string;
 /**
  * Gets a string representing the given flow return.
  */
@@ -610,35 +545,6 @@ export function formats_contains(formats: Format[], format: Format): boolean;
  */
 export function get_main_executable_path(): string | null;
 /**
- * Allocates, fills and returns a 0-terminated string from the printf sty
- * le
- * @format string and corresponding arguments.
- * See gst_info_vasprintf() for when this function is required.
- * Free with g_free().
- */
-export function info_strdup_printf(format: string, ___: unknown[]): string | null;
-/**
- * Allocates, fills and returns a null terminated string from the printf 
- * style
- * @format string and @args.
- * See gst_info_vasprintf() for when this function is required.
- * Free with g_free().
- */
-export function info_strdup_vprintf(format: string, args: any): string | null;
-/**
- * Allocates and fills a string large enough (including the terminating n
- * ull
- * byte) to hold the specified printf style @format and @args.
- * This function deals with the GStreamer specific printf specifiers
- * #GST_PTR_FORMAT and #GST_SEGMENT_FORMAT.  If you do not have these spe
- * cifiers
- * in your @format string, you do not need to use this function and can u
- * se
- * alternatives such as g_vasprintf().
- * Free @result with g_free().
- */
-export function info_vasprintf(format: string, args: any): [number, string];
-/**
  * Initializes the GStreamer library, setting up internal path lists,
  * registering built-in elements, and loading standard plugins.
  * Unless the plugin registry is disabled at compile time, the registry w
@@ -669,19 +575,6 @@ export function init(argc: number | null, argv: string[] | null): [number | null
  */
 export function init_check(argc: number | null, argv: string[] | null): [boolean, number | null,string[] | null];
 /**
- * Returns a #GOptionGroup with GStreamer's argument specifications. The
- * group is set up to use standard GOption callbacks, so when using this
- * group in combination with GOption parsing methods, all argument parsin
- * g
- * and initialization is automated.
- * This function is useful if you want to integrate GStreamer with other
- * libraries that use GOption (see g_option_context_add_group() ).
- * If you use this function, you should make sure you initialise the GLib
- * threading system as one of the very first things in your program
- * (see the example at the beginning of this section).
- */
-export function init_get_option_group(): GLib.OptionGroup | null;
-/**
  * 
  */
 export function is_caps_features(obj: object | null): boolean;
@@ -696,10 +589,6 @@ export function is_initialized(): boolean;
  */
 export function library_error_quark(): GLib.Quark;
 /**
- * 
- */
-export function make_element_message_details(name: string, ___: unknown[]): Structure;
-/**
  * Get a printable name for the given message type. Do not modify or free
  * .
  */
@@ -711,16 +600,16 @@ export function message_type_to_quark(type: MessageType): GLib.Quark;
 /**
  * 
  */
-export function meta_api_type_get_tags(api: unknown): string[];
+export function meta_api_type_get_tags(api: GType): string[];
 /**
  * Check if @api was registered with @tag.
  */
-export function meta_api_type_has_tag(api: unknown, tag: GLib.Quark): boolean;
+export function meta_api_type_has_tag(api: GType, tag: GLib.Quark): boolean;
 /**
  * Register and return a GType for the @api and associate it with
  * @tags.
  */
-export function meta_api_type_register(api: string, tags: string[]): unknown;
+export function meta_api_type_register(api: string, tags: string[]): GType;
 /**
  * Lookup a previously registered meta info structure by its implementati
  * on name
@@ -733,7 +622,7 @@ export function meta_get_info(impl: string): MetaInfo | null;
  * g
  * @impl as the key.
  */
-export function meta_register(api: unknown, impl: string, size: number, init_func: MetaInitFunction, free_func: MetaFreeFunction, transform_func: MetaTransformFunction): MetaInfo | null;
+export function meta_register(api: GType, impl: string, size: number, init_func: MetaInitFunction, free_func: MetaFreeFunction, transform_func: MetaTransformFunction): MetaInfo | null;
 /**
  * Atomically modifies a pointer to point to a new mini-object.
  * The reference count of @olddata is decreased and the reference count o
@@ -742,12 +631,6 @@ export function meta_register(api: unknown, impl: string, size: number, init_fun
  * Either @newdata and the value pointed to by @olddata may be %NULL.
  */
 export function mini_object_replace(olddata: MiniObject | null, newdata: MiniObject | null): [boolean, MiniObject | null];
-/**
- * Replace the current #GstMiniObject pointer to by @olddata with %NULL a
- * nd
- * return the old value.
- */
-export function mini_object_steal(olddata: MiniObject): [MiniObject | null, MiniObject];
 /**
  * Modifies a pointer to point to a new mini-object. The modification
  * is done atomically. This version is similar to gst_mini_object_replace
@@ -783,7 +666,7 @@ export function param_spec_fraction(name: string, nick: string, blurb: string, m
 /**
  * 
  */
-export function parent_buffer_meta_api_get_type(): unknown;
+export function parent_buffer_meta_api_get_type(): GType;
 /**
  * Get the global #GstMetaInfo describing  the #GstParentBufferMeta meta.
  */
@@ -853,25 +736,10 @@ export function parse_launchv_full(argv: string[], context: ParseContext | null,
  */
 export function plugin_error_quark(): GLib.Quark;
 /**
- * Create a new file descriptor set. If @controllable, it
- * is possible to restart or flush a call to gst_poll_wait() with
- * gst_poll_restart() and gst_poll_set_flushing() respectively.
- * Free-function: gst_poll_free
- */
-export function poll_new(controllable: boolean): Poll | null;
-/**
- * Create a new poll object that can be used for scheduling cancellable
- * timeouts.
- * A timeout is performed with gst_poll_wait(). Multiple timeouts can be
- * performed from different threads.
- * Free-function: gst_poll_free
- */
-export function poll_new_timer(): Poll | null;
-/**
  * Gets the directory for application specific presets if set by the
  * application.
  */
-export function preset_get_app_dir(): unknown | null;
+export function preset_get_app_dir(): string | null;
 /**
  * Sets an extra directory as an absolute path that should be considered 
  * when
@@ -879,67 +747,7 @@ export function preset_get_app_dir(): unknown | null;
  * e
  * system presets.
  */
-export function preset_set_app_dir(app_dir: unknown): boolean;
-/**
- * Outputs a formatted message via the GLib print handler. The default pr
- * int
- * handler simply outputs the message to stdout.
- * This function will not append a new-line character at the end, unlike
- * gst_println() which will.
- * All strings must be in ASCII or UTF-8 encoding.
- * This function differs from g_print() in that it supports all the addit
- * ional
- * printf specifiers that are supported by GStreamer's debug logging syst
- * em,
- * such as #GST_PTR_FORMAT and #GST_SEGMENT_FORMAT.
- * This function is primarily for printing debug output.
- */
-export function print(format: string, ___: unknown[]): void;
-/**
- * Outputs a formatted message via the GLib error message handler. The de
- * fault
- * handler simply outputs the message to stderr.
- * This function will not append a new-line character at the end, unlike
- * gst_printerrln() which will.
- * All strings must be in ASCII or UTF-8 encoding.
- * This function differs from g_printerr() in that it supports the additi
- * onal
- * printf specifiers that are supported by GStreamer's debug logging syst
- * em,
- * such as #GST_PTR_FORMAT and #GST_SEGMENT_FORMAT.
- * This function is primarily for printing debug output.
- */
-export function printerr(format: string, ___: unknown[]): void;
-/**
- * Outputs a formatted message via the GLib error message handler. The de
- * fault
- * handler simply outputs the message to stderr.
- * This function will append a new-line character at the end, unlike
- * gst_printerr() which will not.
- * All strings must be in ASCII or UTF-8 encoding.
- * This function differs from g_printerr() in that it supports the additi
- * onal
- * printf specifiers that are supported by GStreamer's debug logging syst
- * em,
- * such as #GST_PTR_FORMAT and #GST_SEGMENT_FORMAT.
- * This function is primarily for printing debug output.
- */
-export function printerrln(format: string, ___: unknown[]): void;
-/**
- * Outputs a formatted message via the GLib print handler. The default pr
- * int
- * handler simply outputs the message to stdout.
- * This function will append a new-line character at the end, unlike
- * gst_print() which will not.
- * All strings must be in ASCII or UTF-8 encoding.
- * This function differs from g_print() in that it supports all the addit
- * ional
- * printf specifiers that are supported by GStreamer's debug logging syst
- * em,
- * such as #GST_PTR_FORMAT and #GST_SEGMENT_FORMAT.
- * This function is primarily for printing debug output.
- */
-export function println(format: string, ___: unknown[]): void;
+export function preset_set_app_dir(app_dir: string): boolean;
 /**
  * Iterates the supplied list of UUIDs and checks the GstRegistry for
  * all the decryptors supporting one of the supplied UUIDs.
@@ -948,7 +756,7 @@ export function protection_filter_systems_by_available_decryptors(system_identif
 /**
  * 
  */
-export function protection_meta_api_get_type(): unknown;
+export function protection_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -975,7 +783,7 @@ export function query_type_to_quark(type: QueryType): GLib.Quark;
 /**
  * 
  */
-export function reference_timestamp_meta_api_get_type(): unknown;
+export function reference_timestamp_meta_api_get_type(): GType;
 /**
  * Get the global #GstMetaInfo describing  the #GstReferenceTimestampMeta
  *  meta.
@@ -1009,11 +817,11 @@ export function state_change_get_name(transition: StateChange): string;
 /**
  * 
  */
-export function static_caps_get_type(): unknown;
+export function static_caps_get_type(): GType;
 /**
  * 
  */
-export function static_pad_template_get_type(): unknown;
+export function static_pad_template_get_type(): GType;
 /**
  * 
  */
@@ -1052,7 +860,7 @@ export function tag_get_nick(tag: string): string | null;
 /**
  * Gets the #GType used for this tag.
  */
-export function tag_get_type(tag: string): unknown;
+export function tag_get_type(tag: string): GType;
 /**
  * Checks if the given tag is fixed. A fixed tag can only contain one val
  * ue.
@@ -1081,50 +889,13 @@ export function tag_merge_strings_with_comma(src: GObject.Value): [GObject.Value
  */
 export function tag_merge_use_first(src: GObject.Value): [GObject.Value];
 /**
- * Registers a new tag type for the use with GStreamer's type system. If 
- * a type
- * with that name is already registered, that one is used.
- * The old registration may have used a different type however. So don't 
- * rely
- * on your supplied values.
- * Important: if you do not supply a merge function the implication will 
- * be
- * that there can only be one single value for this tag in a tag list and
- * any additional values will silently be discarded when being added (unl
- * ess
- * #GST_TAG_MERGE_REPLACE, #GST_TAG_MERGE_REPLACE_ALL, or
- * #GST_TAG_MERGE_PREPEND is used as merge mode, in which case the new
- * value will replace the old one in the list).
- * The merge function will be called from gst_tag_list_copy_value() when
- * it is required that one or more values for a tag be condensed into
- * one single value. This may happen from gst_tag_list_get_string(),
- * gst_tag_list_get_int(), gst_tag_list_get_double() etc. What will happe
- * n
- * exactly in that case depends on how the tag was registered and if a
- * merge function was supplied and if so which one.
- * Two default merge functions are provided: gst_tag_merge_use_first() an
- * d
- * gst_tag_merge_strings_with_comma().
- */
-export function tag_register(name: string, flag: TagFlag, type: unknown, nick: string, blurb: string, func: TagMergeFunc | null): void;
-/**
- * Registers a new tag type for the use with GStreamer's type system.
- * Same as gst_tag_register(), but @name, @nick, and @blurb must be
- * static strings or inlined strings, as they will not be copied. (GStrea
- * mer
- * plugins will be made resident once loaded, so this function can be use
- * d
- * even from dynamically loaded plugins.)
- */
-export function tag_register_static(name: string, flag: TagFlag, type: unknown, nick: string, blurb: string, func: TagMergeFunc | null): void;
-/**
  * Converts @type to a string representation.
  */
 export function toc_entry_type_get_nick(type: TocEntryType): string;
 /**
  * 
  */
-export function type_find_get_type(): unknown;
+export function type_find_get_type(): GType;
 /**
  * Registers a new typefind function to be used for typefinding. After
  * registering this function will be available for typefinding.
@@ -2330,1924 +2101,1734 @@ export enum TracerValueFlags {
     OPTIONAL = 1,
     AGGREGATED = 2,
 }
-export class Allocator  {constructor(config?: properties);
-readonly object: Object;
-readonly mem_type: string;
-readonly mem_map: MemoryMapFunction;
-readonly mem_unmap: MemoryUnmapFunction;
-readonly mem_copy: MemoryCopyFunction;
-readonly mem_share: MemoryShareFunction;
-readonly mem_is_span: MemoryIsSpanFunction;
-readonly mem_map_full: MemoryMapFullFunction;
-readonly mem_unmap_full: MemoryUnmapFullFunction;
-readonly _gst_reserved: object[];
-readonly priv: AllocatorPrivate;
-alloc(size: number, params: AllocationParams | null): Memory | null;
-free(memory: Memory): void;
-set_default(): void;
-static find(name: string | null): Allocator | null;
-static register(name: string, allocator: Allocator): void;
-}
-export class Bin extends Element {constructor(config?: properties);
-async_handling: boolean;
-message_forward: boolean;
-add(element: Element): boolean;
-add_many(element_1: Element, ___: unknown[]): void;
-find_unlinked_pad(direction: PadDirection): Pad | null;
-get_by_interface(iface: unknown): Element | null;
-get_by_name(name: string): Element | null;
-get_by_name_recurse_up(name: string): Element | null;
-get_suppressed_flags(): ElementFlags;
-iterate_all_by_interface(iface: unknown): Iterator | null;
-iterate_elements(): Iterator | null;
-iterate_recurse(): Iterator | null;
-iterate_sinks(): Iterator | null;
-iterate_sorted(): Iterator | null;
-iterate_sources(): Iterator | null;
-recalculate_latency(): boolean;
-remove(element: Element): boolean;
-remove_many(element_1: Element, ___: unknown[]): void;
-set_suppressed_flags(flags: ElementFlags): void;
-sync_children_states(): boolean;
-vfunc_add_element(element: Element): boolean;
-vfunc_deep_element_added(sub_bin: Bin, child: Element): void;
-vfunc_deep_element_removed(sub_bin: Bin, child: Element): void;
-vfunc_do_latency(): boolean;
-vfunc_element_added(child: Element): void;
-vfunc_element_removed(child: Element): void;
-vfunc_handle_message(message: Message): void;
-vfunc_remove_element(element: Element): boolean;
-}
-export class Bitmask  {constructor(config?: properties);
-}
-export class BufferPool extends Object {constructor(config?: properties);
-acquire_buffer(params: BufferPoolAcquireParams | null): [FlowReturn, Buffer];
-get_config(): Structure;
-get_options(): string[];
-has_option(option: string): boolean;
-is_active(): boolean;
-release_buffer(buffer: Buffer): void;
-set_active(active: boolean): boolean;
-set_config(config: Structure): boolean;
-set_flushing(flushing: boolean): void;
-vfunc_acquire_buffer(params: BufferPoolAcquireParams | null): [FlowReturn, Buffer];
-vfunc_alloc_buffer(buffer: Buffer, params: BufferPoolAcquireParams): FlowReturn;
-vfunc_flush_start(): void;
-vfunc_flush_stop(): void;
-vfunc_free_buffer(buffer: Buffer): void;
-vfunc_get_options(): string[];
-vfunc_release_buffer(buffer: Buffer): void;
-vfunc_reset_buffer(buffer: Buffer): void;
-vfunc_set_config(config: Structure): boolean;
-vfunc_start(): boolean;
-vfunc_stop(): boolean;
-static config_add_option(config: Structure, option: string): void;
-static config_get_allocator(config: Structure): [boolean, Allocator | null,AllocationParams | null];
-static config_get_option(config: Structure, index: number): string;
-static config_get_params(config: Structure): [boolean, Caps | null,number | null,number | null,number | null];
-static config_has_option(config: Structure, option: string): boolean;
-static config_n_options(config: Structure): number;
-static config_set_allocator(config: Structure, allocator: Allocator | null, params: AllocationParams | null): void;
-static config_set_params(config: Structure, caps: Caps, size: number, min_buffers: number, max_buffers: number): void;
-static config_validate_params(config: Structure, caps: Caps, size: number, min_buffers: number, max_buffers: number): boolean;
-}
-export class Bus extends Object {constructor(config?: properties);
-enable_async: boolean;
-add_signal_watch(): void;
-add_signal_watch_full(priority: number): void;
-add_watch(func: BusFunc, user_data: object | null): number;
-add_watch_full(priority: number, func: BusFunc, user_data: object | null, notify: GLib.DestroyNotify): number;
-async_signal_func(message: Message, data: object | null): boolean;
-create_watch(): GLib.Source | null;
-disable_sync_message_emission(): void;
-enable_sync_message_emission(): void;
-get_pollfd(): [GLib.PollFD];
-have_pending(): boolean;
-peek(): Message | null;
-poll(events: MessageType, timeout: ClockTime): Message | null;
-pop(): Message | null;
-pop_filtered(types: MessageType): Message | null;
-post(message: Message): boolean;
-remove_signal_watch(): void;
-remove_watch(): boolean;
-set_flushing(flushing: boolean): void;
-set_sync_handler(func: BusSyncHandler | null, user_data: object | null, notify: GLib.DestroyNotify): void;
-sync_signal_handler(message: Message, data: object | null): BusSyncReply;
-timed_pop(timeout: ClockTime): Message | null;
-timed_pop_filtered(timeout: ClockTime, types: MessageType): Message | null;
-vfunc_message(message: Message): void;
-vfunc_sync_message(message: Message): void;
-}
-export class Clock  {constructor(config?: properties);
-timeout: number;
-window_size: number;
-window_threshold: number;
-readonly object: Object;
-readonly priv: ClockPrivate;
-readonly _gst_reserved: object[];
-add_observation(slave: ClockTime, master: ClockTime): [boolean, number];
-add_observation_unapplied(slave: ClockTime, master: ClockTime): [boolean, number,ClockTime | null,ClockTime | null,ClockTime | null,ClockTime | null];
-adjust_unlocked(internal: ClockTime): ClockTime;
-adjust_with_calibration(internal_target: ClockTime, cinternal: ClockTime, cexternal: ClockTime, cnum: ClockTime, cdenom: ClockTime): ClockTime;
-get_calibration(): [ClockTime | null,ClockTime | null,ClockTime | null,ClockTime | null];
-get_internal_time(): ClockTime;
-get_master(): Clock | null;
-get_resolution(): ClockTime;
-get_time(): ClockTime;
-get_timeout(): ClockTime;
-is_synced(): boolean;
-new_periodic_id(start_time: ClockTime, interval: ClockTime): ClockID;
-new_single_shot_id(time: ClockTime): ClockID;
-periodic_id_reinit(id: ClockID, start_time: ClockTime, interval: ClockTime): boolean;
-set_calibration(internal: ClockTime, external: ClockTime, rate_num: ClockTime, rate_denom: ClockTime): void;
-set_master(master: Clock | null): boolean;
-set_resolution(resolution: ClockTime): ClockTime;
-set_synced(synced: boolean): void;
-set_timeout(timeout: ClockTime): void;
-single_shot_id_reinit(id: ClockID, time: ClockTime): boolean;
-unadjust_unlocked(external: ClockTime): ClockTime;
-unadjust_with_calibration(external_target: ClockTime, cinternal: ClockTime, cexternal: ClockTime, cnum: ClockTime, cdenom: ClockTime): ClockTime;
-wait_for_sync(timeout: ClockTime): boolean;
-static id_compare_func(id1: object | null, id2: object | null): number;
-static id_get_clock(id: ClockID): Clock | null;
-static id_get_time(id: ClockID): ClockTime;
-static id_ref(id: ClockID): ClockID;
-static id_unref(id: ClockID): void;
-static id_unschedule(id: ClockID): void;
-static id_uses_clock(id: ClockID, clock: Clock): boolean;
-static id_wait(id: ClockID): [ClockReturn, ClockTimeDiff | null];
-static id_wait_async(id: ClockID, func: ClockCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): ClockReturn;
-}
-export class ControlBinding  {constructor(config?: properties);
-name: string;
-object: Object;
-readonly pspec: GObject.ParamSpec;
-readonly disabled: boolean;
-get_g_value_array(timestamp: ClockTime, interval: ClockTime, n_values: number, values: GObject.Value[]): boolean;
-get_value(timestamp: ClockTime): GObject.Value | null;
-get_value_array(timestamp: ClockTime, interval: ClockTime, n_values: number, values: object[]): boolean;
-is_disabled(): boolean;
-set_disabled(disabled: boolean): void;
-sync_values(object: Object, timestamp: ClockTime, last_sync: ClockTime): boolean;
-}
-export class ControlSource  {constructor(config?: properties);
-readonly get_value: ControlSourceGetValue;
-readonly get_value_array: ControlSourceGetValueArray;
-readonly _gst_reserved: object[];
-control_source_get_value(timestamp: ClockTime): [boolean, number];
-control_source_get_value_array(timestamp: ClockTime, interval: ClockTime, n_values: number, values: number[]): boolean;
-}
-export class Device  {constructor(config?: properties);
-caps: Caps;
-device_class: string;
-display_name: string;
-properties: Structure;
-readonly priv: DevicePrivate;
-readonly _gst_reserved: object[];
-create_element(name: string | null): Element | null;
-get_caps(): Caps | null;
-get_device_class(): string;
-get_display_name(): string;
-get_properties(): Structure | null;
-has_classes(classes: string): boolean;
-has_classesv(classes: string[]): boolean;
-reconfigure_element(element: Element): boolean;
-}
-export class DeviceMonitor extends Object {constructor(config?: properties);
-add_filter(classes: string | null, caps: Caps | null): number;
-get_bus(): Bus;
-get_devices(): GLib.List | null;
-get_providers(): string[];
-get_show_all_devices(): boolean;
-remove_filter(filter_id: number): boolean;
-set_show_all_devices(show_all: boolean): void;
-start(): boolean;
-stop(): void;
-}
-export class DeviceProvider  {constructor(config?: properties);
-readonly devices: GLib.List;
-readonly priv: DeviceProviderPrivate;
-readonly _gst_reserved: object[];
-can_monitor(): boolean;
-device_add(device: Device): void;
-device_changed(device: Device, changed_device: Device): void;
-device_remove(device: Device): void;
-get_bus(): Bus;
-get_devices(): GLib.List;
-get_factory(): DeviceProviderFactory;
-get_hidden_providers(): string[];
-get_metadata(key: string): string;
-hide_provider(name: string): void;
-start(): boolean;
-stop(): void;
-unhide_provider(name: string): void;
-static register(plugin: Plugin | null, name: string, rank: number, type: unknown): boolean;
-}
-export class DeviceProviderFactory  {constructor(config?: properties);
-get(): DeviceProvider | null;
-get_device_provider_type(): unknown;
-get_metadata(key: string): string | null;
-get_metadata_keys(): string[] | null;
-has_classes(classes: string | null): boolean;
-has_classesv(classes: string[] | null): boolean;
-static find(name: string): DeviceProviderFactory | null;
-static get_by_name(factoryname: string): DeviceProvider | null;
-static list_get_device_providers(minrank: Rank): GLib.List;
-}
-export class DoubleRange  {constructor(config?: properties);
-}
-export class DynamicTypeFactory  {constructor(config?: properties);
-static load(factoryname: string): unknown;
-}
-export class Element  {constructor(config?: properties);
-readonly object: Object;
-readonly state_lock: GLib.RecMutex;
-readonly state_cond: GLib.Cond;
-readonly state_cookie: number;
-readonly target_state: State;
-readonly current_state: State;
-readonly next_state: State;
-readonly pending_state: State;
-readonly last_return: StateChangeReturn;
-readonly bus: Bus;
-readonly clock: Clock;
-readonly base_time: ClockTimeDiff;
-readonly start_time: ClockTime;
-readonly numpads: number;
-readonly pads: GLib.List;
-readonly numsrcpads: number;
-readonly srcpads: GLib.List;
-readonly numsinkpads: number;
-readonly sinkpads: GLib.List;
-readonly pads_cookie: number;
-readonly contexts: GLib.List;
-readonly _gst_reserved: object[];
-abort_state(): void;
-add_pad(pad: Pad): boolean;
-add_property_deep_notify_watch(property_name: string | null, include_value: boolean): number;
-add_property_notify_watch(property_name: string | null, include_value: boolean): number;
-call_async(func: ElementCallAsyncFunc, user_data: object | null, destroy_notify: GLib.DestroyNotify): void;
-change_state(transition: StateChange): StateChangeReturn;
-continue_state(ret: StateChangeReturn): StateChangeReturn;
-create_all_pads(): void;
-foreach_pad(func: ElementForeachPadFunc, user_data: object | null): boolean;
-foreach_sink_pad(func: ElementForeachPadFunc, user_data: object | null): boolean;
-foreach_src_pad(func: ElementForeachPadFunc, user_data: object | null): boolean;
-get_base_time(): ClockTime;
-get_bus(): Bus | null;
-get_clock(): Clock | null;
-get_compatible_pad(pad: Pad, caps: Caps | null): Pad | null;
-get_compatible_pad_template(compattempl: PadTemplate): PadTemplate | null;
-get_context(context_type: string): Context;
-get_context_unlocked(context_type: string): Context | null;
-get_contexts(): GLib.List;
-get_factory(): ElementFactory | null;
-get_metadata(key: string): string;
-get_pad_template(name: string): PadTemplate | null;
-get_pad_template_list(): GLib.List;
-get_request_pad(name: string): Pad | null;
-get_start_time(): ClockTime;
-get_state(timeout: ClockTime): [StateChangeReturn, State | null,State | null];
-get_static_pad(name: string): Pad | null;
-is_locked_state(): boolean;
-iterate_pads(): Iterator;
-iterate_sink_pads(): Iterator;
-iterate_src_pads(): Iterator;
-link(dest: Element): boolean;
-link_filtered(dest: Element, filter: Caps | null): boolean;
-link_many(element_2: Element, ___: unknown[]): boolean;
-link_pads(srcpadname: string | null, dest: Element, destpadname: string | null): boolean;
-link_pads_filtered(srcpadname: string | null, dest: Element, destpadname: string | null, filter: Caps | null): boolean;
-link_pads_full(srcpadname: string | null, dest: Element, destpadname: string | null, flags: PadLinkCheck): boolean;
-lost_state(): void;
-message_full(type: MessageType, domain: GLib.Quark, code: number, text: string | null, debug: string | null, file: string, _function: string, line: number): void;
-message_full_with_details(type: MessageType, domain: GLib.Quark, code: number, text: string | null, debug: string | null, file: string, _function: string, line: number, structure: Structure): void;
-no_more_pads(): void;
-post_message(message: Message): boolean;
-provide_clock(): Clock | null;
-query(query: Query): boolean;
-query_convert(src_format: Format, src_val: number, dest_format: Format): [boolean, number];
-query_duration(format: Format): [boolean, number | null];
-query_position(format: Format): [boolean, number | null];
-release_request_pad(pad: Pad): void;
-remove_pad(pad: Pad): boolean;
-remove_property_notify_watch(watch_id: number): void;
-request_pad(templ: PadTemplate, name: string | null, caps: Caps | null): Pad | null;
-seek(rate: number, format: Format, flags: SeekFlags, start_type: SeekType, start: number, stop_type: SeekType, stop: number): boolean;
-seek_simple(format: Format, seek_flags: SeekFlags, seek_pos: number): boolean;
-send_event(event: Event): boolean;
-set_base_time(time: ClockTime): void;
-set_bus(bus: Bus | null): void;
-set_clock(clock: Clock | null): boolean;
-set_context(context: Context): void;
-set_locked_state(locked_state: boolean): boolean;
-set_start_time(time: ClockTime): void;
-set_state(state: State): StateChangeReturn;
-sync_state_with_parent(): boolean;
-unlink(dest: Element): void;
-unlink_many(element_2: Element, ___: unknown[]): void;
-unlink_pads(srcpadname: string, dest: Element, destpadname: string): void;
-static make_from_uri(type: URIType, uri: string, elementname: string | null): Element | null;
-static register(plugin: Plugin | null, name: string, rank: number, type: unknown): boolean;
-static state_change_return_get_name(state_ret: StateChangeReturn): string;
-static state_get_name(state: State): string;
-}
-export class ElementFactory  {constructor(config?: properties);
-can_sink_all_caps(caps: Caps): boolean;
-can_sink_any_caps(caps: Caps): boolean;
-can_src_all_caps(caps: Caps): boolean;
-can_src_any_caps(caps: Caps): boolean;
-create(name: string | null): Element | null;
-get_element_type(): unknown;
-get_metadata(key: string): string | null;
-get_metadata_keys(): string[] | null;
-get_num_pad_templates(): number;
-get_static_pad_templates(): GLib.List;
-get_uri_protocols(): string[];
-get_uri_type(): URIType;
-has_interface(interfacename: string): boolean;
-list_is_type(type: ElementFactoryListType): boolean;
-static find(name: string): ElementFactory | null;
-static list_filter(list: GLib.List, caps: Caps, direction: PadDirection, subsetonly: boolean): GLib.List;
-static list_get_elements(type: ElementFactoryListType, minrank: Rank): GLib.List;
-static make(factoryname: string, name: string | null): Element | null;
-}
-export class FlagSet  {constructor(config?: properties);
-static register(flags_type: unknown): unknown;
-}
-export class Fraction  {constructor(config?: properties);
-}
-export class FractionRange  {constructor(config?: properties);
-}
-export class GhostPad extends ProxyPad {constructor(config?: properties);
-static new_from_template(name: string | null, target: Pad, templ: PadTemplate): Pad | null;
-static new_no_target(name: string | null, dir: PadDirection): Pad | null;
-static new_no_target_from_template(name: string | null, templ: PadTemplate): Pad | null;
-construct(): boolean;
-get_target(): Pad | null;
-set_target(newtarget: Pad | null): boolean;
-static activate_mode_default(pad: Pad, parent: Object | null, mode: PadMode, active: boolean): boolean;
-static internal_activate_mode_default(pad: Pad, parent: Object | null, mode: PadMode, active: boolean): boolean;
-}
-export class Int64Range  {constructor(config?: properties);
-}
-export class IntRange  {constructor(config?: properties);
-}
-export class Object  {constructor(config?: properties);
-name: string;
-readonly object: GObject.InitiallyUnowned;
-readonly lock: GLib.Mutex;
-readonly flags: number;
-readonly control_bindings: GLib.List;
-readonly control_rate: number;
-readonly last_sync: number;
-readonly _gst_reserved: object;
-add_control_binding(binding: ControlBinding): boolean;
-default_error(error: GLib.Error, debug: string | null): void;
-get_control_binding(property_name: string): ControlBinding | null;
-get_control_rate(): ClockTime;
-get_g_value_array(property_name: string, timestamp: ClockTime, interval: ClockTime, n_values: number, values: GObject.Value[]): boolean;
-get_name(): string | null;
-get_parent(): Object | null;
-get_path_string(): string;
-get_value(property_name: string, timestamp: ClockTime): GObject.Value | null;
-get_value_array(property_name: string, timestamp: ClockTime, interval: ClockTime, n_values: number, values: object | null): boolean;
-has_active_control_bindings(): boolean;
-has_ancestor(ancestor: Object): boolean;
-has_as_ancestor(ancestor: Object): boolean;
-has_as_parent(parent: Object): boolean;
-ref(): Object;
-remove_control_binding(binding: ControlBinding): boolean;
-set_control_binding_disabled(property_name: string, disabled: boolean): void;
-set_control_bindings_disabled(disabled: boolean): void;
-set_control_rate(control_rate: ClockTime): void;
-set_name(name: string | null): boolean;
-set_parent(parent: Object): boolean;
-suggest_next_sync(): ClockTime;
-sync_values(timestamp: ClockTime): boolean;
-unparent(): void;
-unref(): void;
-static check_uniqueness(list: GLib.List, name: string): boolean;
-static default_deep_notify(object: GObject.Object, orig: Object, pspec: GObject.ParamSpec, excluded_props: string[] | null): void;
-static ref_sink(object: object | null): object | null;
-static replace(oldobj: Object | null, newobj: Object | null): [boolean, Object | null];
-}
-export class Pad extends Object {constructor(config?: properties);
-readonly caps: Caps;
-direction: PadDirection;
-offset: number;
-template: PadTemplate;static new_from_static_template(templ: StaticPadTemplate, name: string): Pad;
-static new_from_template(templ: PadTemplate, name: string | null): Pad;
-activate_mode(mode: PadMode, active: boolean): boolean;
-add_probe(mask: PadProbeType, callback: PadProbeCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): number;
-can_link(sinkpad: Pad): boolean;
-chain(buffer: Buffer): FlowReturn;
-chain_list(list: BufferList): FlowReturn;
-check_reconfigure(): boolean;
-create_stream_id(parent: Element, stream_id: string | null): string;
-create_stream_id_printf(parent: Element, stream_id: string | null, ___: unknown[]): string;
-create_stream_id_printf_valist(parent: Element, stream_id: string | null, var_args: any): string;
-event_default(parent: Object | null, event: Event): boolean;
-forward(forward: PadForwardFunction, user_data: object | null): boolean;
-get_allowed_caps(): Caps | null;
-get_current_caps(): Caps | null;
-get_direction(): PadDirection;
-get_element_private(): object | null;
-get_last_flow_return(): FlowReturn;
-get_offset(): number;
-get_pad_template(): PadTemplate | null;
-get_pad_template_caps(): Caps;
-get_parent_element(): Element | null;
-get_peer(): Pad | null;
-get_range(offset: number, size: number): [FlowReturn, Buffer];
-get_sticky_event(event_type: EventType, idx: number): Event | null;
-get_stream(): Stream | null;
-get_stream_id(): string | null;
-get_task_state(): TaskState;
-has_current_caps(): boolean;
-is_active(): boolean;
-is_blocked(): boolean;
-is_blocking(): boolean;
-is_linked(): boolean;
-iterate_internal_links(): Iterator | null;
-iterate_internal_links_default(parent: Object | null): Iterator | null;
-link(sinkpad: Pad): PadLinkReturn;
-link_full(sinkpad: Pad, flags: PadLinkCheck): PadLinkReturn;
-link_maybe_ghosting(sink: Pad): boolean;
-link_maybe_ghosting_full(sink: Pad, flags: PadLinkCheck): boolean;
-mark_reconfigure(): void;
-needs_reconfigure(): boolean;
-pause_task(): boolean;
-peer_query(query: Query): boolean;
-peer_query_accept_caps(caps: Caps): boolean;
-peer_query_caps(filter: Caps | null): Caps;
-peer_query_convert(src_format: Format, src_val: number, dest_format: Format): [boolean, number];
-peer_query_duration(format: Format): [boolean, number | null];
-peer_query_position(format: Format): [boolean, number | null];
-proxy_query_accept_caps(query: Query): boolean;
-proxy_query_caps(query: Query): boolean;
-pull_range(offset: number, size: number): [FlowReturn, Buffer];
-push(buffer: Buffer): FlowReturn;
-push_event(event: Event): boolean;
-push_list(list: BufferList): FlowReturn;
-query(query: Query): boolean;
-query_accept_caps(caps: Caps): boolean;
-query_caps(filter: Caps | null): Caps;
-query_convert(src_format: Format, src_val: number, dest_format: Format): [boolean, number];
-query_default(parent: Object | null, query: Query): boolean;
-query_duration(format: Format): [boolean, number | null];
-query_position(format: Format): [boolean, number | null];
-remove_probe(id: number): void;
-send_event(event: Event): boolean;
-set_activate_function_full(activate: PadActivateFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_activatemode_function_full(activatemode: PadActivateModeFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_active(active: boolean): boolean;
-set_chain_function_full(chain: PadChainFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_chain_list_function_full(chainlist: PadChainListFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_element_private(priv: object | null): void;
-set_event_full_function_full(event: PadEventFullFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_event_function_full(event: PadEventFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_getrange_function_full(get: PadGetRangeFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_iterate_internal_links_function_full(iterintlink: PadIterIntLinkFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_link_function_full(link: PadLinkFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_offset(offset: number): void;
-set_query_function_full(query: PadQueryFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_unlink_function_full(unlink: PadUnlinkFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
-start_task(func: TaskFunction, user_data: object | null, notify: GLib.DestroyNotify): boolean;
-sticky_events_foreach(foreach_func: PadStickyEventsForeachFunction, user_data: object | null): void;
-stop_task(): boolean;
-store_sticky_event(event: Event): FlowReturn;
-unlink(sinkpad: Pad): boolean;
-use_fixed_caps(): void;
-vfunc_linked(peer: Pad): void;
-vfunc_unlinked(peer: Pad): void;
-static link_get_name(ret: PadLinkReturn): string;
-}
-export class PadTemplate extends Object {constructor(config?: properties);
-caps: Caps;
-direction: PadDirection;
-gtype: unknown;
-name_template: string;
-presence: PadPresence;static new_from_static_pad_template_with_gtype(pad_template: StaticPadTemplate, pad_type: unknown): PadTemplate | null;
-static new_with_gtype(name_template: string, direction: PadDirection, presence: PadPresence, caps: Caps, pad_type: unknown): PadTemplate | null;
-get_caps(): Caps;
-pad_created(pad: Pad): void;
-vfunc_pad_created(pad: Pad): void;
-}
-export class ParamArray  {constructor(config?: properties);
-}
-export class ParamFraction  {constructor(config?: properties);
-}
-export class Pipeline extends Bin {constructor(config?: properties);
-auto_flush_bus: boolean;
-delay: number;
-latency: number;
-auto_clock(): void;
-get_auto_flush_bus(): boolean;
-get_bus(): Bus;
-get_clock(): Clock;
-get_delay(): ClockTime;
-get_latency(): ClockTime;
-get_pipeline_clock(): Clock;
-set_auto_flush_bus(auto_flush: boolean): void;
-set_clock(clock: Clock): boolean;
-set_delay(delay: ClockTime): void;
-set_latency(latency: ClockTime): void;
-use_clock(clock: Clock | null): void;
-}
-export class Plugin  {constructor(config?: properties);
-add_dependency(env_vars: string[] | null, paths: string[] | null, names: string[] | null, flags: PluginDependencyFlags): void;
-add_dependency_simple(env_vars: string | null, paths: string | null, names: string | null, flags: PluginDependencyFlags): void;
-get_cache_data(): Structure | null;
-get_description(): string;
-get_filename(): unknown;
-get_license(): string;
-get_name(): string;
-get_origin(): string;
-get_package(): string;
-get_release_date_string(): string | null;
-get_source(): string;
-get_version(): string;
-is_loaded(): boolean;
-load(): Plugin | null;
-set_cache_data(cache_data: Structure): void;
-static list_free(list: GLib.List): void;
-static load_by_name(name: string): Plugin | null;
-static load_file(filename: unknown): Plugin;
-static register_static(major_version: number, minor_version: number, name: string, description: string, init_func: PluginInitFunc, version: string, license: string, source: string, _package: string, origin: string): boolean;
-static register_static_full(major_version: number, minor_version: number, name: string, description: string, init_full_func: PluginInitFullFunc, version: string, license: string, source: string, _package: string, origin: string, user_data: object | null): boolean;
-}
-export class PluginFeature  {constructor(config?: properties);
-check_version(min_major: number, min_minor: number, min_micro: number): boolean;
-get_plugin(): Plugin | null;
-get_plugin_name(): string | null;
-get_rank(): number;
-load(): PluginFeature | null;
-set_rank(rank: number): void;
-static list_copy(list: GLib.List): GLib.List;
-static list_debug(list: GLib.List): void;
-static list_free(list: GLib.List): void;
-static rank_compare_func(p1: object | null, p2: object | null): number;
-}
-export class ProxyPad  {constructor(config?: properties);
-readonly pad: Pad;
-readonly priv: ProxyPadPrivate;
-get_internal(): ProxyPad | null;
-static chain_default(pad: Pad, parent: Object | null, buffer: Buffer): FlowReturn;
-static chain_list_default(pad: Pad, parent: Object | null, list: BufferList): FlowReturn;
-static getrange_default(pad: Pad, parent: Object, offset: number, size: number): [FlowReturn, Buffer];
-static iterate_internal_links_default(pad: Pad, parent: Object | null): Iterator | null;
-}
-export class Registry  {constructor(config?: properties);
-readonly object: Object;
-readonly priv: RegistryPrivate;
-add_feature(feature: PluginFeature): boolean;
-add_plugin(plugin: Plugin): boolean;
-check_feature_version(feature_name: string, min_major: number, min_minor: number, min_micro: number): boolean;
-feature_filter(filter: PluginFeatureFilter, first: boolean, user_data: object | null): GLib.List;
-find_feature(name: string, type: unknown): PluginFeature | null;
-find_plugin(name: string): Plugin | null;
-get_feature_list(type: unknown): GLib.List;
-get_feature_list_by_plugin(name: string): GLib.List;
-get_feature_list_cookie(): number;
-get_plugin_list(): GLib.List;
-lookup(filename: string): Plugin | null;
-lookup_feature(name: string): PluginFeature;
-plugin_filter(filter: PluginFilter, first: boolean, user_data: object | null): GLib.List;
-remove_feature(feature: PluginFeature): void;
-remove_plugin(plugin: Plugin): void;
-scan_path(path: unknown): boolean;
-static fork_is_enabled(): boolean;
-static fork_set_enabled(enabled: boolean): void;
-static get(): Registry;
-}
-export class Stream extends Object {constructor(config?: properties);
-caps: Caps;
-stream_flags: StreamFlags;
-stream_id: string;
-stream_type: StreamType;
-tags: TagList;
-get_caps(): Caps | null;
-get_stream_flags(): StreamFlags;
-get_stream_id(): string | null;
-get_stream_type(): StreamType;
-get_tags(): TagList | null;
-set_caps(caps: Caps | null): void;
-set_stream_flags(flags: StreamFlags): void;
-set_stream_type(stream_type: StreamType): void;
-set_tags(tags: TagList | null): void;
-}
-export class StreamCollection extends Object {constructor(config?: properties);
-upstream_id: string;
-add_stream(stream: Stream): boolean;
-get_size(): number;
-get_stream(index: number): Stream | null;
-get_upstream_id(): string;
-vfunc_stream_notify(stream: Stream, pspec: GObject.ParamSpec): void;
-}
-export class SystemClock  {constructor(config?: properties);
-clock_type: ClockType;
-readonly clock: Clock;
-readonly priv: SystemClockPrivate;
-readonly _gst_reserved: object[];
-static obtain(): Clock;
-static set_default(new_clock: Clock | null): void;
-}
-export class Task extends Object {constructor(config?: properties);
-get_pool(): TaskPool;
-get_state(): TaskState;
-join(): boolean;
-pause(): boolean;
-set_enter_callback(enter_func: TaskThreadFunc, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_leave_callback(leave_func: TaskThreadFunc, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_lock(mutex: GLib.RecMutex): void;
-set_pool(pool: TaskPool): void;
-set_state(state: TaskState): boolean;
-start(): boolean;
-stop(): boolean;
-static cleanup_all(): void;
-}
-export class TaskPool extends Object {constructor(config?: properties);
-cleanup(): void;
-join(id: object | null): void;
-prepare(): void;
-push(func: TaskPoolFunction, user_data: object | null): object | null;
-vfunc_cleanup(): void;
-vfunc_join(id: object | null): void;
-vfunc_prepare(): void;
-vfunc_push(func: TaskPoolFunction, user_data: object | null): object | null;
-}
-export class Tracer  {constructor(config?: properties);
-params: string;
-readonly priv: TracerPrivate;
-readonly _gst_reserved: object[];
-}
-export class TracerFactory  {constructor(config?: properties);
-get_tracer_type(): unknown;
-static get_list(): GLib.List;
-}
-export class TracerRecord  {constructor(config?: properties);
-}
-export class TypeFindFactory  {constructor(config?: properties);
-call_function(find: TypeFind): void;
-get_caps(): Caps;
-get_extensions(): string[] | null;
-has_function(): boolean;
-static get_list(): GLib.List;
-}
-export class ValueArray  {constructor(config?: properties);
-static append_and_take_value(value: GObject.Value, append_value: GObject.Value): void;
-static append_value(value: GObject.Value, append_value: GObject.Value): void;
-static get_size(value: GObject.Value): number;
-static get_value(value: GObject.Value, index: number): GObject.Value;
-static prepend_value(value: GObject.Value, prepend_value: GObject.Value): void;
-}
-export class ValueList  {constructor(config?: properties);
-static append_and_take_value(value: GObject.Value, append_value: GObject.Value): void;
-static append_value(value: GObject.Value, append_value: GObject.Value): void;
-static concat(value1: GObject.Value, value2: GObject.Value): [GObject.Value];
-static get_size(value: GObject.Value): number;
-static get_value(value: GObject.Value, index: number): GObject.Value;
-static merge(value1: GObject.Value, value2: GObject.Value): [GObject.Value];
-static prepend_value(value: GObject.Value, prepend_value: GObject.Value): void;
-}
-export class AllocationParams  {constructor(config?: properties);
-flags: MemoryFlags;
-align: number;
-prefix: number;
-padding: number;
-readonly _gst_reserved: object[];
-copy(): AllocationParams | null;
-free(): void;
-init(): void;
-}
-export class AllocatorClass  {constructor(config?: properties);
-readonly object_class: ObjectClass;
-readonly alloc: unknown;
-readonly free: unknown;
-readonly _gst_reserved: object[];
-}
-export class AllocatorPrivate  {constructor(config?: properties);
-}
-export class AtomicQueue  {constructor(config?: properties);
-length(): number;
-peek(): object | null;
-pop(): object | null;
-push(data: object | null): void;
-ref(): void;
-unref(): void;
-}
-export class BinClass  {constructor(config?: properties);
-readonly parent_class: ElementClass;
-readonly pool: GLib.ThreadPool;
-readonly element_added: unknown;
-readonly element_removed: unknown;
-readonly add_element: unknown;
-readonly remove_element: unknown;
-readonly handle_message: unknown;
-readonly do_latency: unknown;
-readonly deep_element_added: unknown;
-readonly deep_element_removed: unknown;
-readonly _gst_reserved: object[];
-}
-export class BinPrivate  {constructor(config?: properties);
-}
-export class Buffer  {constructor(config?: properties);
-static new_allocate(allocator: Allocator | null, size: number, params: AllocationParams | null): Buffer | null;
-static new_wrapped(data: number[], size: number): Buffer;
-static new_wrapped_bytes(bytes: GLib.Bytes): Buffer;
-static new_wrapped_full(flags: MemoryFlags, data: number[], maxsize: number, offset: number, size: number, user_data: object | null, notify: GLib.DestroyNotify | null): Buffer;
-add_meta(info: MetaInfo, params: object | null): Meta | null;
-add_parent_buffer_meta(ref: Buffer): ParentBufferMeta | null;
-add_protection_meta(info: Structure): ProtectionMeta;
-add_reference_timestamp_meta(reference: Caps, timestamp: ClockTime, duration: ClockTime): ReferenceTimestampMeta | null;
-append(buf2: Buffer): Buffer;
-append_memory(mem: Memory): void;
-append_region(buf2: Buffer, offset: number, size: number): Buffer;
-copy_deep(): Buffer;
-copy_into(src: Buffer, flags: BufferCopyFlags, offset: number, size: number): boolean;
-copy_region(flags: BufferCopyFlags, offset: number, size: number): Buffer;
-extract(offset: number): [number, number[],number];
-extract_dup(offset: number, size: number): [number[],number];
-fill(offset: number, src: number[], size: number): number;
-find_memory(offset: number, size: number): [boolean, number,number,number];
-foreach_meta(func: BufferForeachMetaFunc, user_data: object | null): boolean;
-get_all_memory(): Memory | null;
-get_flags(): BufferFlags;
-get_memory(idx: number): Memory | null;
-get_memory_range(idx: number, length: number): Memory | null;
-get_meta(api: unknown): Meta | null;
-get_n_meta(api_type: unknown): number;
-get_reference_timestamp_meta(reference: Caps | null): ReferenceTimestampMeta | null;
-get_size(): number;
-get_sizes(): [number, number | null,number | null];
-get_sizes_range(idx: number, length: number): [number, number | null,number | null];
-has_flags(flags: BufferFlags): boolean;
-insert_memory(idx: number, mem: Memory): void;
-is_all_memory_writable(): boolean;
-is_memory_range_writable(idx: number, length: number): boolean;
-iterate_meta(): [Meta | null, object | null];
-iterate_meta_filtered(meta_api_type: unknown): [Meta | null, object | null];
-map(flags: MapFlags): [boolean, MapInfo];
-map_range(idx: number, length: number, flags: MapFlags): [boolean, MapInfo];
-memcmp(offset: number, mem: number[], size: number): number;
-memset(offset: number, val: number, size: number): number;
-n_memory(): number;
-peek_memory(idx: number): Memory | null;
-prepend_memory(mem: Memory): void;
-remove_all_memory(): void;
-remove_memory(idx: number): void;
-remove_memory_range(idx: number, length: number): void;
-remove_meta(meta: Meta): boolean;
-replace_all_memory(mem: Memory): void;
-replace_memory(idx: number, mem: Memory): void;
-replace_memory_range(idx: number, length: number, mem: Memory): void;
-resize(offset: number, size: number): void;
-resize_range(idx: number, length: number, offset: number, size: number): boolean;
-set_flags(flags: BufferFlags): boolean;
-set_size(size: number): void;
-unmap(info: MapInfo): void;
-unset_flags(flags: BufferFlags): boolean;
-static get_max_memory(): number;
-}
-export class BufferList  {constructor(config?: properties);
-static new_sized(size: number): BufferList;
-calculate_size(): number;
-copy_deep(): BufferList;
-foreach(func: BufferListFunc, user_data: object | null): boolean;
-get(idx: number): Buffer | null;
-get_writable(idx: number): Buffer | null;
-insert(idx: number, buffer: Buffer): void;
-length(): number;
-remove(idx: number, length: number): void;
-}
-export class BufferPoolAcquireParams  {constructor(config?: properties);
-format: Format;
-start: number;
-stop: number;
-flags: BufferPoolAcquireFlags;
-readonly _gst_reserved: object[];
-}
-export class BufferPoolClass  {constructor(config?: properties);
-readonly object_class: ObjectClass;
-readonly get_options: unknown;
-readonly set_config: unknown;
-readonly start: unknown;
-readonly stop: unknown;
-readonly acquire_buffer: unknown;
-readonly alloc_buffer: unknown;
-readonly reset_buffer: unknown;
-readonly release_buffer: unknown;
-readonly free_buffer: unknown;
-readonly flush_start: unknown;
-readonly flush_stop: unknown;
-readonly _gst_reserved: object[];
-}
-export class BufferPoolPrivate  {constructor(config?: properties);
-}
-export class BusClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly message: unknown;
-readonly sync_message: unknown;
-readonly _gst_reserved: object[];
-}
-export class BusPrivate  {constructor(config?: properties);
-}
-export class Caps  {constructor(config?: properties);
-static new_any(): Caps;
-static new_empty(): Caps;
-static new_empty_simple(media_type: string): Caps;
-static new_full(struct1: Structure, ___: unknown[]): Caps;
-static new_full_valist(structure: Structure, var_args: any): Caps;
-static new_simple(media_type: string, fieldname: string, ___: unknown[]): Caps;
-append(caps2: Caps): void;
-append_structure(structure: Structure): void;
-append_structure_full(structure: Structure, features: CapsFeatures | null): void;
-can_intersect(caps2: Caps): boolean;
-copy(): Caps;
-copy_nth(nth: number): Caps;
-filter_and_map_in_place(func: CapsFilterMapFunc, user_data: object | null): void;
-fixate(): Caps;
-foreach(func: CapsForeachFunc, user_data: object | null): boolean;
-get_features(index: number): CapsFeatures | null;
-get_size(): number;
-get_structure(index: number): Structure;
-intersect(caps2: Caps): Caps;
-intersect_full(caps2: Caps, mode: CapsIntersectMode): Caps;
-is_always_compatible(caps2: Caps): boolean;
-is_any(): boolean;
-is_empty(): boolean;
-is_equal(caps2: Caps): boolean;
-is_equal_fixed(caps2: Caps): boolean;
-is_fixed(): boolean;
-is_strictly_equal(caps2: Caps): boolean;
-is_subset(superset: Caps): boolean;
-is_subset_structure(structure: Structure): boolean;
-is_subset_structure_full(structure: Structure, features: CapsFeatures | null): boolean;
-map_in_place(func: CapsMapFunc, user_data: object | null): boolean;
-merge(caps2: Caps): Caps;
-merge_structure(structure: Structure): Caps;
-merge_structure_full(structure: Structure, features: CapsFeatures | null): Caps;
-normalize(): Caps;
-remove_structure(idx: number): void;
-set_features(index: number, features: CapsFeatures | null): void;
-set_features_simple(features: CapsFeatures | null): void;
-set_simple(field: string, ___: unknown[]): void;
-set_simple_valist(field: string, varargs: any): void;
-set_value(field: string, value: GObject.Value): void;
-simplify(): Caps;
-steal_structure(index: number): Structure | null;
-subtract(subtrahend: Caps): Caps;
-to_string(): string;
-truncate(): Caps;
-static from_string(string: string): Caps | null;
-}
-export class CapsFeatures  {constructor(config?: properties);
-static new_any(): CapsFeatures;
-static new_empty(): CapsFeatures;
-static new_id(feature1: GLib.Quark, ___: unknown[]): CapsFeatures;
-static new_id_valist(feature1: GLib.Quark, varargs: any): CapsFeatures;
-static new_valist(feature1: string, varargs: any): CapsFeatures;
-add(feature: string): void;
-add_id(feature: GLib.Quark): void;
-contains(feature: string): boolean;
-contains_id(feature: GLib.Quark): boolean;
-copy(): CapsFeatures;
-free(): void;
-get_nth(i: number): string | null;
-get_nth_id(i: number): GLib.Quark;
-get_size(): number;
-is_any(): boolean;
-is_equal(features2: CapsFeatures): boolean;
-remove(feature: string): void;
-remove_id(feature: GLib.Quark): void;
-set_parent_refcount(refcount: number): boolean;
-to_string(): string;
-static from_string(features: string): CapsFeatures | null;
-}
-export class ChildProxyInterface  {constructor(config?: properties);
-readonly get_child_by_name: unknown;
-readonly get_child_by_index: unknown;
-readonly get_children_count: unknown;
-readonly child_added: unknown;
-readonly child_removed: unknown;
-readonly _gst_reserved: object[];
-}
-export class ClockClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly change_resolution: unknown;
-readonly get_resolution: unknown;
-readonly get_internal_time: unknown;
-readonly wait: unknown;
-readonly wait_async: unknown;
-readonly unschedule: unknown;
-readonly _gst_reserved: object[];
-}
-export class ClockEntry  {constructor(config?: properties);
-refcount: number;
-clock: Clock;
-type: ClockEntryType;
-time: ClockTime;
-interval: ClockTime;
-status: ClockReturn;
-func: ClockCallback;
-user_data: object;
-destroy_data: GLib.DestroyNotify;
-unscheduled: boolean;
-woken_up: boolean;
-readonly _gst_reserved: object[];
-}
-export class ClockPrivate  {constructor(config?: properties);
-}
-export class Context  {constructor(config?: properties);
-get_context_type(): string;
-get_structure(): Structure;
-has_context_type(context_type: string): boolean;
-is_persistent(): boolean;
-writable_structure(): Structure;
-}
-export class ControlBindingClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly sync_values: unknown;
-readonly get_value: unknown;
-readonly get_value_array: unknown;
-readonly get_g_value_array: unknown;
-readonly _gst_reserved: object[];
-}
-export class ControlBindingPrivate  {constructor(config?: properties);
-}
-export class ControlSourceClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly _gst_reserved: object[];
-}
-export class DateTime  {constructor(config?: properties);
-static new_from_g_date_time(dt: GLib.DateTime): DateTime | null;
-static new_from_iso8601_string(string: string): DateTime | null;
-static new_from_unix_epoch_local_time(secs: number): DateTime;
-static new_from_unix_epoch_utc(secs: number): DateTime;
-static new_local_time(year: number, month: number, day: number, hour: number, minute: number, seconds: number): DateTime;
-static new_now_local_time(): DateTime;
-static new_now_utc(): DateTime;
-static new_y(year: number): DateTime;
-static new_ym(year: number, month: number): DateTime;
-static new_ymd(year: number, month: number, day: number): DateTime;
-get_day(): number;
-get_hour(): number;
-get_microsecond(): number;
-get_minute(): number;
-get_month(): number;
-get_second(): number;
-get_time_zone_offset(): number;
-get_year(): number;
-has_day(): boolean;
-has_month(): boolean;
-has_second(): boolean;
-has_time(): boolean;
-has_year(): boolean;
-ref(): DateTime;
-to_g_date_time(): GLib.DateTime | null;
-to_iso8601_string(): string | null;
-unref(): void;
-}
-export class DebugCategory  {constructor(config?: properties);
-readonly threshold: number;
-readonly color: number;
-readonly name: string;
-readonly description: string;
-free(): void;
-get_color(): number;
-get_description(): string;
-get_name(): string;
-get_threshold(): DebugLevel;
-reset_threshold(): void;
-set_threshold(level: DebugLevel): void;
-}
-export class DebugMessage  {constructor(config?: properties);
-get(): string | null;
-}
-export class DeviceClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly create_element: unknown;
-readonly reconfigure_element: unknown;
-readonly _gst_reserved: object[];
-}
-export class DeviceMonitorClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly _gst_reserved: object[];
-}
-export class DeviceMonitorPrivate  {constructor(config?: properties);
-}
-export class DevicePrivate  {constructor(config?: properties);
-}
-export class DeviceProviderClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly factory: DeviceProviderFactory;
-readonly probe: unknown;
-readonly start: unknown;
-readonly stop: unknown;
-readonly metadata: object;
-readonly _gst_reserved: object[];
-add_metadata(key: string, value: string): void;
-add_static_metadata(key: string, value: string): void;
-get_metadata(key: string): string | null;
-set_metadata(longname: string, classification: string, description: string, author: string): void;
-set_static_metadata(longname: string, classification: string, description: string, author: string): void;
-}
-export class DeviceProviderFactoryClass  {constructor(config?: properties);
-}
-export class DeviceProviderPrivate  {constructor(config?: properties);
-}
-export class DynamicTypeFactoryClass  {constructor(config?: properties);
-}
-export class ElementClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly metadata: object;
-readonly elementfactory: ElementFactory;
-readonly padtemplates: GLib.List;
-readonly numpadtemplates: number;
-readonly pad_templ_cookie: number;
-readonly pad_added: unknown;
-readonly pad_removed: unknown;
-readonly no_more_pads: unknown;
-readonly request_new_pad: unknown;
-readonly release_pad: unknown;
-readonly get_state: unknown;
-readonly set_state: unknown;
-readonly change_state: unknown;
-readonly state_changed: unknown;
-readonly set_bus: unknown;
-readonly provide_clock: unknown;
-readonly set_clock: unknown;
-readonly send_event: unknown;
-readonly query: unknown;
-readonly post_message: unknown;
-readonly set_context: unknown;
-readonly _gst_reserved: object[];
-add_metadata(key: string, value: string): void;
-add_pad_template(templ: PadTemplate): void;
-add_static_metadata(key: string, value: string): void;
-add_static_pad_template(static_templ: StaticPadTemplate): void;
-add_static_pad_template_with_gtype(static_templ: StaticPadTemplate, pad_type: unknown): void;
-get_metadata(key: string): string;
-get_pad_template(name: string): PadTemplate | null;
-get_pad_template_list(): GLib.List;
-set_metadata(longname: string, classification: string, description: string, author: string): void;
-set_static_metadata(longname: string, classification: string, description: string, author: string): void;
-}
-export class ElementFactoryClass  {constructor(config?: properties);
-}
-export class Event  {constructor(config?: properties);
-static new_buffer_size(format: Format, minsize: number, maxsize: number, async: boolean): Event;
-static new_caps(caps: Caps): Event | null;
-static new_custom(type: EventType, structure: Structure): Event | null;
-static new_eos(): Event;
-static new_flush_start(): Event;
-static new_flush_stop(reset_time: boolean): Event;
-static new_gap(timestamp: ClockTime, duration: ClockTime): Event;
-static new_latency(latency: ClockTime): Event;
-static new_navigation(structure: Structure): Event;
-static new_protection(system_id: string, data: Buffer, origin: string): Event;
-static new_qos(type: QOSType, proportion: number, diff: ClockTimeDiff, timestamp: ClockTime): Event | null;
-static new_reconfigure(): Event;
-static new_seek(rate: number, format: Format, flags: SeekFlags, start_type: SeekType, start: number, stop_type: SeekType, stop: number): Event | null;
-static new_segment(segment: Segment): Event | null;
-static new_segment_done(format: Format, position: number): Event;
-static new_select_streams(streams: GLib.List): Event;
-static new_sink_message(name: string, msg: Message): Event;
-static new_step(format: Format, amount: number, rate: number, flush: boolean, intermediate: boolean): Event | null;
-static new_stream_collection(collection: StreamCollection): Event;
-static new_stream_group_done(group_id: number): Event;
-static new_stream_start(stream_id: string): Event;
-static new_tag(taglist: TagList): Event;
-static new_toc(toc: Toc, updated: boolean): Event;
-static new_toc_select(uid: string): Event;
-copy_segment(segment: Segment): void;
-get_running_time_offset(): number;
-get_seqnum(): number;
-get_structure(): Structure | null;
-has_name(name: string): boolean;
-parse_buffer_size(): [Format,number,number,boolean];
-parse_caps(): [Caps];
-parse_flush_stop(): [boolean];
-parse_gap(): [ClockTime | null,ClockTime | null];
-parse_group_id(): [boolean, number];
-parse_latency(): [ClockTime];
-parse_protection(): [string | null,Buffer | null,string | null];
-parse_qos(): [QOSType,number,ClockTimeDiff,ClockTime];
-parse_seek(): [number,Format,SeekFlags,SeekType,number,SeekType,number];
-parse_seek_trickmode_interval(): [ClockTime];
-parse_segment(): [Segment];
-parse_segment_done(): [Format | null,number | null];
-parse_select_streams(): [GLib.List];
-parse_sink_message(): [Message];
-parse_step(): [Format | null,number | null,number | null,boolean | null,boolean | null];
-parse_stream(): [Stream];
-parse_stream_collection(): [StreamCollection];
-parse_stream_flags(): [StreamFlags];
-parse_stream_group_done(): [number];
-parse_stream_start(): [string];
-parse_tag(): [TagList];
-parse_toc(): [Toc,boolean];
-parse_toc_select(): [string | null];
-set_group_id(group_id: number): void;
-set_running_time_offset(offset: number): void;
-set_seek_trickmode_interval(interval: ClockTime): void;
-set_seqnum(seqnum: number): void;
-set_stream(stream: Stream): void;
-set_stream_flags(flags: StreamFlags): void;
-writable_structure(): Structure;
-}
-export class FormatDefinition  {constructor(config?: properties);
-value: Format;
-nick: string;
-description: string;
-quark: GLib.Quark;
-}
-export class GhostPadClass  {constructor(config?: properties);
-readonly parent_class: ProxyPadClass;
-readonly _gst_reserved: object[];
-}
-export class GhostPadPrivate  {constructor(config?: properties);
-}
-export class Iterator  {constructor(config?: properties);
-static new_list(type: unknown, lock: GLib.Mutex, master_cookie: number, list: GLib.List, owner: GObject.Object, item: IteratorItemFunction): Iterator;
-static new_single(type: unknown, object: GObject.Value): Iterator;
-copy(): Iterator;
-filter(func: GLib.CompareFunc, user_data: GObject.Value): Iterator;
-find_custom(func: GLib.CompareFunc, user_data: object | null): [boolean, GObject.Value];
-fold(func: IteratorFoldFunction, ret: GObject.Value, user_data: object | null): IteratorResult;
-foreach(func: IteratorForeachFunction, user_data: object | null): IteratorResult;
-free(): void;
-next(): [IteratorResult, GObject.Value];
-push(other: Iterator): void;
-resync(): void;
-}
-export class MapInfo  {constructor(config?: properties);
-memory: Memory;
-flags: MapFlags;
-data: number[];
-size: number;
-maxsize: number;
-user_data: object[];
-readonly _gst_reserved: object[];
-}
-export class Memory  {constructor(config?: properties);
-static new_wrapped(flags: MemoryFlags, data: number[], maxsize: number, offset: number, size: number, user_data: object | null, notify: GLib.DestroyNotify | null): Memory | null;
-copy(offset: number, size: number): Memory;
-get_sizes(): [number, number | null,number | null];
-init(flags: MemoryFlags, allocator: Allocator, parent: Memory, maxsize: number, align: number, offset: number, size: number): void;
-is_span(mem2: Memory): [boolean, number];
-is_type(mem_type: string): boolean;
-make_mapped(flags: MapFlags): [Memory | null, MapInfo];
-map(flags: MapFlags): [boolean, MapInfo];
-resize(offset: number, size: number): void;
-share(offset: number, size: number): Memory;
-unmap(info: MapInfo): void;
-}
-export class Message  {constructor(config?: properties);
-static new_application(src: Object | null, structure: Structure): Message | null;
-static new_async_done(src: Object | null, running_time: ClockTime): Message;
-static new_async_start(src: Object | null): Message;
-static new_buffering(src: Object | null, percent: number): Message | null;
-static new_clock_lost(src: Object | null, clock: Clock): Message;
-static new_clock_provide(src: Object | null, clock: Clock, ready: boolean): Message;
-static new_custom(type: MessageType, src: Object | null, structure: Structure | null): Message | null;
-static new_device_added(src: Object, device: Device): Message;
-static new_device_changed(src: Object, device: Device, changed_device: Device): Message;
-static new_device_removed(src: Object, device: Device): Message;
-static new_duration_changed(src: Object | null): Message;
-static new_element(src: Object | null, structure: Structure): Message | null;
-static new_eos(src: Object | null): Message;
-static new_error(src: Object | null, error: GLib.Error, debug: string): Message;
-static new_error_with_details(src: Object | null, error: GLib.Error, debug: string, details: Structure | null): Message | null;
-static new_have_context(src: Object | null, context: Context): Message;
-static new_info(src: Object | null, error: GLib.Error, debug: string): Message;
-static new_info_with_details(src: Object | null, error: GLib.Error, debug: string, details: Structure | null): Message | null;
-static new_latency(src: Object | null): Message;
-static new_need_context(src: Object | null, context_type: string): Message;
-static new_new_clock(src: Object | null, clock: Clock): Message;
-static new_progress(src: Object, type: ProgressType, code: string, text: string): Message | null;
-static new_property_notify(src: Object, property_name: string, val: GObject.Value | null): Message;
-static new_qos(src: Object, live: boolean, running_time: number, stream_time: number, timestamp: number, duration: number): Message;
-static new_redirect(src: Object, location: string, tag_list: TagList | null, entry_struct: Structure | null): Message;
-static new_request_state(src: Object | null, state: State): Message;
-static new_reset_time(src: Object | null, running_time: ClockTime): Message;
-static new_segment_done(src: Object | null, format: Format, position: number): Message;
-static new_segment_start(src: Object | null, format: Format, position: number): Message;
-static new_state_changed(src: Object | null, oldstate: State, newstate: State, pending: State): Message;
-static new_state_dirty(src: Object | null): Message;
-static new_step_done(src: Object, format: Format, amount: number, rate: number, flush: boolean, intermediate: boolean, duration: number, eos: boolean): Message;
-static new_step_start(src: Object, active: boolean, format: Format, amount: number, rate: number, flush: boolean, intermediate: boolean): Message;
-static new_stream_collection(src: Object, collection: StreamCollection): Message;
-static new_stream_start(src: Object | null): Message;
-static new_stream_status(src: Object, type: StreamStatusType, owner: Element): Message;
-static new_streams_selected(src: Object, collection: StreamCollection): Message;
-static new_structure_change(src: Object | null, type: StructureChangeType, owner: Element, busy: boolean): Message;
-static new_tag(src: Object | null, tag_list: TagList): Message;
-static new_toc(src: Object, toc: Toc, updated: boolean): Message;
-static new_warning(src: Object | null, error: GLib.Error, debug: string): Message;
-static new_warning_with_details(src: Object | null, error: GLib.Error, debug: string, details: Structure | null): Message | null;
-add_redirect_entry(location: string, tag_list: TagList | null, entry_struct: Structure | null): void;
-get_num_redirect_entries(): number;
-get_seqnum(): number;
-get_stream_status_object(): GObject.Value | null;
-get_structure(): Structure | null;
-has_name(name: string): boolean;
-parse_async_done(): [ClockTime | null];
-parse_buffering(): [number | null];
-parse_buffering_stats(): [BufferingMode | null,number | null,number | null,number | null];
-parse_clock_lost(): [Clock | null];
-parse_clock_provide(): [Clock | null,boolean | null];
-parse_context_type(): [boolean, string | null];
-parse_device_added(): [Device | null];
-parse_device_changed(): [Device | null,Device | null];
-parse_device_removed(): [Device | null];
-parse_error(): [GLib.Error | null,string | null];
-parse_error_details(): [Structure];
-parse_group_id(): [boolean, number | null];
-parse_have_context(): [Context | null];
-parse_info(): [GLib.Error | null,string | null];
-parse_info_details(): [Structure];
-parse_new_clock(): [Clock | null];
-parse_progress(): [ProgressType | null,string | null,string | null];
-parse_property_notify(): [Object | null,string | null,GObject.Value | null];
-parse_qos(): [boolean | null,number | null,number | null,number | null,number | null];
-parse_qos_stats(): [Format | null,number | null,number | null];
-parse_qos_values(): [number | null,number | null,number | null];
-parse_redirect_entry(entry_index: number): [string | null,TagList | null,Structure | null];
-parse_request_state(): [State | null];
-parse_reset_time(): [ClockTime | null];
-parse_segment_done(): [Format | null,number | null];
-parse_segment_start(): [Format | null,number | null];
-parse_state_changed(): [State | null,State | null,State | null];
-parse_step_done(): [Format | null,number | null,number | null,boolean | null,boolean | null,number | null,boolean | null];
-parse_step_start(): [boolean | null,Format | null,number | null,number | null,boolean | null,boolean | null];
-parse_stream_collection(): [StreamCollection | null];
-parse_stream_status(): [StreamStatusType,Element];
-parse_streams_selected(): [StreamCollection | null];
-parse_structure_change(): [StructureChangeType,Element | null,boolean | null];
-parse_tag(): [TagList];
-parse_toc(): [Toc,boolean];
-parse_warning(): [GLib.Error | null,string | null];
-parse_warning_details(): [Structure];
-set_buffering_stats(mode: BufferingMode, avg_in: number, avg_out: number, buffering_left: number): void;
-set_group_id(group_id: number): void;
-set_qos_stats(format: Format, processed: number, dropped: number): void;
-set_qos_values(jitter: number, proportion: number, quality: number): void;
-set_seqnum(seqnum: number): void;
-set_stream_status_object(object: GObject.Value): void;
-streams_selected_add(stream: Stream): void;
-streams_selected_get_size(): number;
-streams_selected_get_stream(idx: number): Stream | null;
-writable_structure(): Structure;
-}
-export class Meta  {constructor(config?: properties);
-flags: MetaFlags;
-info: MetaInfo;
-compare_seqnum(meta2: Meta): number;
-get_seqnum(): number;
-static api_type_get_tags(api: unknown): string[];
-static api_type_has_tag(api: unknown, tag: GLib.Quark): boolean;
-static api_type_register(api: string, tags: string[]): unknown;
-static get_info(impl: string): MetaInfo | null;
-static register(api: unknown, impl: string, size: number, init_func: MetaInitFunction, free_func: MetaFreeFunction, transform_func: MetaTransformFunction): MetaInfo | null;
-}
-export class MetaInfo  {constructor(config?: properties);
-api: unknown;
-type: unknown;
-size: number;
-init_func: MetaInitFunction;
-free_func: MetaFreeFunction;
-transform_func: MetaTransformFunction;
-}
-export class MetaTransformCopy  {constructor(config?: properties);
-region: boolean;
-offset: number;
-size: number;
-}
-export class MiniObject  {constructor(config?: properties);
-type: unknown;
-refcount: number;
-lockstate: number;
-flags: number;
-dispose: MiniObjectDisposeFunction;
-free: MiniObjectFreeFunction;
-readonly priv_uint: number;
-readonly priv_pointer: object;
-add_parent(parent: MiniObject): void;
-copy(): MiniObject | null;
-get_qdata(quark: GLib.Quark): object | null;
-init(flags: number, type: unknown, copy_func: MiniObjectCopyFunction | null, dispose_func: MiniObjectDisposeFunction | null, free_func: MiniObjectFreeFunction | null): void;
-is_writable(): boolean;
-lock(flags: LockFlags): boolean;
-make_writable(): MiniObject;
-ref(): MiniObject;
-remove_parent(parent: MiniObject): void;
-set_qdata(quark: GLib.Quark, data: object | null, destroy: GLib.DestroyNotify): void;
-steal_qdata(quark: GLib.Quark): object | null;
-unlock(flags: LockFlags): void;
-unref(): void;
-weak_ref(notify: MiniObjectNotify, data: object | null): void;
-weak_unref(notify: MiniObjectNotify, data: object | null): void;
-static replace(olddata: MiniObject | null, newdata: MiniObject | null): [boolean, MiniObject | null];
-static steal(olddata: MiniObject): [MiniObject | null, MiniObject];
-static take(olddata: MiniObject, newdata: MiniObject): [boolean, MiniObject];
-}
-export class ObjectClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly path_string_separator: string;
-readonly deep_notify: unknown;
-readonly _gst_reserved: object[];
-}
-export class PadClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly linked: unknown;
-readonly unlinked: unknown;
-readonly _gst_reserved: object[];
-}
-export class PadPrivate  {constructor(config?: properties);
-}
-export class PadProbeInfo  {constructor(config?: properties);
-type: PadProbeType;
-id: number;
-data: object;
-offset: number;
-size: number;
-get_buffer(): Buffer | null;
-get_buffer_list(): BufferList | null;
-get_event(): Event | null;
-get_query(): Query | null;
-}
-export class PadTemplateClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly pad_created: unknown;
-readonly _gst_reserved: object[];
-}
-export class ParamSpecArray  {constructor(config?: properties);
-element_spec: GObject.ParamSpec;
-}
-export class ParamSpecFraction  {constructor(config?: properties);
-min_num: number;
-min_den: number;
-max_num: number;
-max_den: number;
-def_num: number;
-def_den: number;
-}
-export class ParentBufferMeta  {constructor(config?: properties);
-buffer: Buffer;
-static get_info(): MetaInfo;
-}
-export class ParseContext  {constructor(config?: properties);
-copy(): ParseContext | null;
-free(): void;
-get_missing_elements(): string[] | null;
-}
-export class PipelineClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gst_reserved: object[];
-}
-export class PipelinePrivate  {constructor(config?: properties);
-}
-export class PluginClass  {constructor(config?: properties);
-}
-export class PluginDesc  {constructor(config?: properties);
-major_version: number;
-minor_version: number;
-name: string;
-description: string;
-plugin_init: PluginInitFunc;
-version: string;
-license: string;
-source: string;
-_package: string;
-origin: string;
-release_datetime: string;
-readonly _gst_reserved: object[];
-}
-export class PluginFeatureClass  {constructor(config?: properties);
-}
-export class Poll  {constructor(config?: properties);
-add_fd(fd: PollFD): boolean;
-fd_can_read(fd: PollFD): boolean;
-fd_can_write(fd: PollFD): boolean;
-fd_ctl_pri(fd: PollFD, active: boolean): boolean;
-fd_ctl_read(fd: PollFD, active: boolean): boolean;
-fd_ctl_write(fd: PollFD, active: boolean): boolean;
-fd_has_closed(fd: PollFD): boolean;
-fd_has_error(fd: PollFD): boolean;
-fd_has_pri(fd: PollFD): boolean;
-fd_ignored(fd: PollFD): void;
-free(): void;
-get_read_gpollfd(fd: GLib.PollFD): void;
-read_control(): boolean;
-remove_fd(fd: PollFD): boolean;
-restart(): void;
-set_controllable(controllable: boolean): boolean;
-set_flushing(flushing: boolean): void;
-wait(timeout: ClockTime): number;
-write_control(): boolean;
-static _new(controllable: boolean): Poll | null;
-static new_timer(): Poll | null;
-}
-export class PollFD  {constructor(config?: properties);
-fd: number;
-readonly idx: number;
-init(): void;
-}
-export class PresetInterface  {constructor(config?: properties);
-readonly get_preset_names: unknown;
-readonly get_property_names: unknown;
-readonly load_preset: unknown;
-readonly save_preset: unknown;
-readonly rename_preset: unknown;
-readonly delete_preset: unknown;
-readonly set_meta: unknown;
-readonly get_meta: unknown;
-readonly _gst_reserved: object[];
-}
-export class Promise  {constructor(config?: properties);
-static new_with_change_func(func: PromiseChangeFunc, user_data: object | null, notify: GLib.DestroyNotify): Promise;
-expire(): void;
-get_reply(): Structure;
-interrupt(): void;
-reply(s: Structure): void;
-wait(): PromiseResult;
-}
-export class ProtectionMeta  {constructor(config?: properties);
-meta: Meta;
-info: Structure;
-static get_info(): MetaInfo;
-}
-export class ProxyPadClass  {constructor(config?: properties);
-readonly parent_class: PadClass;
-readonly _gst_reserved: object[];
-}
-export class ProxyPadPrivate  {constructor(config?: properties);
-}
-export class Query  {constructor(config?: properties);
-static new_accept_caps(caps: Caps): Query;
-static new_allocation(caps: Caps, need_pool: boolean): Query;
-static new_bitrate(): Query;
-static new_buffering(format: Format): Query;
-static new_caps(filter: Caps): Query;
-static new_context(context_type: string): Query;
-static new_convert(src_format: Format, value: number, dest_format: Format): Query;
-static new_custom(type: QueryType, structure: Structure | null): Query | null;
-static new_drain(): Query;
-static new_duration(format: Format): Query;
-static new_formats(): Query;
-static new_latency(): Query;
-static new_position(format: Format): Query;
-static new_scheduling(): Query;
-static new_seeking(format: Format): Query;
-static new_segment(format: Format): Query;
-static new_uri(): Query;
-add_allocation_meta(api: unknown, params: Structure | null): void;
-add_allocation_param(allocator: Allocator | null, params: AllocationParams | null): void;
-add_allocation_pool(pool: BufferPool | null, size: number, min_buffers: number, max_buffers: number): void;
-add_buffering_range(start: number, stop: number): boolean;
-add_scheduling_mode(mode: PadMode): void;
-find_allocation_meta(api: unknown): [boolean, number | null];
-get_n_allocation_metas(): number;
-get_n_allocation_params(): number;
-get_n_allocation_pools(): number;
-get_n_buffering_ranges(): number;
-get_n_scheduling_modes(): number;
-get_structure(): Structure | null;
-has_scheduling_mode(mode: PadMode): boolean;
-has_scheduling_mode_with_flags(mode: PadMode, flags: SchedulingFlags): boolean;
-parse_accept_caps(): [Caps];
-parse_accept_caps_result(): [boolean | null];
-parse_allocation(): [Caps | null,boolean | null];
-parse_bitrate(): [number | null];
-parse_buffering_percent(): [boolean | null,number | null];
-parse_buffering_range(): [Format | null,number | null,number | null,number | null];
-parse_buffering_stats(): [BufferingMode | null,number | null,number | null,number | null];
-parse_caps(): [Caps];
-parse_caps_result(): [Caps];
-parse_context(): [Context];
-parse_context_type(): [boolean, string | null];
-parse_convert(): [Format | null,number | null,Format | null,number | null];
-parse_duration(): [Format | null,number | null];
-parse_latency(): [boolean | null,ClockTime | null,ClockTime | null];
-parse_n_formats(): [number | null];
-parse_nth_allocation_meta(index: number): [unknown, Structure | null];
-parse_nth_allocation_param(index: number): [Allocator | null,AllocationParams | null];
-parse_nth_allocation_pool(index: number): [BufferPool | null,number | null,number | null,number | null];
-parse_nth_buffering_range(index: number): [boolean, number | null,number | null];
-parse_nth_format(nth: number): [Format | null];
-parse_nth_scheduling_mode(index: number): PadMode;
-parse_position(): [Format | null,number | null];
-parse_scheduling(): [SchedulingFlags | null,number | null,number | null,number | null];
-parse_seeking(): [Format | null,boolean | null,number | null,number | null];
-parse_segment(): [number | null,Format | null,number | null,number | null];
-parse_uri(): [string | null];
-parse_uri_redirection(): [string | null];
-parse_uri_redirection_permanent(): [boolean | null];
-remove_nth_allocation_meta(index: number): void;
-remove_nth_allocation_param(index: number): void;
-remove_nth_allocation_pool(index: number): void;
-set_accept_caps_result(result: boolean): void;
-set_bitrate(nominal_bitrate: number): void;
-set_buffering_percent(busy: boolean, percent: number): void;
-set_buffering_range(format: Format, start: number, stop: number, estimated_total: number): void;
-set_buffering_stats(mode: BufferingMode, avg_in: number, avg_out: number, buffering_left: number): void;
-set_caps_result(caps: Caps): void;
-set_context(context: Context): void;
-set_convert(src_format: Format, src_value: number, dest_format: Format, dest_value: number): void;
-set_duration(format: Format, duration: number): void;
-set_formats(n_formats: number, ___: unknown[]): void;
-set_formatsv(n_formats: number, formats: Format[]): void;
-set_latency(live: boolean, min_latency: ClockTime, max_latency: ClockTime): void;
-set_nth_allocation_param(index: number, allocator: Allocator | null, params: AllocationParams | null): void;
-set_nth_allocation_pool(index: number, pool: BufferPool | null, size: number, min_buffers: number, max_buffers: number): void;
-set_position(format: Format, cur: number): void;
-set_scheduling(flags: SchedulingFlags, minsize: number, maxsize: number, align: number): void;
-set_seeking(format: Format, seekable: boolean, segment_start: number, segment_end: number): void;
-set_segment(rate: number, format: Format, start_value: number, stop_value: number): void;
-set_uri(uri: string): void;
-set_uri_redirection(uri: string): void;
-set_uri_redirection_permanent(permanent: boolean): void;
-writable_structure(): Structure;
-}
-export class ReferenceTimestampMeta  {constructor(config?: properties);
-reference: Caps;
-timestamp: ClockTime;
-duration: ClockTime;
-static get_info(): MetaInfo;
-}
-export class RegistryClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-}
-export class RegistryPrivate  {constructor(config?: properties);
-}
-export class Sample  {constructor(config?: properties);
-get_buffer(): Buffer | null;
-get_buffer_list(): BufferList | null;
-get_caps(): Caps | null;
-get_info(): Structure | null;
-get_segment(): Segment;
-set_buffer(buffer: Buffer): void;
-set_buffer_list(buffer_list: BufferList): void;
-set_caps(caps: Caps): void;
-set_info(info: Structure): boolean;
-set_segment(segment: Segment): void;
-}
-export class Segment  {constructor(config?: properties);
-clip(format: Format, start: number, stop: number): [boolean, number | null,number | null];
-copy(): Segment;
-copy_into(dest: Segment): void;
-do_seek(rate: number, format: Format, flags: SeekFlags, start_type: SeekType, start: number, stop_type: SeekType, stop: number): [boolean, boolean | null];
-free(): void;
-init(format: Format): void;
-is_equal(s1: Segment): boolean;
-offset_running_time(format: Format, offset: number): boolean;
-position_from_running_time(format: Format, running_time: number): number;
-position_from_running_time_full(format: Format, running_time: number): [number, number];
-position_from_stream_time(format: Format, stream_time: number): number;
-position_from_stream_time_full(format: Format, stream_time: number): [number, number];
-set_running_time(format: Format, running_time: number): boolean;
-to_position(format: Format, running_time: number): number;
-to_running_time(format: Format, position: number): number;
-to_running_time_full(format: Format, position: number): [number, number | null];
-to_stream_time(format: Format, position: number): number;
-to_stream_time_full(format: Format, position: number): [number, number];
-}
-export class StaticCaps  {constructor(config?: properties);
-caps: Caps;
-string: string;
-readonly _gst_reserved: object[];
-cleanup(): void;
-get(): Caps | null;
-}
-export class StaticPadTemplate  {constructor(config?: properties);
-name_template: string;
-direction: PadDirection;
-presence: PadPresence;
-static_caps: StaticCaps;
-get(): PadTemplate | null;
-get_caps(): Caps;
-}
-export class StreamClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly _gst_reserved: object[];
-}
-export class StreamCollectionClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly stream_notify: unknown;
-readonly _gst_reserved: object[];
-}
-export class StreamCollectionPrivate  {constructor(config?: properties);
-}
-export class StreamPrivate  {constructor(config?: properties);
-}
-export class Structure  {constructor(config?: properties);
-static new_empty(name: string): Structure;
-static new_from_string(string: string): Structure | null;
-static new_id(name_quark: GLib.Quark, field_quark: GLib.Quark, ___: unknown[]): Structure;
-static new_id_empty(quark: GLib.Quark): Structure;
-static new_valist(name: string, firstfield: string, varargs: any): Structure;
-can_intersect(struct2: Structure): boolean;
-copy(): Structure;
-filter_and_map_in_place(func: StructureFilterMapFunc, user_data: object | null): void;
-fixate(): void;
-fixate_field(field_name: string): boolean;
-fixate_field_boolean(field_name: string, target: boolean): boolean;
-fixate_field_nearest_double(field_name: string, target: number): boolean;
-fixate_field_nearest_fraction(field_name: string, target_numerator: number, target_denominator: number): boolean;
-fixate_field_nearest_int(field_name: string, target: number): boolean;
-fixate_field_string(field_name: string, target: string): boolean;
-foreach(func: StructureForeachFunc, user_data: object | null): boolean;
-free(): void;
-get(first_fieldname: string, ___: unknown[]): boolean;
-get_array(fieldname: string): [boolean, GObject.ValueArray];
-get_boolean(fieldname: string): [boolean, boolean];
-get_clock_time(fieldname: string): [boolean, ClockTime];
-get_date(fieldname: string): [boolean, GLib.Date];
-get_date_time(fieldname: string): [boolean, DateTime];
-get_double(fieldname: string): [boolean, number];
-get_enum(fieldname: string, enumtype: unknown): [boolean, number];
-get_field_type(fieldname: string): unknown;
-get_flagset(fieldname: string): [boolean, number | null,number | null];
-get_fraction(fieldname: string): [boolean, number,number];
-get_int(fieldname: string): [boolean, number];
-get_int64(fieldname: string): [boolean, number];
-get_list(fieldname: string): [boolean, GObject.ValueArray];
-get_name(): string;
-get_name_id(): GLib.Quark;
-get_string(fieldname: string): string | null;
-get_uint(fieldname: string): [boolean, number];
-get_uint64(fieldname: string): [boolean, number];
-get_valist(first_fieldname: string, args: any): boolean;
-get_value(fieldname: string): GObject.Value | null;
-has_field(fieldname: string): boolean;
-has_field_typed(fieldname: string, type: unknown): boolean;
-has_name(name: string): boolean;
-id_get(first_field_id: GLib.Quark, ___: unknown[]): boolean;
-id_get_valist(first_field_id: GLib.Quark, args: any): boolean;
-id_get_value(field: GLib.Quark): GObject.Value | null;
-id_has_field(field: GLib.Quark): boolean;
-id_has_field_typed(field: GLib.Quark, type: unknown): boolean;
-id_set(fieldname: GLib.Quark, ___: unknown[]): void;
-id_set_valist(fieldname: GLib.Quark, varargs: any): void;
-id_set_value(field: GLib.Quark, value: GObject.Value): void;
-id_take_value(field: GLib.Quark, value: GObject.Value): void;
-intersect(struct2: Structure): Structure | null;
-is_equal(structure2: Structure): boolean;
-is_subset(superset: Structure): boolean;
-map_in_place(func: StructureMapFunc, user_data: object | null): boolean;
-n_fields(): number;
-nth_field_name(index: number): string;
-remove_all_fields(): void;
-remove_field(fieldname: string): void;
-remove_fields(fieldname: string, ___: unknown[]): void;
-remove_fields_valist(fieldname: string, varargs: any): void;
-set(fieldname: string, ___: unknown[]): void;
-set_array(fieldname: string, array: GObject.ValueArray): void;
-set_list(fieldname: string, array: GObject.ValueArray): void;
-set_name(name: string): void;
-set_parent_refcount(refcount: number): boolean;
-set_valist(fieldname: string, varargs: any): void;
-set_value(fieldname: string, value: GObject.Value): void;
-take_value(fieldname: string, value: GObject.Value): void;
-to_string(): string;
-static from_string(string: string): [Structure | null, string | null];
-}
-export class SystemClockClass  {constructor(config?: properties);
-readonly parent_class: ClockClass;
-readonly _gst_reserved: object[];
-}
-export class SystemClockPrivate  {constructor(config?: properties);
-}
-export class TagList  {constructor(config?: properties);
-static new_empty(): TagList;
-static new_from_string(str: string): TagList | null;
-static new_valist(var_args: any): TagList;
-add(mode: TagMergeMode, tag: string, ___: unknown[]): void;
-add_valist(mode: TagMergeMode, tag: string, var_args: any): void;
-add_valist_values(mode: TagMergeMode, tag: string, var_args: any): void;
-add_value(mode: TagMergeMode, tag: string, value: GObject.Value): void;
-add_values(mode: TagMergeMode, tag: string, ___: unknown[]): void;
-foreach(func: TagForeachFunc, user_data: object | null): void;
-get_boolean(tag: string): [boolean, boolean];
-get_boolean_index(tag: string, index: number): [boolean, boolean];
-get_date(tag: string): [boolean, GLib.Date];
-get_date_index(tag: string, index: number): [boolean, GLib.Date];
-get_date_time(tag: string): [boolean, DateTime];
-get_date_time_index(tag: string, index: number): [boolean, DateTime];
-get_double(tag: string): [boolean, number];
-get_double_index(tag: string, index: number): [boolean, number];
-get_float(tag: string): [boolean, number];
-get_float_index(tag: string, index: number): [boolean, number];
-get_int(tag: string): [boolean, number];
-get_int64(tag: string): [boolean, number];
-get_int64_index(tag: string, index: number): [boolean, number];
-get_int_index(tag: string, index: number): [boolean, number];
-get_pointer(tag: string): [boolean, object | null];
-get_pointer_index(tag: string, index: number): [boolean, object | null];
-get_sample(tag: string): [boolean, Sample];
-get_sample_index(tag: string, index: number): [boolean, Sample];
-get_scope(): TagScope;
-get_string(tag: string): [boolean, string];
-get_string_index(tag: string, index: number): [boolean, string];
-get_tag_size(tag: string): number;
-get_uint(tag: string): [boolean, number];
-get_uint64(tag: string): [boolean, number];
-get_uint64_index(tag: string, index: number): [boolean, number];
-get_uint_index(tag: string, index: number): [boolean, number];
-get_value_index(tag: string, index: number): GObject.Value | null;
-insert(from: TagList, mode: TagMergeMode): void;
-is_empty(): boolean;
-is_equal(list2: TagList): boolean;
-merge(list2: TagList | null, mode: TagMergeMode): TagList | null;
-n_tags(): number;
-nth_tag_name(index: number): string;
-peek_string_index(tag: string, index: number): [boolean, string];
-remove_tag(tag: string): void;
-set_scope(scope: TagScope): void;
-to_string(): string | null;
-static copy_value(list: TagList, tag: string): [boolean, GObject.Value];
-}
-export class TagSetterInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-}
-export class TaskClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly pool: TaskPool;
-readonly _gst_reserved: object[];
-}
-export class TaskPoolClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly prepare: unknown;
-readonly cleanup: unknown;
-readonly push: unknown;
-readonly join: unknown;
-readonly _gst_reserved: object[];
-}
-export class TaskPrivate  {constructor(config?: properties);
-}
-export class TimedValue  {constructor(config?: properties);
-timestamp: ClockTime;
-value: number;
-}
-export class Toc  {constructor(config?: properties);
-append_entry(entry: TocEntry): void;
-dump(): void;
-find_entry(uid: string): TocEntry | null;
-get_entries(): GLib.List;
-get_scope(): TocScope;
-get_tags(): TagList;
-merge_tags(tags: TagList | null, mode: TagMergeMode): void;
-set_tags(tags: TagList | null): void;
-}
-export class TocEntry  {constructor(config?: properties);
-append_sub_entry(subentry: TocEntry): void;
-get_entry_type(): TocEntryType;
-get_loop(): [boolean, TocLoopType | null,number | null];
-get_parent(): TocEntry | null;
-get_start_stop_times(): [boolean, number | null,number | null];
-get_sub_entries(): GLib.List;
-get_tags(): TagList;
-get_toc(): Toc;
-get_uid(): string;
-is_alternative(): boolean;
-is_sequence(): boolean;
-merge_tags(tags: TagList | null, mode: TagMergeMode): void;
-set_loop(loop_type: TocLoopType, repeat_count: number): void;
-set_start_stop_times(start: number, stop: number): void;
-set_tags(tags: TagList | null): void;
-}
-export class TocSetterInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-}
-export class TracerClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly _gst_reserved: object[];
-}
-export class TracerFactoryClass  {constructor(config?: properties);
-}
-export class TracerPrivate  {constructor(config?: properties);
-}
-export class TracerRecordClass  {constructor(config?: properties);
-}
-export class TypeFind  {constructor(config?: properties);
-data: object;
-readonly _gst_reserved: object[];
-get_length(): number;
-peek(offset: number): [number[] | null, number];
-suggest(probability: number, caps: Caps): void;
-suggest_simple(probability: number, media_type: string, fieldname: string | null, ___: unknown[]): void;
-static register(plugin: Plugin | null, name: string, rank: number, func: TypeFindFunction, extensions: string | null, possible_caps: Caps, data: object | null, data_notify: GLib.DestroyNotify): boolean;
-}
-export class TypeFindFactoryClass  {constructor(config?: properties);
-}
-export class URIHandlerInterface  {constructor(config?: properties);
-readonly get_type: unknown;
-readonly get_protocols: unknown;
-readonly get_uri: unknown;
-readonly set_uri: unknown;
-}
-export class Uri  {constructor(config?: properties);
-append_path(relative_path: string): boolean;
-append_path_segment(path_segment: string): boolean;
-equal(second: Uri): boolean;
-from_string_with_base(uri: string): Uri;
-get_fragment(): string | null;
-get_host(): string | null;
-get_media_fragment_table(): GLib.HashTable | null;
-get_path(): string | null;
-get_path_segments(): GLib.List;
-get_path_string(): string | null;
-get_port(): number;
-get_query_keys(): GLib.List;
-get_query_string(): string | null;
-get_query_table(): GLib.HashTable | null;
-get_query_value(query_key: string): string | null;
-get_scheme(): string | null;
-get_userinfo(): string | null;
-is_normalized(): boolean;
-is_writable(): boolean;
-join(ref_uri: Uri | null): Uri | null;
-make_writable(): Uri;
-new_with_base(scheme: string | null, userinfo: string | null, host: string | null, port: number, path: string | null, query: string | null, fragment: string | null): Uri;
-normalize(): boolean;
-query_has_key(query_key: string): boolean;
-remove_query_key(query_key: string): boolean;
-set_fragment(fragment: string | null): boolean;
-set_host(host: string): boolean;
-set_path(path: string): boolean;
-set_path_segments(path_segments: GLib.List | null): boolean;
-set_path_string(path: string): boolean;
-set_port(port: number): boolean;
-set_query_string(query: string): boolean;
-set_query_table(query_table: GLib.HashTable | null): boolean;
-set_query_value(query_key: string, query_value: string | null): boolean;
-set_scheme(scheme: string): boolean;
-set_userinfo(userinfo: string): boolean;
-to_string(): string;
-static construct(protocol: string, location: string): string;
-static from_string(uri: string): Uri | null;
-static get_location(uri: string): string | null;
-static get_protocol(uri: string): string | null;
-static has_protocol(uri: string, protocol: string): boolean;
-static is_valid(uri: string): boolean;
-static join_strings(base_uri: string, ref_uri: string): string;
-static protocol_is_supported(type: URIType, protocol: string): boolean;
-static protocol_is_valid(protocol: string): boolean;
-}
-export class ValueTable  {constructor(config?: properties);
-type: unknown;
-compare: ValueCompareFunc;
-serialize: ValueSerializeFunc;
-deserialize: ValueDeserializeFunc;
-readonly _gst_reserved: object[];
+export class Allocator  {
+    constructor(config?: properties);
+    readonly object: Object;
+    readonly mem_type: string;
+    readonly mem_map: MemoryMapFunction;
+    readonly mem_unmap: MemoryUnmapFunction;
+    readonly mem_copy: MemoryCopyFunction;
+    readonly mem_share: MemoryShareFunction;
+    readonly mem_is_span: MemoryIsSpanFunction;
+    readonly mem_map_full: MemoryMapFullFunction;
+    readonly mem_unmap_full: MemoryUnmapFullFunction;
+    readonly priv: AllocatorPrivate;
+    alloc(size: number, params: AllocationParams | null): Memory | null;
+    free(memory: Memory): void;
+    set_default(): void;
+    static find(name: string | null): Allocator | null;
+    static register(name: string, allocator: Allocator): void;
+}
+export class Bin extends Element {
+    constructor(config?: properties);
+    async_handling: boolean;
+    message_forward: boolean;
+    add(element: Element): boolean;
+    find_unlinked_pad(direction: PadDirection): Pad | null;
+    get_by_interface(iface: GType): Element | null;
+    get_by_name(name: string): Element | null;
+    get_by_name_recurse_up(name: string): Element | null;
+    get_suppressed_flags(): ElementFlags;
+    iterate_all_by_interface(iface: GType): Iterator | null;
+    iterate_elements(): Iterator | null;
+    iterate_recurse(): Iterator | null;
+    iterate_sinks(): Iterator | null;
+    iterate_sorted(): Iterator | null;
+    iterate_sources(): Iterator | null;
+    recalculate_latency(): boolean;
+    remove(element: Element): boolean;
+    set_suppressed_flags(flags: ElementFlags): void;
+    sync_children_states(): boolean;
+    vfunc_add_element(element: Element): boolean;
+    vfunc_deep_element_added(sub_bin: Bin, child: Element): void;
+    vfunc_deep_element_removed(sub_bin: Bin, child: Element): void;
+    vfunc_do_latency(): boolean;
+    vfunc_element_added(child: Element): void;
+    vfunc_element_removed(child: Element): void;
+    vfunc_handle_message(message: Message): void;
+    vfunc_remove_element(element: Element): boolean;
+}
+export class Bitmask  {
+    constructor(config?: properties);
+}
+export class BufferPool extends Object {
+    constructor(config?: properties);
+    acquire_buffer(params: BufferPoolAcquireParams | null): [FlowReturn, Buffer];
+    get_config(): Structure;
+    get_options(): string[];
+    has_option(option: string): boolean;
+    is_active(): boolean;
+    release_buffer(buffer: Buffer): void;
+    set_active(active: boolean): boolean;
+    set_config(config: Structure): boolean;
+    set_flushing(flushing: boolean): void;
+    vfunc_acquire_buffer(params: BufferPoolAcquireParams | null): [FlowReturn, Buffer];
+    vfunc_alloc_buffer(buffer: Buffer, params: BufferPoolAcquireParams): FlowReturn;
+    vfunc_flush_start(): void;
+    vfunc_flush_stop(): void;
+    vfunc_free_buffer(buffer: Buffer): void;
+    vfunc_get_options(): string[];
+    vfunc_release_buffer(buffer: Buffer): void;
+    vfunc_reset_buffer(buffer: Buffer): void;
+    vfunc_set_config(config: Structure): boolean;
+    vfunc_start(): boolean;
+    vfunc_stop(): boolean;
+    static config_add_option(config: Structure, option: string): void;
+    static config_get_allocator(config: Structure): [boolean, Allocator | null,AllocationParams | null];
+    static config_get_option(config: Structure, index: number): string;
+    static config_get_params(config: Structure): [boolean, Caps | null,number | null,number | null,number | null];
+    static config_has_option(config: Structure, option: string): boolean;
+    static config_n_options(config: Structure): number;
+    static config_set_allocator(config: Structure, allocator: Allocator | null, params: AllocationParams | null): void;
+    static config_set_params(config: Structure, caps: Caps, size: number, min_buffers: number, max_buffers: number): void;
+    static config_validate_params(config: Structure, caps: Caps, size: number, min_buffers: number, max_buffers: number): boolean;
+}
+export class Bus extends Object {
+    constructor(config?: properties);
+    enable_async: boolean;
+    add_signal_watch(): void;
+    add_signal_watch_full(priority: number): void;
+    add_watch_full(priority: number, func: BusFunc, user_data: object | null, notify: GLib.DestroyNotify): number;
+    async_signal_func(message: Message, data: object | null): boolean;
+    create_watch(): GLib.Source | null;
+    disable_sync_message_emission(): void;
+    enable_sync_message_emission(): void;
+    get_pollfd(): [GLib.PollFD];
+    have_pending(): boolean;
+    peek(): Message | null;
+    poll(events: MessageType, timeout: ClockTime): Message | null;
+    pop(): Message | null;
+    pop_filtered(types: MessageType): Message | null;
+    post(message: Message): boolean;
+    remove_signal_watch(): void;
+    remove_watch(): boolean;
+    set_flushing(flushing: boolean): void;
+    set_sync_handler(func: BusSyncHandler | null, user_data: object | null, notify: GLib.DestroyNotify): void;
+    sync_signal_handler(message: Message, data: object | null): BusSyncReply;
+    timed_pop(timeout: ClockTime): Message | null;
+    timed_pop_filtered(timeout: ClockTime, types: MessageType): Message | null;
+    vfunc_message(message: Message): void;
+    vfunc_sync_message(message: Message): void;
+}
+export class Clock  {
+    constructor(config?: properties);
+    timeout: number;
+    window_size: number;
+    window_threshold: number;
+    readonly object: Object;
+    readonly priv: ClockPrivate;
+    add_observation(slave: ClockTime, master: ClockTime): [boolean, number];
+    add_observation_unapplied(slave: ClockTime, master: ClockTime): [boolean, number,ClockTime | null,ClockTime | null,ClockTime | null,ClockTime | null];
+    adjust_unlocked(internal: ClockTime): ClockTime;
+    adjust_with_calibration(internal_target: ClockTime, cinternal: ClockTime, cexternal: ClockTime, cnum: ClockTime, cdenom: ClockTime): ClockTime;
+    get_calibration(): [ClockTime | null,ClockTime | null,ClockTime | null,ClockTime | null];
+    get_internal_time(): ClockTime;
+    get_master(): Clock | null;
+    get_resolution(): ClockTime;
+    get_time(): ClockTime;
+    get_timeout(): ClockTime;
+    is_synced(): boolean;
+    new_periodic_id(start_time: ClockTime, interval: ClockTime): ClockID;
+    new_single_shot_id(time: ClockTime): ClockID;
+    periodic_id_reinit(id: ClockID, start_time: ClockTime, interval: ClockTime): boolean;
+    set_calibration(internal: ClockTime, external: ClockTime, rate_num: ClockTime, rate_denom: ClockTime): void;
+    set_master(master: Clock | null): boolean;
+    set_resolution(resolution: ClockTime): ClockTime;
+    set_synced(synced: boolean): void;
+    set_timeout(timeout: ClockTime): void;
+    single_shot_id_reinit(id: ClockID, time: ClockTime): boolean;
+    unadjust_unlocked(external: ClockTime): ClockTime;
+    unadjust_with_calibration(external_target: ClockTime, cinternal: ClockTime, cexternal: ClockTime, cnum: ClockTime, cdenom: ClockTime): ClockTime;
+    wait_for_sync(timeout: ClockTime): boolean;
+    static id_compare_func(id1: object | null, id2: object | null): number;
+    static id_get_clock(id: ClockID): Clock | null;
+    static id_get_time(id: ClockID): ClockTime;
+    static id_ref(id: ClockID): ClockID;
+    static id_unref(id: ClockID): void;
+    static id_unschedule(id: ClockID): void;
+    static id_uses_clock(id: ClockID, clock: Clock): boolean;
+    static id_wait(id: ClockID): [ClockReturn, ClockTimeDiff | null];
+    static id_wait_async(id: ClockID, func: ClockCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): ClockReturn;
+}
+export class ControlBinding  {
+    constructor(config?: properties);
+    name: string;
+    object: Object;
+    readonly pspec: GObject.ParamSpec;
+    readonly disabled: boolean;
+    get_g_value_array(timestamp: ClockTime, interval: ClockTime, n_values: number, values: GObject.Value[]): boolean;
+    get_value(timestamp: ClockTime): GObject.Value | null;
+    is_disabled(): boolean;
+    set_disabled(disabled: boolean): void;
+    sync_values(object: Object, timestamp: ClockTime, last_sync: ClockTime): boolean;
+}
+export class ControlSource  {
+    constructor(config?: properties);
+    readonly get_value: ControlSourceGetValue;
+    readonly get_value_array: ControlSourceGetValueArray;
+    control_source_get_value(timestamp: ClockTime): [boolean, number];
+    control_source_get_value_array(timestamp: ClockTime, interval: ClockTime, n_values: number, values: number[]): boolean;
+}
+export class Device  {
+    constructor(config?: properties);
+    caps: Caps;
+    device_class: string;
+    display_name: string;
+    properties: Structure;
+    readonly priv: DevicePrivate;
+    create_element(name: string | null): Element | null;
+    get_caps(): Caps | null;
+    get_device_class(): string;
+    get_display_name(): string;
+    get_properties(): Structure | null;
+    has_classes(classes: string): boolean;
+    has_classesv(classes: string[]): boolean;
+    reconfigure_element(element: Element): boolean;
+}
+export class DeviceMonitor extends Object {
+    constructor(config?: properties);
+    add_filter(classes: string | null, caps: Caps | null): number;
+    get_bus(): Bus;
+    get_devices(): GLib.List | null;
+    get_providers(): string[];
+    get_show_all_devices(): boolean;
+    remove_filter(filter_id: number): boolean;
+    set_show_all_devices(show_all: boolean): void;
+    start(): boolean;
+    stop(): void;
+}
+export class DeviceProvider  {
+    constructor(config?: properties);
+    readonly devices: GLib.List;
+    readonly priv: DeviceProviderPrivate;
+    can_monitor(): boolean;
+    device_add(device: Device): void;
+    device_changed(device: Device, changed_device: Device): void;
+    device_remove(device: Device): void;
+    get_bus(): Bus;
+    get_devices(): GLib.List;
+    get_factory(): DeviceProviderFactory;
+    get_hidden_providers(): string[];
+    get_metadata(key: string): string;
+    hide_provider(name: string): void;
+    start(): boolean;
+    stop(): void;
+    unhide_provider(name: string): void;
+    static register(plugin: Plugin | null, name: string, rank: number, type: GType): boolean;
+}
+export class DeviceProviderFactory  {
+    constructor(config?: properties);
+    get(): DeviceProvider | null;
+    get_device_provider_type(): GType;
+    get_metadata(key: string): string | null;
+    get_metadata_keys(): string[] | null;
+    has_classes(classes: string | null): boolean;
+    has_classesv(classes: string[] | null): boolean;
+    static find(name: string): DeviceProviderFactory | null;
+    static get_by_name(factoryname: string): DeviceProvider | null;
+    static list_get_device_providers(minrank: Rank): GLib.List;
+}
+export class DoubleRange  {
+    constructor(config?: properties);
+}
+export class DynamicTypeFactory  {
+    constructor(config?: properties);
+    static load(factoryname: string): GType;
+}
+export class Element  {
+    constructor(config?: properties);
+    readonly object: Object;
+    readonly state_lock: GLib.RecMutex;
+    readonly state_cond: GLib.Cond;
+    readonly state_cookie: number;
+    readonly target_state: State;
+    readonly current_state: State;
+    readonly next_state: State;
+    readonly pending_state: State;
+    readonly last_return: StateChangeReturn;
+    readonly bus: Bus;
+    readonly clock: Clock;
+    readonly base_time: ClockTimeDiff;
+    readonly start_time: ClockTime;
+    readonly numpads: number;
+    readonly pads: GLib.List;
+    readonly numsrcpads: number;
+    readonly srcpads: GLib.List;
+    readonly numsinkpads: number;
+    readonly sinkpads: GLib.List;
+    readonly pads_cookie: number;
+    readonly contexts: GLib.List;
+    abort_state(): void;
+    add_pad(pad: Pad): boolean;
+    add_property_deep_notify_watch(property_name: string | null, include_value: boolean): number;
+    add_property_notify_watch(property_name: string | null, include_value: boolean): number;
+    call_async(func: ElementCallAsyncFunc, user_data: object | null, destroy_notify: GLib.DestroyNotify): void;
+    change_state(transition: StateChange): StateChangeReturn;
+    continue_state(ret: StateChangeReturn): StateChangeReturn;
+    create_all_pads(): void;
+    foreach_pad(func: ElementForeachPadFunc, user_data: object | null): boolean;
+    foreach_sink_pad(func: ElementForeachPadFunc, user_data: object | null): boolean;
+    foreach_src_pad(func: ElementForeachPadFunc, user_data: object | null): boolean;
+    get_base_time(): ClockTime;
+    get_bus(): Bus | null;
+    get_clock(): Clock | null;
+    get_compatible_pad(pad: Pad, caps: Caps | null): Pad | null;
+    get_compatible_pad_template(compattempl: PadTemplate): PadTemplate | null;
+    get_context(context_type: string): Context;
+    get_context_unlocked(context_type: string): Context | null;
+    get_contexts(): GLib.List;
+    get_factory(): ElementFactory | null;
+    get_metadata(key: string): string;
+    get_pad_template(name: string): PadTemplate | null;
+    get_pad_template_list(): GLib.List;
+    get_request_pad(name: string): Pad | null;
+    get_start_time(): ClockTime;
+    get_state(timeout: ClockTime): [StateChangeReturn, State | null,State | null];
+    get_static_pad(name: string): Pad | null;
+    is_locked_state(): boolean;
+    iterate_pads(): Iterator;
+    iterate_sink_pads(): Iterator;
+    iterate_src_pads(): Iterator;
+    link(dest: Element): boolean;
+    link_filtered(dest: Element, filter: Caps | null): boolean;
+    link_pads(srcpadname: string | null, dest: Element, destpadname: string | null): boolean;
+    link_pads_filtered(srcpadname: string | null, dest: Element, destpadname: string | null, filter: Caps | null): boolean;
+    link_pads_full(srcpadname: string | null, dest: Element, destpadname: string | null, flags: PadLinkCheck): boolean;
+    lost_state(): void;
+    message_full(type: MessageType, domain: GLib.Quark, code: number, text: string | null, debug: string | null, file: string, _function: string, line: number): void;
+    message_full_with_details(type: MessageType, domain: GLib.Quark, code: number, text: string | null, debug: string | null, file: string, _function: string, line: number, structure: Structure): void;
+    no_more_pads(): void;
+    post_message(message: Message): boolean;
+    provide_clock(): Clock | null;
+    query(query: Query): boolean;
+    query_convert(src_format: Format, src_val: number, dest_format: Format): [boolean, number];
+    query_duration(format: Format): [boolean, number | null];
+    query_position(format: Format): [boolean, number | null];
+    release_request_pad(pad: Pad): void;
+    remove_pad(pad: Pad): boolean;
+    remove_property_notify_watch(watch_id: number): void;
+    request_pad(templ: PadTemplate, name: string | null, caps: Caps | null): Pad | null;
+    seek(rate: number, format: Format, flags: SeekFlags, start_type: SeekType, start: number, stop_type: SeekType, stop: number): boolean;
+    seek_simple(format: Format, seek_flags: SeekFlags, seek_pos: number): boolean;
+    send_event(event: Event): boolean;
+    set_base_time(time: ClockTime): void;
+    set_bus(bus: Bus | null): void;
+    set_clock(clock: Clock | null): boolean;
+    set_context(context: Context): void;
+    set_locked_state(locked_state: boolean): boolean;
+    set_start_time(time: ClockTime): void;
+    set_state(state: State): StateChangeReturn;
+    sync_state_with_parent(): boolean;
+    unlink(dest: Element): void;
+    unlink_pads(srcpadname: string, dest: Element, destpadname: string): void;
+    static make_from_uri(type: URIType, uri: string, elementname: string | null): Element | null;
+    static register(plugin: Plugin | null, name: string, rank: number, type: GType): boolean;
+    static state_change_return_get_name(state_ret: StateChangeReturn): string;
+    static state_get_name(state: State): string;
+}
+export class ElementFactory  {
+    constructor(config?: properties);
+    can_sink_all_caps(caps: Caps): boolean;
+    can_sink_any_caps(caps: Caps): boolean;
+    can_src_all_caps(caps: Caps): boolean;
+    can_src_any_caps(caps: Caps): boolean;
+    create(name: string | null): Element | null;
+    get_element_type(): GType;
+    get_metadata(key: string): string | null;
+    get_metadata_keys(): string[] | null;
+    get_num_pad_templates(): number;
+    get_static_pad_templates(): GLib.List;
+    get_uri_protocols(): string[];
+    get_uri_type(): URIType;
+    has_interface(interfacename: string): boolean;
+    list_is_type(type: ElementFactoryListType): boolean;
+    static find(name: string): ElementFactory | null;
+    static list_filter(list: GLib.List, caps: Caps, direction: PadDirection, subsetonly: boolean): GLib.List;
+    static list_get_elements(type: ElementFactoryListType, minrank: Rank): GLib.List;
+    static make(factoryname: string, name: string | null): Element | null;
+}
+export class FlagSet  {
+    constructor(config?: properties);
+    static register(flags_type: GType): GType;
+}
+export class Fraction  {
+    constructor(config?: properties);
+}
+export class FractionRange  {
+    constructor(config?: properties);
+}
+export class GhostPad extends ProxyPad {
+    constructor(config?: properties);
+    static new_from_template(name: string | null, target: Pad, templ: PadTemplate): Pad | null;
+    static new_no_target(name: string | null, dir: PadDirection): Pad | null;
+    static new_no_target_from_template(name: string | null, templ: PadTemplate): Pad | null;
+    construct(): boolean;
+    get_target(): Pad | null;
+    set_target(newtarget: Pad | null): boolean;
+    static activate_mode_default(pad: Pad, parent: Object | null, mode: PadMode, active: boolean): boolean;
+    static internal_activate_mode_default(pad: Pad, parent: Object | null, mode: PadMode, active: boolean): boolean;
+}
+export class Int64Range  {
+    constructor(config?: properties);
+}
+export class IntRange  {
+    constructor(config?: properties);
+}
+export class Object  {
+    constructor(config?: properties);
+    name: string;
+    readonly object: GObject.InitiallyUnowned;
+    readonly lock: GLib.Mutex;
+    readonly flags: number;
+    readonly control_bindings: GLib.List;
+    readonly control_rate: number;
+    readonly last_sync: number;
+    add_control_binding(binding: ControlBinding): boolean;
+    default_error(error: GLib.Error, debug: string | null): void;
+    get_control_binding(property_name: string): ControlBinding | null;
+    get_control_rate(): ClockTime;
+    get_g_value_array(property_name: string, timestamp: ClockTime, interval: ClockTime, n_values: number, values: GObject.Value[]): boolean;
+    get_name(): string | null;
+    get_parent(): Object | null;
+    get_path_string(): string;
+    get_value(property_name: string, timestamp: ClockTime): GObject.Value | null;
+    has_active_control_bindings(): boolean;
+    has_ancestor(ancestor: Object): boolean;
+    has_as_ancestor(ancestor: Object): boolean;
+    has_as_parent(parent: Object): boolean;
+    ref(): Object;
+    remove_control_binding(binding: ControlBinding): boolean;
+    set_control_binding_disabled(property_name: string, disabled: boolean): void;
+    set_control_bindings_disabled(disabled: boolean): void;
+    set_control_rate(control_rate: ClockTime): void;
+    set_name(name: string | null): boolean;
+    set_parent(parent: Object): boolean;
+    suggest_next_sync(): ClockTime;
+    sync_values(timestamp: ClockTime): boolean;
+    unparent(): void;
+    unref(): void;
+    static check_uniqueness(list: GLib.List, name: string): boolean;
+    static default_deep_notify(object: GObject.Object, orig: Object, pspec: GObject.ParamSpec, excluded_props: string[] | null): void;
+    static replace(oldobj: Object | null, newobj: Object | null): [boolean, Object | null];
+}
+export class Pad extends Object {
+    constructor(config?: properties);
+    readonly caps: Caps;
+    direction: PadDirection;
+    offset: number;
+    template: PadTemplate;static new_from_static_template(templ: StaticPadTemplate, name: string): Pad;
+    static new_from_template(templ: PadTemplate, name: string | null): Pad;
+    activate_mode(mode: PadMode, active: boolean): boolean;
+    add_probe(mask: PadProbeType, callback: PadProbeCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): number;
+    can_link(sinkpad: Pad): boolean;
+    chain(buffer: Buffer): FlowReturn;
+    chain_list(list: BufferList): FlowReturn;
+    check_reconfigure(): boolean;
+    create_stream_id(parent: Element, stream_id: string | null): string;
+    event_default(parent: Object | null, event: Event): boolean;
+    forward(forward: PadForwardFunction, user_data: object | null): boolean;
+    get_allowed_caps(): Caps | null;
+    get_current_caps(): Caps | null;
+    get_direction(): PadDirection;
+    get_element_private(): object | null;
+    get_last_flow_return(): FlowReturn;
+    get_offset(): number;
+    get_pad_template(): PadTemplate | null;
+    get_pad_template_caps(): Caps;
+    get_parent_element(): Element | null;
+    get_peer(): Pad | null;
+    get_range(offset: number, size: number): [FlowReturn, Buffer];
+    get_sticky_event(event_type: EventType, idx: number): Event | null;
+    get_stream(): Stream | null;
+    get_stream_id(): string | null;
+    get_task_state(): TaskState;
+    has_current_caps(): boolean;
+    is_active(): boolean;
+    is_blocked(): boolean;
+    is_blocking(): boolean;
+    is_linked(): boolean;
+    iterate_internal_links(): Iterator | null;
+    iterate_internal_links_default(parent: Object | null): Iterator | null;
+    link(sinkpad: Pad): PadLinkReturn;
+    link_full(sinkpad: Pad, flags: PadLinkCheck): PadLinkReturn;
+    link_maybe_ghosting(sink: Pad): boolean;
+    link_maybe_ghosting_full(sink: Pad, flags: PadLinkCheck): boolean;
+    mark_reconfigure(): void;
+    needs_reconfigure(): boolean;
+    pause_task(): boolean;
+    peer_query(query: Query): boolean;
+    peer_query_accept_caps(caps: Caps): boolean;
+    peer_query_caps(filter: Caps | null): Caps;
+    peer_query_convert(src_format: Format, src_val: number, dest_format: Format): [boolean, number];
+    peer_query_duration(format: Format): [boolean, number | null];
+    peer_query_position(format: Format): [boolean, number | null];
+    proxy_query_accept_caps(query: Query): boolean;
+    proxy_query_caps(query: Query): boolean;
+    pull_range(offset: number, size: number): [FlowReturn, Buffer];
+    push(buffer: Buffer): FlowReturn;
+    push_event(event: Event): boolean;
+    push_list(list: BufferList): FlowReturn;
+    query(query: Query): boolean;
+    query_accept_caps(caps: Caps): boolean;
+    query_caps(filter: Caps | null): Caps;
+    query_convert(src_format: Format, src_val: number, dest_format: Format): [boolean, number];
+    query_default(parent: Object | null, query: Query): boolean;
+    query_duration(format: Format): [boolean, number | null];
+    query_position(format: Format): [boolean, number | null];
+    remove_probe(id: number): void;
+    send_event(event: Event): boolean;
+    set_activate_function_full(activate: PadActivateFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_activatemode_function_full(activatemode: PadActivateModeFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_active(active: boolean): boolean;
+    set_chain_function_full(chain: PadChainFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_chain_list_function_full(chainlist: PadChainListFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_element_private(priv: object | null): void;
+    set_event_full_function_full(event: PadEventFullFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_event_function_full(event: PadEventFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_getrange_function_full(get: PadGetRangeFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_iterate_internal_links_function_full(iterintlink: PadIterIntLinkFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_link_function_full(link: PadLinkFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_offset(offset: number): void;
+    set_query_function_full(query: PadQueryFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_unlink_function_full(unlink: PadUnlinkFunction, user_data: object | null, notify: GLib.DestroyNotify): void;
+    start_task(func: TaskFunction, user_data: object | null, notify: GLib.DestroyNotify): boolean;
+    sticky_events_foreach(foreach_func: PadStickyEventsForeachFunction, user_data: object | null): void;
+    stop_task(): boolean;
+    store_sticky_event(event: Event): FlowReturn;
+    unlink(sinkpad: Pad): boolean;
+    use_fixed_caps(): void;
+    vfunc_linked(peer: Pad): void;
+    vfunc_unlinked(peer: Pad): void;
+    static link_get_name(ret: PadLinkReturn): string;
+}
+export class PadTemplate extends Object {
+    constructor(config?: properties);
+    caps: Caps;
+    direction: PadDirection;
+    gtype: GType;
+    name_template: string;
+    presence: PadPresence;static new_from_static_pad_template_with_gtype(pad_template: StaticPadTemplate, pad_type: GType): PadTemplate | null;
+    static new_with_gtype(name_template: string, direction: PadDirection, presence: PadPresence, caps: Caps, pad_type: GType): PadTemplate | null;
+    get_caps(): Caps;
+    pad_created(pad: Pad): void;
+    vfunc_pad_created(pad: Pad): void;
+}
+export class ParamArray  {
+    constructor(config?: properties);
+}
+export class ParamFraction  {
+    constructor(config?: properties);
+}
+export class Pipeline extends Bin {
+    constructor(config?: properties);
+    auto_flush_bus: boolean;
+    delay: number;
+    latency: number;
+    auto_clock(): void;
+    get_auto_flush_bus(): boolean;
+    get_bus(): Bus;
+    get_delay(): ClockTime;
+    get_latency(): ClockTime;
+    get_pipeline_clock(): Clock;
+    set_auto_flush_bus(auto_flush: boolean): void;
+    set_delay(delay: ClockTime): void;
+    set_latency(latency: ClockTime): void;
+    use_clock(clock: Clock | null): void;
+}
+export class Plugin  {
+    constructor(config?: properties);
+    add_dependency(env_vars: string[] | null, paths: string[] | null, names: string[] | null, flags: PluginDependencyFlags): void;
+    add_dependency_simple(env_vars: string | null, paths: string | null, names: string | null, flags: PluginDependencyFlags): void;
+    get_cache_data(): Structure | null;
+    get_description(): string;
+    get_filename(): string;
+    get_license(): string;
+    get_name(): string;
+    get_origin(): string;
+    get_package(): string;
+    get_release_date_string(): string | null;
+    get_source(): string;
+    get_version(): string;
+    is_loaded(): boolean;
+    load(): Plugin | null;
+    set_cache_data(cache_data: Structure): void;
+    static list_free(list: GLib.List): void;
+    static load_by_name(name: string): Plugin | null;
+    static load_file(filename: string): Plugin;
+    static register_static(major_version: number, minor_version: number, name: string, description: string, init_func: PluginInitFunc, version: string, license: string, source: string, _package: string, origin: string): boolean;
+    static register_static_full(major_version: number, minor_version: number, name: string, description: string, init_full_func: PluginInitFullFunc, version: string, license: string, source: string, _package: string, origin: string, user_data: object | null): boolean;
+}
+export class PluginFeature  {
+    constructor(config?: properties);
+    check_version(min_major: number, min_minor: number, min_micro: number): boolean;
+    get_plugin(): Plugin | null;
+    get_plugin_name(): string | null;
+    get_rank(): number;
+    load(): PluginFeature | null;
+    set_rank(rank: number): void;
+    static list_copy(list: GLib.List): GLib.List;
+    static list_debug(list: GLib.List): void;
+    static list_free(list: GLib.List): void;
+    static rank_compare_func(p1: object | null, p2: object | null): number;
+}
+export class ProxyPad  {
+    constructor(config?: properties);
+    readonly pad: Pad;
+    readonly priv: ProxyPadPrivate;
+    get_internal(): ProxyPad | null;
+    static chain_default(pad: Pad, parent: Object | null, buffer: Buffer): FlowReturn;
+    static chain_list_default(pad: Pad, parent: Object | null, list: BufferList): FlowReturn;
+    static getrange_default(pad: Pad, parent: Object, offset: number, size: number): [FlowReturn, Buffer];
+    static iterate_internal_links_default(pad: Pad, parent: Object | null): Iterator | null;
+}
+export class Registry  {
+    constructor(config?: properties);
+    readonly object: Object;
+    readonly priv: RegistryPrivate;
+    add_feature(feature: PluginFeature): boolean;
+    add_plugin(plugin: Plugin): boolean;
+    check_feature_version(feature_name: string, min_major: number, min_minor: number, min_micro: number): boolean;
+    feature_filter(filter: PluginFeatureFilter, first: boolean, user_data: object | null): GLib.List;
+    find_feature(name: string, type: GType): PluginFeature | null;
+    find_plugin(name: string): Plugin | null;
+    get_feature_list(type: GType): GLib.List;
+    get_feature_list_by_plugin(name: string): GLib.List;
+    get_feature_list_cookie(): number;
+    get_plugin_list(): GLib.List;
+    lookup(filename: string): Plugin | null;
+    lookup_feature(name: string): PluginFeature;
+    plugin_filter(filter: PluginFilter, first: boolean, user_data: object | null): GLib.List;
+    remove_feature(feature: PluginFeature): void;
+    remove_plugin(plugin: Plugin): void;
+    scan_path(path: string): boolean;
+    static fork_is_enabled(): boolean;
+    static fork_set_enabled(enabled: boolean): void;
+    static get(): Registry;
+}
+export class Stream extends Object {
+    constructor(config?: properties);
+    caps: Caps;
+    stream_flags: StreamFlags;
+    stream_id: string;
+    stream_type: StreamType;
+    tags: TagList;
+    get_caps(): Caps | null;
+    get_stream_flags(): StreamFlags;
+    get_stream_id(): string | null;
+    get_stream_type(): StreamType;
+    get_tags(): TagList | null;
+    set_caps(caps: Caps | null): void;
+    set_stream_flags(flags: StreamFlags): void;
+    set_stream_type(stream_type: StreamType): void;
+    set_tags(tags: TagList | null): void;
+}
+export class StreamCollection extends Object {
+    constructor(config?: properties);
+    upstream_id: string;
+    add_stream(stream: Stream): boolean;
+    get_size(): number;
+    get_stream(index: number): Stream | null;
+    get_upstream_id(): string;
+    vfunc_stream_notify(stream: Stream, pspec: GObject.ParamSpec): void;
+}
+export class SystemClock  {
+    constructor(config?: properties);
+    clock_type: ClockType;
+    readonly clock: Clock;
+    readonly priv: SystemClockPrivate;
+    static obtain(): Clock;
+    static set_default(new_clock: Clock | null): void;
+}
+export class Task extends Object {
+    constructor(config?: properties);
+    get_pool(): TaskPool;
+    get_state(): TaskState;
+    join(): boolean;
+    pause(): boolean;
+    set_enter_callback(enter_func: TaskThreadFunc, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_leave_callback(leave_func: TaskThreadFunc, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_lock(mutex: GLib.RecMutex): void;
+    set_pool(pool: TaskPool): void;
+    set_state(state: TaskState): boolean;
+    start(): boolean;
+    stop(): boolean;
+    static cleanup_all(): void;
+}
+export class TaskPool extends Object {
+    constructor(config?: properties);
+    cleanup(): void;
+    join(id: object | null): void;
+    prepare(): void;
+    push(func: TaskPoolFunction, user_data: object | null): object | null;
+    vfunc_cleanup(): void;
+    vfunc_join(id: object | null): void;
+    vfunc_prepare(): void;
+    vfunc_push(func: TaskPoolFunction, user_data: object | null): object | null;
+}
+export class Tracer  {
+    constructor(config?: properties);
+    params: string;
+    readonly priv: TracerPrivate;
+}
+export class TracerFactory  {
+    constructor(config?: properties);
+    get_tracer_type(): GType;
+    static get_list(): GLib.List;
+}
+export class TracerRecord  {
+    constructor(config?: properties);
+}
+export class TypeFindFactory  {
+    constructor(config?: properties);
+    call_function(find: TypeFind): void;
+    get_caps(): Caps;
+    get_extensions(): string[] | null;
+    has_function(): boolean;
+    static get_list(): GLib.List;
+}
+export class ValueArray  {
+    constructor(config?: properties);
+    static append_and_take_value(value: GObject.Value, append_value: GObject.Value): void;
+    static append_value(value: GObject.Value, append_value: GObject.Value): void;
+    static get_size(value: GObject.Value): number;
+    static get_value(value: GObject.Value, index: number): GObject.Value;
+    static prepend_value(value: GObject.Value, prepend_value: GObject.Value): void;
+}
+export class ValueList  {
+    constructor(config?: properties);
+    static append_and_take_value(value: GObject.Value, append_value: GObject.Value): void;
+    static append_value(value: GObject.Value, append_value: GObject.Value): void;
+    static concat(value1: GObject.Value, value2: GObject.Value): [GObject.Value];
+    static get_size(value: GObject.Value): number;
+    static get_value(value: GObject.Value, index: number): GObject.Value;
+    static merge(value1: GObject.Value, value2: GObject.Value): [GObject.Value];
+    static prepend_value(value: GObject.Value, prepend_value: GObject.Value): void;
+}
+export class AllocationParams  {
+    constructor(config?: properties);
+    flags: MemoryFlags;
+    align: number;
+    prefix: number;
+    padding: number;
+    copy(): AllocationParams | null;
+    free(): void;
+    init(): void;
+}
+export class AllocatorPrivate  {
+    constructor(config?: properties);
+}
+export class AtomicQueue  {
+    constructor(config?: properties);
+    length(): number;
+    peek(): object | null;
+    pop(): object | null;
+    push(data: object | null): void;
+    ref(): void;
+    unref(): void;
+}
+export class BinPrivate  {
+    constructor(config?: properties);
+}
+export class Buffer  {
+    constructor(config?: properties);
+    static new_allocate(allocator: Allocator | null, size: number, params: AllocationParams | null): Buffer | null;
+    static new_wrapped(data: number[], size: number): Buffer;
+    static new_wrapped_bytes(bytes: GLib.Bytes): Buffer;
+    static new_wrapped_full(flags: MemoryFlags, data: number[], maxsize: number, offset: number, size: number, user_data: object | null, notify: GLib.DestroyNotify | null): Buffer;
+    add_meta(info: MetaInfo, params: object | null): Meta | null;
+    add_parent_buffer_meta(ref: Buffer): ParentBufferMeta | null;
+    add_protection_meta(info: Structure): ProtectionMeta;
+    add_reference_timestamp_meta(reference: Caps, timestamp: ClockTime, duration: ClockTime): ReferenceTimestampMeta | null;
+    append(buf2: Buffer): Buffer;
+    append_memory(mem: Memory): void;
+    append_region(buf2: Buffer, offset: number, size: number): Buffer;
+    copy_deep(): Buffer;
+    copy_into(src: Buffer, flags: BufferCopyFlags, offset: number, size: number): boolean;
+    copy_region(flags: BufferCopyFlags, offset: number, size: number): Buffer;
+    extract(offset: number): [number, number[],number];
+    extract_dup(offset: number, size: number): [number[],number];
+    fill(offset: number, src: number[], size: number): number;
+    find_memory(offset: number, size: number): [boolean, number,number,number];
+    foreach_meta(func: BufferForeachMetaFunc, user_data: object | null): boolean;
+    get_all_memory(): Memory | null;
+    get_flags(): BufferFlags;
+    get_memory(idx: number): Memory | null;
+    get_memory_range(idx: number, length: number): Memory | null;
+    get_meta(api: GType): Meta | null;
+    get_n_meta(api_type: GType): number;
+    get_reference_timestamp_meta(reference: Caps | null): ReferenceTimestampMeta | null;
+    get_size(): number;
+    get_sizes(): [number, number | null,number | null];
+    get_sizes_range(idx: number, length: number): [number, number | null,number | null];
+    has_flags(flags: BufferFlags): boolean;
+    insert_memory(idx: number, mem: Memory): void;
+    is_all_memory_writable(): boolean;
+    is_memory_range_writable(idx: number, length: number): boolean;
+    map(flags: MapFlags): [boolean, MapInfo];
+    map_range(idx: number, length: number, flags: MapFlags): [boolean, MapInfo];
+    memcmp(offset: number, mem: number[], size: number): number;
+    memset(offset: number, val: number, size: number): number;
+    n_memory(): number;
+    peek_memory(idx: number): Memory | null;
+    prepend_memory(mem: Memory): void;
+    remove_all_memory(): void;
+    remove_memory(idx: number): void;
+    remove_memory_range(idx: number, length: number): void;
+    remove_meta(meta: Meta): boolean;
+    replace_all_memory(mem: Memory): void;
+    replace_memory(idx: number, mem: Memory): void;
+    replace_memory_range(idx: number, length: number, mem: Memory): void;
+    resize(offset: number, size: number): void;
+    resize_range(idx: number, length: number, offset: number, size: number): boolean;
+    set_flags(flags: BufferFlags): boolean;
+    set_size(size: number): void;
+    unmap(info: MapInfo): void;
+    unset_flags(flags: BufferFlags): boolean;
+    static get_max_memory(): number;
+}
+export class BufferList  {
+    constructor(config?: properties);
+    static new_sized(size: number): BufferList;
+    calculate_size(): number;
+    copy_deep(): BufferList;
+    foreach(func: BufferListFunc, user_data: object | null): boolean;
+    get(idx: number): Buffer | null;
+    get_writable(idx: number): Buffer | null;
+    insert(idx: number, buffer: Buffer): void;
+    length(): number;
+    remove(idx: number, length: number): void;
+}
+export class BufferPoolAcquireParams  {
+    constructor(config?: properties);
+    format: Format;
+    start: number;
+    stop: number;
+    flags: BufferPoolAcquireFlags;
+}
+export class BufferPoolPrivate  {
+    constructor(config?: properties);
+}
+export class BusPrivate  {
+    constructor(config?: properties);
+}
+export class Caps  {
+    constructor(config?: properties);
+    static new_any(): Caps;
+    static new_empty(): Caps;
+    static new_empty_simple(media_type: string): Caps;
+    static new_full(struct1: Structure, ___: any): Caps;
+    static new_full_valist(structure: Structure, var_args: any): Caps;
+    static new_simple(media_type: string, fieldname: string, ___: any): Caps;
+    append(caps2: Caps): void;
+    append_structure(structure: Structure): void;
+    append_structure_full(structure: Structure, features: CapsFeatures | null): void;
+    can_intersect(caps2: Caps): boolean;
+    copy(): Caps;
+    copy_nth(nth: number): Caps;
+    filter_and_map_in_place(func: CapsFilterMapFunc, user_data: object | null): void;
+    fixate(): Caps;
+    foreach(func: CapsForeachFunc, user_data: object | null): boolean;
+    get_features(index: number): CapsFeatures | null;
+    get_size(): number;
+    get_structure(index: number): Structure;
+    intersect(caps2: Caps): Caps;
+    intersect_full(caps2: Caps, mode: CapsIntersectMode): Caps;
+    is_always_compatible(caps2: Caps): boolean;
+    is_any(): boolean;
+    is_empty(): boolean;
+    is_equal(caps2: Caps): boolean;
+    is_equal_fixed(caps2: Caps): boolean;
+    is_fixed(): boolean;
+    is_strictly_equal(caps2: Caps): boolean;
+    is_subset(superset: Caps): boolean;
+    is_subset_structure(structure: Structure): boolean;
+    is_subset_structure_full(structure: Structure, features: CapsFeatures | null): boolean;
+    map_in_place(func: CapsMapFunc, user_data: object | null): boolean;
+    merge(caps2: Caps): Caps;
+    merge_structure(structure: Structure): Caps;
+    merge_structure_full(structure: Structure, features: CapsFeatures | null): Caps;
+    normalize(): Caps;
+    remove_structure(idx: number): void;
+    set_features(index: number, features: CapsFeatures | null): void;
+    set_features_simple(features: CapsFeatures | null): void;
+    set_value(field: string, value: GObject.Value): void;
+    simplify(): Caps;
+    steal_structure(index: number): Structure | null;
+    subtract(subtrahend: Caps): Caps;
+    to_string(): string;
+    truncate(): Caps;
+    static from_string(string: string): Caps | null;
+}
+export class CapsFeatures  {
+    constructor(config?: properties);
+    static new_any(): CapsFeatures;
+    static new_empty(): CapsFeatures;
+    static new_id(feature1: GLib.Quark, ___: any): CapsFeatures;
+    static new_id_valist(feature1: GLib.Quark, varargs: any): CapsFeatures;
+    static new_valist(feature1: string, varargs: any): CapsFeatures;
+    add(feature: string): void;
+    add_id(feature: GLib.Quark): void;
+    contains(feature: string): boolean;
+    contains_id(feature: GLib.Quark): boolean;
+    copy(): CapsFeatures;
+    free(): void;
+    get_nth(i: number): string | null;
+    get_nth_id(i: number): GLib.Quark;
+    get_size(): number;
+    is_any(): boolean;
+    is_equal(features2: CapsFeatures): boolean;
+    remove(feature: string): void;
+    remove_id(feature: GLib.Quark): void;
+    set_parent_refcount(refcount: number): boolean;
+    to_string(): string;
+    static from_string(features: string): CapsFeatures | null;
+}
+export class ClockEntry  {
+    constructor(config?: properties);
+    refcount: number;
+    clock: Clock;
+    type: ClockEntryType;
+    time: ClockTime;
+    interval: ClockTime;
+    status: ClockReturn;
+    func: ClockCallback;
+    user_data: object;
+    destroy_data: GLib.DestroyNotify;
+    unscheduled: boolean;
+    woken_up: boolean;
+}
+export class ClockPrivate  {
+    constructor(config?: properties);
+}
+export class Context  {
+    constructor(config?: properties);
+    get_context_type(): string;
+    get_structure(): Structure;
+    has_context_type(context_type: string): boolean;
+    is_persistent(): boolean;
+    writable_structure(): Structure;
+}
+export class ControlBindingPrivate  {
+    constructor(config?: properties);
+}
+export class DateTime  {
+    constructor(config?: properties);
+    static new_from_g_date_time(dt: GLib.DateTime): DateTime | null;
+    static new_from_iso8601_string(string: string): DateTime | null;
+    static new_from_unix_epoch_local_time(secs: number): DateTime;
+    static new_from_unix_epoch_utc(secs: number): DateTime;
+    static new_local_time(year: number, month: number, day: number, hour: number, minute: number, seconds: number): DateTime;
+    static new_now_local_time(): DateTime;
+    static new_now_utc(): DateTime;
+    static new_y(year: number): DateTime;
+    static new_ym(year: number, month: number): DateTime;
+    static new_ymd(year: number, month: number, day: number): DateTime;
+    get_day(): number;
+    get_hour(): number;
+    get_microsecond(): number;
+    get_minute(): number;
+    get_month(): number;
+    get_second(): number;
+    get_time_zone_offset(): number;
+    get_year(): number;
+    has_day(): boolean;
+    has_month(): boolean;
+    has_second(): boolean;
+    has_time(): boolean;
+    has_year(): boolean;
+    ref(): DateTime;
+    to_g_date_time(): GLib.DateTime | null;
+    to_iso8601_string(): string | null;
+    unref(): void;
+}
+export class DebugCategory  {
+    constructor(config?: properties);
+    readonly threshold: number;
+    readonly color: number;
+    readonly name: string;
+    readonly description: string;
+    free(): void;
+    get_color(): number;
+    get_description(): string;
+    get_name(): string;
+    get_threshold(): DebugLevel;
+    reset_threshold(): void;
+    set_threshold(level: DebugLevel): void;
+}
+export class DebugMessage  {
+    constructor(config?: properties);
+    get(): string | null;
+}
+export class DeviceMonitorPrivate  {
+    constructor(config?: properties);
+}
+export class DevicePrivate  {
+    constructor(config?: properties);
+}
+export class DeviceProviderPrivate  {
+    constructor(config?: properties);
+}
+export class Event  {
+    constructor(config?: properties);
+    static new_buffer_size(format: Format, minsize: number, maxsize: number, async: boolean): Event;
+    static new_caps(caps: Caps): Event | null;
+    static new_custom(type: EventType, structure: Structure): Event | null;
+    static new_eos(): Event;
+    static new_flush_start(): Event;
+    static new_flush_stop(reset_time: boolean): Event;
+    static new_gap(timestamp: ClockTime, duration: ClockTime): Event;
+    static new_latency(latency: ClockTime): Event;
+    static new_navigation(structure: Structure): Event;
+    static new_protection(system_id: string, data: Buffer, origin: string): Event;
+    static new_qos(type: QOSType, proportion: number, diff: ClockTimeDiff, timestamp: ClockTime): Event | null;
+    static new_reconfigure(): Event;
+    static new_seek(rate: number, format: Format, flags: SeekFlags, start_type: SeekType, start: number, stop_type: SeekType, stop: number): Event | null;
+    static new_segment(segment: Segment): Event | null;
+    static new_segment_done(format: Format, position: number): Event;
+    static new_select_streams(streams: GLib.List): Event;
+    static new_sink_message(name: string, msg: Message): Event;
+    static new_step(format: Format, amount: number, rate: number, flush: boolean, intermediate: boolean): Event | null;
+    static new_stream_collection(collection: StreamCollection): Event;
+    static new_stream_group_done(group_id: number): Event;
+    static new_stream_start(stream_id: string): Event;
+    static new_tag(taglist: TagList): Event;
+    static new_toc(toc: Toc, updated: boolean): Event;
+    static new_toc_select(uid: string): Event;
+    copy_segment(segment: Segment): void;
+    get_running_time_offset(): number;
+    get_seqnum(): number;
+    get_structure(): Structure | null;
+    has_name(name: string): boolean;
+    parse_buffer_size(): [Format,number,number,boolean];
+    parse_caps(): [Caps];
+    parse_flush_stop(): [boolean];
+    parse_gap(): [ClockTime | null,ClockTime | null];
+    parse_group_id(): [boolean, number];
+    parse_latency(): [ClockTime];
+    parse_protection(): [string | null,Buffer | null,string | null];
+    parse_qos(): [QOSType,number,ClockTimeDiff,ClockTime];
+    parse_seek(): [number,Format,SeekFlags,SeekType,number,SeekType,number];
+    parse_seek_trickmode_interval(): [ClockTime];
+    parse_segment(): [Segment];
+    parse_segment_done(): [Format | null,number | null];
+    parse_select_streams(): [GLib.List];
+    parse_sink_message(): [Message];
+    parse_step(): [Format | null,number | null,number | null,boolean | null,boolean | null];
+    parse_stream(): [Stream];
+    parse_stream_collection(): [StreamCollection];
+    parse_stream_flags(): [StreamFlags];
+    parse_stream_group_done(): [number];
+    parse_stream_start(): [string];
+    parse_tag(): [TagList];
+    parse_toc(): [Toc,boolean];
+    parse_toc_select(): [string | null];
+    set_group_id(group_id: number): void;
+    set_running_time_offset(offset: number): void;
+    set_seek_trickmode_interval(interval: ClockTime): void;
+    set_seqnum(seqnum: number): void;
+    set_stream(stream: Stream): void;
+    set_stream_flags(flags: StreamFlags): void;
+    writable_structure(): Structure;
+}
+export class FormatDefinition  {
+    constructor(config?: properties);
+    value: Format;
+    nick: string;
+    description: string;
+    quark: GLib.Quark;
+}
+export class GhostPadPrivate  {
+    constructor(config?: properties);
+}
+export class Iterator  {
+    constructor(config?: properties);
+    static new_list(type: GType, lock: GLib.Mutex, master_cookie: number, list: GLib.List, owner: GObject.Object, item: IteratorItemFunction): Iterator;
+    static new_single(type: GType, object: GObject.Value): Iterator;
+    copy(): Iterator;
+    filter(func: GLib.CompareFunc, user_data: GObject.Value): Iterator;
+    find_custom(func: GLib.CompareFunc, user_data: object | null): [boolean, GObject.Value];
+    fold(func: IteratorFoldFunction, ret: GObject.Value, user_data: object | null): IteratorResult;
+    foreach(func: IteratorForeachFunction, user_data: object | null): IteratorResult;
+    free(): void;
+    next(): [IteratorResult, GObject.Value];
+    push(other: Iterator): void;
+    resync(): void;
+}
+export class MapInfo  {
+    constructor(config?: properties);
+    memory: Memory;
+    flags: MapFlags;
+    data: number[];
+    size: number;
+    maxsize: number;
+    user_data: object[];
+}
+export class Memory  {
+    constructor(config?: properties);
+    static new_wrapped(flags: MemoryFlags, data: number[], maxsize: number, offset: number, size: number, user_data: object | null, notify: GLib.DestroyNotify | null): Memory | null;
+    copy(offset: number, size: number): Memory;
+    get_sizes(): [number, number | null,number | null];
+    is_span(mem2: Memory): [boolean, number];
+    is_type(mem_type: string): boolean;
+    make_mapped(flags: MapFlags): [Memory | null, MapInfo];
+    map(flags: MapFlags): [boolean, MapInfo];
+    resize(offset: number, size: number): void;
+    share(offset: number, size: number): Memory;
+    unmap(info: MapInfo): void;
+}
+export class Message  {
+    constructor(config?: properties);
+    static new_application(src: Object | null, structure: Structure): Message | null;
+    static new_async_done(src: Object | null, running_time: ClockTime): Message;
+    static new_async_start(src: Object | null): Message;
+    static new_buffering(src: Object | null, percent: number): Message | null;
+    static new_clock_lost(src: Object | null, clock: Clock): Message;
+    static new_clock_provide(src: Object | null, clock: Clock, ready: boolean): Message;
+    static new_custom(type: MessageType, src: Object | null, structure: Structure | null): Message | null;
+    static new_device_added(src: Object, device: Device): Message;
+    static new_device_changed(src: Object, device: Device, changed_device: Device): Message;
+    static new_device_removed(src: Object, device: Device): Message;
+    static new_duration_changed(src: Object | null): Message;
+    static new_element(src: Object | null, structure: Structure): Message | null;
+    static new_eos(src: Object | null): Message;
+    static new_error(src: Object | null, error: GLib.Error, debug: string): Message;
+    static new_error_with_details(src: Object | null, error: GLib.Error, debug: string, details: Structure | null): Message | null;
+    static new_have_context(src: Object | null, context: Context): Message;
+    static new_info(src: Object | null, error: GLib.Error, debug: string): Message;
+    static new_info_with_details(src: Object | null, error: GLib.Error, debug: string, details: Structure | null): Message | null;
+    static new_latency(src: Object | null): Message;
+    static new_need_context(src: Object | null, context_type: string): Message;
+    static new_new_clock(src: Object | null, clock: Clock): Message;
+    static new_progress(src: Object, type: ProgressType, code: string, text: string): Message | null;
+    static new_property_notify(src: Object, property_name: string, val: GObject.Value | null): Message;
+    static new_qos(src: Object, live: boolean, running_time: number, stream_time: number, timestamp: number, duration: number): Message;
+    static new_redirect(src: Object, location: string, tag_list: TagList | null, entry_struct: Structure | null): Message;
+    static new_request_state(src: Object | null, state: State): Message;
+    static new_reset_time(src: Object | null, running_time: ClockTime): Message;
+    static new_segment_done(src: Object | null, format: Format, position: number): Message;
+    static new_segment_start(src: Object | null, format: Format, position: number): Message;
+    static new_state_changed(src: Object | null, oldstate: State, newstate: State, pending: State): Message;
+    static new_state_dirty(src: Object | null): Message;
+    static new_step_done(src: Object, format: Format, amount: number, rate: number, flush: boolean, intermediate: boolean, duration: number, eos: boolean): Message;
+    static new_step_start(src: Object, active: boolean, format: Format, amount: number, rate: number, flush: boolean, intermediate: boolean): Message;
+    static new_stream_collection(src: Object, collection: StreamCollection): Message;
+    static new_stream_start(src: Object | null): Message;
+    static new_stream_status(src: Object, type: StreamStatusType, owner: Element): Message;
+    static new_streams_selected(src: Object, collection: StreamCollection): Message;
+    static new_structure_change(src: Object | null, type: StructureChangeType, owner: Element, busy: boolean): Message;
+    static new_tag(src: Object | null, tag_list: TagList): Message;
+    static new_toc(src: Object, toc: Toc, updated: boolean): Message;
+    static new_warning(src: Object | null, error: GLib.Error, debug: string): Message;
+    static new_warning_with_details(src: Object | null, error: GLib.Error, debug: string, details: Structure | null): Message | null;
+    add_redirect_entry(location: string, tag_list: TagList | null, entry_struct: Structure | null): void;
+    get_num_redirect_entries(): number;
+    get_seqnum(): number;
+    get_stream_status_object(): GObject.Value | null;
+    get_structure(): Structure | null;
+    has_name(name: string): boolean;
+    parse_async_done(): [ClockTime | null];
+    parse_buffering(): [number | null];
+    parse_buffering_stats(): [BufferingMode | null,number | null,number | null,number | null];
+    parse_clock_lost(): [Clock | null];
+    parse_clock_provide(): [Clock | null,boolean | null];
+    parse_context_type(): [boolean, string | null];
+    parse_device_added(): [Device | null];
+    parse_device_changed(): [Device | null,Device | null];
+    parse_device_removed(): [Device | null];
+    parse_error(): [GLib.Error | null,string | null];
+    parse_error_details(): [Structure];
+    parse_group_id(): [boolean, number | null];
+    parse_have_context(): [Context | null];
+    parse_info(): [GLib.Error | null,string | null];
+    parse_info_details(): [Structure];
+    parse_new_clock(): [Clock | null];
+    parse_progress(): [ProgressType | null,string | null,string | null];
+    parse_property_notify(): [Object | null,string | null,GObject.Value | null];
+    parse_qos(): [boolean | null,number | null,number | null,number | null,number | null];
+    parse_qos_stats(): [Format | null,number | null,number | null];
+    parse_qos_values(): [number | null,number | null,number | null];
+    parse_redirect_entry(entry_index: number): [string | null,TagList | null,Structure | null];
+    parse_request_state(): [State | null];
+    parse_reset_time(): [ClockTime | null];
+    parse_segment_done(): [Format | null,number | null];
+    parse_segment_start(): [Format | null,number | null];
+    parse_state_changed(): [State | null,State | null,State | null];
+    parse_step_done(): [Format | null,number | null,number | null,boolean | null,boolean | null,number | null,boolean | null];
+    parse_step_start(): [boolean | null,Format | null,number | null,number | null,boolean | null,boolean | null];
+    parse_stream_collection(): [StreamCollection | null];
+    parse_stream_status(): [StreamStatusType,Element];
+    parse_streams_selected(): [StreamCollection | null];
+    parse_structure_change(): [StructureChangeType,Element | null,boolean | null];
+    parse_tag(): [TagList];
+    parse_toc(): [Toc,boolean];
+    parse_warning(): [GLib.Error | null,string | null];
+    parse_warning_details(): [Structure];
+    set_buffering_stats(mode: BufferingMode, avg_in: number, avg_out: number, buffering_left: number): void;
+    set_group_id(group_id: number): void;
+    set_qos_stats(format: Format, processed: number, dropped: number): void;
+    set_qos_values(jitter: number, proportion: number, quality: number): void;
+    set_seqnum(seqnum: number): void;
+    set_stream_status_object(object: GObject.Value): void;
+    streams_selected_add(stream: Stream): void;
+    streams_selected_get_size(): number;
+    streams_selected_get_stream(idx: number): Stream | null;
+    writable_structure(): Structure;
+}
+export class Meta  {
+    constructor(config?: properties);
+    flags: MetaFlags;
+    info: MetaInfo;
+    compare_seqnum(meta2: Meta): number;
+    get_seqnum(): number;
+    static api_type_get_tags(api: GType): string[];
+    static api_type_has_tag(api: GType, tag: GLib.Quark): boolean;
+    static api_type_register(api: string, tags: string[]): GType;
+    static get_info(impl: string): MetaInfo | null;
+    static register(api: GType, impl: string, size: number, init_func: MetaInitFunction, free_func: MetaFreeFunction, transform_func: MetaTransformFunction): MetaInfo | null;
+}
+export class MetaInfo  {
+    constructor(config?: properties);
+    api: GType;
+    type: GType;
+    size: number;
+    init_func: MetaInitFunction;
+    free_func: MetaFreeFunction;
+    transform_func: MetaTransformFunction;
+}
+export class MetaTransformCopy  {
+    constructor(config?: properties);
+    region: boolean;
+    offset: number;
+    size: number;
+}
+export class MiniObject  {
+    constructor(config?: properties);
+    type: GType;
+    refcount: number;
+    lockstate: number;
+    flags: number;
+    dispose: MiniObjectDisposeFunction;
+    free: MiniObjectFreeFunction;
+    readonly priv_uint: number;
+    readonly priv_pointer: object;
+    add_parent(parent: MiniObject): void;
+    get_qdata(quark: GLib.Quark): object | null;
+    is_writable(): boolean;
+    lock(flags: LockFlags): boolean;
+    remove_parent(parent: MiniObject): void;
+    set_qdata(quark: GLib.Quark, data: object | null, destroy: GLib.DestroyNotify): void;
+    steal_qdata(quark: GLib.Quark): object | null;
+    unlock(flags: LockFlags): void;
+    static replace(olddata: MiniObject | null, newdata: MiniObject | null): [boolean, MiniObject | null];
+    static take(olddata: MiniObject, newdata: MiniObject): [boolean, MiniObject];
+}
+export class PadPrivate  {
+    constructor(config?: properties);
+}
+export class PadProbeInfo  {
+    constructor(config?: properties);
+    type: PadProbeType;
+    id: number;
+    data: object;
+    offset: number;
+    size: number;
+    get_buffer(): Buffer | null;
+    get_buffer_list(): BufferList | null;
+    get_event(): Event | null;
+    get_query(): Query | null;
+}
+export class ParamSpecArray  {
+    constructor(config?: properties);
+    element_spec: GObject.ParamSpec;
+}
+export class ParamSpecFraction  {
+    constructor(config?: properties);
+    min_num: number;
+    min_den: number;
+    max_num: number;
+    max_den: number;
+    def_num: number;
+    def_den: number;
+}
+export class ParentBufferMeta  {
+    constructor(config?: properties);
+    buffer: Buffer;
+    static get_info(): MetaInfo;
+}
+export class ParseContext  {
+    constructor(config?: properties);
+    copy(): ParseContext | null;
+    free(): void;
+    get_missing_elements(): string[] | null;
+}
+export class PipelinePrivate  {
+    constructor(config?: properties);
+}
+export class PluginDesc  {
+    constructor(config?: properties);
+    major_version: number;
+    minor_version: number;
+    name: string;
+    description: string;
+    plugin_init: PluginInitFunc;
+    version: string;
+    license: string;
+    source: string;
+    _package: string;
+    origin: string;
+    release_datetime: string;
+}
+export class Poll  {
+    constructor(config?: properties);
+    add_fd(fd: PollFD): boolean;
+    fd_can_read(fd: PollFD): boolean;
+    fd_can_write(fd: PollFD): boolean;
+    fd_ctl_pri(fd: PollFD, active: boolean): boolean;
+    fd_ctl_read(fd: PollFD, active: boolean): boolean;
+    fd_ctl_write(fd: PollFD, active: boolean): boolean;
+    fd_has_closed(fd: PollFD): boolean;
+    fd_has_error(fd: PollFD): boolean;
+    fd_has_pri(fd: PollFD): boolean;
+    fd_ignored(fd: PollFD): void;
+    free(): void;
+    get_read_gpollfd(fd: GLib.PollFD): void;
+    read_control(): boolean;
+    remove_fd(fd: PollFD): boolean;
+    restart(): void;
+    set_controllable(controllable: boolean): boolean;
+    set_flushing(flushing: boolean): void;
+    wait(timeout: ClockTime): number;
+    write_control(): boolean;
+}
+export class PollFD  {
+    constructor(config?: properties);
+    fd: number;
+    readonly idx: number;
+    init(): void;
+}
+export class Promise  {
+    constructor(config?: properties);
+    static new_with_change_func(func: PromiseChangeFunc, user_data: object | null, notify: GLib.DestroyNotify): Promise;
+    expire(): void;
+    get_reply(): Structure;
+    interrupt(): void;
+    reply(s: Structure): void;
+    wait(): PromiseResult;
+}
+export class ProtectionMeta  {
+    constructor(config?: properties);
+    meta: Meta;
+    info: Structure;
+    static get_info(): MetaInfo;
+}
+export class ProxyPadPrivate  {
+    constructor(config?: properties);
+}
+export class Query  {
+    constructor(config?: properties);
+    static new_accept_caps(caps: Caps): Query;
+    static new_allocation(caps: Caps, need_pool: boolean): Query;
+    static new_bitrate(): Query;
+    static new_buffering(format: Format): Query;
+    static new_caps(filter: Caps): Query;
+    static new_context(context_type: string): Query;
+    static new_convert(src_format: Format, value: number, dest_format: Format): Query;
+    static new_custom(type: QueryType, structure: Structure | null): Query | null;
+    static new_drain(): Query;
+    static new_duration(format: Format): Query;
+    static new_formats(): Query;
+    static new_latency(): Query;
+    static new_position(format: Format): Query;
+    static new_scheduling(): Query;
+    static new_seeking(format: Format): Query;
+    static new_segment(format: Format): Query;
+    static new_uri(): Query;
+    add_allocation_meta(api: GType, params: Structure | null): void;
+    add_allocation_param(allocator: Allocator | null, params: AllocationParams | null): void;
+    add_allocation_pool(pool: BufferPool | null, size: number, min_buffers: number, max_buffers: number): void;
+    add_buffering_range(start: number, stop: number): boolean;
+    add_scheduling_mode(mode: PadMode): void;
+    find_allocation_meta(api: GType): [boolean, number | null];
+    get_n_allocation_metas(): number;
+    get_n_allocation_params(): number;
+    get_n_allocation_pools(): number;
+    get_n_buffering_ranges(): number;
+    get_n_scheduling_modes(): number;
+    get_structure(): Structure | null;
+    has_scheduling_mode(mode: PadMode): boolean;
+    has_scheduling_mode_with_flags(mode: PadMode, flags: SchedulingFlags): boolean;
+    parse_accept_caps(): [Caps];
+    parse_accept_caps_result(): [boolean | null];
+    parse_allocation(): [Caps | null,boolean | null];
+    parse_bitrate(): [number | null];
+    parse_buffering_percent(): [boolean | null,number | null];
+    parse_buffering_range(): [Format | null,number | null,number | null,number | null];
+    parse_buffering_stats(): [BufferingMode | null,number | null,number | null,number | null];
+    parse_caps(): [Caps];
+    parse_caps_result(): [Caps];
+    parse_context(): [Context];
+    parse_context_type(): [boolean, string | null];
+    parse_convert(): [Format | null,number | null,Format | null,number | null];
+    parse_duration(): [Format | null,number | null];
+    parse_latency(): [boolean | null,ClockTime | null,ClockTime | null];
+    parse_n_formats(): [number | null];
+    parse_nth_allocation_meta(index: number): [GType, Structure | null];
+    parse_nth_allocation_param(index: number): [Allocator | null,AllocationParams | null];
+    parse_nth_allocation_pool(index: number): [BufferPool | null,number | null,number | null,number | null];
+    parse_nth_buffering_range(index: number): [boolean, number | null,number | null];
+    parse_nth_format(nth: number): [Format | null];
+    parse_nth_scheduling_mode(index: number): PadMode;
+    parse_position(): [Format | null,number | null];
+    parse_scheduling(): [SchedulingFlags | null,number | null,number | null,number | null];
+    parse_seeking(): [Format | null,boolean | null,number | null,number | null];
+    parse_segment(): [number | null,Format | null,number | null,number | null];
+    parse_uri(): [string | null];
+    parse_uri_redirection(): [string | null];
+    parse_uri_redirection_permanent(): [boolean | null];
+    remove_nth_allocation_meta(index: number): void;
+    remove_nth_allocation_param(index: number): void;
+    remove_nth_allocation_pool(index: number): void;
+    set_accept_caps_result(result: boolean): void;
+    set_bitrate(nominal_bitrate: number): void;
+    set_buffering_percent(busy: boolean, percent: number): void;
+    set_buffering_range(format: Format, start: number, stop: number, estimated_total: number): void;
+    set_buffering_stats(mode: BufferingMode, avg_in: number, avg_out: number, buffering_left: number): void;
+    set_caps_result(caps: Caps): void;
+    set_context(context: Context): void;
+    set_convert(src_format: Format, src_value: number, dest_format: Format, dest_value: number): void;
+    set_duration(format: Format, duration: number): void;
+    set_formatsv(n_formats: number, formats: Format[]): void;
+    set_latency(live: boolean, min_latency: ClockTime, max_latency: ClockTime): void;
+    set_nth_allocation_param(index: number, allocator: Allocator | null, params: AllocationParams | null): void;
+    set_nth_allocation_pool(index: number, pool: BufferPool | null, size: number, min_buffers: number, max_buffers: number): void;
+    set_position(format: Format, cur: number): void;
+    set_scheduling(flags: SchedulingFlags, minsize: number, maxsize: number, align: number): void;
+    set_seeking(format: Format, seekable: boolean, segment_start: number, segment_end: number): void;
+    set_segment(rate: number, format: Format, start_value: number, stop_value: number): void;
+    set_uri(uri: string): void;
+    set_uri_redirection(uri: string): void;
+    set_uri_redirection_permanent(permanent: boolean): void;
+    writable_structure(): Structure;
+}
+export class ReferenceTimestampMeta  {
+    constructor(config?: properties);
+    reference: Caps;
+    timestamp: ClockTime;
+    duration: ClockTime;
+    static get_info(): MetaInfo;
+}
+export class RegistryPrivate  {
+    constructor(config?: properties);
+}
+export class Sample  {
+    constructor(config?: properties);
+    get_buffer(): Buffer | null;
+    get_buffer_list(): BufferList | null;
+    get_caps(): Caps | null;
+    get_info(): Structure | null;
+    get_segment(): Segment;
+    set_buffer(buffer: Buffer): void;
+    set_buffer_list(buffer_list: BufferList): void;
+    set_caps(caps: Caps): void;
+    set_info(info: Structure): boolean;
+    set_segment(segment: Segment): void;
+}
+export class Segment  {
+    constructor(config?: properties);
+    clip(format: Format, start: number, stop: number): [boolean, number | null,number | null];
+    copy(): Segment;
+    copy_into(dest: Segment): void;
+    do_seek(rate: number, format: Format, flags: SeekFlags, start_type: SeekType, start: number, stop_type: SeekType, stop: number): [boolean, boolean | null];
+    free(): void;
+    init(format: Format): void;
+    is_equal(s1: Segment): boolean;
+    offset_running_time(format: Format, offset: number): boolean;
+    position_from_running_time(format: Format, running_time: number): number;
+    position_from_running_time_full(format: Format, running_time: number): [number, number];
+    position_from_stream_time(format: Format, stream_time: number): number;
+    position_from_stream_time_full(format: Format, stream_time: number): [number, number];
+    set_running_time(format: Format, running_time: number): boolean;
+    to_position(format: Format, running_time: number): number;
+    to_running_time(format: Format, position: number): number;
+    to_running_time_full(format: Format, position: number): [number, number | null];
+    to_stream_time(format: Format, position: number): number;
+    to_stream_time_full(format: Format, position: number): [number, number];
+}
+export class StaticCaps  {
+    constructor(config?: properties);
+    caps: Caps;
+    string: string;
+    cleanup(): void;
+    get(): Caps | null;
+}
+export class StaticPadTemplate  {
+    constructor(config?: properties);
+    name_template: string;
+    direction: PadDirection;
+    presence: PadPresence;
+    static_caps: StaticCaps;
+    get(): PadTemplate | null;
+    get_caps(): Caps;
+}
+export class StreamCollectionPrivate  {
+    constructor(config?: properties);
+}
+export class StreamPrivate  {
+    constructor(config?: properties);
+}
+export class Structure  {
+    constructor(config?: properties);
+    static new_empty(name: string): Structure;
+    static new_from_string(string: string): Structure | null;
+    static new_id(name_quark: GLib.Quark, field_quark: GLib.Quark, ___: any): Structure;
+    static new_id_empty(quark: GLib.Quark): Structure;
+    static new_valist(name: string, firstfield: string, varargs: any): Structure;
+    can_intersect(struct2: Structure): boolean;
+    copy(): Structure;
+    filter_and_map_in_place(func: StructureFilterMapFunc, user_data: object | null): void;
+    fixate(): void;
+    fixate_field(field_name: string): boolean;
+    fixate_field_boolean(field_name: string, target: boolean): boolean;
+    fixate_field_nearest_double(field_name: string, target: number): boolean;
+    fixate_field_nearest_fraction(field_name: string, target_numerator: number, target_denominator: number): boolean;
+    fixate_field_nearest_int(field_name: string, target: number): boolean;
+    fixate_field_string(field_name: string, target: string): boolean;
+    foreach(func: StructureForeachFunc, user_data: object | null): boolean;
+    free(): void;
+    get_array(fieldname: string): [boolean, GObject.ValueArray];
+    get_boolean(fieldname: string): [boolean, boolean];
+    get_clock_time(fieldname: string): [boolean, ClockTime];
+    get_date(fieldname: string): [boolean, GLib.Date];
+    get_date_time(fieldname: string): [boolean, DateTime];
+    get_double(fieldname: string): [boolean, number];
+    get_enum(fieldname: string, enumtype: GType): [boolean, number];
+    get_field_type(fieldname: string): GType;
+    get_flagset(fieldname: string): [boolean, number | null,number | null];
+    get_fraction(fieldname: string): [boolean, number,number];
+    get_int(fieldname: string): [boolean, number];
+    get_int64(fieldname: string): [boolean, number];
+    get_list(fieldname: string): [boolean, GObject.ValueArray];
+    get_name(): string;
+    get_name_id(): GLib.Quark;
+    get_string(fieldname: string): string | null;
+    get_uint(fieldname: string): [boolean, number];
+    get_uint64(fieldname: string): [boolean, number];
+    get_value(fieldname: string): GObject.Value | null;
+    has_field(fieldname: string): boolean;
+    has_field_typed(fieldname: string, type: GType): boolean;
+    has_name(name: string): boolean;
+    id_get_value(field: GLib.Quark): GObject.Value | null;
+    id_has_field(field: GLib.Quark): boolean;
+    id_has_field_typed(field: GLib.Quark, type: GType): boolean;
+    id_set_value(field: GLib.Quark, value: GObject.Value): void;
+    id_take_value(field: GLib.Quark, value: GObject.Value): void;
+    intersect(struct2: Structure): Structure | null;
+    is_equal(structure2: Structure): boolean;
+    is_subset(superset: Structure): boolean;
+    map_in_place(func: StructureMapFunc, user_data: object | null): boolean;
+    n_fields(): number;
+    nth_field_name(index: number): string;
+    remove_all_fields(): void;
+    remove_field(fieldname: string): void;
+    set_array(fieldname: string, array: GObject.ValueArray): void;
+    set_list(fieldname: string, array: GObject.ValueArray): void;
+    set_name(name: string): void;
+    set_parent_refcount(refcount: number): boolean;
+    set_value(fieldname: string, value: GObject.Value): void;
+    take_value(fieldname: string, value: GObject.Value): void;
+    to_string(): string;
+    static from_string(string: string): [Structure | null, string | null];
+}
+export class SystemClockPrivate  {
+    constructor(config?: properties);
+}
+export class TagList  {
+    constructor(config?: properties);
+    static new_empty(): TagList;
+    static new_from_string(str: string): TagList | null;
+    static new_valist(var_args: any): TagList;
+    add_value(mode: TagMergeMode, tag: string, value: GObject.Value): void;
+    foreach(func: TagForeachFunc, user_data: object | null): void;
+    get_boolean(tag: string): [boolean, boolean];
+    get_boolean_index(tag: string, index: number): [boolean, boolean];
+    get_date(tag: string): [boolean, GLib.Date];
+    get_date_index(tag: string, index: number): [boolean, GLib.Date];
+    get_date_time(tag: string): [boolean, DateTime];
+    get_date_time_index(tag: string, index: number): [boolean, DateTime];
+    get_double(tag: string): [boolean, number];
+    get_double_index(tag: string, index: number): [boolean, number];
+    get_float(tag: string): [boolean, number];
+    get_float_index(tag: string, index: number): [boolean, number];
+    get_int(tag: string): [boolean, number];
+    get_int64(tag: string): [boolean, number];
+    get_int64_index(tag: string, index: number): [boolean, number];
+    get_int_index(tag: string, index: number): [boolean, number];
+    get_pointer(tag: string): [boolean, object | null];
+    get_pointer_index(tag: string, index: number): [boolean, object | null];
+    get_sample(tag: string): [boolean, Sample];
+    get_sample_index(tag: string, index: number): [boolean, Sample];
+    get_scope(): TagScope;
+    get_string(tag: string): [boolean, string];
+    get_string_index(tag: string, index: number): [boolean, string];
+    get_tag_size(tag: string): number;
+    get_uint(tag: string): [boolean, number];
+    get_uint64(tag: string): [boolean, number];
+    get_uint64_index(tag: string, index: number): [boolean, number];
+    get_uint_index(tag: string, index: number): [boolean, number];
+    get_value_index(tag: string, index: number): GObject.Value | null;
+    insert(from: TagList, mode: TagMergeMode): void;
+    is_empty(): boolean;
+    is_equal(list2: TagList): boolean;
+    merge(list2: TagList | null, mode: TagMergeMode): TagList | null;
+    n_tags(): number;
+    nth_tag_name(index: number): string;
+    peek_string_index(tag: string, index: number): [boolean, string];
+    remove_tag(tag: string): void;
+    set_scope(scope: TagScope): void;
+    to_string(): string | null;
+    static copy_value(list: TagList, tag: string): [boolean, GObject.Value];
+}
+export class TaskPrivate  {
+    constructor(config?: properties);
+}
+export class TimedValue  {
+    constructor(config?: properties);
+    timestamp: ClockTime;
+    value: number;
+}
+export class Toc  {
+    constructor(config?: properties);
+    append_entry(entry: TocEntry): void;
+    dump(): void;
+    find_entry(uid: string): TocEntry | null;
+    get_entries(): GLib.List;
+    get_scope(): TocScope;
+    get_tags(): TagList;
+    merge_tags(tags: TagList | null, mode: TagMergeMode): void;
+    set_tags(tags: TagList | null): void;
+}
+export class TocEntry  {
+    constructor(config?: properties);
+    append_sub_entry(subentry: TocEntry): void;
+    get_entry_type(): TocEntryType;
+    get_loop(): [boolean, TocLoopType | null,number | null];
+    get_parent(): TocEntry | null;
+    get_start_stop_times(): [boolean, number | null,number | null];
+    get_sub_entries(): GLib.List;
+    get_tags(): TagList;
+    get_toc(): Toc;
+    get_uid(): string;
+    is_alternative(): boolean;
+    is_sequence(): boolean;
+    merge_tags(tags: TagList | null, mode: TagMergeMode): void;
+    set_loop(loop_type: TocLoopType, repeat_count: number): void;
+    set_start_stop_times(start: number, stop: number): void;
+    set_tags(tags: TagList | null): void;
+}
+export class TracerPrivate  {
+    constructor(config?: properties);
+}
+export class TypeFind  {
+    constructor(config?: properties);
+    data: object;
+    get_length(): number;
+    peek(offset: number): [number[] | null, number];
+    suggest(probability: number, caps: Caps): void;
+    static register(plugin: Plugin | null, name: string, rank: number, func: TypeFindFunction, extensions: string | null, possible_caps: Caps, data: object | null, data_notify: GLib.DestroyNotify): boolean;
+}
+export class Uri  {
+    constructor(config?: properties);
+    append_path(relative_path: string): boolean;
+    append_path_segment(path_segment: string): boolean;
+    equal(second: Uri): boolean;
+    from_string_with_base(uri: string): Uri;
+    get_fragment(): string | null;
+    get_host(): string | null;
+    get_media_fragment_table(): GLib.HashTable | null;
+    get_path(): string | null;
+    get_path_segments(): GLib.List;
+    get_path_string(): string | null;
+    get_port(): number;
+    get_query_keys(): GLib.List;
+    get_query_string(): string | null;
+    get_query_table(): GLib.HashTable | null;
+    get_query_value(query_key: string): string | null;
+    get_scheme(): string | null;
+    get_userinfo(): string | null;
+    is_normalized(): boolean;
+    is_writable(): boolean;
+    join(ref_uri: Uri | null): Uri | null;
+    make_writable(): Uri;
+    new_with_base(scheme: string | null, userinfo: string | null, host: string | null, port: number, path: string | null, query: string | null, fragment: string | null): Uri;
+    normalize(): boolean;
+    query_has_key(query_key: string): boolean;
+    remove_query_key(query_key: string): boolean;
+    set_fragment(fragment: string | null): boolean;
+    set_host(host: string): boolean;
+    set_path(path: string): boolean;
+    set_path_segments(path_segments: GLib.List | null): boolean;
+    set_path_string(path: string): boolean;
+    set_port(port: number): boolean;
+    set_query_string(query: string): boolean;
+    set_query_table(query_table: GLib.HashTable | null): boolean;
+    set_query_value(query_key: string, query_value: string | null): boolean;
+    set_scheme(scheme: string): boolean;
+    set_userinfo(userinfo: string): boolean;
+    to_string(): string;
+    static construct(protocol: string, location: string): string;
+    static from_string(uri: string): Uri | null;
+    static get_location(uri: string): string | null;
+    static get_protocol(uri: string): string | null;
+    static has_protocol(uri: string, protocol: string): boolean;
+    static is_valid(uri: string): boolean;
+    static join_strings(base_uri: string, ref_uri: string): string;
+    static protocol_is_supported(type: URIType, protocol: string): boolean;
+    static protocol_is_valid(protocol: string): boolean;
+}
+export class ValueTable  {
+    constructor(config?: properties);
+    type: GType;
+    compare: ValueCompareFunc;
+    serialize: ValueSerializeFunc;
+    deserialize: ValueDeserializeFunc;
 }
 export interface ChildProxy  {
-child_added(child: GObject.Object, name: string): void;
-child_removed(child: GObject.Object, name: string): void;
-get(first_property_name: string, ___: unknown[]): void;
-get_child_by_index(index: number): GObject.Object | null;
-get_child_by_name(name: string): GObject.Object | null;
-get_children_count(): number;
-get_property(name: string): [GObject.Value];
-get_valist(first_property_name: string, var_args: any): void;
-lookup(name: string): [boolean, GObject.Object | null,GObject.ParamSpec | null];
-set(first_property_name: string, ___: unknown[]): void;
-set_property(name: string, value: GObject.Value): void;
-set_valist(first_property_name: string, var_args: any): void;
+    child_added(child: GObject.Object, name: string): void;
+    child_removed(child: GObject.Object, name: string): void;
+    get_child_by_index(index: number): GObject.Object | null;
+    get_child_by_name(name: string): GObject.Object | null;
+    get_children_count(): number;
+    get_property(name: string): [GObject.Value];
+    lookup(name: string): [boolean, GObject.Object | null,GObject.ParamSpec | null];
+    set_property(name: string, value: GObject.Value): void;
 }
 export interface Preset  {
-delete_preset(name: string): boolean;
-get_meta(name: string, tag: string): [boolean, string];
-get_preset_names(): string[];
-get_property_names(): string[];
-is_editable(): boolean;
-load_preset(name: string): boolean;
-rename_preset(old_name: string, new_name: string): boolean;
-save_preset(name: string): boolean;
-set_meta(name: string, tag: string, value: string | null): boolean;
+    delete_preset(name: string): boolean;
+    get_meta(name: string, tag: string): [boolean, string];
+    get_preset_names(): string[];
+    get_property_names(): string[];
+    is_editable(): boolean;
+    load_preset(name: string): boolean;
+    rename_preset(old_name: string, new_name: string): boolean;
+    save_preset(name: string): boolean;
+    set_meta(name: string, tag: string, value: string | null): boolean;
 }
 export interface TagSetter  {
-add_tag_valist(mode: TagMergeMode, tag: string, var_args: any): void;
-add_tag_valist_values(mode: TagMergeMode, tag: string, var_args: any): void;
-add_tag_value(mode: TagMergeMode, tag: string, value: GObject.Value): void;
-add_tag_values(mode: TagMergeMode, tag: string, ___: unknown[]): void;
-add_tags(mode: TagMergeMode, tag: string, ___: unknown[]): void;
-get_tag_list(): TagList | null;
-get_tag_merge_mode(): TagMergeMode;
-merge_tags(list: TagList, mode: TagMergeMode): void;
-reset_tags(): void;
-set_tag_merge_mode(mode: TagMergeMode): void;
+    add_tag_value(mode: TagMergeMode, tag: string, value: GObject.Value): void;
+    get_tag_list(): TagList | null;
+    get_tag_merge_mode(): TagMergeMode;
+    merge_tags(list: TagList, mode: TagMergeMode): void;
+    reset_tags(): void;
+    set_tag_merge_mode(mode: TagMergeMode): void;
 }
 export interface TocSetter  {
-get_toc(): Toc | null;
-reset(): void;
-set_toc(toc: Toc | null): void;
+    get_toc(): Toc | null;
+    reset(): void;
+    set_toc(toc: Toc | null): void;
 }
 export interface URIHandler  {
-get_protocols(): string[] | null;
-get_uri(): string | null;
-get_uri_type(): URIType;
-set_uri(uri: string): boolean;
+    get_protocols(): string[] | null;
+    get_uri(): string | null;
+    get_uri_type(): URIType;
+    set_uri(uri: string): boolean;
 }

@@ -10,6 +10,7 @@ import * as GstAudio from "gstaudio";
  * gstaudio.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type AudioBaseSinkCustomSlavingCallback = (sink: AudioBaseSink, etime: Gst.ClockTime, itime: Gst.ClockTime, requested_skew: Gst.ClockTimeDiff, discont_reason: AudioBaseSinkDiscontReason, user_data: object | null) => void;
 export type AudioClockGetTimeFunc = (clock: Gst.Clock, user_data: object | null) => Gst.ClockTime;
 export type AudioFormatPack = (info: AudioFormatInfo, flags: AudioPackFlags, src: number[], data: number[], length: number) => void;
@@ -78,14 +79,6 @@ export function audio_buffer_truncate(buffer: Gst.Buffer, bpf: number, trim: num
  */
 export function audio_channel_get_fallback_mask(channels: number): number;
 /**
- * Create a new channel mixer object for the given parameters.
- */
-export function audio_channel_mixer_new(flags: AudioChannelMixerFlags, format: AudioFormat, in_channels: number, in_position: AudioChannelPosition, out_channels: number, out_position: AudioChannelPosition): AudioChannelMixer;
-/**
- * Create a new channel mixer object for the given parameters.
- */
-export function audio_channel_mixer_new_with_matrix(flags: AudioChannelMixerFlags, format: AudioFormat, in_channels: number, out_channels: number, matrix: number | null): AudioChannelMixer;
-/**
  * Convert the @channels present in @channel_mask to a @position array
  * (which should have at least @channels entries ensured by caller).
  * If @channel_mask is set to 0, it is considered as 'not present' for pu
@@ -120,7 +113,7 @@ export function audio_check_valid_channel_positions(position: AudioChannelPositi
 /**
  * 
  */
-export function audio_clipping_meta_api_get_type(): unknown;
+export function audio_clipping_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -128,7 +121,7 @@ export function audio_clipping_meta_get_info(): Gst.MetaInfo;
 /**
  * 
  */
-export function audio_downmix_meta_api_get_type(): unknown;
+export function audio_downmix_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -152,7 +145,7 @@ export function audio_format_get_info(format: AudioFormat): AudioFormatInfo;
 /**
  * 
  */
-export function audio_format_info_get_type(): unknown;
+export function audio_format_info_get_type(): GType;
 /**
  * 
  */
@@ -184,19 +177,11 @@ export function audio_iec61937_payload(src: number[], src_n: number, dst: number
 /**
  * 
  */
-export function audio_meta_api_get_type(): unknown;
+export function audio_meta_api_get_type(): GType;
 /**
  * 
  */
 export function audio_meta_get_info(): Gst.MetaInfo;
-/**
- * Create a new quantizer object with the given parameters.
- * Output samples will be quantized to a multiple of @quantizer. Better
- * performance is achieved when @quantizer is a power of 2.
- * Dithering and noise-shaping can be performed during quantization with
- * the @dither and @ns parameters.
- */
-export function audio_quantize_new(dither: AudioDitherMethod, ns: AudioNoiseShapingMethod, flags: AudioQuantizeFlags, format: AudioFormat, channels: number, quantizer: number): AudioQuantize;
 /**
  * Reorders @data from the channel positions @from to the channel
  * positions @to. @from and @to must contain the same number of
@@ -469,537 +454,420 @@ export enum AudioResamplerFlags {
     NON_INTERLEAVED_OUT = 2,
     VARIABLE_RATE = 4,
 }
-export class AudioAggregator  {constructor(config?: properties);
-alignment_threshold: number;
-discont_wait: number;
-output_buffer_duration: number;
-readonly current_caps: Gst.Caps;
-readonly priv: AudioAggregatorPrivate;
-readonly _gst_reserved: object[];
-set_sink_caps(pad: AudioAggregatorPad, caps: Gst.Caps): void;
+export class AudioAggregator  {
+    constructor(config?: properties);
+    alignment_threshold: number;
+    discont_wait: number;
+    output_buffer_duration: number;
+    readonly current_caps: Gst.Caps;
+    readonly priv: AudioAggregatorPrivate;
+    set_sink_caps(pad: AudioAggregatorPad, caps: Gst.Caps): void;
 }
-export class AudioAggregatorConvertPad  {constructor(config?: properties);
-converter_config: Gst.Structure;
-readonly priv: AudioAggregatorConvertPadPrivate;
-readonly _gst_reserved: object[];
+export class AudioAggregatorConvertPad  {
+    constructor(config?: properties);
+    converter_config: Gst.Structure;
+    readonly priv: AudioAggregatorConvertPadPrivate;
 }
-export class AudioAggregatorPad  {constructor(config?: properties);
-readonly info: AudioInfo;
-readonly priv: AudioAggregatorPadPrivate;
-readonly _gst_reserved: object[];
+export class AudioAggregatorPad  {
+    constructor(config?: properties);
+    readonly info: AudioInfo;
+    readonly priv: AudioAggregatorPadPrivate;
 }
-export class AudioBaseSink  {constructor(config?: properties);
-alignment_threshold: number;
-buffer_time: number;
-can_activate_pull: boolean;
-discont_wait: number;
-drift_tolerance: number;
-latency_time: number;
-provide_clock: boolean;
-slave_method: AudioBaseSinkSlaveMethod;
-readonly element: GstBase.BaseSink;
-readonly ringbuffer: AudioRingBuffer;
-readonly next_sample: number;
-readonly provided_clock: Gst.Clock;
-readonly eos_rendering: boolean;
-readonly priv: AudioBaseSinkPrivate;
-readonly _gst_reserved: object[];
-create_ringbuffer(): AudioRingBuffer;
-get_alignment_threshold(): Gst.ClockTime;
-get_discont_wait(): Gst.ClockTime;
-get_drift_tolerance(): number;
-get_provide_clock(): boolean;
-get_slave_method(): AudioBaseSinkSlaveMethod;
-report_device_failure(): void;
-set_alignment_threshold(alignment_threshold: Gst.ClockTime): void;
-set_custom_slaving_callback(callback: AudioBaseSinkCustomSlavingCallback, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_discont_wait(discont_wait: Gst.ClockTime): void;
-set_drift_tolerance(drift_tolerance: number): void;
-set_provide_clock(provide: boolean): void;
-set_slave_method(method: AudioBaseSinkSlaveMethod): void;
+export class AudioBaseSink  {
+    constructor(config?: properties);
+    alignment_threshold: number;
+    buffer_time: number;
+    can_activate_pull: boolean;
+    discont_wait: number;
+    drift_tolerance: number;
+    latency_time: number;
+    provide_clock: boolean;
+    slave_method: AudioBaseSinkSlaveMethod;
+    readonly element: GstBase.BaseSink;
+    readonly ringbuffer: AudioRingBuffer;
+    readonly next_sample: number;
+    readonly provided_clock: Gst.Clock;
+    readonly eos_rendering: boolean;
+    readonly priv: AudioBaseSinkPrivate;
+    create_ringbuffer(): AudioRingBuffer;
+    get_alignment_threshold(): Gst.ClockTime;
+    get_discont_wait(): Gst.ClockTime;
+    get_drift_tolerance(): number;
+    get_provide_clock(): boolean;
+    get_slave_method(): AudioBaseSinkSlaveMethod;
+    report_device_failure(): void;
+    set_alignment_threshold(alignment_threshold: Gst.ClockTime): void;
+    set_custom_slaving_callback(callback: AudioBaseSinkCustomSlavingCallback, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_discont_wait(discont_wait: Gst.ClockTime): void;
+    set_drift_tolerance(drift_tolerance: number): void;
+    set_provide_clock(provide: boolean): void;
+    set_slave_method(method: AudioBaseSinkSlaveMethod): void;
 }
-export class AudioBaseSrc  {constructor(config?: properties);
-readonly actual_buffer_time: number;
-readonly actual_latency_time: number;
-buffer_time: number;
-latency_time: number;
-provide_clock: boolean;
-slave_method: AudioBaseSrcSlaveMethod;
-readonly element: GstBase.PushSrc;
-readonly ringbuffer: AudioRingBuffer;
-readonly next_sample: number;
-readonly clock: Gst.Clock;
-readonly priv: AudioBaseSrcPrivate;
-readonly _gst_reserved: object[];
-create_ringbuffer(): AudioRingBuffer;
-get_provide_clock(): boolean;
-get_slave_method(): AudioBaseSrcSlaveMethod;
-set_provide_clock(provide: boolean): void;
-set_slave_method(method: AudioBaseSrcSlaveMethod): void;
+export class AudioBaseSrc  {
+    constructor(config?: properties);
+    readonly actual_buffer_time: number;
+    readonly actual_latency_time: number;
+    buffer_time: number;
+    latency_time: number;
+    provide_clock: boolean;
+    slave_method: AudioBaseSrcSlaveMethod;
+    readonly element: GstBase.PushSrc;
+    readonly ringbuffer: AudioRingBuffer;
+    readonly next_sample: number;
+    readonly clock: Gst.Clock;
+    readonly priv: AudioBaseSrcPrivate;
+    create_ringbuffer(): AudioRingBuffer;
+    get_provide_clock(): boolean;
+    get_slave_method(): AudioBaseSrcSlaveMethod;
+    set_provide_clock(provide: boolean): void;
+    set_slave_method(method: AudioBaseSrcSlaveMethod): void;
 }
-export class AudioCdSrc  {constructor(config?: properties);
-device: string;
-mode: AudioCdSrcMode;
-track: number;
-readonly pushsrc: GstBase.PushSrc;
-readonly tags: Gst.TagList;
-readonly priv: AudioCdSrcPrivate;
-readonly _gst_reserved1: number[];
-readonly _gst_reserved2: object[];
-add_track(track: AudioCdSrcTrack): boolean;
+export class AudioCdSrc  {
+    constructor(config?: properties);
+    device: string;
+    mode: AudioCdSrcMode;
+    track: number;
+    readonly pushsrc: GstBase.PushSrc;
+    readonly tags: Gst.TagList;
+    readonly priv: AudioCdSrcPrivate;
+    add_track(track: AudioCdSrcTrack): boolean;
 }
-export class AudioClock extends Gst.SystemClock {constructor(config?: properties);
-adjust(time: Gst.ClockTime): Gst.ClockTime;
-get_time(): Gst.ClockTime;
-invalidate(): void;
-reset(time: Gst.ClockTime): void;
+export class AudioClock extends Gst.SystemClock {
+    constructor(config?: properties);
+    adjust(time: Gst.ClockTime): Gst.ClockTime;
+    get_time(): Gst.ClockTime;
+    invalidate(): void;
+    reset(time: Gst.ClockTime): void;
 }
-export class AudioDecoder  {constructor(config?: properties);
-min_latency: number;
-plc: boolean;
-tolerance: number;
-readonly element: Gst.Element;
-readonly sinkpad: Gst.Pad;
-readonly srcpad: Gst.Pad;
-readonly stream_lock: GLib.RecMutex;
-readonly input_segment: Gst.Segment;
-readonly output_segment: Gst.Segment;
-readonly priv: AudioDecoderPrivate;
-readonly _gst_reserved: object[];
-allocate_output_buffer(size: number): Gst.Buffer;
-finish_frame(buf: Gst.Buffer, frames: number): Gst.FlowReturn;
-finish_subframe(buf: Gst.Buffer): Gst.FlowReturn;
-get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
-get_audio_info(): AudioInfo;
-get_delay(): number;
-get_drainable(): boolean;
-get_estimate_rate(): number;
-get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
-get_max_errors(): number;
-get_min_latency(): Gst.ClockTime;
-get_needs_format(): boolean;
-get_parse_state(): [boolean | null,boolean | null];
-get_plc(): boolean;
-get_plc_aware(): number;
-get_tolerance(): Gst.ClockTime;
-merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
-negotiate(): boolean;
-proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
-set_allocation_caps(allocation_caps: Gst.Caps | null): void;
-set_drainable(enabled: boolean): void;
-set_estimate_rate(enabled: boolean): void;
-set_latency(min: Gst.ClockTime, max: Gst.ClockTime): void;
-set_max_errors(num: number): void;
-set_min_latency(num: Gst.ClockTime): void;
-set_needs_format(enabled: boolean): void;
-set_output_caps(caps: Gst.Caps): boolean;
-set_output_format(info: AudioInfo): boolean;
-set_plc(enabled: boolean): void;
-set_plc_aware(plc: boolean): void;
-set_tolerance(tolerance: Gst.ClockTime): void;
-set_use_default_pad_acceptcaps(use: boolean): void;
+export class AudioDecoder  {
+    constructor(config?: properties);
+    min_latency: number;
+    plc: boolean;
+    tolerance: number;
+    readonly element: Gst.Element;
+    readonly sinkpad: Gst.Pad;
+    readonly srcpad: Gst.Pad;
+    readonly stream_lock: GLib.RecMutex;
+    readonly input_segment: Gst.Segment;
+    readonly output_segment: Gst.Segment;
+    readonly priv: AudioDecoderPrivate;
+    allocate_output_buffer(size: number): Gst.Buffer;
+    finish_frame(buf: Gst.Buffer, frames: number): Gst.FlowReturn;
+    finish_subframe(buf: Gst.Buffer): Gst.FlowReturn;
+    get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
+    get_audio_info(): AudioInfo;
+    get_delay(): number;
+    get_drainable(): boolean;
+    get_estimate_rate(): number;
+    get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
+    get_max_errors(): number;
+    get_min_latency(): Gst.ClockTime;
+    get_needs_format(): boolean;
+    get_parse_state(): [boolean | null,boolean | null];
+    get_plc(): boolean;
+    get_plc_aware(): number;
+    get_tolerance(): Gst.ClockTime;
+    merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
+    negotiate(): boolean;
+    proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
+    set_allocation_caps(allocation_caps: Gst.Caps | null): void;
+    set_drainable(enabled: boolean): void;
+    set_estimate_rate(enabled: boolean): void;
+    set_latency(min: Gst.ClockTime, max: Gst.ClockTime): void;
+    set_max_errors(num: number): void;
+    set_min_latency(num: Gst.ClockTime): void;
+    set_needs_format(enabled: boolean): void;
+    set_output_caps(caps: Gst.Caps): boolean;
+    set_output_format(info: AudioInfo): boolean;
+    set_plc(enabled: boolean): void;
+    set_plc_aware(plc: boolean): void;
+    set_tolerance(tolerance: Gst.ClockTime): void;
+    set_use_default_pad_acceptcaps(use: boolean): void;
 }
-export class AudioEncoder  {constructor(config?: properties);
-hard_resync: boolean;
-readonly mark_granule: boolean;
-perfect_timestamp: boolean;
-tolerance: number;
-readonly element: Gst.Element;
-readonly sinkpad: Gst.Pad;
-readonly srcpad: Gst.Pad;
-readonly stream_lock: GLib.RecMutex;
-readonly input_segment: Gst.Segment;
-readonly output_segment: Gst.Segment;
-readonly priv: AudioEncoderPrivate;
-readonly _gst_reserved: object[];
-allocate_output_buffer(size: number): Gst.Buffer;
-finish_frame(buffer: Gst.Buffer, samples: number): Gst.FlowReturn;
-get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
-get_audio_info(): AudioInfo;
-get_drainable(): boolean;
-get_frame_max(): number;
-get_frame_samples_max(): number;
-get_frame_samples_min(): number;
-get_hard_min(): boolean;
-get_hard_resync(): boolean;
-get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
-get_lookahead(): number;
-get_mark_granule(): boolean;
-get_perfect_timestamp(): boolean;
-get_tolerance(): Gst.ClockTime;
-merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
-negotiate(): boolean;
-proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
-set_allocation_caps(allocation_caps: Gst.Caps | null): void;
-set_drainable(enabled: boolean): void;
-set_frame_max(num: number): void;
-set_frame_samples_max(num: number): void;
-set_frame_samples_min(num: number): void;
-set_hard_min(enabled: boolean): void;
-set_hard_resync(enabled: boolean): void;
-set_headers(headers: GLib.List): void;
-set_latency(min: Gst.ClockTime, max: Gst.ClockTime): void;
-set_lookahead(num: number): void;
-set_mark_granule(enabled: boolean): void;
-set_output_format(caps: Gst.Caps): boolean;
-set_perfect_timestamp(enabled: boolean): void;
-set_tolerance(tolerance: Gst.ClockTime): void;
+export class AudioEncoder  {
+    constructor(config?: properties);
+    hard_resync: boolean;
+    readonly mark_granule: boolean;
+    perfect_timestamp: boolean;
+    tolerance: number;
+    readonly element: Gst.Element;
+    readonly sinkpad: Gst.Pad;
+    readonly srcpad: Gst.Pad;
+    readonly stream_lock: GLib.RecMutex;
+    readonly input_segment: Gst.Segment;
+    readonly output_segment: Gst.Segment;
+    readonly priv: AudioEncoderPrivate;
+    allocate_output_buffer(size: number): Gst.Buffer;
+    finish_frame(buffer: Gst.Buffer, samples: number): Gst.FlowReturn;
+    get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
+    get_audio_info(): AudioInfo;
+    get_drainable(): boolean;
+    get_frame_max(): number;
+    get_frame_samples_max(): number;
+    get_frame_samples_min(): number;
+    get_hard_min(): boolean;
+    get_hard_resync(): boolean;
+    get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
+    get_lookahead(): number;
+    get_mark_granule(): boolean;
+    get_perfect_timestamp(): boolean;
+    get_tolerance(): Gst.ClockTime;
+    merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
+    negotiate(): boolean;
+    proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
+    set_allocation_caps(allocation_caps: Gst.Caps | null): void;
+    set_drainable(enabled: boolean): void;
+    set_frame_max(num: number): void;
+    set_frame_samples_max(num: number): void;
+    set_frame_samples_min(num: number): void;
+    set_hard_min(enabled: boolean): void;
+    set_hard_resync(enabled: boolean): void;
+    set_headers(headers: GLib.List): void;
+    set_latency(min: Gst.ClockTime, max: Gst.ClockTime): void;
+    set_lookahead(num: number): void;
+    set_mark_granule(enabled: boolean): void;
+    set_output_format(caps: Gst.Caps): boolean;
+    set_perfect_timestamp(enabled: boolean): void;
+    set_tolerance(tolerance: Gst.ClockTime): void;
 }
-export class AudioFilter  {constructor(config?: properties);
-readonly basetransform: GstBase.BaseTransform;
-readonly info: AudioInfo;
-readonly _gst_reserved: object[];
+export class AudioFilter  {
+    constructor(config?: properties);
+    readonly basetransform: GstBase.BaseTransform;
+    readonly info: AudioInfo;
 }
-export class AudioRingBuffer  {constructor(config?: properties);
-readonly object: Gst.Object;
-readonly cond: GLib.Cond;
-readonly open: boolean;
-readonly acquired: boolean;
-readonly memory: number;
-readonly size: number;
-readonly timestamps: Gst.ClockTime;
-readonly spec: AudioRingBufferSpec;
-readonly samples_per_seg: number;
-readonly empty_seg: number;
-readonly state: number;
-readonly segdone: number;
-readonly segbase: number;
-readonly waiting: number;
-readonly callback: AudioRingBufferCallback;
-readonly cb_data: object;
-readonly need_reorder: boolean;
-readonly channel_reorder_map: number[];
-readonly flushing: boolean;
-readonly active: boolean;
-readonly cb_data_notify: GLib.DestroyNotify;
-readonly _gst_reserved: object[];
-acquire(spec: AudioRingBufferSpec): boolean;
-activate(active: boolean): boolean;
-advance(advance: number): void;
-clear(segment: number): void;
-clear_all(): void;
-close_device(): boolean;
-commit(sample: number, data: number[], in_samples: number, out_samples: number, accum: number): [number, number];
-convert(src_fmt: Gst.Format, src_val: number, dest_fmt: Gst.Format): [boolean, number];
-delay(): number;
-device_is_open(): boolean;
-is_acquired(): boolean;
-is_active(): boolean;
-is_flushing(): boolean;
-may_start(allowed: boolean): void;
-open_device(): boolean;
-pause(): boolean;
-prepare_read(): [boolean, number,number[],number];
-read(sample: number, data: number[], len: number): [number, Gst.ClockTime];
-release(): boolean;
-samples_done(): number;
-set_callback(cb: AudioRingBufferCallback | null, user_data: object | null): void;
-set_callback_full(cb: AudioRingBufferCallback | null, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_channel_positions(position: AudioChannelPosition[]): void;
-set_flushing(flushing: boolean): void;
-set_sample(sample: number): void;
-set_timestamp(readseg: number, timestamp: Gst.ClockTime): void;
-start(): boolean;
-stop(): boolean;
-static debug_spec_buff(spec: AudioRingBufferSpec): void;
-static debug_spec_caps(spec: AudioRingBufferSpec): void;
-static parse_caps(spec: AudioRingBufferSpec, caps: Gst.Caps): boolean;
+export class AudioRingBuffer  {
+    constructor(config?: properties);
+    readonly object: Gst.Object;
+    readonly cond: GLib.Cond;
+    readonly open: boolean;
+    readonly acquired: boolean;
+    readonly memory: number;
+    readonly size: number;
+    readonly timestamps: Gst.ClockTime;
+    readonly spec: AudioRingBufferSpec;
+    readonly samples_per_seg: number;
+    readonly empty_seg: number;
+    readonly state: number;
+    readonly segdone: number;
+    readonly segbase: number;
+    readonly waiting: number;
+    readonly callback: AudioRingBufferCallback;
+    readonly cb_data: object;
+    readonly need_reorder: boolean;
+    readonly channel_reorder_map: number[];
+    readonly flushing: boolean;
+    readonly active: boolean;
+    readonly cb_data_notify: GLib.DestroyNotify;
+    acquire(spec: AudioRingBufferSpec): boolean;
+    activate(active: boolean): boolean;
+    advance(advance: number): void;
+    clear(segment: number): void;
+    clear_all(): void;
+    close_device(): boolean;
+    commit(sample: number, data: number[], in_samples: number, out_samples: number, accum: number): [number, number];
+    convert(src_fmt: Gst.Format, src_val: number, dest_fmt: Gst.Format): [boolean, number];
+    delay(): number;
+    device_is_open(): boolean;
+    is_acquired(): boolean;
+    is_active(): boolean;
+    is_flushing(): boolean;
+    may_start(allowed: boolean): void;
+    open_device(): boolean;
+    pause(): boolean;
+    prepare_read(): [boolean, number,number[],number];
+    read(sample: number, data: number[], len: number): [number, Gst.ClockTime];
+    release(): boolean;
+    samples_done(): number;
+    set_callback_full(cb: AudioRingBufferCallback | null, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_channel_positions(position: AudioChannelPosition[]): void;
+    set_flushing(flushing: boolean): void;
+    set_sample(sample: number): void;
+    set_timestamp(readseg: number, timestamp: Gst.ClockTime): void;
+    start(): boolean;
+    stop(): boolean;
+    static debug_spec_buff(spec: AudioRingBufferSpec): void;
+    static debug_spec_caps(spec: AudioRingBufferSpec): void;
+    static parse_caps(spec: AudioRingBufferSpec, caps: Gst.Caps): boolean;
 }
-export class AudioSink  {constructor(config?: properties);
-readonly element: AudioBaseSink;
-readonly thread: GLib.Thread;
-readonly _gst_reserved: object[];
+export class AudioSink  {
+    constructor(config?: properties);
+    readonly element: AudioBaseSink;
+    readonly thread: GLib.Thread;
 }
-export class AudioSrc  {constructor(config?: properties);
-readonly element: AudioBaseSrc;
-readonly thread: GLib.Thread;
-readonly _gst_reserved: object[];
+export class AudioSrc  {
+    constructor(config?: properties);
+    readonly element: AudioBaseSrc;
+    readonly thread: GLib.Thread;
 }
-export class AudioAggregatorClass  {constructor(config?: properties);
-readonly parent_class: GstBase.AggregatorClass;
-readonly create_output_buffer: unknown;
-readonly aggregate_one_buffer: unknown;
-readonly _gst_reserved: object[];
+export class AudioAggregatorConvertPadPrivate  {
+    constructor(config?: properties);
 }
-export class AudioAggregatorConvertPadClass  {constructor(config?: properties);
-readonly parent_class: AudioAggregatorPadClass;
-readonly _gst_reserved: object[];
+export class AudioAggregatorPadPrivate  {
+    constructor(config?: properties);
 }
-export class AudioAggregatorConvertPadPrivate  {constructor(config?: properties);
+export class AudioAggregatorPrivate  {
+    constructor(config?: properties);
 }
-export class AudioAggregatorPadClass  {constructor(config?: properties);
-readonly parent_class: GstBase.AggregatorPadClass;
-readonly convert_buffer: unknown;
-readonly update_conversion_info: unknown;
-readonly _gst_reserved: object[];
+export class AudioBaseSinkPrivate  {
+    constructor(config?: properties);
 }
-export class AudioAggregatorPadPrivate  {constructor(config?: properties);
+export class AudioBaseSrcPrivate  {
+    constructor(config?: properties);
 }
-export class AudioAggregatorPrivate  {constructor(config?: properties);
+export class AudioBuffer  {
+    constructor(config?: properties);
+    info: AudioInfo;
+    n_samples: number;
+    n_planes: number;
+    planes: object;
+    buffer: Gst.Buffer;
+    readonly map_infos: Gst.MapInfo;
+    readonly priv_planes_arr: object[];
+    readonly priv_map_infos_arr: Gst.MapInfo[];
+    map(info: AudioInfo, gstbuffer: Gst.Buffer, flags: Gst.MapFlags): boolean;
+    unmap(): void;
+    static clip(buffer: Gst.Buffer, segment: Gst.Segment, rate: number, bpf: number): Gst.Buffer;
+    static reorder_channels(buffer: Gst.Buffer, format: AudioFormat, channels: number, from: AudioChannelPosition[], to: AudioChannelPosition[]): boolean;
+    static truncate(buffer: Gst.Buffer, bpf: number, trim: number, samples: number): Gst.Buffer;
 }
-export class AudioBaseSinkClass  {constructor(config?: properties);
-readonly parent_class: GstBase.BaseSinkClass;
-readonly create_ringbuffer: unknown;
-readonly payload: unknown;
-readonly _gst_reserved: object[];
+export class AudioCdSrcPrivate  {
+    constructor(config?: properties);
 }
-export class AudioBaseSinkPrivate  {constructor(config?: properties);
+export class AudioCdSrcTrack  {
+    constructor(config?: properties);
+    is_audio: boolean;
+    num: number;
+    start: number;
+    end: number;
+    tags: Gst.TagList;
 }
-export class AudioBaseSrcClass  {constructor(config?: properties);
-readonly parent_class: GstBase.PushSrcClass;
-readonly create_ringbuffer: unknown;
-readonly _gst_reserved: object[];
+export class AudioChannelMixer  {
+    constructor(config?: properties);
+    free(): void;
+    is_passthrough(): boolean;
+    samples(_in: object | null, out: object | null, samples: number): void;
 }
-export class AudioBaseSrcPrivate  {constructor(config?: properties);
+export class AudioClippingMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    format: Gst.Format;
+    start: number;
+    end: number;
+    static get_info(): Gst.MetaInfo;
 }
-export class AudioBuffer  {constructor(config?: properties);
-info: AudioInfo;
-n_samples: number;
-n_planes: number;
-planes: object;
-buffer: Gst.Buffer;
-readonly map_infos: Gst.MapInfo;
-readonly priv_planes_arr: object[];
-readonly priv_map_infos_arr: Gst.MapInfo[];
-readonly _gst_reserved: object[];
-map(info: AudioInfo, gstbuffer: Gst.Buffer, flags: Gst.MapFlags): boolean;
-unmap(): void;
-static clip(buffer: Gst.Buffer, segment: Gst.Segment, rate: number, bpf: number): Gst.Buffer;
-static reorder_channels(buffer: Gst.Buffer, format: AudioFormat, channels: number, from: AudioChannelPosition[], to: AudioChannelPosition[]): boolean;
-static truncate(buffer: Gst.Buffer, bpf: number, trim: number, samples: number): Gst.Buffer;
+export class AudioConverter  {
+    constructor(config?: properties);
+    convert(flags: AudioConverterFlags, _in: number[], in_size: number): [boolean, number[],number];
+    free(): void;
+    get_config(): [Gst.Structure, number | null,number | null];
+    get_in_frames(out_frames: number): number;
+    get_max_latency(): number;
+    get_out_frames(in_frames: number): number;
+    is_passthrough(): boolean;
+    reset(): void;
+    samples(flags: AudioConverterFlags, _in: object | null, in_frames: number, out: object | null, out_frames: number): boolean;
+    supports_inplace(): boolean;
+    update_config(in_rate: number, out_rate: number, config: Gst.Structure | null): boolean;
 }
-export class AudioCdSrcClass  {constructor(config?: properties);
-readonly pushsrc_class: GstBase.PushSrcClass;
-readonly open: unknown;
-readonly close: unknown;
-readonly read_sector: unknown;
-readonly _gst_reserved: object[];
+export class AudioDecoderPrivate  {
+    constructor(config?: properties);
 }
-export class AudioCdSrcPrivate  {constructor(config?: properties);
+export class AudioDownmixMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    from_position: AudioChannelPosition;
+    to_position: AudioChannelPosition;
+    from_channels: number;
+    to_channels: number;
+    matrix: number;
+    static get_info(): Gst.MetaInfo;
 }
-export class AudioCdSrcTrack  {constructor(config?: properties);
-is_audio: boolean;
-num: number;
-start: number;
-end: number;
-tags: Gst.TagList;
-readonly _gst_reserved1: number[];
-readonly _gst_reserved2: object[];
+export class AudioEncoderPrivate  {
+    constructor(config?: properties);
 }
-export class AudioChannelMixer  {constructor(config?: properties);
-free(): void;
-is_passthrough(): boolean;
-samples(_in: object | null, out: object | null, samples: number): void;
-static _new(flags: AudioChannelMixerFlags, format: AudioFormat, in_channels: number, in_position: AudioChannelPosition, out_channels: number, out_position: AudioChannelPosition): AudioChannelMixer;
-static new_with_matrix(flags: AudioChannelMixerFlags, format: AudioFormat, in_channels: number, out_channels: number, matrix: number | null): AudioChannelMixer;
+export class AudioFormatInfo  {
+    constructor(config?: properties);
+    format: AudioFormat;
+    name: string;
+    description: string;
+    flags: AudioFormatFlags;
+    endianness: number;
+    width: number;
+    depth: number;
+    silence: number[];
+    unpack_format: AudioFormat;
+    unpack_func: AudioFormatUnpack;
+    pack_func: AudioFormatPack;
 }
-export class AudioClippingMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-format: Gst.Format;
-start: number;
-end: number;
-static get_info(): Gst.MetaInfo;
+export class AudioInfo  {
+    constructor(config?: properties);
+    convert(src_fmt: Gst.Format, src_val: number, dest_fmt: Gst.Format): [boolean, number];
+    copy(): AudioInfo;
+    free(): void;
+    from_caps(caps: Gst.Caps): boolean;
+    init(): void;
+    is_equal(other: AudioInfo): boolean;
+    set_format(format: AudioFormat, rate: number, channels: number, position: AudioChannelPosition[] | null): void;
+    to_caps(): Gst.Caps;
 }
-export class AudioClockClass  {constructor(config?: properties);
-readonly parent_class: Gst.SystemClockClass;
-readonly _gst_reserved: object[];
+export class AudioMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    info: AudioInfo;
+    samples: number;
+    offsets: number;
+    readonly priv_offsets_arr: number[];
+    static get_info(): Gst.MetaInfo;
 }
-export class AudioConverter  {constructor(config?: properties);
-convert(flags: AudioConverterFlags, _in: number[], in_size: number): [boolean, number[],number];
-free(): void;
-get_config(): [Gst.Structure, number | null,number | null];
-get_in_frames(out_frames: number): number;
-get_max_latency(): number;
-get_out_frames(in_frames: number): number;
-is_passthrough(): boolean;
-reset(): void;
-samples(flags: AudioConverterFlags, _in: object | null, in_frames: number, out: object | null, out_frames: number): boolean;
-supports_inplace(): boolean;
-update_config(in_rate: number, out_rate: number, config: Gst.Structure | null): boolean;
+export class AudioQuantize  {
+    constructor(config?: properties);
+    free(): void;
+    reset(): void;
+    samples(_in: object | null, out: object | null, samples: number): void;
 }
-export class AudioDecoderClass  {constructor(config?: properties);
-readonly element_class: Gst.ElementClass;
-readonly start: unknown;
-readonly stop: unknown;
-readonly set_format: unknown;
-readonly parse: unknown;
-readonly handle_frame: unknown;
-readonly flush: unknown;
-readonly pre_push: unknown;
-readonly sink_event: unknown;
-readonly src_event: unknown;
-readonly open: unknown;
-readonly close: unknown;
-readonly negotiate: unknown;
-readonly decide_allocation: unknown;
-readonly propose_allocation: unknown;
-readonly sink_query: unknown;
-readonly src_query: unknown;
-readonly getcaps: unknown;
-readonly transform_meta: unknown;
-readonly _gst_reserved: object[];
+export class AudioResampler  {
+    constructor(config?: properties);
+    free(): void;
+    get_in_frames(out_frames: number): number;
+    get_max_latency(): number;
+    get_out_frames(in_frames: number): number;
+    resample(_in: object | null, in_frames: number, out: object | null, out_frames: number): void;
+    reset(): void;
+    update(in_rate: number, out_rate: number, options: Gst.Structure): boolean;
+    static _new(method: AudioResamplerMethod, flags: AudioResamplerFlags, format: AudioFormat, channels: number, in_rate: number, out_rate: number, options: Gst.Structure): AudioResampler;
+    static options_set_quality(method: AudioResamplerMethod, quality: number, in_rate: number, out_rate: number, options: Gst.Structure): void;
 }
-export class AudioDecoderPrivate  {constructor(config?: properties);
+export class AudioRingBufferSpec  {
+    constructor(config?: properties);
+    caps: Gst.Caps;
+    type: AudioRingBufferFormatType;
+    info: AudioInfo;
+    latency_time: number;
+    buffer_time: number;
+    segsize: number;
+    segtotal: number;
+    seglatency: number;
 }
-export class AudioDownmixMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-from_position: AudioChannelPosition;
-to_position: AudioChannelPosition;
-from_channels: number;
-to_channels: number;
-matrix: number;
-static get_info(): Gst.MetaInfo;
-}
-export class AudioEncoderClass  {constructor(config?: properties);
-readonly element_class: Gst.ElementClass;
-readonly start: unknown;
-readonly stop: unknown;
-readonly set_format: unknown;
-readonly handle_frame: unknown;
-readonly flush: unknown;
-readonly pre_push: unknown;
-readonly sink_event: unknown;
-readonly src_event: unknown;
-readonly getcaps: unknown;
-readonly open: unknown;
-readonly close: unknown;
-readonly negotiate: unknown;
-readonly decide_allocation: unknown;
-readonly propose_allocation: unknown;
-readonly transform_meta: unknown;
-readonly sink_query: unknown;
-readonly src_query: unknown;
-readonly _gst_reserved: object[];
-}
-export class AudioEncoderPrivate  {constructor(config?: properties);
-}
-export class AudioFilterClass  {constructor(config?: properties);
-readonly basetransformclass: GstBase.BaseTransformClass;
-readonly setup: unknown;
-readonly _gst_reserved: object[];
-add_pad_templates(allowed_caps: Gst.Caps): void;
-}
-export class AudioFormatInfo  {constructor(config?: properties);
-format: AudioFormat;
-name: string;
-description: string;
-flags: AudioFormatFlags;
-endianness: number;
-width: number;
-depth: number;
-silence: number[];
-unpack_format: AudioFormat;
-unpack_func: AudioFormatUnpack;
-pack_func: AudioFormatPack;
-readonly _gst_reserved: object[];
-}
-export class AudioInfo  {constructor(config?: properties);
-convert(src_fmt: Gst.Format, src_val: number, dest_fmt: Gst.Format): [boolean, number];
-copy(): AudioInfo;
-free(): void;
-from_caps(caps: Gst.Caps): boolean;
-init(): void;
-is_equal(other: AudioInfo): boolean;
-set_format(format: AudioFormat, rate: number, channels: number, position: AudioChannelPosition[] | null): void;
-to_caps(): Gst.Caps;
-}
-export class AudioMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-info: AudioInfo;
-samples: number;
-offsets: number;
-readonly priv_offsets_arr: number[];
-readonly _gst_reserved: object[];
-static get_info(): Gst.MetaInfo;
-}
-export class AudioQuantize  {constructor(config?: properties);
-free(): void;
-reset(): void;
-samples(_in: object | null, out: object | null, samples: number): void;
-static _new(dither: AudioDitherMethod, ns: AudioNoiseShapingMethod, flags: AudioQuantizeFlags, format: AudioFormat, channels: number, quantizer: number): AudioQuantize;
-}
-export class AudioResampler  {constructor(config?: properties);
-free(): void;
-get_in_frames(out_frames: number): number;
-get_max_latency(): number;
-get_out_frames(in_frames: number): number;
-resample(_in: object | null, in_frames: number, out: object | null, out_frames: number): void;
-reset(): void;
-update(in_rate: number, out_rate: number, options: Gst.Structure): boolean;
-static _new(method: AudioResamplerMethod, flags: AudioResamplerFlags, format: AudioFormat, channels: number, in_rate: number, out_rate: number, options: Gst.Structure): AudioResampler;
-static options_set_quality(method: AudioResamplerMethod, quality: number, in_rate: number, out_rate: number, options: Gst.Structure): void;
-}
-export class AudioRingBufferClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly open_device: unknown;
-readonly acquire: unknown;
-readonly release: unknown;
-readonly close_device: unknown;
-readonly start: unknown;
-readonly pause: unknown;
-readonly resume: unknown;
-readonly stop: unknown;
-readonly delay: unknown;
-readonly activate: unknown;
-readonly commit: unknown;
-readonly clear_all: unknown;
-readonly _gst_reserved: object[];
-}
-export class AudioRingBufferSpec  {constructor(config?: properties);
-caps: Gst.Caps;
-type: AudioRingBufferFormatType;
-info: AudioInfo;
-latency_time: number;
-buffer_time: number;
-segsize: number;
-segtotal: number;
-seglatency: number;
-readonly _gst_reserved: object[];
-}
-export class AudioSinkClass  {constructor(config?: properties);
-readonly parent_class: AudioBaseSinkClass;
-readonly open: unknown;
-readonly prepare: unknown;
-readonly unprepare: unknown;
-readonly close: unknown;
-readonly write: unknown;
-readonly delay: unknown;
-readonly reset: unknown;
-readonly _gst_reserved: object[];
-}
-export class AudioSrcClass  {constructor(config?: properties);
-readonly parent_class: AudioBaseSrcClass;
-readonly open: unknown;
-readonly prepare: unknown;
-readonly unprepare: unknown;
-readonly close: unknown;
-readonly read: unknown;
-readonly delay: unknown;
-readonly reset: unknown;
-readonly _gst_reserved: object[];
-}
-export class AudioStreamAlign  {constructor(config?: properties);
-copy(): AudioStreamAlign;
-free(): void;
-get_alignment_threshold(): Gst.ClockTime;
-get_discont_wait(): Gst.ClockTime;
-get_rate(): number;
-get_samples_since_discont(): number;
-get_timestamp_at_discont(): Gst.ClockTime;
-mark_discont(): void;
-process(discont: boolean, timestamp: Gst.ClockTime, n_samples: number): [boolean, Gst.ClockTime,Gst.ClockTime,number];
-set_alignment_threshold(alignment_threshold: Gst.ClockTime): void;
-set_discont_wait(discont_wait: Gst.ClockTime): void;
-set_rate(rate: number): void;
-}
-export class StreamVolumeInterface  {constructor(config?: properties);
-readonly iface: GObject.TypeInterface;
+export class AudioStreamAlign  {
+    constructor(config?: properties);
+    copy(): AudioStreamAlign;
+    free(): void;
+    get_alignment_threshold(): Gst.ClockTime;
+    get_discont_wait(): Gst.ClockTime;
+    get_rate(): number;
+    get_samples_since_discont(): number;
+    get_timestamp_at_discont(): Gst.ClockTime;
+    mark_discont(): void;
+    process(discont: boolean, timestamp: Gst.ClockTime, n_samples: number): [boolean, Gst.ClockTime,Gst.ClockTime,number];
+    set_alignment_threshold(alignment_threshold: Gst.ClockTime): void;
+    set_discont_wait(discont_wait: Gst.ClockTime): void;
+    set_rate(rate: number): void;
 }
 export interface StreamVolume  {
-mute: boolean;
-volume: number;
-get_mute(): boolean;
-get_volume(format: StreamVolumeFormat): number;
-set_mute(mute: boolean): void;
-set_volume(format: StreamVolumeFormat, val: number): void;
+    mute: boolean;
+    volume: number;
+    get_mute(): boolean;
+    get_volume(format: StreamVolumeFormat): number;
+    set_mute(mute: boolean): void;
+    set_volume(format: StreamVolumeFormat, val: number): void;
 }

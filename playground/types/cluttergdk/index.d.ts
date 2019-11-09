@@ -8,6 +8,7 @@ import * as Gdk from "gdk";
  * cluttergdk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * Disable the event retrieval in Clutter.
  * Callers of this function have to set up an event filter using the

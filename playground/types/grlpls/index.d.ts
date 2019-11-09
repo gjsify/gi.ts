@@ -8,6 +8,7 @@ import * as GrlPls from "grlpls";
  * grlpls.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type FilterFunc = (source: Grl.Source, media: Grl.Media, user_data: object | null) => Grl.Media;
 /**
  * Browse into a playlist. The playlist entries are

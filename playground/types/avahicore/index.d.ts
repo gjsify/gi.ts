@@ -6,6 +6,7 @@ import * as GLib from "glib";
  * avahicore.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * 
  */
@@ -27,9 +28,12 @@ export enum PublishFlags {
     USE_WIDE_AREA = 128,
     USE_MULTICAST = 256,
 }
-export class StringList  {constructor(config?: properties);
+export class StringList  {
+    constructor(config?: properties);
 }
-export class Address  {constructor(config?: properties);
+export class Address  {
+    constructor(config?: properties);
 }
-export class Client  {constructor(config?: properties);
+export class Client  {
+    constructor(config?: properties);
 }

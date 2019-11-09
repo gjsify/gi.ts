@@ -6,6 +6,7 @@ import * as GLib from "glib";
  * gdesktopenums.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export enum BackgroundShading {
     SOLID = 0,
     VERTICAL = 1,

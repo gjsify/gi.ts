@@ -7,6 +7,7 @@ import * as IBus from "ibus";
  * ibus.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type FreeFunc = (object: object | null) => void;
 export type ObjectDestroyFunc = (object: Object) => void;
 export type SerializableCopyFunc = (dest: Serializable, src: Serializable) => boolean;
@@ -4457,725 +4458,636 @@ export enum ObjectFlags {
     RESERVED_1 = 4,
     RESERVED_2 = 8,
 }
-export class AttrList extends Serializable {constructor(config?: properties);
-append(attr: Attribute): void;
-get(index: number): Attribute;
-}
-export class Attribute extends Serializable {constructor(config?: properties);
-get_attr_type(): number;
-get_end_index(): number;
-get_start_index(): number;
-get_value(): number;
-}
-export class Bus extends Object {constructor(config?: properties);
-client_only: boolean;
-connect_async: boolean;static new_async(): Bus;
-static new_async_client(): Bus;
-add_match(rule: string): boolean;
-add_match_async(rule: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-add_match_async_finish(res: Gio.AsyncResult): boolean;
-create_input_context(client_name: string): InputContext;
-create_input_context_async(client_name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-create_input_context_async_finish(res: Gio.AsyncResult): InputContext;
-current_input_context(): string;
-current_input_context_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-current_input_context_async_finish(res: Gio.AsyncResult): string;
-exit(restart: boolean): boolean;
-exit_async(restart: boolean, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-exit_async_finish(res: Gio.AsyncResult): boolean;
-get_config(): Config;
-get_connection(): Gio.DBusConnection;
-get_engines_by_names(names: string[]): EngineDesc[];
-get_global_engine(): EngineDesc;
-get_global_engine_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_global_engine_async_finish(res: Gio.AsyncResult): EngineDesc;
-get_ibus_property(property_name: string): GLib.Variant;
-get_ibus_property_async(property_name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_ibus_property_async_finish(res: Gio.AsyncResult): GLib.Variant;
-get_name_owner(name: string): string;
-get_name_owner_async(name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_name_owner_async_finish(res: Gio.AsyncResult): string;
-get_service_name(): string;
-get_use_global_engine(): boolean;
-get_use_global_engine_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_use_global_engine_async_finish(res: Gio.AsyncResult): boolean;
-get_use_sys_layout(): boolean;
-get_use_sys_layout_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_use_sys_layout_async_finish(res: Gio.AsyncResult): boolean;
-hello(): string;
-is_connected(): boolean;
-is_global_engine_enabled(): boolean;
-is_global_engine_enabled_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-is_global_engine_enabled_async_finish(res: Gio.AsyncResult): boolean;
-list_active_engines(): GLib.List;
-list_active_engines_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-list_active_engines_async_finish(res: Gio.AsyncResult): GLib.List;
-list_engines(): GLib.List;
-list_engines_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-list_engines_async_finish(res: Gio.AsyncResult): GLib.List;
-list_names(): GLib.List;
-list_queued_owners(name: string): GLib.List;
-name_has_owner(name: string): boolean;
-name_has_owner_async(name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-name_has_owner_async_finish(res: Gio.AsyncResult): boolean;
-preload_engines(names: string[]): boolean;
-preload_engines_async(names: string[], timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-preload_engines_async_finish(res: Gio.AsyncResult): boolean;
-register_component(component: Component): boolean;
-register_component_async(component: Component, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-register_component_async_finish(res: Gio.AsyncResult): boolean;
-release_name(name: string): number;
-release_name_async(name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-release_name_async_finish(res: Gio.AsyncResult): number;
-remove_match(rule: string): boolean;
-remove_match_async(rule: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-remove_match_async_finish(res: Gio.AsyncResult): boolean;
-request_name(name: string, flags: number): number;
-request_name_async(name: string, flags: number, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-request_name_async_finish(res: Gio.AsyncResult): number;
-set_global_engine(global_engine: string): boolean;
-set_global_engine_async(global_engine: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_global_engine_async_finish(res: Gio.AsyncResult): boolean;
-set_ibus_property(property_name: string, value: GLib.Variant): void;
-set_ibus_property_async(property_name: string, value: GLib.Variant, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_ibus_property_async_finish(res: Gio.AsyncResult): boolean;
-set_watch_dbus_signal(watch: boolean): void;
-set_watch_ibus_signal(watch: boolean): void;
-}
-export class Component extends Serializable {constructor(config?: properties);
-author: string;
-command_line: string;
-description: string;
-homepage: string;
-license: string;
-name: string;
-textdomain: string;
-version: string;static new_from_file(filename: string): Component;
-static new_from_xml_node(node: XML): Component;
-static new_varargs(first_property_name: string, ___: unknown[]): Component;
-add_engine(engine: EngineDesc): void;
-add_observed_path(path: string, access_fs: boolean): void;
-check_modification(): boolean;
-get_author(): string;
-get_description(): string;
-get_engines(): GLib.List;
-get_exec(): string;
-get_homepage(): string;
-get_license(): string;
-get_name(): string;
-get_observed_paths(): GLib.List;
-get_textdomain(): string;
-get_version(): string;
-output(output: GLib.String, indent: number): void;
-output_engines(output: GLib.String, indent: number): void;
-}
-export class Config extends Proxy {constructor(config?: properties);
-static new_async_finish(res: Gio.AsyncResult): Config;
-get_value(section: string, name: string): GLib.Variant;
-get_value_async(section: string, name: string, timeout_ms: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_value_async_finish(result: Gio.AsyncResult): GLib.Variant;
-get_values(section: string): GLib.Variant;
-get_values_async(section: string, timeout_ms: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_values_async_finish(result: Gio.AsyncResult): GLib.Variant;
-set_value(section: string, name: string, value: GLib.Variant): boolean;
-set_value_async(section: string, name: string, value: GLib.Variant, timeout_ms: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_value_async_finish(result: Gio.AsyncResult): boolean;
-unset(section: string, name: string): boolean;
-unwatch(section: string | null, name: string | null): boolean;
-watch(section: string | null, name: string | null): boolean;
-static new_async(connection: Gio.DBusConnection, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-}
-export class ConfigService extends Service {constructor(config?: properties);
-value_changed(section: string, name: string, value: GLib.Variant): void;
-vfunc_get_value(section: string, name: string): GLib.Variant;
-vfunc_get_values(section: string): GLib.Variant;
-vfunc_set_value(section: string, name: string, value: GLib.Variant): boolean;
-vfunc_unset_value(section: string, name: string): boolean;
-}
-export class EmojiData extends Serializable {constructor(config?: properties);
-annotations: object;
-category: string;
-description: string;
-emoji: string;
-get_annotations(): string[];
-get_category(): string;
-get_description(): string;
-get_emoji(): string;
-set_annotations(annotations: string[]): void;
-set_description(description: string): void;
-static load(path: string): string[];
-static save(path: string, list: string[]): void;
-}
-export class Engine extends Service {constructor(config?: properties);
-engine_name: string;static new_with_type(engine_type: unknown, engine_name: string, object_path: string, connection: Gio.DBusConnection): Engine;
-commit_text(text: Text): void;
-delete_surrounding_text(offset: number, nchars: number): void;
-forward_key_event(keyval: number, keycode: number, state: number): void;
-get_content_type(): [number | null,number | null];
-get_name(): string;
-get_surrounding_text(): [Text | null,number | null,number | null];
-hide_auxiliary_text(): void;
-hide_lookup_table(): void;
-hide_preedit_text(): void;
-register_properties(prop_list: PropList): void;
-show_auxiliary_text(): void;
-show_lookup_table(): void;
-show_preedit_text(): void;
-update_auxiliary_text(text: Text, visible: boolean): void;
-update_lookup_table(lookup_table: LookupTable, visible: boolean): void;
-update_lookup_table_fast(lookup_table: LookupTable, visible: boolean): void;
-update_preedit_text(text: Text, cursor_pos: number, visible: boolean): void;
-update_preedit_text_with_mode(text: Text, cursor_pos: number, visible: boolean, mode: PreeditFocusMode): void;
-update_property(prop: Property): void;
-vfunc_cancel_hand_writing(n_strokes: number): void;
-vfunc_candidate_clicked(index: number, button: number, state: number): void;
-vfunc_cursor_down(): void;
-vfunc_cursor_up(): void;
-vfunc_disable(): void;
-vfunc_enable(): void;
-vfunc_focus_in(): void;
-vfunc_focus_out(): void;
-vfunc_page_down(): void;
-vfunc_page_up(): void;
-vfunc_process_hand_writing_event(coordinates: number, coordinates_len: number): void;
-vfunc_process_key_event(keyval: number, keycode: number, state: number): boolean;
-vfunc_property_activate(prop_name: string, prop_state: number): void;
-vfunc_property_hide(prop_name: string): void;
-vfunc_property_show(prop_name: string): void;
-vfunc_reset(): void;
-vfunc_set_capabilities(caps: number): void;
-vfunc_set_content_type(purpose: number, hints: number): void;
-vfunc_set_cursor_location(x: number, y: number, w: number, h: number): void;
-vfunc_set_surrounding_text(text: Text, cursor_index: number, anchor_pos: number): void;
-}
-export class EngineDesc extends Serializable {constructor(config?: properties);
-author: string;
-description: string;
-hotkeys: string;
-icon: string;
-icon_prop_key: string;
-language: string;
-layout: string;
-layout_option: string;
-layout_variant: string;
-license: string;
-longname: string;
-name: string;
-rank: number;
-setup: string;
-symbol: string;
-textdomain: string;
-version: string;static new_from_xml_node(node: XML): EngineDesc;
-static new_varargs(first_property_name: string, ___: unknown[]): EngineDesc;
-get_author(): string;
-get_description(): string;
-get_hotkeys(): string;
-get_icon(): string;
-get_icon_prop_key(): string;
-get_language(): string;
-get_layout(): string;
-get_layout_option(): string;
-get_layout_variant(): string;
-get_license(): string;
-get_longname(): string;
-get_name(): string;
-get_rank(): number;
-get_setup(): string;
-get_symbol(): string;
-get_textdomain(): string;
-get_version(): string;
-output(output: GLib.String, indent: number): void;
-}
-export class EngineSimple  {constructor(config?: properties);
-readonly priv: EngineSimplePrivate;
-add_compose_file(file: string): boolean;
-add_table(data: number[], max_seq_len: number, n_seqs: number): void;
-add_table_by_locale(locale: string | null): boolean;
-}
-export class ExtensionEvent extends Serializable {constructor(config?: properties);
-name: string;
-params: string;
-readonly version: number;
-get_name(): string;
-get_params(): string;
-get_version(): number;
-is_enabled(): boolean;
-is_extension(): boolean;
-}
-export class Factory extends Service {constructor(config?: properties);
-add_engine(engine_name: string, engine_type: unknown): void;
-create_engine(engine_name: string): Engine;
-vfunc_create_engine(engine_name: string): Engine;
-}
-export class HotkeyProfile extends Serializable {constructor(config?: properties);
-add_hotkey(keyval: number, modifiers: number, event: GLib.Quark): boolean;
-add_hotkey_from_string(str: string, event: GLib.Quark): boolean;
-filter_key_event(keyval: number, modifiers: number, prev_keyval: number, prev_modifiers: number, user_data: object | null): GLib.Quark;
-lookup_hotkey(keyval: number, modifiers: number): GLib.Quark;
-remove_hotkey(keyval: number, modifiers: number): boolean;
-remove_hotkey_by_event(event: GLib.Quark): boolean;
-vfunc_trigger(event: GLib.Quark, user_data: object | null): void;
-}
-export class InputContext extends Proxy {constructor(config?: properties);
-static new_async_finish(res: Gio.AsyncResult): InputContext;
-cancel_hand_writing(n_strokes: number): void;
-focus_in(): void;
-focus_out(): void;
-get_engine(): EngineDesc;
-get_engine_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_engine_async_finish(res: Gio.AsyncResult): EngineDesc;
-needs_surrounding_text(): boolean;
-process_hand_writing_event(coordinates: number, coordinates_len: number): void;
-process_key_event(keyval: number, keycode: number, state: number): boolean;
-process_key_event_async(keyval: number, keycode: number, state: number, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-process_key_event_async_finish(res: Gio.AsyncResult): boolean;
-property_activate(prop_name: string, state: number): void;
-reset(): void;
-set_capabilities(capabilities: number): void;
-set_client_commit_preedit(client_commit: boolean): void;
-set_content_type(purpose: number, hints: number): void;
-set_cursor_location(x: number, y: number, w: number, h: number): void;
-set_cursor_location_relative(x: number, y: number, w: number, h: number): void;
-set_engine(name: string): void;
-set_surrounding_text(text: Text, cursor_pos: number, anchor_pos: number): void;
-static get_input_context(path: string, connection: Gio.DBusConnection): InputContext;
-static get_input_context_async(path: string, connection: Gio.DBusConnection, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-static get_input_context_async_finish(res: Gio.AsyncResult): InputContext;
-static new_async(path: string, connection: Gio.DBusConnection, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-}
-export class Keymap extends Object {constructor(config?: properties);
-lookup_keysym(keycode: number, state: number): number;
-static get(name: string): Keymap;
-}
-export class LookupTable extends Serializable {constructor(config?: properties);
-append_candidate(text: Text): void;
-append_label(text: Text): void;
-clear(): void;
-cursor_down(): boolean;
-cursor_up(): boolean;
-get_candidate(index: number): Text;
-get_cursor_in_page(): number;
-get_cursor_pos(): number;
-get_label(index: number): Text;
-get_number_of_candidates(): number;
-get_orientation(): number;
-get_page_size(): number;
-is_cursor_visible(): boolean;
-is_round(): boolean;
-page_down(): boolean;
-page_up(): boolean;
-set_cursor_pos(cursor_pos: number): void;
-set_cursor_visible(visible: boolean): void;
-set_label(index: number, text: Text): void;
-set_orientation(orientation: number): void;
-set_page_size(page_size: number): void;
-set_round(round: boolean): void;
-}
-export class Object extends GObject.InitiallyUnowned {constructor(config?: properties);
-destroy(): void;
-vfunc_destroy(): void;
-}
-export class ObservedPath extends Serializable {constructor(config?: properties);
-static new_from_xml_node(node: XML, fill_stat: boolean): ObservedPath;
-check_modification(): boolean;
-output(output: GLib.String, indent: number): void;
-traverse(dir_only: boolean): GLib.List;
-}
-export class PanelService extends Service {constructor(config?: properties);
-candidate_clicked(index: number, button: number, state: number): void;
-commit_text(text: Text): void;
-cursor_down(): void;
-cursor_up(): void;
-hide_preedit_text_received(): void;
-page_down(): void;
-page_up(): void;
-panel_extension(event: ExtensionEvent): void;
-panel_extension_register_keys(first_property_name: string, ___: unknown[]): void;
-property_activate(prop_name: string, prop_state: number): void;
-property_hide(prop_name: string): void;
-property_show(prop_name: string): void;
-show_preedit_text_received(): void;
-update_auxiliary_text_received(text: Text, visible: boolean): void;
-update_lookup_table_received(table: LookupTable, visible: boolean): void;
-update_preedit_text_received(text: Text, cursor_pos: number, visible: boolean): void;
-vfunc_candidate_clicked_lookup_table(index: number, button: number, state: number): void;
-vfunc_commit_text_received(text: Text): void;
-vfunc_cursor_down_lookup_table(): void;
-vfunc_cursor_up_lookup_table(): void;
-vfunc_destroy_context(input_context_path: string): void;
-vfunc_focus_in(input_context_path: string): void;
-vfunc_focus_out(input_context_path: string): void;
-vfunc_hide_auxiliary_text(): void;
-vfunc_hide_language_bar(): void;
-vfunc_hide_lookup_table(): void;
-vfunc_hide_preedit_text(): void;
-vfunc_page_down_lookup_table(): void;
-vfunc_page_up_lookup_table(): void;
-vfunc_panel_extension_received(event: ExtensionEvent): void;
-vfunc_process_key_event(keyval: number, keycode: number, state: number): boolean;
-vfunc_register_properties(prop_list: PropList): void;
-vfunc_reset(): void;
-vfunc_set_content_type(purpose: number, hints: number): void;
-vfunc_set_cursor_location(x: number, y: number, w: number, h: number): void;
-vfunc_set_cursor_location_relative(x: number, y: number, w: number, h: number): void;
-vfunc_show_auxiliary_text(): void;
-vfunc_show_language_bar(): void;
-vfunc_show_lookup_table(): void;
-vfunc_show_preedit_text(): void;
-vfunc_start_setup(): void;
-vfunc_state_changed(): void;
-vfunc_update_auxiliary_text(text: Text, visible: boolean): void;
-vfunc_update_lookup_table(lookup_table: LookupTable, visible: boolean): void;
-vfunc_update_preedit_text(text: Text, cursor_pos: number, visible: boolean): void;
-vfunc_update_property(prop: Property): void;
-}
-export class PropList extends Serializable {constructor(config?: properties);
-append(prop: Property): void;
-get(index: number): Property;
-update_property(prop: Property): boolean;
-}
-export class Property extends Serializable {constructor(config?: properties);
-icon: string;
-key: string;
-label: Text;
-prop_type: PropType;
-sensitive: boolean;
-state: PropState;
-sub_props: PropList;
-symbol: Text;
-tooltip: Text;
-visible: boolean;static new_varargs(first_property_name: string, ___: unknown[]): Property;
-get_icon(): string;
-get_key(): string;
-get_label(): Text;
-get_prop_type(): PropType;
-get_sensitive(): boolean;
-get_state(): PropState;
-get_sub_props(): PropList;
-get_symbol(): Text;
-get_tooltip(): Text;
-get_visible(): boolean;
-set_icon(icon: string): void;
-set_label(label: Text): void;
-set_sensitive(sensitive: boolean): void;
-set_state(state: PropState): void;
-set_sub_props(prop_list: PropList): void;
-set_symbol(symbol: Text): void;
-set_tooltip(tooltip: Text): void;
-set_visible(visible: boolean): void;
-update(prop_update: Property): boolean;
-}
-export class Proxy  {constructor(config?: properties);
-readonly flags: number;
-readonly own: boolean;
-destroy(): void;
-}
-export class Registry extends Serializable {constructor(config?: properties);
-check_modification(): boolean;
-get_components(): GLib.List;
-get_observed_paths(): GLib.List;
-load(): void;
-load_cache(is_user: boolean): boolean;
-load_cache_file(filename: string): boolean;
-load_in_dir(dirname: string): void;
-output(output: GLib.String, indent: number): void;
-save_cache(is_user: boolean): boolean;
-save_cache_file(filename: string): boolean;
-start_monitor_changes(): void;
-}
-export class Serializable extends Object {constructor(config?: properties);
-copy(): Serializable;
-get_qattachment(key: GLib.Quark): GLib.Variant;
-remove_qattachment(key: GLib.Quark): void;
-serialize_object(): GLib.Variant;
-set_qattachment(key: GLib.Quark, value: GLib.Variant): void;
-vfunc_copy(src: Serializable): boolean;
-vfunc_deserialize(variant: GLib.Variant): number;
-vfunc_serialize(builder: GLib.VariantBuilder): boolean;
-static deserialize_object(variant: GLib.Variant): Serializable;
-}
-export class Service extends Object {constructor(config?: properties);
-connection: Gio.DBusConnection;
-object_path: string;
-emit_signal(dest_bus_name: string, interface_name: string, signal_name: string, parameters: GLib.Variant): boolean;
-get_connection(): Gio.DBusConnection;
-get_object_path(): string;
-register(connection: Gio.DBusConnection): boolean;
-unregister(connection: Gio.DBusConnection): void;
-vfunc_service_get_property(connection: Gio.DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string): GLib.Variant | null;
-vfunc_service_method_call(connection: Gio.DBusConnection, sender: string, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant, invocation: Gio.DBusMethodInvocation): void;
-vfunc_service_set_property(connection: Gio.DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, value: GLib.Variant): boolean;
-}
-export class Text extends Serializable {constructor(config?: properties);
-static new_from_printf(fmt: string, ___: unknown[]): Text;
-static new_from_static_string(str: string): Text;
-static new_from_string(str: string): Text;
-static new_from_ucs4(str: number): Text;
-static new_from_unichar(c: number): Text;
-append_attribute(type: number, value: number, start_index: number, end_index: number): void;
-get_attributes(): AttrList;
-get_is_static(): boolean;
-get_length(): number;
-get_text(): string;
-set_attributes(attrs: AttrList): void;
-}
-export class UnicodeBlock extends Serializable {constructor(config?: properties);
-end: number;
-name: string;
-start: number;
-get_end(): number;
-get_name(): string;
-get_start(): number;
-static load(path: string): string[];
-static save(path: string, list: string[]): void;
-}
-export class UnicodeData extends Serializable {constructor(config?: properties);
-alias: string;
-block_name: string;
-code: number;
-name: string;
-get_alias(): string;
-get_block_name(): string;
-get_code(): number;
-get_name(): string;
-set_block_name(block_name: string): void;
-static load(path: string, object: GObject.Object | null): string[];
-static load_async(path: string, object: GObject.Object | null, cancellable: Gio.Cancellable | null, callback: UnicodeDataLoadAsyncFinish, user_data: object | null): void;
-static save(path: string, list: string[]): void;
-}
-export class XEvent extends Serializable {constructor(config?: properties);
-event_type: number;
-group: number;
-hardware_keycode: number;
-is_modifier: boolean;
-keyval: number;
-length: number;
-purpose: string;
-root: number;
-same_screen: boolean;
-send_event: number;
-serial: number;
-state: number;
-string: string;
-subwindow: number;
-time: number;
-readonly version: number;
-window: number;
-x: number;
-x_root: number;
-y: number;
-y_root: number;
-get_event_type(): XEventType;
-get_group(): number;
-get_hardware_keycode(): number;
-get_is_modifier(): boolean;
-get_keyval(): number;
-get_length(): number;
-get_purpose(): string;
-get_root(): number;
-get_same_screen(): boolean;
-get_send_event(): number;
-get_serial(): number;
-get_state(): number;
-get_string(): string;
-get_subwindow(): number;
-get_time(): number;
-get_version(): number;
-get_window(): number;
-get_x(): number;
-get_x_root(): number;
-get_y(): number;
-get_y_root(): number;
-}
-export class AttrListClass  {constructor(config?: properties);
-}
-export class AttributeClass  {constructor(config?: properties);
-}
-export class BusClass  {constructor(config?: properties);
-}
-export class BusPrivate  {constructor(config?: properties);
-}
-export class ComponentClass  {constructor(config?: properties);
-}
-export class ComponentPrivate  {constructor(config?: properties);
-}
-export class ConfigClass  {constructor(config?: properties);
-}
-export class ConfigPrivate  {constructor(config?: properties);
-}
-export class ConfigServiceClass  {constructor(config?: properties);
-readonly set_value: unknown;
-readonly get_value: unknown;
-readonly unset_value: unknown;
-readonly get_values: unknown;
-readonly pdummy: object[];
-}
-export class EmojiDataClass  {constructor(config?: properties);
-}
-export class EmojiDataPrivate  {constructor(config?: properties);
-}
-export class EngineClass  {constructor(config?: properties);
-readonly process_key_event: unknown;
-readonly focus_in: unknown;
-readonly focus_out: unknown;
-readonly reset: unknown;
-readonly enable: unknown;
-readonly disable: unknown;
-readonly set_cursor_location: unknown;
-readonly set_capabilities: unknown;
-readonly page_up: unknown;
-readonly page_down: unknown;
-readonly cursor_up: unknown;
-readonly cursor_down: unknown;
-readonly property_activate: unknown;
-readonly property_show: unknown;
-readonly property_hide: unknown;
-readonly candidate_clicked: unknown;
-readonly set_surrounding_text: unknown;
-readonly process_hand_writing_event: unknown;
-readonly cancel_hand_writing: unknown;
-readonly set_content_type: unknown;
-readonly pdummy: object[];
-}
-export class EngineDescClass  {constructor(config?: properties);
-}
-export class EngineDescPrivate  {constructor(config?: properties);
-}
-export class EnginePrivate  {constructor(config?: properties);
-}
-export class EngineSimpleClass  {constructor(config?: properties);
-readonly pdummy: object[];
-}
-export class EngineSimplePrivate  {constructor(config?: properties);
-}
-export class ExtensionEventClass  {constructor(config?: properties);
-readonly pdummy: object[];
-}
-export class ExtensionEventPrivate  {constructor(config?: properties);
-}
-export class FactoryClass  {constructor(config?: properties);
-readonly create_engine: unknown;
-readonly pdummy: object[];
-}
-export class FactoryPrivate  {constructor(config?: properties);
-}
-export class HotkeyProfileClass  {constructor(config?: properties);
-readonly trigger: unknown;
-}
-export class InputContextClass  {constructor(config?: properties);
-readonly pdummy: object[];
-}
-export class KeymapClass  {constructor(config?: properties);
-}
-export class LookupTableClass  {constructor(config?: properties);
-}
-export class ObjectClass  {constructor(config?: properties);
-readonly destroy: unknown;
-readonly pdummy: object[];
-}
-export class ObjectPrivate  {constructor(config?: properties);
-}
-export class ObservedPathClass  {constructor(config?: properties);
-}
-export class PanelServiceClass  {constructor(config?: properties);
-readonly focus_in: unknown;
-readonly focus_out: unknown;
-readonly register_properties: unknown;
-readonly set_cursor_location: unknown;
-readonly update_auxiliary_text: unknown;
-readonly update_lookup_table: unknown;
-readonly update_preedit_text: unknown;
-readonly update_property: unknown;
-readonly cursor_down_lookup_table: unknown;
-readonly cursor_up_lookup_table: unknown;
-readonly hide_auxiliary_text: unknown;
-readonly hide_language_bar: unknown;
-readonly hide_lookup_table: unknown;
-readonly hide_preedit_text: unknown;
-readonly page_down_lookup_table: unknown;
-readonly page_up_lookup_table: unknown;
-readonly reset: unknown;
-readonly show_auxiliary_text: unknown;
-readonly show_language_bar: unknown;
-readonly show_lookup_table: unknown;
-readonly show_preedit_text: unknown;
-readonly start_setup: unknown;
-readonly state_changed: unknown;
-readonly destroy_context: unknown;
-readonly set_content_type: unknown;
-readonly set_cursor_location_relative: unknown;
-readonly panel_extension_received: unknown;
-readonly process_key_event: unknown;
-readonly commit_text_received: unknown;
-readonly candidate_clicked_lookup_table: unknown;
-readonly pdummy: object[];
-}
-export class ProcessKeyEventData  {constructor(config?: properties);
-keyval: number;
-keycode: number;
-state: number;
-}
-export class PropListClass  {constructor(config?: properties);
-}
-export class PropertyClass  {constructor(config?: properties);
-}
-export class PropertyPrivate  {constructor(config?: properties);
-}
-export class ProxyClass  {constructor(config?: properties);
-readonly destroy: unknown;
-readonly pdummy: object[];
-}
-export class Rectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-}
-export class RegistryClass  {constructor(config?: properties);
-}
-export class RegistryPrivate  {constructor(config?: properties);
-}
-export class SerializableClass  {constructor(config?: properties);
-readonly serialize: unknown;
-readonly deserialize: unknown;
-readonly copy: unknown;
-readonly pdummy: object[];
-}
-export class SerializablePrivate  {constructor(config?: properties);
-}
-export class ServiceClass  {constructor(config?: properties);
-readonly service_method_call: unknown;
-readonly service_get_property: unknown;
-readonly service_set_property: unknown;
-readonly interfaces: object[];
-readonly pdummy: object[];
-add_interfaces(xml_data: string): boolean;
-}
-export class ServicePrivate  {constructor(config?: properties);
-}
-export class TextClass  {constructor(config?: properties);
-}
-export class UnicodeBlockClass  {constructor(config?: properties);
-}
-export class UnicodeBlockPrivate  {constructor(config?: properties);
-}
-export class UnicodeDataClass  {constructor(config?: properties);
-}
-export class UnicodeDataPrivate  {constructor(config?: properties);
-}
-export class XEventClass  {constructor(config?: properties);
-readonly pdummy: object[];
-}
-export class XEventPrivate  {constructor(config?: properties);
-}
-export class XML  {constructor(config?: properties);
-name: string;
-text: string;
-attributes: string;
-sub_nodes: GLib.List;
-copy(): XML;
-free(): void;
-output(output: GLib.String): void;
-static parse_buffer(buffer: string): XML;
-static parse_file(name: string): XML;
+export class AttrList extends Serializable {
+    constructor(config?: properties);
+    append(attr: Attribute): void;
+    get(index: number): Attribute;
+}
+export class Attribute extends Serializable {
+    constructor(config?: properties);
+    get_attr_type(): number;
+    get_end_index(): number;
+    get_start_index(): number;
+    get_value(): number;
+}
+export class Bus extends Object {
+    constructor(config?: properties);
+    client_only: boolean;
+    connect_async: boolean;static new_async(): Bus;
+    static new_async_client(): Bus;
+    add_match(rule: string): boolean;
+    add_match_async(rule: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    add_match_async_finish(res: Gio.AsyncResult): boolean;
+    create_input_context(client_name: string): InputContext;
+    create_input_context_async(client_name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    create_input_context_async_finish(res: Gio.AsyncResult): InputContext;
+    current_input_context(): string;
+    current_input_context_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    current_input_context_async_finish(res: Gio.AsyncResult): string;
+    exit(restart: boolean): boolean;
+    exit_async(restart: boolean, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    exit_async_finish(res: Gio.AsyncResult): boolean;
+    get_config(): Config;
+    get_connection(): Gio.DBusConnection;
+    get_engines_by_names(names: string[]): EngineDesc[];
+    get_global_engine(): EngineDesc;
+    get_global_engine_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_global_engine_async_finish(res: Gio.AsyncResult): EngineDesc;
+    get_ibus_property(property_name: string): GLib.Variant;
+    get_ibus_property_async(property_name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_ibus_property_async_finish(res: Gio.AsyncResult): GLib.Variant;
+    get_name_owner(name: string): string;
+    get_name_owner_async(name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_name_owner_async_finish(res: Gio.AsyncResult): string;
+    get_service_name(): string;
+    get_use_global_engine(): boolean;
+    get_use_global_engine_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_use_global_engine_async_finish(res: Gio.AsyncResult): boolean;
+    get_use_sys_layout(): boolean;
+    get_use_sys_layout_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_use_sys_layout_async_finish(res: Gio.AsyncResult): boolean;
+    hello(): string;
+    is_connected(): boolean;
+    is_global_engine_enabled(): boolean;
+    is_global_engine_enabled_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    is_global_engine_enabled_async_finish(res: Gio.AsyncResult): boolean;
+    list_active_engines(): GLib.List;
+    list_active_engines_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    list_active_engines_async_finish(res: Gio.AsyncResult): GLib.List;
+    list_engines(): GLib.List;
+    list_engines_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    list_engines_async_finish(res: Gio.AsyncResult): GLib.List;
+    list_names(): GLib.List;
+    list_queued_owners(name: string): GLib.List;
+    name_has_owner(name: string): boolean;
+    name_has_owner_async(name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    name_has_owner_async_finish(res: Gio.AsyncResult): boolean;
+    preload_engines(names: string[]): boolean;
+    preload_engines_async(names: string[], timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    preload_engines_async_finish(res: Gio.AsyncResult): boolean;
+    register_component(component: Component): boolean;
+    register_component_async(component: Component, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    register_component_async_finish(res: Gio.AsyncResult): boolean;
+    release_name(name: string): number;
+    release_name_async(name: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    release_name_async_finish(res: Gio.AsyncResult): number;
+    remove_match(rule: string): boolean;
+    remove_match_async(rule: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    remove_match_async_finish(res: Gio.AsyncResult): boolean;
+    request_name(name: string, flags: number): number;
+    request_name_async(name: string, flags: number, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    request_name_async_finish(res: Gio.AsyncResult): number;
+    set_global_engine(global_engine: string): boolean;
+    set_global_engine_async(global_engine: string, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_global_engine_async_finish(res: Gio.AsyncResult): boolean;
+    set_ibus_property(property_name: string, value: GLib.Variant): void;
+    set_ibus_property_async(property_name: string, value: GLib.Variant, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_ibus_property_async_finish(res: Gio.AsyncResult): boolean;
+    set_watch_dbus_signal(watch: boolean): void;
+    set_watch_ibus_signal(watch: boolean): void;
+}
+export class Component extends Serializable {
+    constructor(config?: properties);
+    author: string;
+    command_line: string;
+    description: string;
+    homepage: string;
+    license: string;
+    name: string;
+    textdomain: string;
+    version: string;static new_from_file(filename: string): Component;
+    static new_from_xml_node(node: XML): Component;
+    static new_varargs(first_property_name: string, ___: any): Component;
+    add_engine(engine: EngineDesc): void;
+    add_observed_path(path: string, access_fs: boolean): void;
+    check_modification(): boolean;
+    get_author(): string;
+    get_description(): string;
+    get_engines(): GLib.List;
+    get_exec(): string;
+    get_homepage(): string;
+    get_license(): string;
+    get_name(): string;
+    get_observed_paths(): GLib.List;
+    get_textdomain(): string;
+    get_version(): string;
+    output(output: GLib.String, indent: number): void;
+    output_engines(output: GLib.String, indent: number): void;
+}
+export class Config extends Proxy {
+    constructor(config?: properties);
+    static new_async_finish(res: Gio.AsyncResult): Config;
+    get_value(section: string, name: string): GLib.Variant;
+    get_value_async(section: string, name: string, timeout_ms: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_value_async_finish(result: Gio.AsyncResult): GLib.Variant;
+    get_values(section: string): GLib.Variant;
+    get_values_async(section: string, timeout_ms: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_values_async_finish(result: Gio.AsyncResult): GLib.Variant;
+    set_value(section: string, name: string, value: GLib.Variant): boolean;
+    set_value_async(section: string, name: string, value: GLib.Variant, timeout_ms: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_value_async_finish(result: Gio.AsyncResult): boolean;
+    unset(section: string, name: string): boolean;
+    unwatch(section: string | null, name: string | null): boolean;
+    watch(section: string | null, name: string | null): boolean;
+    static new_async(connection: Gio.DBusConnection, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+}
+export class ConfigService extends Service {
+    constructor(config?: properties);
+    value_changed(section: string, name: string, value: GLib.Variant): void;
+    vfunc_get_value(section: string, name: string): GLib.Variant;
+    vfunc_get_values(section: string): GLib.Variant;
+    vfunc_set_value(section: string, name: string, value: GLib.Variant): boolean;
+    vfunc_unset_value(section: string, name: string): boolean;
+}
+export class EmojiData extends Serializable {
+    constructor(config?: properties);
+    annotations: object;
+    category: string;
+    description: string;
+    emoji: string;
+    get_annotations(): string[];
+    get_category(): string;
+    get_description(): string;
+    get_emoji(): string;
+    set_annotations(annotations: string[]): void;
+    set_description(description: string): void;
+    static load(path: string): string[];
+    static save(path: string, list: string[]): void;
+}
+export class Engine extends Service {
+    constructor(config?: properties);
+    engine_name: string;static new_with_type(engine_type: GType, engine_name: string, object_path: string, connection: Gio.DBusConnection): Engine;
+    commit_text(text: Text): void;
+    delete_surrounding_text(offset: number, nchars: number): void;
+    forward_key_event(keyval: number, keycode: number, state: number): void;
+    get_content_type(): [number | null,number | null];
+    get_name(): string;
+    get_surrounding_text(): [Text | null,number | null,number | null];
+    hide_auxiliary_text(): void;
+    hide_lookup_table(): void;
+    hide_preedit_text(): void;
+    register_properties(prop_list: PropList): void;
+    show_auxiliary_text(): void;
+    show_lookup_table(): void;
+    show_preedit_text(): void;
+    update_auxiliary_text(text: Text, visible: boolean): void;
+    update_lookup_table(lookup_table: LookupTable, visible: boolean): void;
+    update_lookup_table_fast(lookup_table: LookupTable, visible: boolean): void;
+    update_preedit_text(text: Text, cursor_pos: number, visible: boolean): void;
+    update_preedit_text_with_mode(text: Text, cursor_pos: number, visible: boolean, mode: PreeditFocusMode): void;
+    update_property(prop: Property): void;
+    vfunc_cancel_hand_writing(n_strokes: number): void;
+    vfunc_candidate_clicked(index: number, button: number, state: number): void;
+    vfunc_cursor_down(): void;
+    vfunc_cursor_up(): void;
+    vfunc_disable(): void;
+    vfunc_enable(): void;
+    vfunc_focus_in(): void;
+    vfunc_focus_out(): void;
+    vfunc_page_down(): void;
+    vfunc_page_up(): void;
+    vfunc_process_hand_writing_event(coordinates: number, coordinates_len: number): void;
+    vfunc_process_key_event(keyval: number, keycode: number, state: number): boolean;
+    vfunc_property_activate(prop_name: string, prop_state: number): void;
+    vfunc_property_hide(prop_name: string): void;
+    vfunc_property_show(prop_name: string): void;
+    vfunc_reset(): void;
+    vfunc_set_capabilities(caps: number): void;
+    vfunc_set_content_type(purpose: number, hints: number): void;
+    vfunc_set_cursor_location(x: number, y: number, w: number, h: number): void;
+    vfunc_set_surrounding_text(text: Text, cursor_index: number, anchor_pos: number): void;
+}
+export class EngineDesc extends Serializable {
+    constructor(config?: properties);
+    author: string;
+    description: string;
+    hotkeys: string;
+    icon: string;
+    icon_prop_key: string;
+    language: string;
+    layout: string;
+    layout_option: string;
+    layout_variant: string;
+    license: string;
+    longname: string;
+    name: string;
+    rank: number;
+    setup: string;
+    symbol: string;
+    textdomain: string;
+    version: string;static new_from_xml_node(node: XML): EngineDesc;
+    static new_varargs(first_property_name: string, ___: any): EngineDesc;
+    get_author(): string;
+    get_description(): string;
+    get_hotkeys(): string;
+    get_icon(): string;
+    get_icon_prop_key(): string;
+    get_language(): string;
+    get_layout(): string;
+    get_layout_option(): string;
+    get_layout_variant(): string;
+    get_license(): string;
+    get_longname(): string;
+    get_name(): string;
+    get_rank(): number;
+    get_setup(): string;
+    get_symbol(): string;
+    get_textdomain(): string;
+    get_version(): string;
+    output(output: GLib.String, indent: number): void;
+}
+export class EngineSimple  {
+    constructor(config?: properties);
+    readonly priv: EngineSimplePrivate;
+    add_compose_file(file: string): boolean;
+    add_table(data: number[], max_seq_len: number, n_seqs: number): void;
+    add_table_by_locale(locale: string | null): boolean;
+}
+export class ExtensionEvent extends Serializable {
+    constructor(config?: properties);
+    name: string;
+    params: string;
+    readonly version: number;
+    get_name(): string;
+    get_params(): string;
+    get_version(): number;
+    is_enabled(): boolean;
+    is_extension(): boolean;
+}
+export class Factory extends Service {
+    constructor(config?: properties);
+    add_engine(engine_name: string, engine_type: GType): void;
+    create_engine(engine_name: string): Engine;
+    vfunc_create_engine(engine_name: string): Engine;
+}
+export class HotkeyProfile extends Serializable {
+    constructor(config?: properties);
+    add_hotkey(keyval: number, modifiers: number, event: GLib.Quark): boolean;
+    add_hotkey_from_string(str: string, event: GLib.Quark): boolean;
+    filter_key_event(keyval: number, modifiers: number, prev_keyval: number, prev_modifiers: number, user_data: object | null): GLib.Quark;
+    lookup_hotkey(keyval: number, modifiers: number): GLib.Quark;
+    remove_hotkey(keyval: number, modifiers: number): boolean;
+    remove_hotkey_by_event(event: GLib.Quark): boolean;
+    vfunc_trigger(event: GLib.Quark, user_data: object | null): void;
+}
+export class InputContext extends Proxy {
+    constructor(config?: properties);
+    static new_async_finish(res: Gio.AsyncResult): InputContext;
+    cancel_hand_writing(n_strokes: number): void;
+    focus_in(): void;
+    focus_out(): void;
+    get_engine(): EngineDesc;
+    get_engine_async(timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_engine_async_finish(res: Gio.AsyncResult): EngineDesc;
+    needs_surrounding_text(): boolean;
+    process_hand_writing_event(coordinates: number, coordinates_len: number): void;
+    process_key_event(keyval: number, keycode: number, state: number): boolean;
+    process_key_event_async(keyval: number, keycode: number, state: number, timeout_msec: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    process_key_event_async_finish(res: Gio.AsyncResult): boolean;
+    property_activate(prop_name: string, state: number): void;
+    reset(): void;
+    set_capabilities(capabilities: number): void;
+    set_client_commit_preedit(client_commit: boolean): void;
+    set_content_type(purpose: number, hints: number): void;
+    set_cursor_location(x: number, y: number, w: number, h: number): void;
+    set_cursor_location_relative(x: number, y: number, w: number, h: number): void;
+    set_engine(name: string): void;
+    set_surrounding_text(text: Text, cursor_pos: number, anchor_pos: number): void;
+    static get_input_context(path: string, connection: Gio.DBusConnection): InputContext;
+    static get_input_context_async(path: string, connection: Gio.DBusConnection, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    static get_input_context_async_finish(res: Gio.AsyncResult): InputContext;
+    static new_async(path: string, connection: Gio.DBusConnection, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+}
+export class Keymap extends Object {
+    constructor(config?: properties);
+    lookup_keysym(keycode: number, state: number): number;
+    static get(name: string): Keymap;
+}
+export class LookupTable extends Serializable {
+    constructor(config?: properties);
+    append_candidate(text: Text): void;
+    append_label(text: Text): void;
+    clear(): void;
+    cursor_down(): boolean;
+    cursor_up(): boolean;
+    get_candidate(index: number): Text;
+    get_cursor_in_page(): number;
+    get_cursor_pos(): number;
+    get_label(index: number): Text;
+    get_number_of_candidates(): number;
+    get_orientation(): number;
+    get_page_size(): number;
+    is_cursor_visible(): boolean;
+    is_round(): boolean;
+    page_down(): boolean;
+    page_up(): boolean;
+    set_cursor_pos(cursor_pos: number): void;
+    set_cursor_visible(visible: boolean): void;
+    set_label(index: number, text: Text): void;
+    set_orientation(orientation: number): void;
+    set_page_size(page_size: number): void;
+    set_round(round: boolean): void;
+}
+export class Object extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    destroy(): void;
+    vfunc_destroy(): void;
+}
+export class ObservedPath extends Serializable {
+    constructor(config?: properties);
+    static new_from_xml_node(node: XML, fill_stat: boolean): ObservedPath;
+    check_modification(): boolean;
+    output(output: GLib.String, indent: number): void;
+    traverse(dir_only: boolean): GLib.List;
+}
+export class PanelService extends Service {
+    constructor(config?: properties);
+    candidate_clicked(index: number, button: number, state: number): void;
+    commit_text(text: Text): void;
+    cursor_down(): void;
+    cursor_up(): void;
+    hide_preedit_text_received(): void;
+    page_down(): void;
+    page_up(): void;
+    panel_extension(event: ExtensionEvent): void;
+    property_activate(prop_name: string, prop_state: number): void;
+    property_hide(prop_name: string): void;
+    property_show(prop_name: string): void;
+    show_preedit_text_received(): void;
+    update_auxiliary_text_received(text: Text, visible: boolean): void;
+    update_lookup_table_received(table: LookupTable, visible: boolean): void;
+    update_preedit_text_received(text: Text, cursor_pos: number, visible: boolean): void;
+    vfunc_candidate_clicked_lookup_table(index: number, button: number, state: number): void;
+    vfunc_commit_text_received(text: Text): void;
+    vfunc_cursor_down_lookup_table(): void;
+    vfunc_cursor_up_lookup_table(): void;
+    vfunc_destroy_context(input_context_path: string): void;
+    vfunc_focus_in(input_context_path: string): void;
+    vfunc_focus_out(input_context_path: string): void;
+    vfunc_hide_auxiliary_text(): void;
+    vfunc_hide_language_bar(): void;
+    vfunc_hide_lookup_table(): void;
+    vfunc_hide_preedit_text(): void;
+    vfunc_page_down_lookup_table(): void;
+    vfunc_page_up_lookup_table(): void;
+    vfunc_panel_extension_received(event: ExtensionEvent): void;
+    vfunc_process_key_event(keyval: number, keycode: number, state: number): boolean;
+    vfunc_register_properties(prop_list: PropList): void;
+    vfunc_reset(): void;
+    vfunc_set_content_type(purpose: number, hints: number): void;
+    vfunc_set_cursor_location(x: number, y: number, w: number, h: number): void;
+    vfunc_set_cursor_location_relative(x: number, y: number, w: number, h: number): void;
+    vfunc_show_auxiliary_text(): void;
+    vfunc_show_language_bar(): void;
+    vfunc_show_lookup_table(): void;
+    vfunc_show_preedit_text(): void;
+    vfunc_start_setup(): void;
+    vfunc_state_changed(): void;
+    vfunc_update_auxiliary_text(text: Text, visible: boolean): void;
+    vfunc_update_lookup_table(lookup_table: LookupTable, visible: boolean): void;
+    vfunc_update_preedit_text(text: Text, cursor_pos: number, visible: boolean): void;
+    vfunc_update_property(prop: Property): void;
+}
+export class PropList extends Serializable {
+    constructor(config?: properties);
+    append(prop: Property): void;
+    get(index: number): Property;
+    update_property(prop: Property): boolean;
+}
+export class Property extends Serializable {
+    constructor(config?: properties);
+    icon: string;
+    key: string;
+    label: Text;
+    prop_type: PropType;
+    sensitive: boolean;
+    state: PropState;
+    sub_props: PropList;
+    symbol: Text;
+    tooltip: Text;
+    visible: boolean;static new_varargs(first_property_name: string, ___: any): Property;
+    get_icon(): string;
+    get_key(): string;
+    get_label(): Text;
+    get_prop_type(): PropType;
+    get_sensitive(): boolean;
+    get_state(): PropState;
+    get_sub_props(): PropList;
+    get_symbol(): Text;
+    get_tooltip(): Text;
+    get_visible(): boolean;
+    set_icon(icon: string): void;
+    set_label(label: Text): void;
+    set_sensitive(sensitive: boolean): void;
+    set_state(state: PropState): void;
+    set_sub_props(prop_list: PropList): void;
+    set_symbol(symbol: Text): void;
+    set_tooltip(tooltip: Text): void;
+    set_visible(visible: boolean): void;
+    update(prop_update: Property): boolean;
+}
+export class Proxy  {
+    constructor(config?: properties);
+    readonly flags: number;
+    readonly own: boolean;
+    destroy(): void;
+}
+export class Registry extends Serializable {
+    constructor(config?: properties);
+    check_modification(): boolean;
+    get_components(): GLib.List;
+    get_observed_paths(): GLib.List;
+    load(): void;
+    load_cache(is_user: boolean): boolean;
+    load_cache_file(filename: string): boolean;
+    load_in_dir(dirname: string): void;
+    output(output: GLib.String, indent: number): void;
+    save_cache(is_user: boolean): boolean;
+    save_cache_file(filename: string): boolean;
+    start_monitor_changes(): void;
+}
+export class Serializable extends Object {
+    constructor(config?: properties);
+    copy(): Serializable;
+    get_qattachment(key: GLib.Quark): GLib.Variant;
+    remove_qattachment(key: GLib.Quark): void;
+    serialize_object(): GLib.Variant;
+    set_qattachment(key: GLib.Quark, value: GLib.Variant): void;
+    vfunc_copy(src: Serializable): boolean;
+    vfunc_deserialize(variant: GLib.Variant): number;
+    vfunc_serialize(builder: GLib.VariantBuilder): boolean;
+    static deserialize_object(variant: GLib.Variant): Serializable;
+}
+export class Service extends Object {
+    constructor(config?: properties);
+    connection: Gio.DBusConnection;
+    object_path: string;
+    emit_signal(dest_bus_name: string, interface_name: string, signal_name: string, parameters: GLib.Variant): boolean;
+    get_connection(): Gio.DBusConnection;
+    get_object_path(): string;
+    register(connection: Gio.DBusConnection): boolean;
+    unregister(connection: Gio.DBusConnection): void;
+    vfunc_service_get_property(connection: Gio.DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string): GLib.Variant | null;
+    vfunc_service_method_call(connection: Gio.DBusConnection, sender: string, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant, invocation: Gio.DBusMethodInvocation): void;
+    vfunc_service_set_property(connection: Gio.DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, value: GLib.Variant): boolean;
+}
+export class Text extends Serializable {
+    constructor(config?: properties);
+    static new_from_printf(fmt: string, ___: any): Text;
+    static new_from_static_string(str: string): Text;
+    static new_from_string(str: string): Text;
+    static new_from_ucs4(str: number): Text;
+    static new_from_unichar(c: number): Text;
+    append_attribute(type: number, value: number, start_index: number, end_index: number): void;
+    get_attributes(): AttrList;
+    get_length(): number;
+    get_text(): string;
+    set_attributes(attrs: AttrList): void;
+}
+export class UnicodeBlock extends Serializable {
+    constructor(config?: properties);
+    end: number;
+    name: string;
+    start: number;
+    get_end(): number;
+    get_name(): string;
+    get_start(): number;
+    static load(path: string): string[];
+    static save(path: string, list: string[]): void;
+}
+export class UnicodeData extends Serializable {
+    constructor(config?: properties);
+    alias: string;
+    block_name: string;
+    code: number;
+    name: string;
+    get_alias(): string;
+    get_block_name(): string;
+    get_code(): number;
+    get_name(): string;
+    set_block_name(block_name: string): void;
+    static load(path: string, object: GObject.Object | null): string[];
+    static load_async(path: string, object: GObject.Object | null, cancellable: Gio.Cancellable | null, callback: UnicodeDataLoadAsyncFinish, user_data: object | null): void;
+    static save(path: string, list: string[]): void;
+}
+export class XEvent extends Serializable {
+    constructor(config?: properties);
+    event_type: number;
+    group: number;
+    hardware_keycode: number;
+    is_modifier: boolean;
+    keyval: number;
+    length: number;
+    purpose: string;
+    root: number;
+    same_screen: boolean;
+    send_event: number;
+    serial: number;
+    state: number;
+    string: string;
+    subwindow: number;
+    time: number;
+    readonly version: number;
+    window: number;
+    x: number;
+    x_root: number;
+    y: number;
+    y_root: number;
+    get_event_type(): XEventType;
+    get_group(): number;
+    get_hardware_keycode(): number;
+    get_is_modifier(): boolean;
+    get_keyval(): number;
+    get_length(): number;
+    get_purpose(): string;
+    get_root(): number;
+    get_same_screen(): boolean;
+    get_send_event(): number;
+    get_serial(): number;
+    get_state(): number;
+    get_string(): string;
+    get_subwindow(): number;
+    get_time(): number;
+    get_version(): number;
+    get_window(): number;
+    get_x(): number;
+    get_x_root(): number;
+    get_y(): number;
+    get_y_root(): number;
+}
+export class BusPrivate  {
+    constructor(config?: properties);
+}
+export class ComponentPrivate  {
+    constructor(config?: properties);
+}
+export class ConfigPrivate  {
+    constructor(config?: properties);
+}
+export class EmojiDataPrivate  {
+    constructor(config?: properties);
+}
+export class EngineDescPrivate  {
+    constructor(config?: properties);
+}
+export class EnginePrivate  {
+    constructor(config?: properties);
+}
+export class EngineSimplePrivate  {
+    constructor(config?: properties);
+}
+export class ExtensionEventPrivate  {
+    constructor(config?: properties);
+}
+export class FactoryPrivate  {
+    constructor(config?: properties);
+}
+export class ObjectPrivate  {
+    constructor(config?: properties);
+}
+export class ProcessKeyEventData  {
+    constructor(config?: properties);
+    keyval: number;
+    keycode: number;
+    state: number;
+}
+export class PropertyPrivate  {
+    constructor(config?: properties);
+}
+export class Rectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+}
+export class RegistryPrivate  {
+    constructor(config?: properties);
+}
+export class SerializablePrivate  {
+    constructor(config?: properties);
+}
+export class ServicePrivate  {
+    constructor(config?: properties);
+}
+export class UnicodeBlockPrivate  {
+    constructor(config?: properties);
+}
+export class UnicodeDataPrivate  {
+    constructor(config?: properties);
+}
+export class XEventPrivate  {
+    constructor(config?: properties);
+}
+export class XML  {
+    constructor(config?: properties);
+    name: string;
+    text: string;
+    attributes: string;
+    sub_nodes: GLib.List;
+    copy(): XML;
+    free(): void;
+    output(output: GLib.String): void;
+    static parse_buffer(buffer: string): XML;
+    static parse_file(name: string): XML;
 }

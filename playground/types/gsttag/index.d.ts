@@ -9,6 +9,7 @@ import * as GstTag from "gsttag";
  * gsttag.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const TAG_CAPTURING_CONTRAST: string;
 export const TAG_CAPTURING_DIGITAL_ZOOM_RATIO: string;
 export const TAG_CAPTURING_EXPOSURE_COMPENSATION: string;
@@ -379,42 +380,28 @@ export enum TagLicenseFlags {
     CREATIVE_COMMONS_LICENSE = 16777216,
     FREE_SOFTWARE_FOUNDATION_LICENSE = 33554432,
 }
-export class TagDemux  {constructor(config?: properties);
-readonly element: Gst.Element;
-readonly priv: TagDemuxPrivate;
-readonly reserved: object[];
+export class TagDemux  {
+    constructor(config?: properties);
+    readonly element: Gst.Element;
+    readonly priv: TagDemuxPrivate;
+    readonly reserved: object[];
 }
-export class TagMux  {constructor(config?: properties);
-readonly element: Gst.Element;
-readonly priv: TagMuxPrivate;
-readonly _gst_reserved: object[];
+export class TagMux  {
+    constructor(config?: properties);
+    readonly element: Gst.Element;
+    readonly priv: TagMuxPrivate;
 }
-export class TagDemuxClass  {constructor(config?: properties);
-readonly parent_class: Gst.ElementClass;
-readonly min_start_size: number;
-readonly min_end_size: number;
-readonly identify_tag: unknown;
-readonly parse_tag: unknown;
-readonly merge_tags: unknown;
-readonly reserved: object[];
+export class TagDemuxPrivate  {
+    constructor(config?: properties);
 }
-export class TagDemuxPrivate  {constructor(config?: properties);
-}
-export class TagMuxClass  {constructor(config?: properties);
-readonly parent_class: Gst.ElementClass;
-readonly render_start_tag: unknown;
-readonly render_end_tag: unknown;
-readonly _gst_reserved: object[];
-}
-export class TagMuxPrivate  {constructor(config?: properties);
-}
-export class TagXmpWriterInterface  {constructor(config?: properties);
+export class TagMuxPrivate  {
+    constructor(config?: properties);
 }
 export interface TagXmpWriter  {
-add_all_schemas(): void;
-add_schema(schema: string): void;
-has_schema(schema: string): boolean;
-remove_all_schemas(): void;
-remove_schema(schema: string): void;
-tag_list_to_xmp_buffer(taglist: Gst.TagList, read_only: boolean): Gst.Buffer;
+    add_all_schemas(): void;
+    add_schema(schema: string): void;
+    has_schema(schema: string): boolean;
+    remove_all_schemas(): void;
+    remove_schema(schema: string): void;
+    tag_list_to_xmp_buffer(taglist: Gst.TagList, read_only: boolean): Gst.Buffer;
 }

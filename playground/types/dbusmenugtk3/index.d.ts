@@ -11,6 +11,7 @@ import * as DbusmenuGtk3 from "dbusmenugtk3";
  * dbusmenugtk3.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const GTK_MENUITEM_H__: number;
 /**
  * The Dbusmenu GTK parser adds cached items on the various
@@ -61,38 +62,23 @@ export function menuitem_property_set_shortcut_menuitem(menuitem: Dbusmenu.Menui
  * required to send it over DBusmenu.
  */
 export function menuitem_property_set_shortcut_string(menuitem: Dbusmenu.Menuitem, shortcut: string): boolean;
-export class Client extends Dbusmenu.Client {constructor(config?: properties);
-get_accel_group(): Gtk.AccelGroup;
-menuitem_get(item: Dbusmenu.Menuitem): Gtk.MenuItem;
-menuitem_get_submenu(item: Dbusmenu.Menuitem): Gtk.Menu;
-newitem_base(item: Dbusmenu.Menuitem, gmi: Gtk.MenuItem, parent: Dbusmenu.Menuitem): void;
-set_accel_group(agroup: Gtk.AccelGroup): void;
+export class Client extends Dbusmenu.Client {
+    constructor(config?: properties);
+    get_accel_group(): Gtk.AccelGroup;
+    menuitem_get(item: Dbusmenu.Menuitem): Gtk.MenuItem;
+    menuitem_get_submenu(item: Dbusmenu.Menuitem): Gtk.Menu;
+    newitem_base(item: Dbusmenu.Menuitem, gmi: Gtk.MenuItem, parent: Dbusmenu.Menuitem): void;
+    set_accel_group(agroup: Gtk.AccelGroup): void;
 }
-export class Menu extends Gtk.Menu {constructor(config?: properties);
-dbus_name: string;
-dbus_object: string;
-get_client(): Client;
+export class Menu extends Gtk.Menu {
+    constructor(config?: properties);
+    dbus_name: string;
+    dbus_object: string;
+    get_client(): Client;
 }
-export class ClientClass  {constructor(config?: properties);
-readonly parent_class: Dbusmenu.ClientClass;
-readonly root_changed: unknown;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-readonly reserved5: unknown;
-readonly reserved6: unknown;
+export class ClientPrivate  {
+    constructor(config?: properties);
 }
-export class ClientPrivate  {constructor(config?: properties);
-}
-export class MenuClass  {constructor(config?: properties);
-readonly parent_class: Gtk.MenuClass;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-readonly reserved5: unknown;
-readonly reserved6: unknown;
-}
-export class MenuPrivate  {constructor(config?: properties);
+export class MenuPrivate  {
+    constructor(config?: properties);
 }

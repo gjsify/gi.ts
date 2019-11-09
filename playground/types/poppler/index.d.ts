@@ -8,6 +8,7 @@ import * as Poppler from "poppler";
  * poppler.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type AttachmentSaveFunc = (buf: number[], count: number, data: object | null) => boolean;
 export type MediaSaveFunc = (buf: number[], count: number, data: object | null) => boolean;
 export const ANNOT_TEXT_ICON_CIRCLE: string;
@@ -493,508 +494,555 @@ export enum ViewerPreferences {
     DISPLAY_DOC_TITLE = 32,
     DIRECTION_RTL = 64,
 }
-export class Annot  {constructor(config?: properties);
-get_annot_type(): AnnotType;
-get_color(): Color;
-get_contents(): string;
-get_flags(): AnnotFlag;
-get_modified(): string;
-get_name(): string;
-get_page_index(): number;
-get_rectangle(): [Rectangle];
-set_color(poppler_color: Color | null): void;
-set_contents(contents: string): void;
-set_flags(flags: AnnotFlag): void;
-set_rectangle(poppler_rect: Rectangle): void;
+export class Annot  {
+    constructor(config?: properties);
+    get_annot_type(): AnnotType;
+    get_color(): Color;
+    get_contents(): string;
+    get_flags(): AnnotFlag;
+    get_modified(): string;
+    get_name(): string;
+    get_page_index(): number;
+    get_rectangle(): [Rectangle];
+    set_color(poppler_color: Color | null): void;
+    set_contents(contents: string): void;
+    set_flags(flags: AnnotFlag): void;
+    set_rectangle(poppler_rect: Rectangle): void;
 }
-export class AnnotCircle extends AnnotMarkup {constructor(config?: properties);
-get_interior_color(): Color;
-set_interior_color(poppler_color: Color | null): void;
+export class AnnotCircle extends AnnotMarkup {
+    constructor(config?: properties);
+    get_interior_color(): Color;
+    set_interior_color(poppler_color: Color | null): void;
 }
-export class AnnotFileAttachment  {constructor(config?: properties);
-get_attachment(): Attachment;
-get_name(): string;
+export class AnnotFileAttachment  {
+    constructor(config?: properties);
+    get_attachment(): Attachment;
+    get_name(): string;
 }
-export class AnnotFreeText  {constructor(config?: properties);
-get_callout_line(): AnnotCalloutLine;
-get_quadding(): AnnotFreeTextQuadding;
+export class AnnotFreeText  {
+    constructor(config?: properties);
+    get_callout_line(): AnnotCalloutLine;
+    get_quadding(): AnnotFreeTextQuadding;
 }
-export class AnnotLine extends AnnotMarkup {constructor(config?: properties);
-set_vertices(start: Point, end: Point): void;
+export class AnnotLine extends AnnotMarkup {
+    constructor(config?: properties);
+    set_vertices(start: Point, end: Point): void;
 }
-export class AnnotMarkup  {constructor(config?: properties);
-get_date(): GLib.Date;
-get_external_data(): AnnotExternalDataType;
-get_label(): string;
-get_opacity(): number;
-get_popup_is_open(): boolean;
-get_popup_rectangle(): [boolean, Rectangle];
-get_reply_to(): AnnotMarkupReplyType;
-get_subject(): string;
-has_popup(): boolean;
-set_label(label: string | null): void;
-set_opacity(opacity: number): void;
-set_popup(popup_rect: Rectangle): void;
-set_popup_is_open(is_open: boolean): void;
-set_popup_rectangle(poppler_rect: Rectangle): void;
+export class AnnotMarkup  {
+    constructor(config?: properties);
+    get_date(): GLib.Date;
+    get_external_data(): AnnotExternalDataType;
+    get_label(): string;
+    get_opacity(): number;
+    get_popup_is_open(): boolean;
+    get_popup_rectangle(): [boolean, Rectangle];
+    get_reply_to(): AnnotMarkupReplyType;
+    get_subject(): string;
+    has_popup(): boolean;
+    set_label(label: string | null): void;
+    set_opacity(opacity: number): void;
+    set_popup(popup_rect: Rectangle): void;
+    set_popup_is_open(is_open: boolean): void;
+    set_popup_rectangle(poppler_rect: Rectangle): void;
 }
-export class AnnotMovie  {constructor(config?: properties);
-get_movie(): Movie;
-get_title(): string;
+export class AnnotMovie  {
+    constructor(config?: properties);
+    get_movie(): Movie;
+    get_title(): string;
 }
-export class AnnotScreen  {constructor(config?: properties);
-get_action(): Action;
+export class AnnotScreen  {
+    constructor(config?: properties);
+    get_action(): Action;
 }
-export class AnnotSquare extends AnnotMarkup {constructor(config?: properties);
-get_interior_color(): Color;
-set_interior_color(poppler_color: Color | null): void;
+export class AnnotSquare extends AnnotMarkup {
+    constructor(config?: properties);
+    get_interior_color(): Color;
+    set_interior_color(poppler_color: Color | null): void;
 }
-export class AnnotText extends AnnotMarkup {constructor(config?: properties);
-get_icon(): string;
-get_is_open(): boolean;
-get_state(): AnnotTextState;
-set_icon(icon: string): void;
-set_is_open(is_open: boolean): void;
+export class AnnotText extends AnnotMarkup {
+    constructor(config?: properties);
+    get_icon(): string;
+    get_is_open(): boolean;
+    get_state(): AnnotTextState;
+    set_icon(icon: string): void;
+    set_is_open(is_open: boolean): void;
 }
-export class AnnotTextMarkup extends AnnotMarkup {constructor(config?: properties);
-static new_highlight(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
-static new_squiggly(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
-static new_strikeout(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
-static new_underline(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
-get_quadrilaterals(): Quadrilateral[];
-set_quadrilaterals(quadrilaterals: Quadrilateral[]): void;
+export class AnnotTextMarkup extends AnnotMarkup {
+    constructor(config?: properties);
+    static new_highlight(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
+    static new_squiggly(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
+    static new_strikeout(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
+    static new_underline(doc: Document, rect: Rectangle, quadrilaterals: Quadrilateral[]): Annot;
+    get_quadrilaterals(): Quadrilateral[];
+    set_quadrilaterals(quadrilaterals: Quadrilateral[]): void;
 }
-export class Attachment  {constructor(config?: properties);
-readonly name: string;
-readonly description: string;
-readonly size: number;
-readonly mtime: GLib.Time;
-readonly ctime: GLib.Time;
-readonly checksum: GLib.String;
-save(filename: string): boolean;
-save_to_callback(save_func: AttachmentSaveFunc, user_data: object | null): boolean;
+export class Attachment  {
+    constructor(config?: properties);
+    readonly name: string;
+    readonly description: string;
+    readonly size: number;
+    readonly mtime: GLib.Time;
+    readonly ctime: GLib.Time;
+    readonly checksum: GLib.String;
+    save(filename: string): boolean;
+    save_to_callback(save_func: AttachmentSaveFunc, user_data: object | null): boolean;
 }
-export class Document extends GObject.Object {constructor(config?: properties);
-author: string;
-creation_date: number;
-creator: string;
-readonly format: string;
-readonly format_major: number;
-readonly format_minor: number;
-keywords: string;
-readonly linearized: boolean;
-readonly metadata: string;
-mod_date: number;
-readonly page_layout: PageLayout;
-readonly page_mode: PageMode;
-readonly permissions: Permissions;
-readonly print_duplex: PrintDuplex;
-readonly print_n_copies: number;
-readonly print_scaling: PrintScaling;
-producer: string;
-subject: string;
-readonly subtype: PDFSubtype;
-readonly subtype_conformance: PDFConformance;
-readonly subtype_part: PDFPart;
-readonly subtype_string: string;
-title: string;
-readonly viewer_preferences: ViewerPreferences;static new_from_data(data: number[], length: number, password: string | null): Document;
-static new_from_file(uri: string, password: string | null): Document;
-static new_from_gfile(file: Gio.File, password: string | null, cancellable: Gio.Cancellable | null): Document;
-static new_from_stream(stream: Gio.InputStream, length: number, password: string | null, cancellable: Gio.Cancellable | null): Document;
-create_dests_tree(): GLib.Tree | null;
-find_dest(link_name: string): Dest;
-get_attachments(): GLib.List;
-get_author(): string;
-get_creation_date(): number;
-get_creator(): string;
-get_form_field(id: number): FormField;
-get_id(): [boolean, string | null,string | null];
-get_keywords(): string;
-get_metadata(): string;
-get_modification_date(): number;
-get_n_attachments(): number;
-get_n_pages(): number;
-get_page(index: number): Page;
-get_page_by_label(label: string): Page;
-get_page_layout(): PageLayout;
-get_page_mode(): PageMode;
-get_pdf_conformance(): PDFConformance;
-get_pdf_part(): PDFPart;
-get_pdf_subtype(): PDFSubtype;
-get_pdf_subtype_string(): string | null;
-get_pdf_version(): [number | null,number | null];
-get_pdf_version_string(): string;
-get_permissions(): Permissions;
-get_print_duplex(): PrintDuplex;
-get_print_n_copies(): number;
-get_print_page_ranges(): [PageRange[], number];
-get_print_scaling(): PrintScaling;
-get_producer(): string;
-get_subject(): string;
-get_title(): string;
-has_attachments(): boolean;
-is_linearized(): boolean;
-save(uri: string): boolean;
-save_a_copy(uri: string): boolean;
-set_author(author: string): void;
-set_creation_date(creation_date: number): void;
-set_creator(creator: string): void;
-set_keywords(keywords: string): void;
-set_modification_date(modification_date: number): void;
-set_producer(producer: string): void;
-set_subject(subject: string): void;
-set_title(title: string): void;
+export class Document extends GObject.Object {
+    constructor(config?: properties);
+    author: string;
+    creation_date: number;
+    creator: string;
+    readonly format: string;
+    readonly format_major: number;
+    readonly format_minor: number;
+    keywords: string;
+    readonly linearized: boolean;
+    readonly metadata: string;
+    mod_date: number;
+    readonly page_layout: PageLayout;
+    readonly page_mode: PageMode;
+    readonly permissions: Permissions;
+    readonly print_duplex: PrintDuplex;
+    readonly print_n_copies: number;
+    readonly print_scaling: PrintScaling;
+    producer: string;
+    subject: string;
+    readonly subtype: PDFSubtype;
+    readonly subtype_conformance: PDFConformance;
+    readonly subtype_part: PDFPart;
+    readonly subtype_string: string;
+    title: string;
+    readonly viewer_preferences: ViewerPreferences;static new_from_data(data: number[], length: number, password: string | null): Document;
+    static new_from_file(uri: string, password: string | null): Document;
+    static new_from_gfile(file: Gio.File, password: string | null, cancellable: Gio.Cancellable | null): Document;
+    static new_from_stream(stream: Gio.InputStream, length: number, password: string | null, cancellable: Gio.Cancellable | null): Document;
+    find_dest(link_name: string): Dest;
+    get_attachments(): GLib.List;
+    get_author(): string;
+    get_creation_date(): number;
+    get_creator(): string;
+    get_form_field(id: number): FormField;
+    get_id(): [boolean, string | null,string | null];
+    get_keywords(): string;
+    get_metadata(): string;
+    get_modification_date(): number;
+    get_n_attachments(): number;
+    get_n_pages(): number;
+    get_page(index: number): Page;
+    get_page_by_label(label: string): Page;
+    get_page_layout(): PageLayout;
+    get_page_mode(): PageMode;
+    get_pdf_conformance(): PDFConformance;
+    get_pdf_part(): PDFPart;
+    get_pdf_subtype(): PDFSubtype;
+    get_pdf_subtype_string(): string | null;
+    get_pdf_version(): [number | null,number | null];
+    get_pdf_version_string(): string;
+    get_permissions(): Permissions;
+    get_print_duplex(): PrintDuplex;
+    get_print_n_copies(): number;
+    get_print_page_ranges(): [PageRange[], number];
+    get_print_scaling(): PrintScaling;
+    get_producer(): string;
+    get_subject(): string;
+    get_title(): string;
+    has_attachments(): boolean;
+    is_linearized(): boolean;
+    save(uri: string): boolean;
+    save_a_copy(uri: string): boolean;
+    set_author(author: string): void;
+    set_creation_date(creation_date: number): void;
+    set_creator(creator: string): void;
+    set_keywords(keywords: string): void;
+    set_modification_date(modification_date: number): void;
+    set_producer(producer: string): void;
+    set_subject(subject: string): void;
+    set_title(title: string): void;
 }
-export class FontInfo extends GObject.Object {constructor(config?: properties);
-free(): void;
-scan(n_pages: number): [boolean, FontsIter];
+export class FontInfo extends GObject.Object {
+    constructor(config?: properties);
+    free(): void;
+    scan(n_pages: number): [boolean, FontsIter];
 }
-export class FormField  {constructor(config?: properties);
-button_get_button_type(): FormButtonType;
-button_get_state(): boolean;
-button_set_state(state: boolean): void;
-choice_can_select_multiple(): boolean;
-choice_commit_on_change(): boolean;
-choice_do_spell_check(): boolean;
-choice_get_choice_type(): FormChoiceType;
-choice_get_item(index: number): string;
-choice_get_n_items(): number;
-choice_get_text(): string;
-choice_is_editable(): boolean;
-choice_is_item_selected(index: number): boolean;
-choice_select_item(index: number): void;
-choice_set_text(text: string): void;
-choice_toggle_item(index: number): void;
-choice_unselect_all(): void;
-get_action(): Action;
-get_additional_action(type: AdditionalActionType): Action;
-get_field_type(): FormFieldType;
-get_font_size(): number;
-get_id(): number;
-get_mapping_name(): string;
-get_name(): string;
-get_partial_name(): string;
-is_read_only(): boolean;
-text_do_scroll(): boolean;
-text_do_spell_check(): boolean;
-text_get_max_len(): number;
-text_get_text(): string;
-text_get_text_type(): FormTextType;
-text_is_password(): boolean;
-text_is_rich_text(): boolean;
-text_set_text(text: string): void;
+export class FormField  {
+    constructor(config?: properties);
+    button_get_button_type(): FormButtonType;
+    button_get_state(): boolean;
+    button_set_state(state: boolean): void;
+    choice_can_select_multiple(): boolean;
+    choice_commit_on_change(): boolean;
+    choice_do_spell_check(): boolean;
+    choice_get_choice_type(): FormChoiceType;
+    choice_get_item(index: number): string;
+    choice_get_n_items(): number;
+    choice_get_text(): string;
+    choice_is_editable(): boolean;
+    choice_is_item_selected(index: number): boolean;
+    choice_select_item(index: number): void;
+    choice_set_text(text: string): void;
+    choice_toggle_item(index: number): void;
+    choice_unselect_all(): void;
+    get_action(): Action;
+    get_additional_action(type: AdditionalActionType): Action;
+    get_field_type(): FormFieldType;
+    get_font_size(): number;
+    get_id(): number;
+    get_mapping_name(): string;
+    get_name(): string;
+    get_partial_name(): string;
+    is_read_only(): boolean;
+    text_do_scroll(): boolean;
+    text_do_spell_check(): boolean;
+    text_get_max_len(): number;
+    text_get_text(): string;
+    text_get_text_type(): FormTextType;
+    text_is_password(): boolean;
+    text_is_rich_text(): boolean;
+    text_set_text(text: string): void;
 }
-export class Layer  {constructor(config?: properties);
-get_radio_button_group_id(): number;
-get_title(): string;
-hide(): void;
-is_parent(): boolean;
-is_visible(): boolean;
-show(): void;
+export class Layer  {
+    constructor(config?: properties);
+    get_radio_button_group_id(): number;
+    get_title(): string;
+    hide(): void;
+    is_parent(): boolean;
+    is_visible(): boolean;
+    show(): void;
 }
-export class Media  {constructor(config?: properties);
-get_filename(): string;
-get_mime_type(): string;
-is_embedded(): boolean;
-save(filename: string): boolean;
-save_to_callback(save_func: MediaSaveFunc, user_data: object | null): boolean;
+export class Media  {
+    constructor(config?: properties);
+    get_filename(): string;
+    get_mime_type(): string;
+    is_embedded(): boolean;
+    save(filename: string): boolean;
+    save_to_callback(save_func: MediaSaveFunc, user_data: object | null): boolean;
 }
-export class Movie  {constructor(config?: properties);
-get_duration(): number;
-get_filename(): string;
-get_play_mode(): MoviePlayMode;
-get_rate(): number;
-get_rotation_angle(): number;
-get_start(): number;
-get_volume(): number;
-is_synchronous(): boolean;
-need_poster(): boolean;
-show_controls(): boolean;
+export class Movie  {
+    constructor(config?: properties);
+    get_duration(): number;
+    get_filename(): string;
+    get_play_mode(): MoviePlayMode;
+    get_rate(): number;
+    get_rotation_angle(): number;
+    get_start(): number;
+    get_volume(): number;
+    is_synchronous(): boolean;
+    need_poster(): boolean;
+    show_controls(): boolean;
 }
-export class PSFile extends GObject.Object {constructor(config?: properties);
-free(): void;
-set_duplex(duplex: boolean): void;
-set_paper_size(width: number, height: number): void;
+export class PSFile extends GObject.Object {
+    constructor(config?: properties);
+    free(): void;
+    set_duplex(duplex: boolean): void;
+    set_paper_size(width: number, height: number): void;
 }
-export class Page  {constructor(config?: properties);
-readonly label: string;
-add_annot(annot: Annot): void;
-find_text(text: string): GLib.List;
-find_text_with_options(text: string, options: FindFlags): GLib.List;
-get_annot_mapping(): GLib.List;
-get_crop_box(): [Rectangle];
-get_duration(): number;
-get_form_field_mapping(): GLib.List;
-get_image(image_id: number): cairo.Surface;
-get_image_mapping(): GLib.List;
-get_index(): number;
-get_label(): string;
-get_link_mapping(): GLib.List;
-get_selected_region(scale: number, style: SelectionStyle, selection: Rectangle): cairo.Region;
-get_selected_text(style: SelectionStyle, selection: Rectangle): string;
-get_selection_region(scale: number, style: SelectionStyle, selection: Rectangle): GLib.List;
-get_size(): [number | null,number | null];
-get_text(): string;
-get_text_attributes(): GLib.List;
-get_text_attributes_for_area(area: Rectangle): GLib.List;
-get_text_for_area(area: Rectangle): string;
-get_text_layout(): [boolean, Rectangle[],number];
-get_text_layout_for_area(area: Rectangle): [boolean, Rectangle[],number];
-get_thumbnail(): cairo.Surface;
-get_thumbnail_size(): [boolean, number,number];
-get_transition(): PageTransition;
-remove_annot(annot: Annot): void;
-render(cairo: cairo.Context): void;
-render_for_printing(cairo: cairo.Context): void;
-render_for_printing_with_options(cairo: cairo.Context, options: PrintFlags): void;
-render_selection(cairo: cairo.Context, selection: Rectangle, old_selection: Rectangle, style: SelectionStyle, glyph_color: Color, background_color: Color): void;
-render_to_ps(ps_file: PSFile): void;
-static free_annot_mapping(list: GLib.List): void;
-static free_form_field_mapping(list: GLib.List): void;
-static free_image_mapping(list: GLib.List): void;
-static free_link_mapping(list: GLib.List): void;
-static free_text_attributes(list: GLib.List): void;
-static selection_region_free(region: GLib.List): void;
+export class Page  {
+    constructor(config?: properties);
+    readonly label: string;
+    add_annot(annot: Annot): void;
+    find_text(text: string): GLib.List;
+    find_text_with_options(text: string, options: FindFlags): GLib.List;
+    get_annot_mapping(): GLib.List;
+    get_crop_box(): [Rectangle];
+    get_duration(): number;
+    get_form_field_mapping(): GLib.List;
+    get_image(image_id: number): cairo.Surface;
+    get_image_mapping(): GLib.List;
+    get_index(): number;
+    get_label(): string;
+    get_link_mapping(): GLib.List;
+    get_selected_region(scale: number, style: SelectionStyle, selection: Rectangle): cairo.Region;
+    get_selected_text(style: SelectionStyle, selection: Rectangle): string;
+    get_selection_region(scale: number, style: SelectionStyle, selection: Rectangle): GLib.List;
+    get_size(): [number | null,number | null];
+    get_text(): string;
+    get_text_attributes(): GLib.List;
+    get_text_attributes_for_area(area: Rectangle): GLib.List;
+    get_text_for_area(area: Rectangle): string;
+    get_text_layout(): [boolean, Rectangle[],number];
+    get_text_layout_for_area(area: Rectangle): [boolean, Rectangle[],number];
+    get_thumbnail(): cairo.Surface;
+    get_thumbnail_size(): [boolean, number,number];
+    get_transition(): PageTransition;
+    remove_annot(annot: Annot): void;
+    render(cairo: cairo.Context): void;
+    render_for_printing(cairo: cairo.Context): void;
+    render_for_printing_with_options(cairo: cairo.Context, options: PrintFlags): void;
+    render_selection(cairo: cairo.Context, selection: Rectangle, old_selection: Rectangle, style: SelectionStyle, glyph_color: Color, background_color: Color): void;
+    render_to_ps(ps_file: PSFile): void;
+    static free_annot_mapping(list: GLib.List): void;
+    static free_form_field_mapping(list: GLib.List): void;
+    static free_image_mapping(list: GLib.List): void;
+    static free_link_mapping(list: GLib.List): void;
+    static free_text_attributes(list: GLib.List): void;
+    static selection_region_free(region: GLib.List): void;
 }
-export class StructureElement  {constructor(config?: properties);
-get_abbreviation(): string;
-get_actual_text(): string;
-get_alt_text(): string;
-get_background_color(): [boolean, Color];
-get_baseline_shift(): number;
-get_block_align(): StructureBlockAlign;
-get_border_color(): [boolean, Color[]];
-get_border_style(): [StructureBorderStyle[]];
-get_border_thickness(): [boolean, number[]];
-get_bounding_box(): [boolean, Rectangle];
-get_color(): [boolean, Color];
-get_column_count(): number;
-get_column_gaps(): [number[], number];
-get_column_widths(): [number[], number];
-get_end_indent(): number;
-get_form_description(): string;
-get_form_role(): StructureFormRole;
-get_form_state(): StructureFormState;
-get_glyph_orientation(): StructureGlyphOrientation;
-get_height(): number;
-get_id(): string;
-get_inline_align(): StructureInlineAlign;
-get_kind(): StructureElementKind;
-get_language(): string;
-get_line_height(): number;
-get_list_numbering(): StructureListNumbering;
-get_padding(): [number[]];
-get_page(): number;
-get_placement(): StructurePlacement;
-get_ruby_align(): StructureRubyAlign;
-get_ruby_position(): StructureRubyPosition;
-get_space_after(): number;
-get_space_before(): number;
-get_start_indent(): number;
-get_table_border_style(): [StructureBorderStyle[]];
-get_table_column_span(): number;
-get_table_headers(): string[];
-get_table_padding(): [number[]];
-get_table_row_span(): number;
-get_table_scope(): StructureTableScope;
-get_table_summary(): string;
-get_text(flags: StructureGetTextFlags): string;
-get_text_align(): StructureTextAlign;
-get_text_decoration_color(): [boolean, Color];
-get_text_decoration_thickness(): number;
-get_text_decoration_type(): StructureTextDecoration;
-get_text_indent(): number;
-get_text_spans(): [TextSpan[], number];
-get_title(): string;
-get_width(): number;
-get_writing_mode(): StructureWritingMode;
-is_block(): boolean;
-is_content(): boolean;
-is_grouping(): boolean;
-is_inline(): boolean;
+export class StructureElement  {
+    constructor(config?: properties);
+    get_abbreviation(): string;
+    get_actual_text(): string;
+    get_alt_text(): string;
+    get_background_color(): [boolean, Color];
+    get_baseline_shift(): number;
+    get_block_align(): StructureBlockAlign;
+    get_border_color(): [boolean, Color[]];
+    get_border_style(): [StructureBorderStyle[]];
+    get_border_thickness(): [boolean, number[]];
+    get_bounding_box(): [boolean, Rectangle];
+    get_color(): [boolean, Color];
+    get_column_count(): number;
+    get_column_gaps(): [number[], number];
+    get_column_widths(): [number[], number];
+    get_end_indent(): number;
+    get_form_description(): string;
+    get_form_role(): StructureFormRole;
+    get_form_state(): StructureFormState;
+    get_glyph_orientation(): StructureGlyphOrientation;
+    get_height(): number;
+    get_id(): string;
+    get_inline_align(): StructureInlineAlign;
+    get_kind(): StructureElementKind;
+    get_language(): string;
+    get_line_height(): number;
+    get_list_numbering(): StructureListNumbering;
+    get_padding(): [number[]];
+    get_page(): number;
+    get_placement(): StructurePlacement;
+    get_ruby_align(): StructureRubyAlign;
+    get_ruby_position(): StructureRubyPosition;
+    get_space_after(): number;
+    get_space_before(): number;
+    get_start_indent(): number;
+    get_table_border_style(): [StructureBorderStyle[]];
+    get_table_column_span(): number;
+    get_table_headers(): string[];
+    get_table_padding(): [number[]];
+    get_table_row_span(): number;
+    get_table_scope(): StructureTableScope;
+    get_table_summary(): string;
+    get_text(flags: StructureGetTextFlags): string;
+    get_text_align(): StructureTextAlign;
+    get_text_decoration_color(): [boolean, Color];
+    get_text_decoration_thickness(): number;
+    get_text_decoration_type(): StructureTextDecoration;
+    get_text_indent(): number;
+    get_text_spans(): [TextSpan[], number];
+    get_title(): string;
+    get_width(): number;
+    get_writing_mode(): StructureWritingMode;
+    is_block(): boolean;
+    is_content(): boolean;
+    is_grouping(): boolean;
+    is_inline(): boolean;
 }
-export class ActionAny  {constructor(config?: properties);
-type: ActionType;
-title: string;
+export class ActionAny  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
 }
-export class ActionGotoDest  {constructor(config?: properties);
-type: ActionType;
-title: string;
-dest: Dest;
+export class ActionGotoDest  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    dest: Dest;
 }
-export class ActionGotoRemote  {constructor(config?: properties);
-type: ActionType;
-title: string;
-file_name: string;
-dest: Dest;
+export class ActionGotoRemote  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    file_name: string;
+    dest: Dest;
 }
-export class ActionJavascript  {constructor(config?: properties);
-type: ActionType;
-title: string;
-script: string;
+export class ActionJavascript  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    script: string;
 }
-export class ActionLaunch  {constructor(config?: properties);
-type: ActionType;
-title: string;
-file_name: string;
-params: string;
+export class ActionLaunch  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    file_name: string;
+    params: string;
 }
-export class ActionLayer  {constructor(config?: properties);
-action: ActionLayerAction;
-layers: GLib.List;
+export class ActionLayer  {
+    constructor(config?: properties);
+    action: ActionLayerAction;
+    layers: GLib.List;
 }
-export class ActionMovie  {constructor(config?: properties);
-type: ActionType;
-title: string;
-operation: ActionMovieOperation;
-movie: Movie;
+export class ActionMovie  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    operation: ActionMovieOperation;
+    movie: Movie;
 }
-export class ActionNamed  {constructor(config?: properties);
-type: ActionType;
-title: string;
-named_dest: string;
+export class ActionNamed  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    named_dest: string;
 }
-export class ActionOCGState  {constructor(config?: properties);
-type: ActionType;
-title: string;
-state_list: GLib.List;
+export class ActionOCGState  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    state_list: GLib.List;
 }
-export class ActionRendition  {constructor(config?: properties);
-type: ActionType;
-title: string;
-op: number;
-media: Media;
+export class ActionRendition  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    op: number;
+    media: Media;
 }
-export class ActionUri  {constructor(config?: properties);
-type: ActionType;
-title: string;
-uri: string;
+export class ActionUri  {
+    constructor(config?: properties);
+    type: ActionType;
+    title: string;
+    uri: string;
 }
-export class AnnotCalloutLine  {constructor(config?: properties);
-copy(): AnnotCalloutLine;
-free(): void;
+export class AnnotCalloutLine  {
+    constructor(config?: properties);
+    copy(): AnnotCalloutLine;
+    free(): void;
 }
-export class AnnotMapping  {constructor(config?: properties);
-copy(): AnnotMapping;
-free(): void;
+export class AnnotMapping  {
+    constructor(config?: properties);
+    copy(): AnnotMapping;
+    free(): void;
 }
-export class AttachmentClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class Color  {
+    constructor(config?: properties);
+    copy(): Color;
+    free(): void;
 }
-export class Color  {constructor(config?: properties);
-copy(): Color;
-free(): void;
+export class Dest  {
+    constructor(config?: properties);
+    type: DestType;
+    page_num: number;
+    left: number;
+    bottom: number;
+    right: number;
+    top: number;
+    zoom: number;
+    named_dest: string;
+    change_left: number;
+    change_top: number;
+    change_zoom: number;
+    copy(): Dest;
+    free(): void;
 }
-export class Dest  {constructor(config?: properties);
-type: DestType;
-page_num: number;
-left: number;
-bottom: number;
-right: number;
-top: number;
-zoom: number;
-named_dest: string;
-change_left: number;
-change_top: number;
-change_zoom: number;
-copy(): Dest;
-free(): void;
+export class FontsIter  {
+    constructor(config?: properties);
+    copy(): FontsIter;
+    free(): void;
+    get_encoding(): string;
+    get_file_name(): string;
+    get_font_type(): FontType;
+    get_full_name(): string;
+    get_name(): string;
+    get_substitute_name(): string;
+    is_embedded(): boolean;
+    is_subset(): boolean;
+    next(): boolean;
 }
-export class FontsIter  {constructor(config?: properties);
-copy(): FontsIter;
-free(): void;
-get_encoding(): string;
-get_file_name(): string;
-get_font_type(): FontType;
-get_full_name(): string;
-get_name(): string;
-get_substitute_name(): string;
-is_embedded(): boolean;
-is_subset(): boolean;
-next(): boolean;
+export class FormFieldMapping  {
+    constructor(config?: properties);
+    copy(): FormFieldMapping;
+    free(): void;
 }
-export class FormFieldMapping  {constructor(config?: properties);
-copy(): FormFieldMapping;
-free(): void;
+export class ImageMapping  {
+    constructor(config?: properties);
+    copy(): ImageMapping;
+    free(): void;
 }
-export class ImageMapping  {constructor(config?: properties);
-copy(): ImageMapping;
-free(): void;
+export class IndexIter  {
+    constructor(config?: properties);
+    copy(): IndexIter;
+    free(): void;
+    get_action(): Action;
+    get_child(): IndexIter;
+    is_open(): boolean;
+    next(): boolean;
 }
-export class IndexIter  {constructor(config?: properties);
-copy(): IndexIter;
-free(): void;
-get_action(): Action;
-get_child(): IndexIter;
-is_open(): boolean;
-next(): boolean;
+export class LayersIter  {
+    constructor(config?: properties);
+    copy(): LayersIter;
+    free(): void;
+    get_child(): LayersIter;
+    get_layer(): Layer;
+    get_title(): string;
+    next(): boolean;
 }
-export class LayersIter  {constructor(config?: properties);
-copy(): LayersIter;
-free(): void;
-get_child(): LayersIter;
-get_layer(): Layer;
-get_title(): string;
-next(): boolean;
+export class LinkMapping  {
+    constructor(config?: properties);
+    copy(): LinkMapping;
+    free(): void;
 }
-export class LinkMapping  {constructor(config?: properties);
-copy(): LinkMapping;
-free(): void;
+export class PageRange  {
+    constructor(config?: properties);
+    start_page: number;
+    end_page: number;
 }
-export class PageRange  {constructor(config?: properties);
-start_page: number;
-end_page: number;
+export class PageTransition  {
+    constructor(config?: properties);
+    copy(): PageTransition;
+    free(): void;
 }
-export class PageTransition  {constructor(config?: properties);
-copy(): PageTransition;
-free(): void;
+export class Point  {
+    constructor(config?: properties);
+    copy(): Point;
+    free(): void;
 }
-export class Point  {constructor(config?: properties);
-copy(): Point;
-free(): void;
+export class Quadrilateral  {
+    constructor(config?: properties);
+    copy(): Quadrilateral;
+    free(): void;
 }
-export class Quadrilateral  {constructor(config?: properties);
-copy(): Quadrilateral;
-free(): void;
+export class Rectangle  {
+    constructor(config?: properties);
+    copy(): Rectangle;
+    free(): void;
 }
-export class Rectangle  {constructor(config?: properties);
-copy(): Rectangle;
-free(): void;
+export class StructureElementIter  {
+    constructor(config?: properties);
+    copy(): StructureElementIter;
+    free(): void;
+    get_child(): StructureElementIter;
+    get_element(): StructureElement;
+    next(): boolean;
 }
-export class StructureElementIter  {constructor(config?: properties);
-copy(): StructureElementIter;
-free(): void;
-get_child(): StructureElementIter;
-get_element(): StructureElement;
-next(): boolean;
+export class TextAttributes  {
+    constructor(config?: properties);
+    copy(): TextAttributes;
+    free(): void;
 }
-export class TextAttributes  {constructor(config?: properties);
-copy(): TextAttributes;
-free(): void;
+export class TextSpan  {
+    constructor(config?: properties);
+    copy(): TextSpan;
+    free(): void;
+    get_color(): [Color];
+    get_font_name(): string;
+    get_text(): string;
+    is_bold_font(): boolean;
+    is_fixed_width_font(): boolean;
+    is_serif_font(): boolean;
 }
-export class TextSpan  {constructor(config?: properties);
-copy(): TextSpan;
-free(): void;
-get_color(): [Color];
-get_font_name(): string;
-get_text(): string;
-is_bold_font(): boolean;
-is_fixed_width_font(): boolean;
-is_serif_font(): boolean;
-}
-export class Action  {constructor(config?: properties);
-type: ActionType;
-any: ActionAny;
-goto_dest: ActionGotoDest;
-goto_remote: ActionGotoRemote;
-launch: ActionLaunch;
-uri: ActionUri;
-named: ActionNamed;
-movie: ActionMovie;
-rendition: ActionRendition;
-ocg_state: ActionOCGState;
-javascript: ActionJavascript;
-copy(): Action;
-free(): void;
+export class Action  {
+    constructor(config?: properties);
+    type: ActionType;
+    any: ActionAny;
+    goto_dest: ActionGotoDest;
+    goto_remote: ActionGotoRemote;
+    launch: ActionLaunch;
+    uri: ActionUri;
+    named: ActionNamed;
+    movie: ActionMovie;
+    rendition: ActionRendition;
+    ocg_state: ActionOCGState;
+    javascript: ActionJavascript;
+    copy(): Action;
+    free(): void;
 }

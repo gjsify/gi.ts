@@ -7,6 +7,7 @@ import * as Json from "json";
  * json.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ArrayForeach = (array: Array, index_: number, element_node: Node, user_data: object | null) => void;
 export type BoxedDeserializeFunc = (node: Node) => object | null;
 export type BoxedSerializeFunc = (boxed: object | null) => Node;
@@ -19,34 +20,23 @@ export const VERSION_S: string;
  * Checks whether it is possible to deserialize a #GBoxed of
  * type @gboxed_type from a #JsonNode of type @node_type
  */
-export function boxed_can_deserialize(gboxed_type: unknown, node_type: NodeType): boolean;
+export function boxed_can_deserialize(gboxed_type: GType, node_type: NodeType): boolean;
 /**
  * Checks whether it is possible to serialize a #GBoxed of
  * type @gboxed_type into a #JsonNode. The type of the
  * #JsonNode is placed inside @node_type if the function
  * returns %TRUE and it's undefined otherwise.
  */
-export function boxed_can_serialize(gboxed_type: unknown): [boolean, NodeType];
+export function boxed_can_serialize(gboxed_type: GType): [boolean, NodeType];
 /**
  * Deserializes @node into a #GBoxed of @gboxed_type
  */
-export function boxed_deserialize(gboxed_type: unknown, node: Node): object | null;
-/**
- * Registers a deserialization function for a #GBoxed of type @gboxed_typ
- * e
- * from a #JsonNode of type @node_type
- */
-export function boxed_register_deserialize_func(gboxed_type: unknown, node_type: NodeType, deserialize_func: BoxedDeserializeFunc): void;
-/**
- * Registers a serialization function for a #GBoxed of type @gboxed_type
- * to a #JsonNode of type @node_type
- */
-export function boxed_register_serialize_func(gboxed_type: unknown, node_type: NodeType, serialize_func: BoxedSerializeFunc): void;
+export function boxed_deserialize(gboxed_type: GType, node: Node): object | null;
 /**
  * Serializes @boxed, a pointer to a #GBoxed of type @gboxed_type,
  * into a #JsonNode
  */
-export function boxed_serialize(gboxed_type: unknown, boxed: object | null): Node | null;
+export function boxed_serialize(gboxed_type: GType, boxed: object | null): Node | null;
 /**
  * Deserializes a JSON data stream and creates the corresponding
  * #GObject class. If @gtype implements the #JsonSerializableIface
@@ -55,7 +45,7 @@ export function boxed_serialize(gboxed_type: unknown, boxed: object | null): Nod
  * will be used to translate the compatible JSON native types.
  * Note: the JSON data stream must be an object declaration.
  */
-export function construct_gobject(gtype: unknown, data: string, length: number): GObject.Object;
+export function construct_gobject(gtype: GType, data: string, length: number): GObject.Object;
 /**
  * Parses the string in @str and returns a #JsonNode representing
  * the JSON tree.
@@ -67,7 +57,7 @@ export function from_string(str: string): Node;
  * Creates a new #GObject of type @gtype, and constructs it
  * using the members of the passed #JsonObject
  */
-export function gobject_deserialize(gtype: unknown, node: Node): GObject.Object;
+export function gobject_deserialize(gtype: GType, node: Node): GObject.Object;
 /**
  * Deserializes a JSON data stream and creates the corresponding
  * #GObject class. If @gtype implements the #JsonSerializableIface
@@ -76,7 +66,7 @@ export function gobject_deserialize(gtype: unknown, node: Node): GObject.Object;
  * will be used to translate the compatible JSON native types.
  * Note: the JSON data stream must be an object declaration.
  */
-export function gobject_from_data(gtype: unknown, data: string, length: number): GObject.Object;
+export function gobject_from_data(gtype: GType, data: string, length: number): GObject.Object;
 /**
  * Creates a #JsonNode representing the passed #GObject
  * instance. Each member of the returned JSON object will
@@ -208,268 +198,230 @@ export enum ReaderError {
     NO_VALUE = 5,
     INVALID_TYPE = 6,
 }
-export class Builder extends GObject.Object {constructor(config?: properties);
-immutable: boolean;static new_immutable(): Builder;
-add_boolean_value(value: boolean): Builder | null;
-add_double_value(value: number): Builder | null;
-add_int_value(value: number): Builder | null;
-add_null_value(): Builder | null;
-add_string_value(value: string): Builder | null;
-add_value(node: Node): Builder | null;
-begin_array(): Builder | null;
-begin_object(): Builder | null;
-end_array(): Builder | null;
-end_object(): Builder | null;
-get_root(): Node | null;
-reset(): void;
-set_member_name(member_name: string): Builder | null;
+export class Builder extends GObject.Object {
+    constructor(config?: properties);
+    immutable: boolean;static new_immutable(): Builder;
+    add_boolean_value(value: boolean): Builder | null;
+    add_double_value(value: number): Builder | null;
+    add_int_value(value: number): Builder | null;
+    add_null_value(): Builder | null;
+    add_string_value(value: string): Builder | null;
+    add_value(node: Node): Builder | null;
+    begin_array(): Builder | null;
+    begin_object(): Builder | null;
+    end_array(): Builder | null;
+    end_object(): Builder | null;
+    get_root(): Node | null;
+    reset(): void;
+    set_member_name(member_name: string): Builder | null;
 }
-export class Generator extends GObject.Object {constructor(config?: properties);
-indent: number;
-indent_char: number;
-pretty: boolean;
-root: Node;
-get_indent(): number;
-get_indent_char(): number;
-get_pretty(): boolean;
-get_root(): Node | null;
-set_indent(indent_level: number): void;
-set_indent_char(indent_char: number): void;
-set_pretty(is_pretty: boolean): void;
-set_root(node: Node): void;
-to_data(): [string, number];
-to_file(filename: string): boolean;
-to_gstring(string: GLib.String): GLib.String;
-to_stream(stream: Gio.OutputStream, cancellable: Gio.Cancellable | null): boolean;
+export class Generator extends GObject.Object {
+    constructor(config?: properties);
+    indent: number;
+    indent_char: number;
+    pretty: boolean;
+    root: Node;
+    get_indent(): number;
+    get_indent_char(): number;
+    get_pretty(): boolean;
+    get_root(): Node | null;
+    set_indent(indent_level: number): void;
+    set_indent_char(indent_char: number): void;
+    set_pretty(is_pretty: boolean): void;
+    set_root(node: Node): void;
+    to_data(): [string, number];
+    to_file(filename: string): boolean;
+    to_gstring(string: GLib.String): GLib.String;
+    to_stream(stream: Gio.OutputStream, cancellable: Gio.Cancellable | null): boolean;
 }
-export class Parser extends GObject.Object {constructor(config?: properties);
-immutable: boolean;static new_immutable(): Parser;
-get_current_line(): number;
-get_current_pos(): number;
-get_root(): Node | null;
-has_assignment(): [boolean, string | null];
-load_from_data(data: string, length: number): boolean;
-load_from_file(filename: string): boolean;
-load_from_stream(stream: Gio.InputStream, cancellable: Gio.Cancellable | null): boolean;
-load_from_stream_async(stream: Gio.InputStream, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-load_from_stream_finish(result: Gio.AsyncResult): boolean;
-steal_root(): Node | null;
-vfunc_array_element(array: Array, index_: number): void;
-vfunc_array_end(array: Array): void;
-vfunc_array_start(): void;
-vfunc_error(error: GLib.Error): void;
-vfunc_object_end(object: Object): void;
-vfunc_object_member(object: Object, member_name: string): void;
-vfunc_object_start(): void;
-vfunc_parse_end(): void;
-vfunc_parse_start(): void;
+export class Parser extends GObject.Object {
+    constructor(config?: properties);
+    immutable: boolean;static new_immutable(): Parser;
+    get_current_line(): number;
+    get_current_pos(): number;
+    get_root(): Node | null;
+    has_assignment(): [boolean, string | null];
+    load_from_data(data: string, length: number): boolean;
+    load_from_file(filename: string): boolean;
+    load_from_stream(stream: Gio.InputStream, cancellable: Gio.Cancellable | null): boolean;
+    load_from_stream_async(stream: Gio.InputStream, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    load_from_stream_finish(result: Gio.AsyncResult): boolean;
+    steal_root(): Node | null;
+    vfunc_array_element(array: Array, index_: number): void;
+    vfunc_array_end(array: Array): void;
+    vfunc_array_start(): void;
+    vfunc_error(error: GLib.Error): void;
+    vfunc_object_end(object: Object): void;
+    vfunc_object_member(object: Object, member_name: string): void;
+    vfunc_object_start(): void;
+    vfunc_parse_end(): void;
+    vfunc_parse_start(): void;
 }
-export class Path extends GObject.Object {constructor(config?: properties);
-compile(expression: string): boolean;
-match(root: Node): Node;
-static query(expression: string, root: Node): Node;
+export class Path extends GObject.Object {
+    constructor(config?: properties);
+    compile(expression: string): boolean;
+    match(root: Node): Node;
+    static query(expression: string, root: Node): Node;
 }
-export class Reader extends GObject.Object {constructor(config?: properties);
-root: Node;
-count_elements(): number;
-count_members(): number;
-end_element(): void;
-end_member(): void;
-get_boolean_value(): boolean;
-get_double_value(): number;
-get_error(): GLib.Error | null;
-get_int_value(): number;
-get_member_name(): string | null;
-get_null_value(): boolean;
-get_string_value(): string;
-get_value(): Node | null;
-is_array(): boolean;
-is_object(): boolean;
-is_value(): boolean;
-list_members(): string[];
-read_element(index_: number): boolean;
-read_member(member_name: string): boolean;
-set_root(root: Node | null): void;
+export class Reader extends GObject.Object {
+    constructor(config?: properties);
+    root: Node;
+    count_elements(): number;
+    count_members(): number;
+    end_element(): void;
+    end_member(): void;
+    get_boolean_value(): boolean;
+    get_double_value(): number;
+    get_error(): GLib.Error | null;
+    get_int_value(): number;
+    get_member_name(): string | null;
+    get_null_value(): boolean;
+    get_string_value(): string;
+    get_value(): Node | null;
+    is_array(): boolean;
+    is_object(): boolean;
+    is_value(): boolean;
+    list_members(): string[];
+    read_element(index_: number): boolean;
+    read_member(member_name: string): boolean;
+    set_root(root: Node | null): void;
 }
-export class Array  {constructor(config?: properties);
-static sized_new(n_elements: number): Array;
-add_array_element(value: Array | null): void;
-add_boolean_element(value: boolean): void;
-add_double_element(value: number): void;
-add_element(node: Node): void;
-add_int_element(value: number): void;
-add_null_element(): void;
-add_object_element(value: Object): void;
-add_string_element(value: string): void;
-dup_element(index_: number): Node;
-equal(b: Array): boolean;
-foreach_element(func: ArrayForeach, data: object | null): void;
-get_array_element(index_: number): Array;
-get_boolean_element(index_: number): boolean;
-get_double_element(index_: number): number;
-get_element(index_: number): Node;
-get_elements(): GLib.List;
-get_int_element(index_: number): number;
-get_length(): number;
-get_null_element(index_: number): boolean;
-get_object_element(index_: number): Object;
-get_string_element(index_: number): string;
-hash(): number;
-is_immutable(): boolean;
-ref(): Array;
-remove_element(index_: number): void;
-seal(): void;
-unref(): void;
+export class Array  {
+    constructor(config?: properties);
+    static sized_new(n_elements: number): Array;
+    add_array_element(value: Array | null): void;
+    add_boolean_element(value: boolean): void;
+    add_double_element(value: number): void;
+    add_element(node: Node): void;
+    add_int_element(value: number): void;
+    add_null_element(): void;
+    add_object_element(value: Object): void;
+    add_string_element(value: string): void;
+    dup_element(index_: number): Node;
+    equal(b: Array): boolean;
+    foreach_element(func: ArrayForeach, data: object | null): void;
+    get_array_element(index_: number): Array;
+    get_boolean_element(index_: number): boolean;
+    get_double_element(index_: number): number;
+    get_element(index_: number): Node;
+    get_elements(): GLib.List;
+    get_int_element(index_: number): number;
+    get_length(): number;
+    get_null_element(index_: number): boolean;
+    get_object_element(index_: number): Object;
+    get_string_element(index_: number): string;
+    hash(): number;
+    is_immutable(): boolean;
+    ref(): Array;
+    remove_element(index_: number): void;
+    seal(): void;
+    unref(): void;
 }
-export class BuilderClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _json_reserved1: unknown;
-readonly _json_reserved2: unknown;
+export class BuilderPrivate  {
+    constructor(config?: properties);
 }
-export class BuilderPrivate  {constructor(config?: properties);
+export class GeneratorPrivate  {
+    constructor(config?: properties);
 }
-export class GeneratorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _json_reserved1: unknown;
-readonly _json_reserved2: unknown;
-readonly _json_reserved3: unknown;
-readonly _json_reserved4: unknown;
+export class Node  {
+    constructor(config?: properties);
+    static alloc(): Node;
+    copy(): Node;
+    dup_array(): Array | null;
+    dup_object(): Object | null;
+    dup_string(): string | null;
+    equal(b: Node): boolean;
+    free(): void;
+    get_array(): Array | null;
+    get_boolean(): boolean;
+    get_double(): number;
+    get_int(): number;
+    get_node_type(): NodeType;
+    get_object(): Object | null;
+    get_parent(): Node | null;
+    get_string(): string | null;
+    get_value(): [GObject.Value];
+    get_value_type(): GType;
+    hash(): number;
+    init(type: NodeType): Node;
+    init_array(array: Array | null): Node;
+    init_boolean(value: boolean): Node;
+    init_double(value: number): Node;
+    init_int(value: number): Node;
+    init_null(): Node;
+    init_object(object: Object | null): Node;
+    init_string(value: string | null): Node;
+    is_immutable(): boolean;
+    is_null(): boolean;
+    ref(): Node;
+    seal(): void;
+    set_array(array: Array): void;
+    set_boolean(value: boolean): void;
+    set_double(value: number): void;
+    set_int(value: number): void;
+    set_object(object: Object | null): void;
+    set_parent(parent: Node): void;
+    set_string(value: string): void;
+    set_value(value: GObject.Value): void;
+    take_array(array: Array): void;
+    take_object(object: Object): void;
+    type_name(): string;
+    unref(): void;
 }
-export class GeneratorPrivate  {constructor(config?: properties);
+export class Object  {
+    constructor(config?: properties);
+    add_member(member_name: string, node: Node): void;
+    dup_member(member_name: string): Node | null;
+    equal(b: Object): boolean;
+    foreach_member(func: ObjectForeach, data: object | null): void;
+    get_array_member(member_name: string): Array;
+    get_boolean_member(member_name: string): boolean;
+    get_double_member(member_name: string): number;
+    get_int_member(member_name: string): number;
+    get_member(member_name: string): Node | null;
+    get_members(): GLib.List | null;
+    get_null_member(member_name: string): boolean;
+    get_object_member(member_name: string): Object | null;
+    get_size(): number;
+    get_string_member(member_name: string): string;
+    get_values(): GLib.List | null;
+    has_member(member_name: string): boolean;
+    hash(): number;
+    is_immutable(): boolean;
+    ref(): Object;
+    remove_member(member_name: string): void;
+    seal(): void;
+    set_array_member(member_name: string, value: Array): void;
+    set_boolean_member(member_name: string, value: boolean): void;
+    set_double_member(member_name: string, value: number): void;
+    set_int_member(member_name: string, value: number): void;
+    set_member(member_name: string, node: Node): void;
+    set_null_member(member_name: string): void;
+    set_object_member(member_name: string, value: Object): void;
+    set_string_member(member_name: string, value: string): void;
+    unref(): void;
 }
-export class Node  {constructor(config?: properties);
-static alloc(): Node;
-copy(): Node;
-dup_array(): Array | null;
-dup_object(): Object | null;
-dup_string(): string | null;
-equal(b: Node): boolean;
-free(): void;
-get_array(): Array | null;
-get_boolean(): boolean;
-get_double(): number;
-get_int(): number;
-get_node_type(): NodeType;
-get_object(): Object | null;
-get_parent(): Node | null;
-get_string(): string | null;
-get_value(): [GObject.Value];
-get_value_type(): unknown;
-hash(): number;
-init(type: NodeType): Node;
-init_array(array: Array | null): Node;
-init_boolean(value: boolean): Node;
-init_double(value: number): Node;
-init_int(value: number): Node;
-init_null(): Node;
-init_object(object: Object | null): Node;
-init_string(value: string | null): Node;
-is_immutable(): boolean;
-is_null(): boolean;
-ref(): Node;
-seal(): void;
-set_array(array: Array): void;
-set_boolean(value: boolean): void;
-set_double(value: number): void;
-set_int(value: number): void;
-set_object(object: Object | null): void;
-set_parent(parent: Node): void;
-set_string(value: string): void;
-set_value(value: GObject.Value): void;
-take_array(array: Array): void;
-take_object(object: Object): void;
-type_name(): string;
-unref(): void;
+export class ObjectIter  {
+    constructor(config?: properties);
+    readonly priv_pointer: object[];
+    readonly priv_int: number[];
+    readonly priv_boolean: boolean[];
+    init(object: Object): void;
+    next(): [boolean, string | null,Node | null];
 }
-export class Object  {constructor(config?: properties);
-add_member(member_name: string, node: Node): void;
-dup_member(member_name: string): Node | null;
-equal(b: Object): boolean;
-foreach_member(func: ObjectForeach, data: object | null): void;
-get_array_member(member_name: string): Array;
-get_boolean_member(member_name: string): boolean;
-get_double_member(member_name: string): number;
-get_int_member(member_name: string): number;
-get_member(member_name: string): Node | null;
-get_members(): GLib.List | null;
-get_null_member(member_name: string): boolean;
-get_object_member(member_name: string): Object | null;
-get_size(): number;
-get_string_member(member_name: string): string;
-get_values(): GLib.List | null;
-has_member(member_name: string): boolean;
-hash(): number;
-is_immutable(): boolean;
-ref(): Object;
-remove_member(member_name: string): void;
-seal(): void;
-set_array_member(member_name: string, value: Array): void;
-set_boolean_member(member_name: string, value: boolean): void;
-set_double_member(member_name: string, value: number): void;
-set_int_member(member_name: string, value: number): void;
-set_member(member_name: string, node: Node): void;
-set_null_member(member_name: string): void;
-set_object_member(member_name: string, value: Object): void;
-set_string_member(member_name: string, value: string): void;
-unref(): void;
+export class ParserPrivate  {
+    constructor(config?: properties);
 }
-export class ObjectIter  {constructor(config?: properties);
-readonly priv_pointer: object[];
-readonly priv_int: number[];
-readonly priv_boolean: boolean[];
-init(object: Object): void;
-next(): [boolean, string | null,Node | null];
-}
-export class ParserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly parse_start: unknown;
-readonly object_start: unknown;
-readonly object_member: unknown;
-readonly object_end: unknown;
-readonly array_start: unknown;
-readonly array_element: unknown;
-readonly array_end: unknown;
-readonly parse_end: unknown;
-readonly error: unknown;
-readonly _json_reserved1: unknown;
-readonly _json_reserved2: unknown;
-readonly _json_reserved3: unknown;
-readonly _json_reserved4: unknown;
-readonly _json_reserved5: unknown;
-readonly _json_reserved6: unknown;
-readonly _json_reserved7: unknown;
-readonly _json_reserved8: unknown;
-}
-export class ParserPrivate  {constructor(config?: properties);
-}
-export class PathClass  {constructor(config?: properties);
-}
-export class ReaderClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _json_padding0: unknown;
-readonly _json_padding1: unknown;
-readonly _json_padding2: unknown;
-readonly _json_padding3: unknown;
-readonly _json_padding4: unknown;
-}
-export class ReaderPrivate  {constructor(config?: properties);
-}
-export class SerializableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly serialize_property: unknown;
-readonly deserialize_property: unknown;
-readonly find_property: unknown;
-readonly list_properties: unknown;
-readonly set_property: unknown;
-readonly get_property: unknown;
+export class ReaderPrivate  {
+    constructor(config?: properties);
 }
 export interface Serializable  {
-default_deserialize_property(property_name: string, value: GObject.Value, pspec: GObject.ParamSpec, property_node: Node): boolean;
-default_serialize_property(property_name: string, value: GObject.Value, pspec: GObject.ParamSpec): Node;
-deserialize_property(property_name: string, pspec: GObject.ParamSpec, property_node: Node): [boolean, GObject.Value];
-find_property(name: string): GObject.ParamSpec | null;
-get_property(pspec: GObject.ParamSpec): [GObject.Value];
-list_properties(): [GObject.ParamSpec[], number];
-serialize_property(property_name: string, value: GObject.Value, pspec: GObject.ParamSpec): Node;
-set_property(pspec: GObject.ParamSpec, value: GObject.Value): void;
+    default_deserialize_property(property_name: string, value: GObject.Value, pspec: GObject.ParamSpec, property_node: Node): boolean;
+    default_serialize_property(property_name: string, value: GObject.Value, pspec: GObject.ParamSpec): Node;
+    deserialize_property(property_name: string, pspec: GObject.ParamSpec, property_node: Node): [boolean, GObject.Value];
+    find_property(name: string): GObject.ParamSpec | null;
+    get_property(pspec: GObject.ParamSpec): [GObject.Value];
+    list_properties(): [GObject.ParamSpec[], number];
+    serialize_property(property_name: string, value: GObject.Value, pspec: GObject.ParamSpec): Node;
+    set_property(pspec: GObject.ParamSpec, value: GObject.Value): void;
 }

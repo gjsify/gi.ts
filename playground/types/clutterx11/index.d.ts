@@ -9,11 +9,8 @@ import * as ClutterX11 from "clutterx11";
  * clutterx11.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type FilterFunc = (xev: xlib.XEvent, cev: Clutter.Event, data: object | null) => FilterReturn;
-/**
- * Adds an event filter function.
- */
-export function add_filter(func: FilterFunc, data: object | null): void;
 /**
  * Disables the internal polling of X11 events in the main loop.
  * Libraries or applications calling this function will be responsible of
@@ -48,13 +45,6 @@ export function event_get_key_group(event: Clutter.Event): number;
  */
 export function event_sequence_get_touch_detail(sequence: Clutter.EventSequence): number;
 /**
- * Retrieves the timestamp of the last X11 event processed by
- * Clutter. This might be different from the timestamp returned
- * by clutter_get_current_event_time(), as Clutter may synthesize
- * or throttle events.
- */
-export function get_current_event_time(): xlib.Time;
-/**
  * Retrieves the pointer to the default display.
  */
 export function get_default_display(): xlib.Display;
@@ -67,31 +57,9 @@ export function get_default_screen(): number;
  */
 export function get_input_devices(): string[];
 /**
- * Retrieves the root window.
- */
-export function get_root_window(): xlib.Window;
-/**
  * Gets the stage for a particular X window.
  */
 export function get_stage_from_window(win: xlib.Window): Clutter.Stage;
-/**
- * Returns an XVisualInfo suitable for creating a foreign window for the 
- * given
- * stage. NOTE: It doesn't do as the name may suggest, which is return th
- * e
- * XVisualInfo that was used to create an existing window for the given s
- * tage.
- * XXX: It might be best to deprecate this function and replace with some
- * thing
- * along the lines of clutter_backend_x11_get_foreign_visual () or perhap
- * s
- * clutter_stage_x11_get_foreign_visual ()
- */
-export function get_stage_visual(stage: Clutter.Stage): xlib.XVisualInfo;
-/**
- * Gets the stages X Window.
- */
-export function get_stage_window(stage: Clutter.Stage): xlib.Window;
 /**
  * Retrieves whether the Clutter X11 backend is using ARGB visuals by def
  * ault
@@ -102,10 +70,6 @@ export function get_use_argb_visual(): boolean;
  * stages if possible.
  */
 export function get_use_stereo_stage(): boolean;
-/**
- * Retrieves the `XVisualInfo` used by the Clutter X11 backend.
- */
-export function get_visual_info(): xlib.XVisualInfo;
 /**
  * This function processes a single X event; it can be used to hook
  * into external X11 event processing (for example, a GDK filter
@@ -128,10 +92,6 @@ export function has_event_retrieval(): boolean;
  * Gets whether Clutter has XInput support.
  */
 export function has_xinput(): boolean;
-/**
- * Removes the given filter function.
- */
-export function remove_filter(func: FilterFunc, data: object | null): void;
 /**
  * Sets the display connection Clutter should use; must be called
  * before clutter_init(), clutter_init_with_args() or other functions
@@ -188,32 +148,31 @@ export enum FilterReturn {
     TRANSLATE = 1,
     REMOVE = 2,
 }
-export class TexturePixmap extends Clutter.Texture {constructor(config?: properties);
-automatic_updates: boolean;
-readonly destroyed: boolean;
-pixmap: number;
-readonly pixmap_depth: number;
-readonly pixmap_height: number;
-readonly pixmap_width: number;
-window: number;
-readonly window_mapped: boolean;
-readonly window_override_redirect: boolean;
-window_redirect_automatic: boolean;
-readonly window_x: number;
-readonly window_y: number;static new_with_pixmap(pixmap: xlib.Pixmap): Clutter.Actor;
-static new_with_window(window: xlib.Window): Clutter.Actor;
-set_automatic(setting: boolean): void;
-set_pixmap(pixmap: xlib.Pixmap): void;
-set_window(window: xlib.Window, automatic: boolean): void;
-sync_window(): void;
-update_area(x: number, y: number, width: number, height: number): void;
-vfunc_update_area(x: number, y: number, width: number, height: number): void;
+export class TexturePixmap extends Clutter.Texture {
+    constructor(config?: properties);
+    automatic_updates: boolean;
+    readonly destroyed: boolean;
+    pixmap: number;
+    readonly pixmap_depth: number;
+    readonly pixmap_height: number;
+    readonly pixmap_width: number;
+    window: number;
+    readonly window_mapped: boolean;
+    readonly window_override_redirect: boolean;
+    window_redirect_automatic: boolean;
+    readonly window_x: number;
+    readonly window_y: number;static new_with_pixmap(pixmap: xlib.Pixmap): Clutter.Actor;
+    static new_with_window(window: xlib.Window): Clutter.Actor;
+    set_automatic(setting: boolean): void;
+    set_pixmap(pixmap: xlib.Pixmap): void;
+    set_window(window: xlib.Window, automatic: boolean): void;
+    sync_window(): void;
+    update_area(x: number, y: number, width: number, height: number): void;
+    vfunc_update_area(x: number, y: number, width: number, height: number): void;
 }
-export class TexturePixmapClass  {constructor(config?: properties);
-readonly parent_class: Clutter.TextureClass;
-readonly update_area: unknown;
+export class TexturePixmapPrivate  {
+    constructor(config?: properties);
 }
-export class TexturePixmapPrivate  {constructor(config?: properties);
-}
-export class XInputDevice  {constructor(config?: properties);
+export class XInputDevice  {
+    constructor(config?: properties);
 }

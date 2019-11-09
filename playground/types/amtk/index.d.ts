@@ -8,6 +8,7 @@ import * as Amtk from "amtk";
  * amtk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * A wrapper function for g_action_map_add_action_entries() that checks
  * duplicates.
@@ -182,113 +183,103 @@ export enum FactoryFlags {
     IGNORE_ACCELS_FOR_DOC = 32,
     IGNORE_ACCELS_FOR_APP = 64,
 }
-export class ActionInfoCentralStore  {constructor(config?: properties);
-readonly priv: ActionInfoCentralStorePrivate;
-lookup(action_name: string): ActionInfo;
-static get_singleton(): ActionInfoCentralStore;
+export class ActionInfoCentralStore  {
+    constructor(config?: properties);
+    readonly priv: ActionInfoCentralStorePrivate;
+    lookup(action_name: string): ActionInfo;
+    static get_singleton(): ActionInfoCentralStore;
 }
-export class ActionInfoStore extends GObject.Object {constructor(config?: properties);
-add(info: ActionInfo): void;
-add_entries(entries: ActionInfoEntry[], n_entries: number, translation_domain: string | null): void;
-check_all_used(): void;
-lookup(action_name: string): ActionInfo;
-set_all_accels_to_app(application: Gtk.Application): void;
+export class ActionInfoStore extends GObject.Object {
+    constructor(config?: properties);
+    add(info: ActionInfo): void;
+    add_entries(entries: ActionInfoEntry[], n_entries: number, translation_domain: string | null): void;
+    check_all_used(): void;
+    lookup(action_name: string): ActionInfo;
+    set_all_accels_to_app(application: Gtk.Application): void;
 }
-export class ApplicationWindow  {constructor(config?: properties);
-application_window: Gtk.ApplicationWindow;
-statusbar: Gtk.Statusbar;
-readonly priv: ApplicationWindowPrivate;
-connect_menu_to_statusbar(menu_shell: Gtk.MenuShell): void;
-connect_recent_chooser_menu_to_statusbar(menu: Gtk.RecentChooserMenu): void;
-create_open_recent_menu(): Gtk.Widget;
-create_open_recent_menu_item(): Gtk.Widget;
-get_application_window(): Gtk.ApplicationWindow;
-get_statusbar(): Gtk.Statusbar | null;
-set_statusbar(statusbar: Gtk.Statusbar | null): void;
-static get_from_gtk_application_window(gtk_window: Gtk.ApplicationWindow): ApplicationWindow;
+export class ApplicationWindow  {
+    constructor(config?: properties);
+    application_window: Gtk.ApplicationWindow;
+    statusbar: Gtk.Statusbar;
+    readonly priv: ApplicationWindowPrivate;
+    connect_menu_to_statusbar(menu_shell: Gtk.MenuShell): void;
+    connect_recent_chooser_menu_to_statusbar(menu: Gtk.RecentChooserMenu): void;
+    create_open_recent_menu(): Gtk.Widget;
+    create_open_recent_menu_item(): Gtk.Widget;
+    get_application_window(): Gtk.ApplicationWindow;
+    get_statusbar(): Gtk.Statusbar | null;
+    set_statusbar(statusbar: Gtk.Statusbar | null): void;
+    static get_from_gtk_application_window(gtk_window: Gtk.ApplicationWindow): ApplicationWindow;
 }
-export class Factory extends GObject.Object {constructor(config?: properties);
-application: Gtk.Application;
-default_flags: FactoryFlags;static new_with_default_application(): Factory;
-create_check_menu_item(action_name: string): Gtk.Widget;
-create_check_menu_item_full(action_name: string, flags: FactoryFlags): Gtk.Widget;
-create_gmenu_item(action_name: string): Gio.MenuItem;
-create_gmenu_item_full(action_name: string, flags: FactoryFlags): Gio.MenuItem;
-create_menu_item(action_name: string): Gtk.Widget;
-create_menu_item_full(action_name: string, flags: FactoryFlags): Gtk.Widget;
-create_menu_tool_button(action_name: string): Gtk.MenuToolButton;
-create_menu_tool_button_full(action_name: string, flags: FactoryFlags): Gtk.MenuToolButton;
-create_shortcut(action_name: string): Gtk.Widget;
-create_shortcut_full(action_name: string, flags: FactoryFlags): Gtk.Widget;
-create_simple_menu(entries: ActionInfoEntry[], n_entries: number): Gtk.Widget;
-create_simple_menu_full(entries: ActionInfoEntry[], n_entries: number, flags: FactoryFlags): Gtk.Widget;
-create_tool_button(action_name: string): Gtk.ToolItem;
-create_tool_button_full(action_name: string, flags: FactoryFlags): Gtk.ToolItem;
-get_application(): Gtk.Application | null;
-get_default_flags(): FactoryFlags;
-set_default_flags(default_flags: FactoryFlags): void;
+export class Factory extends GObject.Object {
+    constructor(config?: properties);
+    application: Gtk.Application;
+    default_flags: FactoryFlags;static new_with_default_application(): Factory;
+    create_check_menu_item(action_name: string): Gtk.Widget;
+    create_check_menu_item_full(action_name: string, flags: FactoryFlags): Gtk.Widget;
+    create_gmenu_item(action_name: string): Gio.MenuItem;
+    create_gmenu_item_full(action_name: string, flags: FactoryFlags): Gio.MenuItem;
+    create_menu_item(action_name: string): Gtk.Widget;
+    create_menu_item_full(action_name: string, flags: FactoryFlags): Gtk.Widget;
+    create_menu_tool_button(action_name: string): Gtk.MenuToolButton;
+    create_menu_tool_button_full(action_name: string, flags: FactoryFlags): Gtk.MenuToolButton;
+    create_shortcut(action_name: string): Gtk.Widget;
+    create_shortcut_full(action_name: string, flags: FactoryFlags): Gtk.Widget;
+    create_simple_menu(entries: ActionInfoEntry[], n_entries: number): Gtk.Widget;
+    create_simple_menu_full(entries: ActionInfoEntry[], n_entries: number, flags: FactoryFlags): Gtk.Widget;
+    create_tool_button(action_name: string): Gtk.ToolItem;
+    create_tool_button_full(action_name: string, flags: FactoryFlags): Gtk.ToolItem;
+    get_application(): Gtk.Application | null;
+    get_default_flags(): FactoryFlags;
+    set_default_flags(default_flags: FactoryFlags): void;
 }
-export class MenuShell  {constructor(config?: properties);
-menu_shell: Gtk.MenuShell;
-readonly priv: MenuShellPrivate;
-get_menu_shell(): Gtk.MenuShell;
-static get_from_gtk_menu_shell(gtk_menu_shell: Gtk.MenuShell): MenuShell;
+export class MenuShell  {
+    constructor(config?: properties);
+    menu_shell: Gtk.MenuShell;
+    readonly priv: MenuShellPrivate;
+    get_menu_shell(): Gtk.MenuShell;
+    static get_from_gtk_menu_shell(gtk_menu_shell: Gtk.MenuShell): MenuShell;
 }
-export class ActionInfo  {constructor(config?: properties);
-static new_from_entry(info_entry: ActionInfoEntry, translation_domain: string | null): ActionInfo;
-copy(): ActionInfo;
-get_accels(): string[];
-get_action_name(): string | null;
-get_icon_name(): string | null;
-get_label(): string | null;
-get_tooltip(): string | null;
-has_been_used(): boolean;
-mark_as_used(): void;
-ref(): ActionInfo;
-set_accels(accels: string[]): void;
-set_action_name(action_name: string): void;
-set_icon_name(icon_name: string | null): void;
-set_label(label: string | null): void;
-set_tooltip(tooltip: string | null): void;
-unref(): void;
+export class ActionInfo  {
+    constructor(config?: properties);
+    static new_from_entry(info_entry: ActionInfoEntry, translation_domain: string | null): ActionInfo;
+    copy(): ActionInfo;
+    get_accels(): string[];
+    get_action_name(): string | null;
+    get_icon_name(): string | null;
+    get_label(): string | null;
+    get_tooltip(): string | null;
+    has_been_used(): boolean;
+    mark_as_used(): void;
+    ref(): ActionInfo;
+    set_accels(accels: string[]): void;
+    set_action_name(action_name: string): void;
+    set_icon_name(icon_name: string | null): void;
+    set_label(label: string | null): void;
+    set_tooltip(tooltip: string | null): void;
+    unref(): void;
 }
-export class ActionInfoCentralStoreClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
+export class ActionInfoCentralStorePrivate  {
+    constructor(config?: properties);
 }
-export class ActionInfoCentralStorePrivate  {constructor(config?: properties);
+export class ActionInfoEntry  {
+    constructor(config?: properties);
+    action_name: string;
+    icon_name: string;
+    label: string;
+    accel: string;
+    tooltip: string;
+    readonly padding: object[];
 }
-export class ActionInfoEntry  {constructor(config?: properties);
-action_name: string;
-icon_name: string;
-label: string;
-accel: string;
-tooltip: string;
-readonly padding: object[];
+export class ActionInfoStorePrivate  {
+    constructor(config?: properties);
 }
-export class ActionInfoStoreClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
+export class ApplicationWindowPrivate  {
+    constructor(config?: properties);
 }
-export class ActionInfoStorePrivate  {constructor(config?: properties);
+export class FactoryPrivate  {
+    constructor(config?: properties);
 }
-export class ApplicationWindowClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
-}
-export class ApplicationWindowPrivate  {constructor(config?: properties);
-}
-export class FactoryClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
-}
-export class FactoryPrivate  {constructor(config?: properties);
-}
-export class MenuShellClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly menu_item_selected: unknown;
-readonly menu_item_deselected: unknown;
-readonly padding: object[];
-}
-export class MenuShellPrivate  {constructor(config?: properties);
+export class MenuShellPrivate  {
+    constructor(config?: properties);
 }

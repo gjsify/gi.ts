@@ -8,6 +8,7 @@ import * as Atspi from "atspi";
  * atspi.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type DeviceListenerCB = (stroke: DeviceEvent, user_data: object | null) => boolean;
 export type DeviceListenerSimpleCB = (stroke: DeviceEvent) => boolean;
 export type EventListenerCB = (event: Event, user_data: object | null) => void;
@@ -57,27 +58,6 @@ export const STATETYPE_COUNT: number;
 export const TEXT_BOUNDARY_TYPE_COUNT: number;
 export const TEXT_CLIP_TYPE_COUNT: number;
 /**
- * Sets the watch and timeout functions of a #DBusConnection
- * to integrate the connection with the GLib main loop.
- * Pass in #NULL for the #GMainContext unless you're
- * doing something specialized.
- * If called twice for the same context, does nothing the second
- * time. If called once with context A and once with context B,
- * context B replaces context A as the context monitoring the
- * connection.
- */
-export function dbus_connection_setup_with_g_main(connection: DBus.Connection, context: GLib.MainContext): void;
-/**
- * Sets the watch and timeout functions of a #DBusServer
- * to integrate the server with the GLib main loop.
- * In most cases the context argument should be #NULL.
- * If called twice for the same context, does nothing the second
- * time. If called once with context A and once with context B,
- * context B replaces context A as the context monitoring the
- * connection.
- */
-export function dbus_server_setup_with_g_main(server: unknown, context: GLib.MainContext): void;
-/**
  * Removes a device event listener from the registry's listener queue,
  *            ceasing notification of events of the specified type.
  */
@@ -119,10 +99,6 @@ export function generate_keyboard_event(keyval: number, keystring: string | null
  *              abs = absolute motion; rel = relative motion.
  */
 export function generate_mouse_event(x: number, y: number, name: string): boolean;
-/**
- * 
- */
-export function get_a11y_bus(): DBus.Connection;
 /**
  * Gets the virtual desktop indicated by index @i.
  * NOTE: currently multiple virtual desktops are not implemented;
@@ -548,357 +524,345 @@ export enum KeyListenerSyncType {
     CANCONSUME = 2,
     ALL_WINDOWS = 4,
 }
-export class Accessible  {constructor(config?: properties);
-readonly accessible_parent: Accessible;
-readonly children: object[];
-readonly role: Role;
-readonly interfaces: number;
-readonly name: string;
-readonly description: string;
-readonly states: StateSet;
-readonly attributes: GLib.HashTable;
-readonly cached_properties: number;
-readonly priv: AccessiblePrivate;
-clear_cache(): void;
-get_accessible_id(): string;
-get_action(): Action;
-get_action_iface(): Action;
-get_application(): Accessible;
-get_atspi_version(): string;
-get_attributes(): GLib.HashTable;
-get_attributes_as_array(): string[];
-get_child_at_index(child_index: number): Accessible;
-get_child_count(): number;
-get_collection(): Collection;
-get_collection_iface(): Collection;
-get_component(): Component;
-get_component_iface(): Component;
-get_description(): string;
-get_document(): Document;
-get_document_iface(): Document;
-get_editable_text(): EditableText;
-get_editable_text_iface(): EditableText;
-get_hyperlink(): Hyperlink;
-get_hypertext(): Hypertext;
-get_hypertext_iface(): Hypertext;
-get_id(): number;
-get_image(): Image;
-get_image_iface(): Image;
-get_index_in_parent(): number;
-get_interfaces(): string[];
-get_localized_role_name(): string;
-get_name(): string;
-get_object_locale(): string;
-get_parent(): Accessible | null;
-get_process_id(): number;
-get_relation_set(): Relation[];
-get_role(): Role;
-get_role_name(): string;
-get_selection(): Selection;
-get_selection_iface(): Selection;
-get_state_set(): StateSet;
-get_table(): Table;
-get_table_cell(): TableCell;
-get_table_iface(): Table;
-get_text(): Text;
-get_text_iface(): Text;
-get_toolkit_name(): string;
-get_toolkit_version(): string;
-get_value(): Value;
-get_value_iface(): Value;
-set_cache_mask(mask: Cache): void;
+export class Accessible  {
+    constructor(config?: properties);
+    readonly accessible_parent: Accessible;
+    readonly children: object[];
+    readonly role: Role;
+    readonly interfaces: number;
+    readonly name: string;
+    readonly description: string;
+    readonly states: StateSet;
+    readonly attributes: GLib.HashTable;
+    readonly cached_properties: number;
+    readonly priv: AccessiblePrivate;
+    clear_cache(): void;
+    get_accessible_id(): string;
+    get_action(): Action;
+    get_action_iface(): Action;
+    get_application(): Accessible;
+    get_atspi_version(): string;
+    get_attributes(): GLib.HashTable;
+    get_attributes_as_array(): string[];
+    get_child_at_index(child_index: number): Accessible;
+    get_child_count(): number;
+    get_collection(): Collection;
+    get_collection_iface(): Collection;
+    get_component(): Component;
+    get_component_iface(): Component;
+    get_description(): string;
+    get_document(): Document;
+    get_document_iface(): Document;
+    get_editable_text(): EditableText;
+    get_editable_text_iface(): EditableText;
+    get_hyperlink(): Hyperlink;
+    get_hypertext(): Hypertext;
+    get_hypertext_iface(): Hypertext;
+    get_id(): number;
+    get_image(): Image;
+    get_image_iface(): Image;
+    get_index_in_parent(): number;
+    get_interfaces(): string[];
+    get_localized_role_name(): string;
+    get_name(): string;
+    get_object_locale(): string;
+    get_parent(): Accessible | null;
+    get_process_id(): number;
+    get_relation_set(): Relation[];
+    get_role(): Role;
+    get_role_name(): string;
+    get_selection(): Selection;
+    get_selection_iface(): Selection;
+    get_state_set(): StateSet;
+    get_table(): Table;
+    get_table_cell(): TableCell;
+    get_table_iface(): Table;
+    get_text(): Text;
+    get_text_iface(): Text;
+    get_toolkit_name(): string;
+    get_toolkit_version(): string;
+    get_value(): Value;
+    get_value_iface(): Value;
+    set_cache_mask(mask: Cache): void;
 }
-export class Application  {constructor(config?: properties);
-readonly hash: GLib.HashTable;
-readonly bus_name: string;
-readonly bus: DBus.Connection;
-readonly root: object;
-readonly cache: Cache;
-readonly toolkit_name: string;
-readonly toolkit_version: string;
-readonly atspi_version: string;
-readonly time_added: object;
+export class Application  {
+    constructor(config?: properties);
+    readonly hash: GLib.HashTable;
+    readonly bus_name: string;
+    readonly bus: DBus.Connection;
+    readonly root: object;
+    readonly cache: Cache;
+    readonly toolkit_name: string;
+    readonly toolkit_version: string;
+    readonly atspi_version: string;
+    readonly time_added: object;
 }
-export class DeviceListener extends GObject.Object {constructor(config?: properties);
-static new_simple(callback: DeviceListenerSimpleCB, callback_destroyed: GLib.DestroyNotify): DeviceListener;
-add_callback(callback: DeviceListenerCB, callback_destroyed: GLib.DestroyNotify, user_data: object | null): void;
-remove_callback(callback: DeviceListenerCB): void;
-vfunc_device_event(event: DeviceEvent): boolean;
+export class DeviceListener extends GObject.Object {
+    constructor(config?: properties);
+    static new_simple(callback: DeviceListenerSimpleCB, callback_destroyed: GLib.DestroyNotify): DeviceListener;
+    add_callback(callback: DeviceListenerCB, callback_destroyed: GLib.DestroyNotify, user_data: object | null): void;
+    remove_callback(callback: DeviceListenerCB): void;
+    vfunc_device_event(event: DeviceEvent): boolean;
 }
-export class EventListener extends GObject.Object {constructor(config?: properties);
-static new_simple(callback: EventListenerSimpleCB, callback_destroyed: GLib.DestroyNotify): EventListener;
-deregister(event_type: string): boolean;
-register(event_type: string): boolean;
-register_full(event_type: string, properties: string[] | null): boolean;
-static deregister_from_callback(callback: EventListenerCB, user_data: object | null, event_type: string): boolean;
-static deregister_no_data(callback: EventListenerSimpleCB, event_type: string): boolean;
-static register_from_callback(callback: EventListenerCB, user_data: object | null, callback_destroyed: GLib.DestroyNotify, event_type: string): boolean;
-static register_from_callback_full(callback: EventListenerCB | null, user_data: object | null, callback_destroyed: GLib.DestroyNotify, event_type: string, properties: string[]): boolean;
-static register_no_data(callback: EventListenerSimpleCB, callback_destroyed: GLib.DestroyNotify, event_type: string): boolean;
+export class EventListener extends GObject.Object {
+    constructor(config?: properties);
+    static new_simple(callback: EventListenerSimpleCB, callback_destroyed: GLib.DestroyNotify): EventListener;
+    deregister(event_type: string): boolean;
+    register(event_type: string): boolean;
+    register_full(event_type: string, properties: string[] | null): boolean;
+    static deregister_from_callback(callback: EventListenerCB, user_data: object | null, event_type: string): boolean;
+    static register_from_callback(callback: EventListenerCB, user_data: object | null, callback_destroyed: GLib.DestroyNotify, event_type: string): boolean;
+    static register_from_callback_full(callback: EventListenerCB | null, user_data: object | null, callback_destroyed: GLib.DestroyNotify, event_type: string, properties: string[]): boolean;
 }
-export class Hyperlink  {constructor(config?: properties);
-get_end_index(): number;
-get_index_range(): Range;
-get_n_anchors(): number;
-get_object(i: number): Accessible;
-get_start_index(): number;
-get_uri(i: number): string;
-is_valid(): boolean;
+export class Hyperlink  {
+    constructor(config?: properties);
+    get_end_index(): number;
+    get_index_range(): Range;
+    get_n_anchors(): number;
+    get_object(i: number): Accessible;
+    get_start_index(): number;
+    get_uri(i: number): string;
+    is_valid(): boolean;
 }
-export class MatchRule extends GObject.Object {constructor(config?: properties);
+export class MatchRule extends GObject.Object {
+    constructor(config?: properties);
 }
-export class Object  {constructor(config?: properties);
-readonly app: Application;
-readonly path: string;
+export class Object  {
+    constructor(config?: properties);
+    readonly app: Application;
+    readonly path: string;
 }
-export class Relation  {constructor(config?: properties);
-readonly relation_type: RelationType;
-readonly targets: object[];
-get_n_targets(): number;
-get_relation_type(): RelationType;
-get_target(i: number): Accessible;
+export class Relation  {
+    constructor(config?: properties);
+    readonly relation_type: RelationType;
+    readonly targets: object[];
+    get_n_targets(): number;
+    get_relation_type(): RelationType;
+    get_target(i: number): Accessible;
 }
-export class StateSet extends GObject.Object {constructor(config?: properties);
-add(state: StateType): void;
-compare(set2: StateSet): StateSet;
-contains(state: StateType): boolean;
-equals(set2: StateSet): boolean;
-get_states(): StateType[];
-is_empty(): boolean;
-remove(state: StateType): void;
-set_by_name(name: string, enabled: boolean): void;
+export class StateSet extends GObject.Object {
+    constructor(config?: properties);
+    add(state: StateType): void;
+    compare(set2: StateSet): StateSet;
+    contains(state: StateType): boolean;
+    equals(set2: StateSet): boolean;
+    get_states(): StateType[];
+    is_empty(): boolean;
+    remove(state: StateType): void;
+    set_by_name(name: string, enabled: boolean): void;
 }
-export class AccessibleClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly region_changed: unknown;
+export class AccessiblePrivate  {
+    constructor(config?: properties);
 }
-export class AccessiblePrivate  {constructor(config?: properties);
+export class DeviceEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    id: number;
+    hw_code: number;
+    modifiers: number;
+    timestamp: number;
+    event_string: string;
+    is_text: boolean;
 }
-export class ApplicationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class Event  {
+    constructor(config?: properties);
+    type: string;
+    source: Accessible;
+    detail1: number;
+    detail2: number;
+    any_data: GObject.Value;
+    sender: Accessible;
+    static main(): void;
+    static quit(): void;
 }
-export class DeviceEvent  {constructor(config?: properties);
-type: EventType;
-id: number;
-hw_code: number;
-modifiers: number;
-timestamp: number;
-event_string: string;
-is_text: boolean;
+export class EventListenerMode  {
+    constructor(config?: properties);
+    synchronous: boolean;
+    preemptive: boolean;
+    global: boolean;
 }
-export class DeviceListenerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly device_event: unknown;
+export class KeyDefinition  {
+    constructor(config?: properties);
+    keycode: number;
+    keysym: number;
+    keystring: string;
+    unused: number;
 }
-export class Event  {constructor(config?: properties);
-type: string;
-source: Accessible;
-detail1: number;
-detail2: number;
-any_data: GObject.Value;
-sender: Accessible;
-static main(): void;
-static quit(): void;
+export class KeySet  {
+    constructor(config?: properties);
+    keysyms: number;
+    keycodes: number;
+    keystrings: string;
+    len: number;
 }
-export class EventListenerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class Point  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    copy(): Point;
 }
-export class EventListenerMode  {constructor(config?: properties);
-synchronous: boolean;
-preemptive: boolean;
-global: boolean;
+export class Range  {
+    constructor(config?: properties);
+    start_offset: number;
+    end_offset: number;
+    copy(): Range;
 }
-export class HyperlinkClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
+export class Rect  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    copy(): Rect;
 }
-export class KeyDefinition  {constructor(config?: properties);
-keycode: number;
-keysym: number;
-keystring: string;
-unused: number;
-}
-export class KeySet  {constructor(config?: properties);
-keysyms: number;
-keycodes: number;
-keystrings: string;
-len: unknown;
-}
-export class MatchRuleClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ObjectClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class Point  {constructor(config?: properties);
-x: number;
-y: number;
-copy(): Point;
-}
-export class Range  {constructor(config?: properties);
-start_offset: number;
-end_offset: number;
-copy(): Range;
-}
-export class Rect  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-copy(): Rect;
-}
-export class RelationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class StateSetClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class TextRange  {constructor(config?: properties);
-start_offset: number;
-end_offset: number;
-content: string;
+export class TextRange  {
+    constructor(config?: properties);
+    start_offset: number;
+    end_offset: number;
+    content: string;
 }
 export interface Action  {
-do_action(i: number): boolean;
-get_action_description(i: number): string;
-get_action_name(i: number): string;
-get_description(i: number): string;
-get_key_binding(i: number): string;
-get_localized_name(i: number): string;
-get_n_actions(): number;
-get_name(i: number): string;
+    do_action(i: number): boolean;
+    get_action_description(i: number): string;
+    get_action_name(i: number): string;
+    get_description(i: number): string;
+    get_key_binding(i: number): string;
+    get_localized_name(i: number): string;
+    get_n_actions(): number;
+    get_name(i: number): string;
 }
 export interface Collection  {
-get_active_descendant(): Accessible;
-get_matches(rule: MatchRule, sortby: CollectionSortOrder, count: number, traverse: boolean): Accessible[];
-get_matches_from(current_object: Accessible, rule: MatchRule, sortby: CollectionSortOrder, tree: CollectionTreeTraversalType, count: number, traverse: boolean): Accessible[];
-get_matches_to(current_object: Accessible, rule: MatchRule, sortby: CollectionSortOrder, tree: CollectionTreeTraversalType, limit_scope: boolean, count: number, traverse: boolean): Accessible[];
-is_ancestor_of(test: Accessible): boolean;
+    get_active_descendant(): Accessible;
+    get_matches(rule: MatchRule, sortby: CollectionSortOrder, count: number, traverse: boolean): Accessible[];
+    get_matches_from(current_object: Accessible, rule: MatchRule, sortby: CollectionSortOrder, tree: CollectionTreeTraversalType, count: number, traverse: boolean): Accessible[];
+    get_matches_to(current_object: Accessible, rule: MatchRule, sortby: CollectionSortOrder, tree: CollectionTreeTraversalType, limit_scope: boolean, count: number, traverse: boolean): Accessible[];
+    is_ancestor_of(test: Accessible): boolean;
 }
 export interface Component  {
-contains(x: number, y: number, ctype: CoordType): boolean;
-get_accessible_at_point(x: number, y: number, ctype: CoordType): Accessible | null;
-get_alpha(): number;
-get_extents(ctype: CoordType): Rect;
-get_layer(): ComponentLayer;
-get_mdi_z_order(): unknown;
-get_position(ctype: CoordType): Point;
-get_size(): Point;
-grab_focus(): boolean;
-scroll_to(type: ScrollType): boolean;
-scroll_to_point(coords: CoordType, x: number, y: number): boolean;
-set_extents(x: number, y: number, width: number, height: number, ctype: CoordType): boolean;
-set_position(x: number, y: number, ctype: CoordType): boolean;
-set_size(width: number, height: number): boolean;
+    contains(x: number, y: number, ctype: CoordType): boolean;
+    get_accessible_at_point(x: number, y: number, ctype: CoordType): Accessible | null;
+    get_alpha(): number;
+    get_extents(ctype: CoordType): Rect;
+    get_layer(): ComponentLayer;
+    get_mdi_z_order(): number;
+    get_position(ctype: CoordType): Point;
+    get_size(): Point;
+    grab_focus(): boolean;
+    scroll_to(type: ScrollType): boolean;
+    scroll_to_point(coords: CoordType, x: number, y: number): boolean;
+    set_extents(x: number, y: number, width: number, height: number, ctype: CoordType): boolean;
+    set_position(x: number, y: number, ctype: CoordType): boolean;
+    set_size(width: number, height: number): boolean;
 }
 export interface Document  {
-get_attribute_value(attribute: string): string;
-get_attributes(): GLib.HashTable;
-get_current_page_number(): number;
-get_document_attribute_value(attribute: string): string;
-get_document_attributes(): GLib.HashTable;
-get_locale(): string;
-get_page_count(): number;
+    get_attribute_value(attribute: string): string;
+    get_attributes(): GLib.HashTable;
+    get_current_page_number(): number;
+    get_document_attribute_value(attribute: string): string;
+    get_document_attributes(): GLib.HashTable;
+    get_locale(): string;
+    get_page_count(): number;
 }
 export interface EditableText  {
-copy_text(start_pos: number, end_pos: number): boolean;
-cut_text(start_pos: number, end_pos: number): boolean;
-delete_text(start_pos: number, end_pos: number): boolean;
-insert_text(position: number, text: string, length: number): boolean;
-paste_text(position: number): boolean;
-set_text_contents(new_contents: string): boolean;
+    copy_text(start_pos: number, end_pos: number): boolean;
+    cut_text(start_pos: number, end_pos: number): boolean;
+    delete_text(start_pos: number, end_pos: number): boolean;
+    insert_text(position: number, text: string, length: number): boolean;
+    paste_text(position: number): boolean;
+    set_text_contents(new_contents: string): boolean;
 }
 export interface Hypertext  {
-get_link(link_index: number): Hyperlink | null;
-get_link_index(character_offset: number): number;
-get_n_links(): number;
+    get_link(link_index: number): Hyperlink | null;
+    get_link_index(character_offset: number): number;
+    get_n_links(): number;
 }
 export interface Image  {
-get_image_description(): string;
-get_image_extents(ctype: CoordType): Rect;
-get_image_locale(): string;
-get_image_position(ctype: CoordType): Point;
-get_image_size(): Point;
+    get_image_description(): string;
+    get_image_extents(ctype: CoordType): Rect;
+    get_image_locale(): string;
+    get_image_position(ctype: CoordType): Point;
+    get_image_size(): Point;
 }
 export interface Selection  {
-clear_selection(): boolean;
-deselect_child(child_index: number): boolean;
-deselect_selected_child(selected_child_index: number): boolean;
-get_n_selected_children(): number;
-get_selected_child(selected_child_index: number): Accessible;
-is_child_selected(child_index: number): boolean;
-select_all(): boolean;
-select_child(child_index: number): boolean;
+    clear_selection(): boolean;
+    deselect_child(child_index: number): boolean;
+    deselect_selected_child(selected_child_index: number): boolean;
+    get_n_selected_children(): number;
+    get_selected_child(selected_child_index: number): Accessible;
+    is_child_selected(child_index: number): boolean;
+    select_all(): boolean;
+    select_child(child_index: number): boolean;
 }
 export interface Table  {
-add_column_selection(column: number): boolean;
-add_row_selection(row: number): boolean;
-get_accessible_at(row: number, column: number): Accessible;
-get_caption(): Accessible;
-get_column_at_index(index: number): number;
-get_column_description(column: number): string;
-get_column_extent_at(row: number, column: number): number;
-get_column_header(column: number): Accessible;
-get_index_at(row: number, column: number): number;
-get_n_columns(): number;
-get_n_rows(): number;
-get_n_selected_columns(): number;
-get_n_selected_rows(): number;
-get_row_at_index(index: number): number;
-get_row_column_extents_at_index(index: number): [boolean, number,number,number,number,boolean];
-get_row_description(row: number): string;
-get_row_extent_at(row: number, column: number): number;
-get_row_header(row: number): Accessible;
-get_selected_columns(): number[];
-get_selected_rows(): number[];
-get_summary(): Accessible;
-is_column_selected(column: number): boolean;
-is_row_selected(row: number): boolean;
-is_selected(row: number, column: number): boolean;
-remove_column_selection(column: number): boolean;
-remove_row_selection(row: number): boolean;
+    add_column_selection(column: number): boolean;
+    add_row_selection(row: number): boolean;
+    get_accessible_at(row: number, column: number): Accessible;
+    get_caption(): Accessible;
+    get_column_at_index(index: number): number;
+    get_column_description(column: number): string;
+    get_column_extent_at(row: number, column: number): number;
+    get_column_header(column: number): Accessible;
+    get_index_at(row: number, column: number): number;
+    get_n_columns(): number;
+    get_n_rows(): number;
+    get_n_selected_columns(): number;
+    get_n_selected_rows(): number;
+    get_row_at_index(index: number): number;
+    get_row_column_extents_at_index(index: number): [boolean, number,number,number,number,boolean];
+    get_row_description(row: number): string;
+    get_row_extent_at(row: number, column: number): number;
+    get_row_header(row: number): Accessible;
+    get_selected_columns(): number[];
+    get_selected_rows(): number[];
+    get_summary(): Accessible;
+    is_column_selected(column: number): boolean;
+    is_row_selected(row: number): boolean;
+    is_selected(row: number, column: number): boolean;
+    remove_column_selection(column: number): boolean;
+    remove_row_selection(row: number): boolean;
 }
 export interface TableCell  {
-get_column_header_cells(): Accessible[];
-get_column_index(): number;
-get_column_span(): number;
-get_position(): [number, number,number];
-get_row_column_span(): [number,number,number,number];
-get_row_header_cells(): Accessible[];
-get_row_span(): number;
-get_table(): Accessible;
+    get_column_header_cells(): Accessible[];
+    get_column_index(): number;
+    get_column_span(): number;
+    get_position(): [number, number,number];
+    get_row_column_span(): [number,number,number,number];
+    get_row_header_cells(): Accessible[];
+    get_row_span(): number;
+    get_table(): Accessible;
 }
 export interface Text  {
-add_selection(start_offset: number, end_offset: number): boolean;
-get_attribute_run(offset: number, include_defaults: boolean): [GLib.HashTable, number,number];
-get_attribute_value(offset: number, attribute_name: string): string | null;
-get_attributes(offset: number): [GLib.HashTable, number,number];
-get_bounded_ranges(x: number, y: number, width: number, height: number, type: CoordType, clipTypeX: TextClipType, clipTypeY: TextClipType): TextRange[];
-get_caret_offset(): number;
-get_character_at_offset(offset: number): number;
-get_character_count(): number;
-get_character_extents(offset: number, type: CoordType): Rect;
-get_default_attributes(): GLib.HashTable;
-get_n_selections(): number;
-get_offset_at_point(x: number, y: number, type: CoordType): number;
-get_range_extents(start_offset: number, end_offset: number, type: CoordType): Rect;
-get_selection(selection_num: number): Range;
-get_string_at_offset(offset: number, granularity: TextGranularity): TextRange;
-get_text(start_offset: number, end_offset: number): string;
-get_text_after_offset(offset: number, type: TextBoundaryType): TextRange;
-get_text_at_offset(offset: number, type: TextBoundaryType): TextRange;
-get_text_attribute_value(offset: number, attribute_name: string): string | null;
-get_text_attributes(offset: number): [GLib.HashTable, number,number];
-get_text_before_offset(offset: number, type: TextBoundaryType): TextRange;
-remove_selection(selection_num: number): boolean;
-scroll_substring_to(start_offset: number, end_offset: number, type: ScrollType): boolean;
-scroll_substring_to_point(start_offset: number, end_offset: number, coords: CoordType, x: number, y: number): boolean;
-set_caret_offset(new_offset: number): boolean;
-set_selection(selection_num: number, start_offset: number, end_offset: number): boolean;
+    add_selection(start_offset: number, end_offset: number): boolean;
+    get_attribute_run(offset: number, include_defaults: boolean): [GLib.HashTable, number,number];
+    get_attribute_value(offset: number, attribute_name: string): string | null;
+    get_attributes(offset: number): [GLib.HashTable, number,number];
+    get_bounded_ranges(x: number, y: number, width: number, height: number, type: CoordType, clipTypeX: TextClipType, clipTypeY: TextClipType): TextRange[];
+    get_caret_offset(): number;
+    get_character_at_offset(offset: number): number;
+    get_character_count(): number;
+    get_character_extents(offset: number, type: CoordType): Rect;
+    get_default_attributes(): GLib.HashTable;
+    get_n_selections(): number;
+    get_offset_at_point(x: number, y: number, type: CoordType): number;
+    get_range_extents(start_offset: number, end_offset: number, type: CoordType): Rect;
+    get_selection(selection_num: number): Range;
+    get_string_at_offset(offset: number, granularity: TextGranularity): TextRange;
+    get_text(start_offset: number, end_offset: number): string;
+    get_text_after_offset(offset: number, type: TextBoundaryType): TextRange;
+    get_text_at_offset(offset: number, type: TextBoundaryType): TextRange;
+    get_text_attribute_value(offset: number, attribute_name: string): string | null;
+    get_text_attributes(offset: number): [GLib.HashTable, number,number];
+    get_text_before_offset(offset: number, type: TextBoundaryType): TextRange;
+    remove_selection(selection_num: number): boolean;
+    scroll_substring_to(start_offset: number, end_offset: number, type: ScrollType): boolean;
+    scroll_substring_to_point(start_offset: number, end_offset: number, coords: CoordType, x: number, y: number): boolean;
+    set_caret_offset(new_offset: number): boolean;
+    set_selection(selection_num: number, start_offset: number, end_offset: number): boolean;
 }
 export interface Value  {
-get_current_value(): number;
-get_maximum_value(): number;
-get_minimum_increment(): number;
-get_minimum_value(): number;
-set_current_value(new_value: number): boolean;
+    get_current_value(): number;
+    get_maximum_value(): number;
+    get_minimum_increment(): number;
+    get_minimum_value(): number;
+    set_current_value(new_value: number): boolean;
 }

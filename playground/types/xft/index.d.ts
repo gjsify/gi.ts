@@ -7,15 +7,20 @@ import * as xlib from "xlib";
  * xft.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * 
  */
 export function init(): void;
-export class Color  {constructor(config?: properties);
+export class Color  {
+    constructor(config?: properties);
 }
-export class Draw  {constructor(config?: properties);
+export class Draw  {
+    constructor(config?: properties);
 }
-export class Font  {constructor(config?: properties);
+export class Font  {
+    constructor(config?: properties);
 }
-export class GlyphSpec  {constructor(config?: properties);
+export class GlyphSpec  {
+    constructor(config?: properties);
 }

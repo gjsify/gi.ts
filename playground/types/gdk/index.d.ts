@@ -10,6 +10,7 @@ import * as Gdk from "gdk";
  * gdk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type EventFunc = (event: Event, data: object | null) => void;
 export type FilterFunc = (xevent: XEvent, event: Event, data: object | null) => FilterReturn;
 export type SeatGrabPrepareFunc = (seat: Seat, window: Window, user_data: object | null) => void;
@@ -2837,41 +2838,6 @@ export function pango_context_get_for_display(display: Display): Pango.Context;
  */
 export function pango_context_get_for_screen(screen: Screen): Pango.Context;
 /**
- * Obtains a clip region which contains the areas where the given ranges
- * of text would be drawn. @x_origin and @y_origin are the top left point
- * to center the layout. @index_ranges should contain
- * ranges of bytes in the layout’s text.
- * Note that the regions returned correspond to logical extents of the te
- * xt
- * ranges, not ink extents. So the drawn layout may in fact touch areas o
- * ut of
- * the clip region.  The clip region is mainly useful for highlightling p
- * arts
- * of text, such as when text is selected.
- */
-export function pango_layout_get_clip_region(layout: Pango.Layout, x_origin: number, y_origin: number, index_ranges: number, n_ranges: number): cairo.Region;
-/**
- * Obtains a clip region which contains the areas where the given
- * ranges of text would be drawn. @x_origin and @y_origin are the top lef
- * t
- * position of the layout. @index_ranges
- * should contain ranges of bytes in the layout’s text. The clip
- * region will include space to the left or right of the line (to the
- * layout bounding box) if you have indexes above or below the indexes
- * contained inside the line. This is to draw the selection all the way
- * to the side of the layout. However, the clip region is in line coordin
- * ates,
- * not layout coordinates.
- * Note that the regions returned correspond to logical extents of the te
- * xt
- * ranges, not ink extents. So the drawn line may in fact touch areas out
- *  of
- * the clip region.  The clip region is mainly useful for highlightling p
- * arts
- * of text, such as when text is selected.
- */
-export function pango_layout_line_get_clip_region(line: Pango.LayoutLine, x_origin: number, y_origin: number, index_ranges: number[], n_ranges: number): cairo.Region;
-/**
  * Parse command line arguments, and store for future
  * use by calls to gdk_display_open().
  * Any arguments used by GDK are removed from the array and @argc and @ar
@@ -2969,10 +2935,6 @@ export function pointer_ungrab(time_: number): void;
  */
 export function pre_parse_libgtk_only(): void;
 /**
- * Changes the contents of a property on a window.
- */
-export function property_change(window: Window, property: Atom, type: Atom, format: number, mode: PropMode, data: number, nelements: number): void;
-/**
  * Deletes a property from a window.
  */
 export function property_delete(window: Window, property: Atom): void;
@@ -3031,13 +2993,6 @@ export function selection_owner_set(owner: Window | null, selection: Atom, time_
  * ction.
  */
 export function selection_owner_set_for_display(display: Display, owner: Window | null, selection: Atom, time_: number, send_event: boolean): boolean;
-/**
- * Retrieves selection data that was stored by the selection
- * data in response to a call to gdk_selection_convert(). This function
- * will not be used by applications, who should use the #GtkClipboard
- * API instead.
- */
-export function selection_property_get(requestor: Window, data: number, prop_type: Atom, prop_format: number): number;
 /**
  * Sends a response to SelectionRequest event.
  */
@@ -3146,12 +3101,6 @@ export function test_simulate_key(window: Window, x: number, y: number, keyval: 
  */
 export function text_property_to_utf8_list_for_display(display: Display, encoding: Atom, format: number, text: number[], length: number): [number, string[]];
 /**
- * A wrapper for the common usage of gdk_threads_add_idle_full()
- * assigning the default priority, #G_PRIORITY_DEFAULT_IDLE.
- * See gdk_threads_add_idle_full().
- */
-export function threads_add_idle(_function: GLib.SourceFunc, data: object | null): number;
-/**
  * Adds a function to be called whenever there are no higher priority
  * events pending.  If the function returns %FALSE it is automatically
  * removed from the list of event sources and will not be called again.
@@ -3189,12 +3138,6 @@ export function threads_add_idle(_function: GLib.SourceFunc, data: object | null
  * ]|
  */
 export function threads_add_idle_full(priority: number, _function: GLib.SourceFunc, data: object | null, notify: GLib.DestroyNotify | null): number;
-/**
- * A wrapper for the common usage of gdk_threads_add_timeout_full()
- * assigning the default priority, #G_PRIORITY_DEFAULT.
- * See gdk_threads_add_timeout_full().
- */
-export function threads_add_timeout(interval: number, _function: GLib.SourceFunc, data: object | null): number;
 /**
  * Sets a function to be called at regular intervals holding the GDK lock
  * ,
@@ -3243,13 +3186,6 @@ export function threads_add_timeout(interval: number, _function: GLib.SourceFunc
  */
 export function threads_add_timeout_full(priority: number, interval: number, _function: GLib.SourceFunc, data: object | null, notify: GLib.DestroyNotify | null): number;
 /**
- * A wrapper for the common usage of gdk_threads_add_timeout_seconds_full
- * ()
- * assigning the default priority, #G_PRIORITY_DEFAULT.
- * For details, see gdk_threads_add_timeout_full().
- */
-export function threads_add_timeout_seconds(interval: number, _function: GLib.SourceFunc, data: object | null): number;
-/**
  * A variant of gdk_threads_add_timeout_full() with second-granularity.
  * See g_timeout_add_seconds_full() for a discussion of why it is
  * a good idea to use this function if you don’t need finer granularity.
@@ -3273,26 +3209,6 @@ export function threads_init(): void;
  * Leaves a critical region begun with gdk_threads_enter().
  */
 export function threads_leave(): void;
-/**
- * Allows the application to replace the standard method that
- * GDK uses to protect its data structures. Normally, GDK
- * creates a single #GMutex that is locked by gdk_threads_enter(),
- * and released by gdk_threads_leave(); using this function an
- * application provides, instead, a function @enter_fn that is
- * called by gdk_threads_enter() and a function @leave_fn that is
- * called by gdk_threads_leave().
- * The functions must provide at least same locking functionality
- * as the default implementation, but can also do extra application
- * specific processing.
- * As an example, consider an application that has its own recursive
- * lock that when held, holds the GTK+ lock as well. When GTK+ unlocks
- * the GTK+ lock when entering a recursive main loop, the application
- * must temporarily release its lock as well.
- * Most threaded GTK+ apps won’t need to use this method.
- * This method must be called before gdk_threads_init(), and cannot
- * be called multiple times.
- */
-export function threads_set_lock_functions(enter_fn: GObject.Callback, leave_fn: GObject.Callback): void;
 /**
  * Convert from a ISO10646 character to a key symbol.
  */
@@ -3842,890 +3758,913 @@ export enum WindowState {
     LEFT_TILED = 32768,
     LEFT_RESIZABLE = 65536,
 }
-export class AppLaunchContext extends Gio.AppLaunchContext {constructor(config?: properties);
-display: Display;
-set_desktop(desktop: number): void;
-set_display(display: Display): void;
-set_icon(icon: Gio.Icon | null): void;
-set_icon_name(icon_name: string | null): void;
-set_screen(screen: Screen): void;
-set_timestamp(timestamp: number): void;
+export class AppLaunchContext extends Gio.AppLaunchContext {
+    constructor(config?: properties);
+    display: Display;
+    set_desktop(desktop: number): void;
+    set_display(display: Display): void;
+    set_icon(icon: Gio.Icon | null): void;
+    set_icon_name(icon_name: string | null): void;
+    set_screen(screen: Screen): void;
+    set_timestamp(timestamp: number): void;
 }
-export class Cursor extends GObject.Object {constructor(config?: properties);
-cursor_type: CursorType;
-display: Display;static new_for_display(display: Display, cursor_type: CursorType): Cursor;
-static new_from_name(display: Display, name: string): Cursor | null;
-static new_from_pixbuf(display: Display, pixbuf: GdkPixbuf.Pixbuf, x: number, y: number): Cursor;
-static new_from_surface(display: Display, surface: cairo.Surface, x: number, y: number): Cursor;
-get_cursor_type(): CursorType;
-get_display(): Display;
-get_image(): GdkPixbuf.Pixbuf | null;
-get_surface(): [cairo.Surface | null, number | null,number | null];
-ref(): Cursor;
-ref(...args: never[]): never;
-unref(): void;
+export class Cursor extends GObject.Object {
+    constructor(config?: properties);
+    cursor_type: CursorType;
+    display: Display;static new_for_display(display: Display, cursor_type: CursorType): Cursor;
+    static new_from_name(display: Display, name: string): Cursor | null;
+    static new_from_pixbuf(display: Display, pixbuf: GdkPixbuf.Pixbuf, x: number, y: number): Cursor;
+    static new_from_surface(display: Display, surface: cairo.Surface, x: number, y: number): Cursor;
+    get_cursor_type(): CursorType;
+    get_display(): Display;
+    get_image(): GdkPixbuf.Pixbuf | null;
+    get_surface(): [cairo.Surface | null, number | null,number | null];
+    ref(): Cursor;
+    ref(...args: never[]): never;
+    unref(): void;
 }
-export class Device  {constructor(config?: properties);
-readonly associated_device: Device;
-readonly axes: AxisFlags;
-device_manager: DeviceManager;
-display: Display;
-has_cursor: boolean;
-input_mode: InputMode;
-input_source: InputSource;
-readonly n_axes: number;
-name: string;
-num_touches: number;
-product_id: string;
-seat: Seat;
-readonly tool: DeviceTool;
-type: DeviceType;
-vendor_id: string;
-get_associated_device(): Device | null;
-get_axes(): AxisFlags;
-get_axis(axes: number[], use: AxisUse): [boolean, number];
-get_axis_use(index_: number): AxisUse;
-get_axis_value(axes: number[], axis_label: Atom): [boolean, number];
-get_device_type(): DeviceType;
-get_display(): Display;
-get_has_cursor(): boolean;
-get_history(window: Window, start: number, stop: number): [boolean, TimeCoord[] | null,number | null];
-get_key(index_: number): [boolean, number,ModifierType];
-get_last_event_window(): Window | null;
-get_mode(): InputMode;
-get_n_axes(): number;
-get_n_keys(): number;
-get_name(): string;
-get_position(): [Screen | null,number | null,number | null];
-get_position_double(): [Screen | null,number | null,number | null];
-get_product_id(): string | null;
-get_seat(): Seat;
-get_source(): InputSource;
-get_state(window: Window, axes: number[] | null): [ModifierType | null];
-get_vendor_id(): string | null;
-get_window_at_position(): [Window | null, number | null,number | null];
-get_window_at_position_double(): [Window | null, number | null,number | null];
-grab(window: Window, grab_ownership: GrabOwnership, owner_events: boolean, event_mask: EventMask, cursor: Cursor | null, time_: number): GrabStatus;
-list_axes(): GLib.List;
-list_slave_devices(): GLib.List | null;
-set_axis_use(index_: number, use: AxisUse): void;
-set_key(index_: number, keyval: number, modifiers: ModifierType): void;
-set_mode(mode: InputMode): boolean;
-ungrab(time_: number): void;
-warp(screen: Screen, x: number, y: number): void;
-static free_history(events: TimeCoord[], n_events: number): void;
-static grab_info_libgtk_only(display: Display, device: Device): [boolean, Window,boolean];
+export class Device  {
+    constructor(config?: properties);
+    readonly associated_device: Device;
+    readonly axes: AxisFlags;
+    device_manager: DeviceManager;
+    display: Display;
+    has_cursor: boolean;
+    input_mode: InputMode;
+    input_source: InputSource;
+    readonly n_axes: number;
+    name: string;
+    num_touches: number;
+    product_id: string;
+    seat: Seat;
+    readonly tool: DeviceTool;
+    type: DeviceType;
+    vendor_id: string;
+    get_associated_device(): Device | null;
+    get_axes(): AxisFlags;
+    get_axis_use(index_: number): AxisUse;
+    get_device_type(): DeviceType;
+    get_display(): Display;
+    get_has_cursor(): boolean;
+    get_key(index_: number): [boolean, number,ModifierType];
+    get_last_event_window(): Window | null;
+    get_mode(): InputMode;
+    get_n_axes(): number;
+    get_n_keys(): number;
+    get_name(): string;
+    get_position(): [Screen | null,number | null,number | null];
+    get_position_double(): [Screen | null,number | null,number | null];
+    get_product_id(): string | null;
+    get_seat(): Seat;
+    get_source(): InputSource;
+    get_vendor_id(): string | null;
+    get_window_at_position(): [Window | null, number | null,number | null];
+    get_window_at_position_double(): [Window | null, number | null,number | null];
+    grab(window: Window, grab_ownership: GrabOwnership, owner_events: boolean, event_mask: EventMask, cursor: Cursor | null, time_: number): GrabStatus;
+    list_axes(): GLib.List;
+    list_slave_devices(): GLib.List | null;
+    set_axis_use(index_: number, use: AxisUse): void;
+    set_key(index_: number, keyval: number, modifiers: ModifierType): void;
+    set_mode(mode: InputMode): boolean;
+    ungrab(time_: number): void;
+    warp(screen: Screen, x: number, y: number): void;
+    static grab_info_libgtk_only(display: Display, device: Device): [boolean, Window,boolean];
 }
-export class DeviceManager  {constructor(config?: properties);
-display: Display;
-get_client_pointer(): Device;
-get_display(): Display | null;
-list_devices(type: DeviceType): GLib.List;
+export class DeviceManager  {
+    constructor(config?: properties);
+    display: Display;
+    get_client_pointer(): Device;
+    get_display(): Display | null;
+    list_devices(type: DeviceType): GLib.List;
 }
-export class DeviceTool  {constructor(config?: properties);
-axes: AxisFlags;
-hardware_id: number;
-serial: number;
-tool_type: DeviceToolType;
-get_hardware_id(): number;
-get_serial(): number;
-get_tool_type(): DeviceToolType;
+export class DeviceTool  {
+    constructor(config?: properties);
+    axes: AxisFlags;
+    hardware_id: number;
+    serial: number;
+    tool_type: DeviceToolType;
+    get_hardware_id(): number;
+    get_serial(): number;
+    get_tool_type(): DeviceToolType;
 }
-export class Display  {constructor(config?: properties);
-beep(): void;
-close(): void;
-device_is_grabbed(device: Device): boolean;
-flush(): void;
-get_app_launch_context(): AppLaunchContext;
-get_default_cursor_size(): number;
-get_default_group(): Window;
-get_default_screen(): Screen;
-get_default_seat(): Seat;
-get_device_manager(): DeviceManager | null;
-get_event(): Event | null;
-get_maximal_cursor_size(): [number,number];
-get_monitor(monitor_num: number): Monitor | null;
-get_monitor_at_point(x: number, y: number): Monitor;
-get_monitor_at_window(window: Window): Monitor;
-get_n_monitors(): number;
-get_n_screens(): number;
-get_name(): string;
-get_pointer(): [Screen | null,number | null,number | null,ModifierType | null];
-get_primary_monitor(): Monitor | null;
-get_screen(screen_num: number): Screen;
-get_window_at_pointer(): [Window | null, number | null,number | null];
-has_pending(): boolean;
-is_closed(): boolean;
-keyboard_ungrab(time_: number): void;
-list_devices(): GLib.List;
-list_seats(): GLib.List;
-notify_startup_complete(startup_id: string): void;
-peek_event(): Event | null;
-pointer_is_grabbed(): boolean;
-pointer_ungrab(time_: number): void;
-put_event(event: Event): void;
-request_selection_notification(selection: Atom): boolean;
-set_double_click_distance(distance: number): void;
-set_double_click_time(msec: number): void;
-store_clipboard(clipboard_window: Window, time_: number, targets: Atom[] | null, n_targets: number): void;
-supports_clipboard_persistence(): boolean;
-supports_composite(): boolean;
-supports_cursor_alpha(): boolean;
-supports_cursor_color(): boolean;
-supports_input_shapes(): boolean;
-supports_selection_notification(): boolean;
-supports_shapes(): boolean;
-sync(): void;
-warp_pointer(screen: Screen, x: number, y: number): void;
-static get_default(): Display | null;
-static open(display_name: string): Display | null;
-static open_default_libgtk_only(): Display | null;
+export class Display  {
+    constructor(config?: properties);
+    beep(): void;
+    close(): void;
+    device_is_grabbed(device: Device): boolean;
+    flush(): void;
+    get_app_launch_context(): AppLaunchContext;
+    get_default_cursor_size(): number;
+    get_default_group(): Window;
+    get_default_screen(): Screen;
+    get_default_seat(): Seat;
+    get_device_manager(): DeviceManager | null;
+    get_event(): Event | null;
+    get_maximal_cursor_size(): [number,number];
+    get_monitor(monitor_num: number): Monitor | null;
+    get_monitor_at_point(x: number, y: number): Monitor;
+    get_monitor_at_window(window: Window): Monitor;
+    get_n_monitors(): number;
+    get_n_screens(): number;
+    get_name(): string;
+    get_pointer(): [Screen | null,number | null,number | null,ModifierType | null];
+    get_primary_monitor(): Monitor | null;
+    get_screen(screen_num: number): Screen;
+    get_window_at_pointer(): [Window | null, number | null,number | null];
+    has_pending(): boolean;
+    is_closed(): boolean;
+    keyboard_ungrab(time_: number): void;
+    list_devices(): GLib.List;
+    list_seats(): GLib.List;
+    notify_startup_complete(startup_id: string): void;
+    peek_event(): Event | null;
+    pointer_is_grabbed(): boolean;
+    pointer_ungrab(time_: number): void;
+    put_event(event: Event): void;
+    request_selection_notification(selection: Atom): boolean;
+    set_double_click_distance(distance: number): void;
+    set_double_click_time(msec: number): void;
+    store_clipboard(clipboard_window: Window, time_: number, targets: Atom[] | null, n_targets: number): void;
+    supports_clipboard_persistence(): boolean;
+    supports_composite(): boolean;
+    supports_cursor_alpha(): boolean;
+    supports_cursor_color(): boolean;
+    supports_input_shapes(): boolean;
+    supports_selection_notification(): boolean;
+    supports_shapes(): boolean;
+    sync(): void;
+    warp_pointer(screen: Screen, x: number, y: number): void;
+    static get_default(): Display | null;
+    static open(display_name: string): Display | null;
+    static open_default_libgtk_only(): Display | null;
 }
-export class DisplayManager  {constructor(config?: properties);
-default_display: Display;
-get_default_display(): Display | null;
-list_displays(): string[];
-open_display(name: string): Display | null;
-set_default_display(display: Display): void;
-static get(): DisplayManager;
+export class DisplayManager  {
+    constructor(config?: properties);
+    default_display: Display;
+    get_default_display(): Display | null;
+    list_displays(): string[];
+    open_display(name: string): Display | null;
+    set_default_display(display: Display): void;
+    static get(): DisplayManager;
 }
-export class DragContext  {constructor(config?: properties);
-get_actions(): DragAction;
-get_dest_window(): Window;
-get_device(): Device;
-get_drag_window(): Window | null;
-get_protocol(): DragProtocol;
-get_selected_action(): DragAction;
-get_source_window(): Window;
-get_suggested_action(): DragAction;
-list_targets(): GLib.List;
-manage_dnd(ipc_window: Window, actions: DragAction): boolean;
-set_device(device: Device): void;
-set_hotspot(hot_x: number, hot_y: number): void;
+export class DragContext  {
+    constructor(config?: properties);
+    get_actions(): DragAction;
+    get_dest_window(): Window;
+    get_device(): Device;
+    get_drag_window(): Window | null;
+    get_protocol(): DragProtocol;
+    get_selected_action(): DragAction;
+    get_source_window(): Window;
+    get_suggested_action(): DragAction;
+    list_targets(): GLib.List;
+    manage_dnd(ipc_window: Window, actions: DragAction): boolean;
+    set_device(device: Device): void;
+    set_hotspot(hot_x: number, hot_y: number): void;
 }
-export class DrawingContext  {constructor(config?: properties);
-clip: cairo.Region;
-window: Window;
-get_cairo_context(): cairo.Context;
-get_clip(): cairo.Region | null;
-get_window(): Window;
-is_valid(): boolean;
+export class DrawingContext  {
+    constructor(config?: properties);
+    clip: cairo.Region;
+    window: Window;
+    get_cairo_context(): cairo.Context;
+    get_clip(): cairo.Region | null;
+    get_window(): Window;
+    is_valid(): boolean;
 }
-export class FrameClock  {constructor(config?: properties);
-begin_updating(): void;
-end_updating(): void;
-get_current_timings(): FrameTimings | null;
-get_frame_counter(): number;
-get_frame_time(): number;
-get_history_start(): number;
-get_refresh_info(base_time: number): [number | null,number];
-get_timings(frame_counter: number): FrameTimings | null;
-request_phase(phase: FrameClockPhase): void;
+export class FrameClock  {
+    constructor(config?: properties);
+    begin_updating(): void;
+    end_updating(): void;
+    get_current_timings(): FrameTimings | null;
+    get_frame_counter(): number;
+    get_frame_time(): number;
+    get_history_start(): number;
+    get_refresh_info(base_time: number): [number | null,number];
+    get_timings(frame_counter: number): FrameTimings | null;
+    request_phase(phase: FrameClockPhase): void;
 }
-export class GLContext  {constructor(config?: properties);
-display: Display;
-shared_context: GLContext;
-window: Window;
-get_debug_enabled(): boolean;
-get_display(): Display | null;
-get_forward_compatible(): boolean;
-get_required_version(): [number | null,number | null];
-get_shared_context(): GLContext | null;
-get_use_es(): boolean;
-get_version(): [number,number];
-get_window(): Window | null;
-is_legacy(): boolean;
-make_current(): void;
-realize(): boolean;
-set_debug_enabled(enabled: boolean): void;
-set_forward_compatible(compatible: boolean): void;
-set_required_version(major: number, minor: number): void;
-set_use_es(use_es: number): void;
-static clear_current(): void;
-static get_current(): GLContext | null;
+export class GLContext  {
+    constructor(config?: properties);
+    display: Display;
+    shared_context: GLContext;
+    window: Window;
+    get_debug_enabled(): boolean;
+    get_display(): Display | null;
+    get_forward_compatible(): boolean;
+    get_required_version(): [number | null,number | null];
+    get_shared_context(): GLContext | null;
+    get_use_es(): boolean;
+    get_version(): [number,number];
+    get_window(): Window | null;
+    is_legacy(): boolean;
+    make_current(): void;
+    realize(): boolean;
+    set_debug_enabled(enabled: boolean): void;
+    set_forward_compatible(compatible: boolean): void;
+    set_required_version(major: number, minor: number): void;
+    set_use_es(use_es: number): void;
+    static clear_current(): void;
+    static get_current(): GLContext | null;
 }
-export class Keymap  {constructor(config?: properties);
-add_virtual_modifiers(state: ModifierType): [ModifierType];
-get_caps_lock_state(): boolean;
-get_direction(): Pango.Direction;
-get_entries_for_keycode(hardware_keycode: number): [boolean, KeymapKey[] | null,number[] | null,number];
-get_entries_for_keyval(keyval: number): [boolean, KeymapKey[],number];
-get_modifier_mask(intent: ModifierIntent): ModifierType;
-get_modifier_state(): number;
-get_num_lock_state(): boolean;
-get_scroll_lock_state(): boolean;
-have_bidi_layouts(): boolean;
-lookup_key(key: KeymapKey): number;
-map_virtual_modifiers(state: ModifierType): [boolean, ModifierType];
-translate_keyboard_state(hardware_keycode: number, state: ModifierType, group: number): [boolean, number | null,number | null,number | null,ModifierType | null];
-static get_default(): Keymap;
-static get_for_display(display: Display): Keymap;
+export class Keymap  {
+    constructor(config?: properties);
+    add_virtual_modifiers(state: ModifierType): [ModifierType];
+    get_caps_lock_state(): boolean;
+    get_direction(): Pango.Direction;
+    get_entries_for_keycode(hardware_keycode: number): [boolean, KeymapKey[] | null,number[] | null,number];
+    get_entries_for_keyval(keyval: number): [boolean, KeymapKey[],number];
+    get_modifier_mask(intent: ModifierIntent): ModifierType;
+    get_modifier_state(): number;
+    get_num_lock_state(): boolean;
+    get_scroll_lock_state(): boolean;
+    have_bidi_layouts(): boolean;
+    lookup_key(key: KeymapKey): number;
+    map_virtual_modifiers(state: ModifierType): [boolean, ModifierType];
+    translate_keyboard_state(hardware_keycode: number, state: ModifierType, group: number): [boolean, number | null,number | null,number | null,ModifierType | null];
+    static get_default(): Keymap;
+    static get_for_display(display: Display): Keymap;
 }
-export class Monitor  {constructor(config?: properties);
-display: Display;
-readonly geometry: Rectangle;
-readonly height_mm: number;
-readonly manufacturer: string;
-readonly model: string;
-readonly refresh_rate: number;
-readonly scale_factor: number;
-readonly subpixel_layout: SubpixelLayout;
-readonly width_mm: number;
-readonly workarea: Rectangle;
-get_display(): Display;
-get_geometry(): [Rectangle];
-get_height_mm(): number;
-get_manufacturer(): string | null;
-get_model(): string | null;
-get_refresh_rate(): number;
-get_scale_factor(): number;
-get_subpixel_layout(): SubpixelLayout;
-get_width_mm(): number;
-get_workarea(): [Rectangle];
-is_primary(): boolean;
+export class Monitor  {
+    constructor(config?: properties);
+    display: Display;
+    readonly geometry: Rectangle;
+    readonly height_mm: number;
+    readonly manufacturer: string;
+    readonly model: string;
+    readonly refresh_rate: number;
+    readonly scale_factor: number;
+    readonly subpixel_layout: SubpixelLayout;
+    readonly width_mm: number;
+    readonly workarea: Rectangle;
+    get_display(): Display;
+    get_geometry(): [Rectangle];
+    get_height_mm(): number;
+    get_manufacturer(): string | null;
+    get_model(): string | null;
+    get_refresh_rate(): number;
+    get_scale_factor(): number;
+    get_subpixel_layout(): SubpixelLayout;
+    get_width_mm(): number;
+    get_workarea(): [Rectangle];
+    is_primary(): boolean;
 }
-export class Screen  {constructor(config?: properties);
-font_options: object;
-resolution: number;
-get_active_window(): Window | null;
-get_display(): Display;
-get_font_options(): cairo.FontOptions | null;
-get_height(): number;
-get_height_mm(): number;
-get_monitor_at_point(x: number, y: number): number;
-get_monitor_at_window(window: Window): number;
-get_monitor_geometry(monitor_num: number): [Rectangle | null];
-get_monitor_height_mm(monitor_num: number): number;
-get_monitor_plug_name(monitor_num: number): string | null;
-get_monitor_scale_factor(monitor_num: number): number;
-get_monitor_width_mm(monitor_num: number): number;
-get_monitor_workarea(monitor_num: number): [Rectangle | null];
-get_n_monitors(): number;
-get_number(): number;
-get_primary_monitor(): number;
-get_resolution(): number;
-get_rgba_visual(): Visual | null;
-get_root_window(): Window;
-get_setting(name: string, value: GObject.Value): boolean;
-get_system_visual(): Visual;
-get_toplevel_windows(): GLib.List;
-get_width(): number;
-get_width_mm(): number;
-get_window_stack(): GLib.List | null;
-is_composited(): boolean;
-list_visuals(): GLib.List;
-make_display_name(): string;
-set_font_options(options: cairo.FontOptions | null): void;
-set_resolution(dpi: number): void;
-static get_default(): Screen | null;
-static height(): number;
-static height_mm(): number;
-static width(): number;
-static width_mm(): number;
+export class Screen  {
+    constructor(config?: properties);
+    font_options: object;
+    resolution: number;
+    get_active_window(): Window | null;
+    get_display(): Display;
+    get_font_options(): cairo.FontOptions | null;
+    get_height(): number;
+    get_height_mm(): number;
+    get_monitor_at_point(x: number, y: number): number;
+    get_monitor_at_window(window: Window): number;
+    get_monitor_geometry(monitor_num: number): [Rectangle | null];
+    get_monitor_height_mm(monitor_num: number): number;
+    get_monitor_plug_name(monitor_num: number): string | null;
+    get_monitor_scale_factor(monitor_num: number): number;
+    get_monitor_width_mm(monitor_num: number): number;
+    get_monitor_workarea(monitor_num: number): [Rectangle | null];
+    get_n_monitors(): number;
+    get_number(): number;
+    get_primary_monitor(): number;
+    get_resolution(): number;
+    get_rgba_visual(): Visual | null;
+    get_root_window(): Window;
+    get_setting(name: string, value: GObject.Value): boolean;
+    get_system_visual(): Visual;
+    get_toplevel_windows(): GLib.List;
+    get_width(): number;
+    get_width_mm(): number;
+    get_window_stack(): GLib.List | null;
+    is_composited(): boolean;
+    list_visuals(): GLib.List;
+    make_display_name(): string;
+    set_font_options(options: cairo.FontOptions | null): void;
+    set_resolution(dpi: number): void;
+    static get_default(): Screen | null;
+    static height(): number;
+    static height_mm(): number;
+    static width(): number;
+    static width_mm(): number;
 }
-export class Seat  {constructor(config?: properties);
-display: Display;
-get_capabilities(): SeatCapabilities;
-get_display(): Display;
-get_keyboard(): Device | null;
-get_pointer(): Device | null;
-get_slaves(capabilities: SeatCapabilities): GLib.List;
-grab(window: Window, capabilities: SeatCapabilities, owner_events: boolean, cursor: Cursor | null, event: Event | null, prepare_func: SeatGrabPrepareFunc | null, prepare_func_data: object | null): GrabStatus;
-ungrab(): void;
+export class Seat  {
+    constructor(config?: properties);
+    display: Display;
+    get_capabilities(): SeatCapabilities;
+    get_display(): Display;
+    get_keyboard(): Device | null;
+    get_pointer(): Device | null;
+    get_slaves(capabilities: SeatCapabilities): GLib.List;
+    grab(window: Window, capabilities: SeatCapabilities, owner_events: boolean, cursor: Cursor | null, event: Event | null, prepare_func: SeatGrabPrepareFunc | null, prepare_func_data: object | null): GrabStatus;
+    ungrab(): void;
 }
-export class Visual  {constructor(config?: properties);
-get_bits_per_rgb(): number;
-get_blue_pixel_details(): [number | null,number | null,number | null];
-get_byte_order(): ByteOrder;
-get_colormap_size(): number;
-get_depth(): number;
-get_green_pixel_details(): [number | null,number | null,number | null];
-get_red_pixel_details(): [number | null,number | null,number | null];
-get_screen(): Screen;
-get_visual_type(): VisualType;
-static get_best(): Visual;
-static get_best_depth(): number;
-static get_best_type(): VisualType;
-static get_best_with_both(depth: number, visual_type: VisualType): Visual | null;
-static get_best_with_depth(depth: number): Visual;
-static get_best_with_type(visual_type: VisualType): Visual;
-static get_system(): Visual;
+export class Visual  {
+    constructor(config?: properties);
+    get_bits_per_rgb(): number;
+    get_blue_pixel_details(): [number | null,number | null,number | null];
+    get_byte_order(): ByteOrder;
+    get_colormap_size(): number;
+    get_depth(): number;
+    get_green_pixel_details(): [number | null,number | null,number | null];
+    get_red_pixel_details(): [number | null,number | null,number | null];
+    get_screen(): Screen;
+    get_visual_type(): VisualType;
+    static get_best(): Visual;
+    static get_best_depth(): number;
+    static get_best_type(): VisualType;
+    static get_best_with_both(depth: number, visual_type: VisualType): Visual | null;
+    static get_best_with_depth(depth: number): Visual;
+    static get_best_with_type(visual_type: VisualType): Visual;
+    static get_system(): Visual;
 }
-export class Window extends GObject.Object {constructor(config?: properties);
-cursor: Cursor;
-add_filter(_function: FilterFunc, data: object | null): void;
-beep(): void;
-begin_draw_frame(region: cairo.Region): DrawingContext;
-begin_move_drag(button: number, root_x: number, root_y: number, timestamp: number): void;
-begin_move_drag_for_device(device: Device, button: number, root_x: number, root_y: number, timestamp: number): void;
-begin_paint_rect(rectangle: Rectangle): void;
-begin_paint_region(region: cairo.Region): void;
-begin_resize_drag(edge: WindowEdge, button: number, root_x: number, root_y: number, timestamp: number): void;
-begin_resize_drag_for_device(edge: WindowEdge, device: Device, button: number, root_x: number, root_y: number, timestamp: number): void;
-configure_finished(): void;
-coords_from_parent(parent_x: number, parent_y: number): [number | null,number | null];
-coords_to_parent(x: number, y: number): [number | null,number | null];
-create_gl_context(): GLContext;
-create_similar_image_surface(format: number, width: number, height: number, scale: number): cairo.Surface;
-create_similar_surface(content: cairo.Content, width: number, height: number): cairo.Surface;
-deiconify(): void;
-destroy(): void;
-destroy_notify(): void;
-enable_synchronized_configure(): void;
-end_draw_frame(context: DrawingContext): void;
-end_paint(): void;
-ensure_native(): boolean;
-flush(): void;
-focus(timestamp: number): void;
-freeze_toplevel_updates_libgtk_only(): void;
-freeze_updates(): void;
-fullscreen(): void;
-fullscreen_on_monitor(monitor: number): void;
-geometry_changed(): void;
-get_accept_focus(): boolean;
-get_background_pattern(): cairo.Pattern | null;
-get_children(): GLib.List;
-get_children_with_user_data(user_data: object | null): GLib.List;
-get_clip_region(): cairo.Region;
-get_composited(): boolean;
-get_cursor(): Cursor | null;
-get_decorations(): [boolean, WMDecoration];
-get_device_cursor(device: Device): Cursor | null;
-get_device_events(device: Device): EventMask;
-get_device_position(device: Device): [Window | null, number | null,number | null,ModifierType | null];
-get_device_position_double(device: Device): [Window | null, number | null,number | null,ModifierType | null];
-get_display(): Display;
-get_drag_protocol(): [DragProtocol, Window | null];
-get_effective_parent(): Window;
-get_effective_toplevel(): Window;
-get_event_compression(): boolean;
-get_events(): EventMask;
-get_focus_on_map(): boolean;
-get_frame_clock(): FrameClock;
-get_frame_extents(): [Rectangle];
-get_fullscreen_mode(): FullscreenMode;
-get_geometry(): [number | null,number | null,number | null,number | null];
-get_group(): Window;
-get_height(): number;
-get_modal_hint(): boolean;
-get_origin(): [number, number | null,number | null];
-get_parent(): Window;
-get_pass_through(): boolean;
-get_pointer(): [Window | null, number | null,number | null,ModifierType | null];
-get_position(): [number | null,number | null];
-get_root_coords(x: number, y: number): [number,number];
-get_root_origin(): [number,number];
-get_scale_factor(): number;
-get_screen(): Screen;
-get_source_events(source: InputSource): EventMask;
-get_state(): WindowState;
-get_support_multidevice(): boolean;
-get_toplevel(): Window;
-get_type_hint(): WindowTypeHint;
-get_update_area(): cairo.Region;
-get_user_data(): [object | null];
-get_visible_region(): cairo.Region;
-get_visual(): Visual;
-get_width(): number;
-get_window_type(): WindowType;
-has_native(): boolean;
-hide(): void;
-iconify(): void;
-input_shape_combine_region(shape_region: cairo.Region, offset_x: number, offset_y: number): void;
-invalidate_maybe_recurse(region: cairo.Region, child_func: WindowChildFunc | null, user_data: object | null): void;
-invalidate_rect(rect: Rectangle | null, invalidate_children: boolean): void;
-invalidate_region(region: cairo.Region, invalidate_children: boolean): void;
-is_destroyed(): boolean;
-is_input_only(): boolean;
-is_shaped(): boolean;
-is_viewable(): boolean;
-is_visible(): boolean;
-lower(): void;
-mark_paint_from_clip(cr: cairo.Context): void;
-maximize(): void;
-merge_child_input_shapes(): void;
-merge_child_shapes(): void;
-move(x: number, y: number): void;
-move_region(region: cairo.Region, dx: number, dy: number): void;
-move_resize(x: number, y: number, width: number, height: number): void;
-move_to_rect(rect: Rectangle, rect_anchor: Gravity, window_anchor: Gravity, anchor_hints: AnchorHints, rect_anchor_dx: number, rect_anchor_dy: number): void;
-peek_children(): GLib.List;
-process_updates(update_children: boolean): void;
-raise(): void;
-register_dnd(): void;
-remove_filter(_function: FilterFunc, data: object | null): void;
-reparent(new_parent: Window, x: number, y: number): void;
-resize(width: number, height: number): void;
-restack(sibling: Window | null, above: boolean): void;
-scroll(dx: number, dy: number): void;
-set_accept_focus(accept_focus: boolean): void;
-set_background(color: Color): void;
-set_background_pattern(pattern: cairo.Pattern | null): void;
-set_background_rgba(rgba: RGBA): void;
-set_child_input_shapes(): void;
-set_child_shapes(): void;
-set_composited(composited: boolean): void;
-set_cursor(cursor: Cursor | null): void;
-set_decorations(decorations: WMDecoration): void;
-set_device_cursor(device: Device, cursor: Cursor): void;
-set_device_events(device: Device, event_mask: EventMask): void;
-set_event_compression(event_compression: boolean): void;
-set_events(event_mask: EventMask): void;
-set_focus_on_map(focus_on_map: boolean): void;
-set_fullscreen_mode(mode: FullscreenMode): void;
-set_functions(functions: WMFunction): void;
-set_geometry_hints(geometry: Geometry, geom_mask: WindowHints): void;
-set_group(leader: Window | null): void;
-set_icon_list(pixbufs: GLib.List): void;
-set_icon_name(name: string | null): void;
-set_invalidate_handler(handler: WindowInvalidateHandlerFunc): void;
-set_keep_above(setting: boolean): void;
-set_keep_below(setting: boolean): void;
-set_modal_hint(modal: boolean): void;
-set_opacity(opacity: number): void;
-set_opaque_region(region: cairo.Region | null): void;
-set_override_redirect(override_redirect: boolean): void;
-set_pass_through(pass_through: boolean): void;
-set_role(role: string): void;
-set_shadow_width(left: number, right: number, top: number, bottom: number): void;
-set_skip_pager_hint(skips_pager: boolean): void;
-set_skip_taskbar_hint(skips_taskbar: boolean): void;
-set_source_events(source: InputSource, event_mask: EventMask): void;
-set_startup_id(startup_id: string): void;
-set_static_gravities(use_static: boolean): boolean;
-set_support_multidevice(support_multidevice: boolean): void;
-set_title(title: string): void;
-set_transient_for(parent: Window): void;
-set_type_hint(hint: WindowTypeHint): void;
-set_urgency_hint(urgent: boolean): void;
-set_user_data(user_data: GObject.Object | null): void;
-shape_combine_region(shape_region: cairo.Region | null, offset_x: number, offset_y: number): void;
-show(): void;
-show_unraised(): void;
-show_window_menu(event: Event): boolean;
-stick(): void;
-thaw_toplevel_updates_libgtk_only(): void;
-thaw_updates(): void;
-unfullscreen(): void;
-unmaximize(): void;
-unstick(): void;
-withdraw(): void;
-vfunc_create_surface(width: number, height: number): cairo.Surface;
-vfunc_from_embedder(embedder_x: number, embedder_y: number, offscreen_x: number, offscreen_y: number): void;
-vfunc_pick_embedded_child(x: number, y: number): Window;
-vfunc_to_embedder(offscreen_x: number, offscreen_y: number, embedder_x: number, embedder_y: number): void;
-static at_pointer(): [Window, number | null,number | null];
-static constrain_size(geometry: Geometry, flags: WindowHints, width: number, height: number): [number,number];
-static process_all_updates(): void;
-static set_debug_updates(setting: boolean): void;
+export class Window extends GObject.Object {
+    constructor(config?: properties);
+    cursor: Cursor;
+    beep(): void;
+    begin_draw_frame(region: cairo.Region): DrawingContext;
+    begin_move_drag(button: number, root_x: number, root_y: number, timestamp: number): void;
+    begin_move_drag_for_device(device: Device, button: number, root_x: number, root_y: number, timestamp: number): void;
+    begin_paint_rect(rectangle: Rectangle): void;
+    begin_paint_region(region: cairo.Region): void;
+    begin_resize_drag(edge: WindowEdge, button: number, root_x: number, root_y: number, timestamp: number): void;
+    begin_resize_drag_for_device(edge: WindowEdge, device: Device, button: number, root_x: number, root_y: number, timestamp: number): void;
+    configure_finished(): void;
+    coords_from_parent(parent_x: number, parent_y: number): [number | null,number | null];
+    coords_to_parent(x: number, y: number): [number | null,number | null];
+    create_gl_context(): GLContext;
+    create_similar_image_surface(format: number, width: number, height: number, scale: number): cairo.Surface;
+    create_similar_surface(content: cairo.Content, width: number, height: number): cairo.Surface;
+    deiconify(): void;
+    destroy(): void;
+    destroy_notify(): void;
+    enable_synchronized_configure(): void;
+    end_draw_frame(context: DrawingContext): void;
+    end_paint(): void;
+    ensure_native(): boolean;
+    flush(): void;
+    focus(timestamp: number): void;
+    freeze_toplevel_updates_libgtk_only(): void;
+    freeze_updates(): void;
+    fullscreen(): void;
+    fullscreen_on_monitor(monitor: number): void;
+    geometry_changed(): void;
+    get_accept_focus(): boolean;
+    get_background_pattern(): cairo.Pattern | null;
+    get_children(): GLib.List;
+    get_children_with_user_data(user_data: object | null): GLib.List;
+    get_clip_region(): cairo.Region;
+    get_composited(): boolean;
+    get_cursor(): Cursor | null;
+    get_decorations(): [boolean, WMDecoration];
+    get_device_cursor(device: Device): Cursor | null;
+    get_device_events(device: Device): EventMask;
+    get_device_position(device: Device): [Window | null, number | null,number | null,ModifierType | null];
+    get_device_position_double(device: Device): [Window | null, number | null,number | null,ModifierType | null];
+    get_display(): Display;
+    get_drag_protocol(): [DragProtocol, Window | null];
+    get_effective_parent(): Window;
+    get_effective_toplevel(): Window;
+    get_event_compression(): boolean;
+    get_events(): EventMask;
+    get_focus_on_map(): boolean;
+    get_frame_clock(): FrameClock;
+    get_frame_extents(): [Rectangle];
+    get_fullscreen_mode(): FullscreenMode;
+    get_geometry(): [number | null,number | null,number | null,number | null];
+    get_group(): Window;
+    get_height(): number;
+    get_modal_hint(): boolean;
+    get_origin(): [number, number | null,number | null];
+    get_parent(): Window;
+    get_pass_through(): boolean;
+    get_pointer(): [Window | null, number | null,number | null,ModifierType | null];
+    get_position(): [number | null,number | null];
+    get_root_coords(x: number, y: number): [number,number];
+    get_root_origin(): [number,number];
+    get_scale_factor(): number;
+    get_screen(): Screen;
+    get_source_events(source: InputSource): EventMask;
+    get_state(): WindowState;
+    get_support_multidevice(): boolean;
+    get_toplevel(): Window;
+    get_type_hint(): WindowTypeHint;
+    get_update_area(): cairo.Region;
+    get_user_data(): [object | null];
+    get_visible_region(): cairo.Region;
+    get_visual(): Visual;
+    get_width(): number;
+    get_window_type(): WindowType;
+    has_native(): boolean;
+    hide(): void;
+    iconify(): void;
+    input_shape_combine_region(shape_region: cairo.Region, offset_x: number, offset_y: number): void;
+    invalidate_maybe_recurse(region: cairo.Region, child_func: WindowChildFunc | null, user_data: object | null): void;
+    invalidate_rect(rect: Rectangle | null, invalidate_children: boolean): void;
+    invalidate_region(region: cairo.Region, invalidate_children: boolean): void;
+    is_destroyed(): boolean;
+    is_input_only(): boolean;
+    is_shaped(): boolean;
+    is_viewable(): boolean;
+    is_visible(): boolean;
+    lower(): void;
+    mark_paint_from_clip(cr: cairo.Context): void;
+    maximize(): void;
+    merge_child_input_shapes(): void;
+    merge_child_shapes(): void;
+    move(x: number, y: number): void;
+    move_region(region: cairo.Region, dx: number, dy: number): void;
+    move_resize(x: number, y: number, width: number, height: number): void;
+    move_to_rect(rect: Rectangle, rect_anchor: Gravity, window_anchor: Gravity, anchor_hints: AnchorHints, rect_anchor_dx: number, rect_anchor_dy: number): void;
+    peek_children(): GLib.List;
+    process_updates(update_children: boolean): void;
+    raise(): void;
+    register_dnd(): void;
+    reparent(new_parent: Window, x: number, y: number): void;
+    resize(width: number, height: number): void;
+    restack(sibling: Window | null, above: boolean): void;
+    scroll(dx: number, dy: number): void;
+    set_accept_focus(accept_focus: boolean): void;
+    set_background(color: Color): void;
+    set_background_pattern(pattern: cairo.Pattern | null): void;
+    set_background_rgba(rgba: RGBA): void;
+    set_child_input_shapes(): void;
+    set_child_shapes(): void;
+    set_composited(composited: boolean): void;
+    set_cursor(cursor: Cursor | null): void;
+    set_decorations(decorations: WMDecoration): void;
+    set_device_cursor(device: Device, cursor: Cursor): void;
+    set_device_events(device: Device, event_mask: EventMask): void;
+    set_event_compression(event_compression: boolean): void;
+    set_events(event_mask: EventMask): void;
+    set_focus_on_map(focus_on_map: boolean): void;
+    set_fullscreen_mode(mode: FullscreenMode): void;
+    set_functions(functions: WMFunction): void;
+    set_geometry_hints(geometry: Geometry, geom_mask: WindowHints): void;
+    set_group(leader: Window | null): void;
+    set_icon_list(pixbufs: GLib.List): void;
+    set_icon_name(name: string | null): void;
+    set_keep_above(setting: boolean): void;
+    set_keep_below(setting: boolean): void;
+    set_modal_hint(modal: boolean): void;
+    set_opacity(opacity: number): void;
+    set_opaque_region(region: cairo.Region | null): void;
+    set_override_redirect(override_redirect: boolean): void;
+    set_pass_through(pass_through: boolean): void;
+    set_role(role: string): void;
+    set_shadow_width(left: number, right: number, top: number, bottom: number): void;
+    set_skip_pager_hint(skips_pager: boolean): void;
+    set_skip_taskbar_hint(skips_taskbar: boolean): void;
+    set_source_events(source: InputSource, event_mask: EventMask): void;
+    set_startup_id(startup_id: string): void;
+    set_static_gravities(use_static: boolean): boolean;
+    set_support_multidevice(support_multidevice: boolean): void;
+    set_title(title: string): void;
+    set_transient_for(parent: Window): void;
+    set_type_hint(hint: WindowTypeHint): void;
+    set_urgency_hint(urgent: boolean): void;
+    set_user_data(user_data: GObject.Object | null): void;
+    shape_combine_region(shape_region: cairo.Region | null, offset_x: number, offset_y: number): void;
+    show(): void;
+    show_unraised(): void;
+    show_window_menu(event: Event): boolean;
+    stick(): void;
+    thaw_toplevel_updates_libgtk_only(): void;
+    thaw_updates(): void;
+    unfullscreen(): void;
+    unmaximize(): void;
+    unstick(): void;
+    withdraw(): void;
+    vfunc_create_surface(width: number, height: number): cairo.Surface;
+    vfunc_from_embedder(embedder_x: number, embedder_y: number, offscreen_x: number, offscreen_y: number): void;
+    vfunc_to_embedder(offscreen_x: number, offscreen_y: number, embedder_x: number, embedder_y: number): void;
+    static at_pointer(): [Window, number | null,number | null];
+    static constrain_size(geometry: Geometry, flags: WindowHints, width: number, height: number): [number,number];
+    static process_all_updates(): void;
+    static set_debug_updates(setting: boolean): void;
 }
-export class Atom  {constructor(config?: properties);
-name(): string;
-static intern(atom_name: string, only_if_exists: boolean): Atom;
-static intern_static_string(atom_name: string): Atom;
+export class Atom  {
+    constructor(config?: properties);
+    name(): string;
+    static intern(atom_name: string, only_if_exists: boolean): Atom;
+    static intern_static_string(atom_name: string): Atom;
 }
-export class Color  {constructor(config?: properties);
-pixel: number;
-red: number;
-green: number;
-blue: number;
-copy(): Color;
-equal(colorb: Color): boolean;
-free(): void;
-hash(): number;
-to_string(): string;
-static parse(spec: string): [boolean, Color];
+export class Color  {
+    constructor(config?: properties);
+    pixel: number;
+    red: number;
+    green: number;
+    blue: number;
+    copy(): Color;
+    equal(colorb: Color): boolean;
+    free(): void;
+    hash(): number;
+    to_string(): string;
+    static parse(spec: string): [boolean, Color];
 }
-export class DevicePadInterface  {constructor(config?: properties);
+export class EventAny  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
 }
-export class DrawingContextClass  {constructor(config?: properties);
+export class EventButton  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    x: number;
+    y: number;
+    axes: number;
+    state: ModifierType;
+    button: number;
+    device: Device;
+    x_root: number;
+    y_root: number;
 }
-export class EventAny  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
+export class EventConfigure  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
-export class EventButton  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-x: number;
-y: number;
-axes: number;
-state: ModifierType;
-button: number;
-device: Device;
-x_root: number;
-y_root: number;
+export class EventCrossing  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    subwindow: Window;
+    time: number;
+    x: number;
+    y: number;
+    x_root: number;
+    y_root: number;
+    mode: CrossingMode;
+    detail: NotifyType;
+    focus: boolean;
+    state: ModifierType;
 }
-export class EventConfigure  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-x: number;
-y: number;
-width: number;
-height: number;
+export class EventDND  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    context: DragContext;
+    time: number;
+    x_root: number;
+    y_root: number;
 }
-export class EventCrossing  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-subwindow: Window;
-time: number;
-x: number;
-y: number;
-x_root: number;
-y_root: number;
-mode: CrossingMode;
-detail: NotifyType;
-focus: boolean;
-state: ModifierType;
+export class EventExpose  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    area: Rectangle;
+    region: cairo.Region;
+    count: number;
 }
-export class EventDND  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-context: DragContext;
-time: number;
-x_root: unknown;
-y_root: unknown;
+export class EventFocus  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    _in: number;
 }
-export class EventExpose  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-area: Rectangle;
-region: cairo.Region;
-count: number;
+export class EventGrabBroken  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    keyboard: boolean;
+    implicit: boolean;
+    grab_window: Window;
 }
-export class EventFocus  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-_in: number;
+export class EventKey  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    state: ModifierType;
+    keyval: number;
+    length: number;
+    string: string;
+    hardware_keycode: number;
+    group: number;
+    is_modifier: number;
 }
-export class EventGrabBroken  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-keyboard: boolean;
-implicit: boolean;
-grab_window: Window;
+export class EventMotion  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    x: number;
+    y: number;
+    axes: number;
+    state: ModifierType;
+    is_hint: number;
+    device: Device;
+    x_root: number;
+    y_root: number;
 }
-export class EventKey  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-state: ModifierType;
-keyval: number;
-length: number;
-string: string;
-hardware_keycode: number;
-group: number;
-is_modifier: number;
+export class EventOwnerChange  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    owner: Window;
+    reason: OwnerChange;
+    selection: Atom;
+    time: number;
+    selection_time: number;
 }
-export class EventMotion  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-x: number;
-y: number;
-axes: number;
-state: ModifierType;
-is_hint: number;
-device: Device;
-x_root: number;
-y_root: number;
+export class EventPadAxis  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    group: number;
+    index: number;
+    mode: number;
+    value: number;
 }
-export class EventOwnerChange  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-owner: Window;
-reason: OwnerChange;
-selection: Atom;
-time: number;
-selection_time: number;
+export class EventPadButton  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    group: number;
+    button: number;
+    mode: number;
 }
-export class EventPadAxis  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-group: number;
-index: number;
-mode: number;
-value: number;
+export class EventPadGroupMode  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    group: number;
+    mode: number;
 }
-export class EventPadButton  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-group: number;
-button: number;
-mode: number;
+export class EventProperty  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    atom: Atom;
+    time: number;
+    state: PropertyState;
 }
-export class EventPadGroupMode  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-group: number;
-mode: number;
+export class EventProximity  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    device: Device;
 }
-export class EventProperty  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-atom: Atom;
-time: number;
-state: PropertyState;
+export class EventScroll  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    x: number;
+    y: number;
+    state: ModifierType;
+    direction: ScrollDirection;
+    device: Device;
+    x_root: number;
+    y_root: number;
+    delta_x: number;
+    delta_y: number;
+    is_stop: number;
 }
-export class EventProximity  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-device: Device;
+export class EventSelection  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    selection: Atom;
+    target: Atom;
+    property: Atom;
+    time: number;
+    requestor: Window;
 }
-export class EventScroll  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-x: number;
-y: number;
-state: ModifierType;
-direction: ScrollDirection;
-device: Device;
-x_root: number;
-y_root: number;
-delta_x: number;
-delta_y: number;
-is_stop: number;
+export class EventSequence  {
+    constructor(config?: properties);
 }
-export class EventSelection  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-selection: Atom;
-target: Atom;
-property: Atom;
-time: number;
-requestor: Window;
+export class EventSetting  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    action: SettingAction;
+    name: string;
 }
-export class EventSequence  {constructor(config?: properties);
+export class EventTouch  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    time: number;
+    x: number;
+    y: number;
+    axes: number;
+    state: ModifierType;
+    sequence: EventSequence;
+    emulating_pointer: boolean;
+    device: Device;
+    x_root: number;
+    y_root: number;
 }
-export class EventSetting  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-action: SettingAction;
-name: string;
+export class EventTouchpadPinch  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    phase: number;
+    n_fingers: number;
+    time: number;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    angle_delta: number;
+    scale: number;
+    x_root: number;
+    y_root: number;
+    state: ModifierType;
 }
-export class EventTouch  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-time: number;
-x: number;
-y: number;
-axes: number;
-state: ModifierType;
-sequence: EventSequence;
-emulating_pointer: boolean;
-device: Device;
-x_root: number;
-y_root: number;
+export class EventTouchpadSwipe  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    phase: number;
+    n_fingers: number;
+    time: number;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    x_root: number;
+    y_root: number;
+    state: ModifierType;
 }
-export class EventTouchpadPinch  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-phase: number;
-n_fingers: number;
-time: number;
-x: number;
-y: number;
-dx: number;
-dy: number;
-angle_delta: number;
-scale: number;
-x_root: number;
-y_root: number;
-state: ModifierType;
+export class EventVisibility  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    state: VisibilityState;
 }
-export class EventTouchpadSwipe  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-phase: number;
-n_fingers: number;
-time: number;
-x: number;
-y: number;
-dx: number;
-dy: number;
-x_root: number;
-y_root: number;
-state: ModifierType;
+export class EventWindowState  {
+    constructor(config?: properties);
+    type: EventType;
+    window: Window;
+    send_event: number;
+    changed_mask: WindowState;
+    new_window_state: WindowState;
 }
-export class EventVisibility  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-state: VisibilityState;
+export class FrameClockPrivate  {
+    constructor(config?: properties);
 }
-export class EventWindowState  {constructor(config?: properties);
-type: EventType;
-window: Window;
-send_event: number;
-changed_mask: WindowState;
-new_window_state: WindowState;
+export class FrameTimings  {
+    constructor(config?: properties);
+    get_complete(): boolean;
+    get_frame_counter(): number;
+    get_frame_time(): number;
+    get_predicted_presentation_time(): number;
+    get_presentation_time(): number;
+    get_refresh_interval(): number;
+    ref(): FrameTimings;
+    unref(): void;
 }
-export class FrameClockClass  {constructor(config?: properties);
+export class Geometry  {
+    constructor(config?: properties);
+    min_width: number;
+    min_height: number;
+    max_width: number;
+    max_height: number;
+    base_width: number;
+    base_height: number;
+    width_inc: number;
+    height_inc: number;
+    min_aspect: number;
+    max_aspect: number;
+    win_gravity: Gravity;
 }
-export class FrameClockPrivate  {constructor(config?: properties);
+export class KeymapKey  {
+    constructor(config?: properties);
+    keycode: number;
+    group: number;
+    level: number;
 }
-export class FrameTimings  {constructor(config?: properties);
-get_complete(): boolean;
-get_frame_counter(): number;
-get_frame_time(): number;
-get_predicted_presentation_time(): number;
-get_presentation_time(): number;
-get_refresh_interval(): number;
-ref(): FrameTimings;
-unref(): void;
+export class Point  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
 }
-export class Geometry  {constructor(config?: properties);
-min_width: number;
-min_height: number;
-max_width: number;
-max_height: number;
-base_width: number;
-base_height: number;
-width_inc: number;
-height_inc: number;
-min_aspect: number;
-max_aspect: number;
-win_gravity: Gravity;
+export class RGBA  {
+    constructor(config?: properties);
+    red: number;
+    green: number;
+    blue: number;
+    alpha: number;
+    copy(): RGBA;
+    equal(p2: RGBA): boolean;
+    free(): void;
+    hash(): number;
+    parse(spec: string): boolean;
+    to_string(): string;
 }
-export class KeymapKey  {constructor(config?: properties);
-keycode: number;
-group: number;
-level: number;
+export class Rectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    equal(rect2: Rectangle): boolean;
+    intersect(src2: Rectangle): [boolean, Rectangle | null];
+    union(src2: Rectangle): [Rectangle];
 }
-export class MonitorClass  {constructor(config?: properties);
+export class TimeCoord  {
+    constructor(config?: properties);
+    time: number;
+    axes: number[];
 }
-export class Point  {constructor(config?: properties);
-x: number;
-y: number;
+export class WindowAttr  {
+    constructor(config?: properties);
+    title: string;
+    event_mask: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    wclass: WindowWindowClass;
+    visual: Visual;
+    window_type: WindowType;
+    cursor: Cursor;
+    wmclass_name: string;
+    wmclass_class: string;
+    override_redirect: boolean;
+    type_hint: WindowTypeHint;
 }
-export class RGBA  {constructor(config?: properties);
-red: number;
-green: number;
-blue: number;
-alpha: number;
-copy(): RGBA;
-equal(p2: RGBA): boolean;
-free(): void;
-hash(): number;
-parse(spec: string): boolean;
-to_string(): string;
+export class WindowRedirect  {
+    constructor(config?: properties);
 }
-export class Rectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-equal(rect2: Rectangle): boolean;
-intersect(src2: Rectangle): [boolean, Rectangle | null];
-union(src2: Rectangle): [Rectangle];
-}
-export class TimeCoord  {constructor(config?: properties);
-time: number;
-axes: number[];
-}
-export class WindowAttr  {constructor(config?: properties);
-title: string;
-event_mask: number;
-x: number;
-y: number;
-width: number;
-height: number;
-wclass: WindowWindowClass;
-visual: Visual;
-window_type: WindowType;
-cursor: Cursor;
-wmclass_name: string;
-wmclass_class: string;
-override_redirect: boolean;
-type_hint: WindowTypeHint;
-}
-export class WindowClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly pick_embedded_child: unknown;
-readonly to_embedder: unknown;
-readonly from_embedder: unknown;
-readonly create_surface: unknown;
-readonly _gdk_reserved1: unknown;
-readonly _gdk_reserved2: unknown;
-readonly _gdk_reserved3: unknown;
-readonly _gdk_reserved4: unknown;
-readonly _gdk_reserved5: unknown;
-readonly _gdk_reserved6: unknown;
-readonly _gdk_reserved7: unknown;
-readonly _gdk_reserved8: unknown;
-}
-export class WindowRedirect  {constructor(config?: properties);
-}
-export class Event  {constructor(config?: properties);
-_get_angle(event2: Event): [boolean, number];
-_get_center(event2: Event): [boolean, number,number];
-_get_distance(event2: Event): [boolean, number];
-copy(): Event;
-free(): void;
-get_axis(axis_use: AxisUse): [boolean, number];
-get_button(): [boolean, number];
-get_click_count(): [boolean, number];
-get_coords(): [boolean, number | null,number | null];
-get_device(): Device | null;
-get_device_tool(): DeviceTool;
-get_event_sequence(): EventSequence;
-get_event_type(): EventType;
-get_keycode(): [boolean, number];
-get_keyval(): [boolean, number];
-get_pointer_emulated(): boolean;
-get_root_coords(): [boolean, number | null,number | null];
-get_scancode(): number;
-get_screen(): Screen;
-get_scroll_deltas(): [boolean, number,number];
-get_scroll_direction(): [boolean, ScrollDirection];
-get_seat(): Seat;
-get_source_device(): Device | null;
-get_state(): [boolean, ModifierType];
-get_time(): number;
-get_window(): Window;
-is_scroll_stop_event(): boolean;
-put(): void;
-set_device(device: Device): void;
-set_device_tool(tool: DeviceTool | null): void;
-set_screen(screen: Screen): void;
-set_source_device(device: Device): void;
-triggers_context_menu(): boolean;
-static get(): Event | null;
-static handler_set(func: EventFunc, data: object | null, notify: GLib.DestroyNotify): void;
-static peek(): Event | null;
-static request_motions(event: EventMotion): void;
+export class Event  {
+    constructor(config?: properties);
+    _get_angle(event2: Event): [boolean, number];
+    _get_center(event2: Event): [boolean, number,number];
+    _get_distance(event2: Event): [boolean, number];
+    copy(): Event;
+    free(): void;
+    get_axis(axis_use: AxisUse): [boolean, number];
+    get_button(): [boolean, number];
+    get_click_count(): [boolean, number];
+    get_coords(): [boolean, number | null,number | null];
+    get_device(): Device | null;
+    get_device_tool(): DeviceTool;
+    get_event_sequence(): EventSequence;
+    get_event_type(): EventType;
+    get_keycode(): [boolean, number];
+    get_keyval(): [boolean, number];
+    get_pointer_emulated(): boolean;
+    get_root_coords(): [boolean, number | null,number | null];
+    get_scancode(): number;
+    get_screen(): Screen;
+    get_scroll_deltas(): [boolean, number,number];
+    get_scroll_direction(): [boolean, ScrollDirection];
+    get_seat(): Seat;
+    get_source_device(): Device | null;
+    get_state(): [boolean, ModifierType];
+    get_time(): number;
+    get_window(): Window;
+    is_scroll_stop_event(): boolean;
+    put(): void;
+    set_device(device: Device): void;
+    set_device_tool(tool: DeviceTool | null): void;
+    set_screen(screen: Screen): void;
+    set_source_device(device: Device): void;
+    triggers_context_menu(): boolean;
+    static get(): Event | null;
+    static handler_set(func: EventFunc, data: object | null, notify: GLib.DestroyNotify): void;
+    static peek(): Event | null;
+    static request_motions(event: EventMotion): void;
 }
 export interface DevicePad  {
-get_feature_group(feature: DevicePadFeature, feature_idx: number): number;
-get_group_n_modes(group_idx: number): number;
-get_n_features(feature: DevicePadFeature): number;
-get_n_groups(): number;
+    get_feature_group(feature: DevicePadFeature, feature_idx: number): number;
+    get_group_n_modes(group_idx: number): number;
+    get_n_features(feature: DevicePadFeature): number;
+    get_n_groups(): number;
 }

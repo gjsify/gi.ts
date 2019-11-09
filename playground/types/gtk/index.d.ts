@@ -13,6 +13,7 @@ import * as cairo from "cairo";
  * gtk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type AccelGroupActivate = (accel_group: AccelGroup, acceleratable: GObject.Object, keyval: number, modifier: Gdk.ModifierType) => boolean;
 export type AccelGroupFindFunc = (key: AccelKey, closure: GObject.Closure, data: object | null) => boolean;
 export type AccelMapForeach = (data: object | null, accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType, changed: boolean) => void;
@@ -480,22 +481,11 @@ export function binding_entry_remove(binding_set: BindingSet, keyval: number, mo
  */
 export function binding_entry_skip(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType): void;
 /**
- * This function returns the binding set named after the type name of
- * the passed in class structure. New binding sets are created on
- * demand by this function.
- */
-export function binding_set_by_class(object_class: object | null): BindingSet;
-/**
  * Find a binding set by its globally unique name.
  * The @set_name can either be a name used for gtk_binding_set_new()
  * or the type name of a class used in gtk_binding_set_by_class().
  */
 export function binding_set_find(set_name: string): BindingSet | null;
-/**
- * GTK+ maintains a global list of binding sets. Each binding set has
- * a unique name which needs to be specified upon creation.
- */
-export function binding_set_new(set_name: string): BindingSet;
 /**
  * Find a key binding matching @keyval and @modifiers and activate the
  * binding on @object.
@@ -902,11 +892,6 @@ export function init_check(argc: number, argv: string[] | null): [boolean, numbe
  */
 export function init_with_args(argc: number, argv: string[] | null, parameter_string: string | null, entries: GLib.OptionEntry[], translation_domain: string | null): [boolean, number,string[] | null];
 /**
- * Installs a key snooper function, which will get called on all
- * key events before delivering them normally.
- */
-export function key_snooper_install(snooper: KeySnoopFunc, func_data: object | null): number;
-/**
  * Removes the key snooper function with the given id.
  */
 export function key_snooper_remove(snooper_handler_id: number): void;
@@ -1158,29 +1143,29 @@ export function propagate_event(widget: Widget, event: Gdk.Event): void;
  * Adds a file to the list of files to be parsed at the
  * end of gtk_init().
  */
-export function rc_add_default_file(filename: unknown): void;
+export function rc_add_default_file(filename: string): void;
 /**
  * Searches for a theme engine in the GTK+ search path. This function
  * is not useful for applications and should not be used.
  */
-export function rc_find_module_in_path(module_file: string): unknown;
+export function rc_find_module_in_path(module_file: string): string;
 /**
  * Looks up a file in pixmap path for the specified #GtkSettings.
  * If the file is not found, it outputs a warning message using
  * g_warning() and returns %NULL.
  */
-export function rc_find_pixmap_in_path(settings: Settings, scanner: GLib.Scanner, pixmap_file: string): unknown;
+export function rc_find_pixmap_in_path(settings: Settings, scanner: GLib.Scanner, pixmap_file: string): string;
 /**
  * Retrieves the current list of RC files that will be parsed
  * at the end of gtk_init().
  */
-export function rc_get_default_files(): unknown[];
+export function rc_get_default_files(): string[];
 /**
  * Obtains the path to the IM modules file. See the documentation
  * of the `GTK_IM_MODULE_FILE`
  * environment variable for more details.
  */
-export function rc_get_im_module_file(): unknown;
+export function rc_get_im_module_file(): string;
 /**
  * Obtains the path in which to look for IM modules. See the documentatio
  * n
@@ -1189,14 +1174,14 @@ export function rc_get_im_module_file(): unknown;
  * function is useful solely for utilities supplied with GTK+ and should
  * not be used by applications under normal circumstances.
  */
-export function rc_get_im_module_path(): unknown;
+export function rc_get_im_module_path(): string;
 /**
  * Returns a directory in which GTK+ looks for theme engines.
  * For full information about the search for theme engines,
  * see the docs for `GTK_PATH` in [Running GTK+ Applications][gtk-running
  * ].
  */
-export function rc_get_module_dir(): unknown;
+export function rc_get_module_dir(): string;
 /**
  * Finds all matching RC styles for a given widget,
  * composites them together, and then creates a
@@ -1221,7 +1206,7 @@ export function rc_get_style(widget: Widget): Style;
  *                             G_OBJECT_TYPE (widget));
  * ]|
  */
-export function rc_get_style_by_paths(settings: Settings, widget_path: string | null, class_path: string | null, type: unknown): Style | null;
+export function rc_get_style_by_paths(settings: Settings, widget_path: string | null, class_path: string | null, type: GType): Style | null;
 /**
  * Returns the standard directory in which themes should
  * be installed. (GTK+ does not actually use this directory
@@ -1333,14 +1318,10 @@ export function rc_reparse_all_for_settings(settings: Settings, force_load: bool
  */
 export function rc_reset_styles(settings: Settings): void;
 /**
- * 
- */
-export function rc_scanner_new(): GLib.Scanner;
-/**
  * Sets the list of files that GTK+ will read at the
  * end of gtk_init().
  */
-export function rc_set_default_files(filenames: unknown[]): void;
+export function rc_set_default_files(filenames: string[]): void;
 /**
  * 
  */
@@ -1530,12 +1511,6 @@ export function selection_remove_all(widget: Widget): void;
  */
 export function set_debug_flags(flags: number): void;
 /**
- * This is a convenience function for showing an application’s about box.
- * The constructed dialog is associated with the parent window and
- * reused for future invocations of this function.
- */
-export function show_about_dialog(parent: Window | null, first_property_name: string, ___: unknown[]): void;
-/**
  * A convenience function for launching the default application
  * to show the uri. Like gtk_show_uri_on_window(), but takes a screen
  * as transient parent instead of a window.
@@ -1660,30 +1635,6 @@ export function targets_include_uri(targets: Gdk.Atom[], n_targets: number): boo
  */
 export function test_create_simple_window(window_title: string, dialog_text: string): Widget;
 /**
- * This function wraps g_object_new() for widget types.
- * It’ll automatically show all created non window widgets, also
- * g_object_ref_sink() them (to keep them alive across a running test)
- * and set them up for destruction during the next test teardown phase.
- */
-export function test_create_widget(widget_type: unknown, first_property_name: string | null, ___: unknown[]): Widget;
-/**
- * Create a window with window title @window_title, text contents @dialog
- * _text,
- * and a number of buttons, according to the paired argument list given
- * as @... parameters.
- * Each button is created with a @label and a ::clicked signal handler th
- * at
- * incremrents the integer stored in @nump.
- * The window will be automatically shown with gtk_widget_show_now() afte
- * r
- * creation, so when this function returns it has already been mapped,
- * resized and positioned on screen.
- * The window will quit any running gtk_main()-loop when destroyed, and i
- * t
- * will automatically be destroyed upon test function teardown.
- */
-export function test_display_button_window(window_title: string, dialog_text: string, ___: unknown[]): Widget;
-/**
  * This function will search @widget and all its descendants for a GtkLab
  * el
  * widget with a text string matching @label_pattern.
@@ -1705,7 +1656,7 @@ export function test_find_label(widget: Widget, label_pattern: string): Widget;
  * widget, relative to another labeling widget. Such as finding a
  * button or text entry widget, given its corresponding label widget.
  */
-export function test_find_sibling(base_widget: Widget, widget_type: unknown): Widget;
+export function test_find_sibling(base_widget: Widget, widget_type: GType): Widget;
 /**
  * This function will search the descendants of @widget for a widget
  * of type @widget_type that has a label matching @label_pattern next
@@ -1715,23 +1666,12 @@ export function test_find_sibling(base_widget: Widget, widget_type: unknown): Wi
  * gtk_test_widget_click() for possible caveats involving the search of
  * such widgets and synthesizing widget events.
  */
-export function test_find_widget(widget: Widget, label_pattern: string, widget_type: unknown): Widget | null;
-/**
- * This function is used to initialize a GTK+ test program.
- * It will in turn call g_test_init() and gtk_init() to properly
- * initialize the testing framework and graphical toolkit. It’ll
- * also set the program’s locale to “C” and prevent loading of rc
- * files and Gtk+ modules. This is done to make tets program
- * environments as deterministic as possible.
- * Like gtk_init() and g_test_init(), any known arguments will be
- * processed and stripped from @argc and @argv.
- */
-export function test_init(argcp: number, argvp: string[], ___: unknown[]): [number,string[]];
+export function test_find_widget(widget: Widget, label_pattern: string, widget_type: GType): Widget | null;
 /**
  * Return the type ids that have been registered after
  * calling gtk_test_register_all_types().
  */
-export function test_list_all_types(): [unknown[], number];
+export function test_list_all_types(): [GType, number];
 /**
  * Force registration of all core Gtk+ and Gdk object types.
  * This allowes to refer to any of those object types via
@@ -1833,12 +1773,6 @@ export function tree_row_reference_deleted(proxy: GObject.Object, path: TreePath
  * model emitted the #GtkTreeModel::row-inserted signal.
  */
 export function tree_row_reference_inserted(proxy: GObject.Object, path: TreePath): void;
-/**
- * Lets a set of row reference created by
- * gtk_tree_row_reference_new_proxy() know that the
- * model emitted the #GtkTreeModel::rows-reordered signal.
- */
-export function tree_row_reference_reordered(proxy: GObject.Object, path: TreePath, iter: TreeIter, new_order: number[]): void;
 /**
  * Sets selection data of target type %GTK_TREE_MODEL_ROW. Normally used
  * in a drag_data_get handler.
@@ -2785,8441 +2719,6661 @@ export enum UIManagerItemType {
     ACCELERATOR = 256,
     POPUP_WITH_ACCELS = 512,
 }
-export class AboutDialog extends Dialog {constructor(config?: properties);
-artists: string[];
-authors: string[];
-comments: string;
-copyright: string;
-documenters: string[];
-license: string;
-license_type: License;
-logo: GdkPixbuf.Pixbuf;
-logo_icon_name: string;
-program_name: string;
-translator_credits: string;
-version: string;
-website: string;
-website_label: string;
-wrap_license: boolean;
-add_credit_section(section_name: string, people: string[]): void;
-get_artists(): string[];
-get_authors(): string[];
-get_comments(): string;
-get_copyright(): string;
-get_documenters(): string[];
-get_license(): string;
-get_license_type(): License;
-get_logo(): GdkPixbuf.Pixbuf;
-get_logo_icon_name(): string;
-get_program_name(): string;
-get_translator_credits(): string;
-get_version(): string;
-get_website(): string;
-get_website_label(): string;
-get_wrap_license(): boolean;
-set_artists(artists: string[]): void;
-set_authors(authors: string[]): void;
-set_comments(comments: string | null): void;
-set_copyright(copyright: string | null): void;
-set_documenters(documenters: string[]): void;
-set_license(license: string | null): void;
-set_license_type(license_type: License): void;
-set_logo(logo: GdkPixbuf.Pixbuf | null): void;
-set_logo_icon_name(icon_name: string | null): void;
-set_program_name(name: string): void;
-set_translator_credits(translator_credits: string | null): void;
-set_version(version: string | null): void;
-set_website(website: string | null): void;
-set_website_label(website_label: string): void;
-set_wrap_license(wrap_license: boolean): void;
-vfunc_activate_link(uri: string): boolean;
-}
-export class AccelGroup extends GObject.Object {constructor(config?: properties);
-readonly is_locked: boolean;
-readonly modifier_mask: Gdk.ModifierType;
-activate(accel_quark: GLib.Quark, acceleratable: GObject.Object, accel_key: number, accel_mods: Gdk.ModifierType): boolean;
-connect(accel_key: number, accel_mods: Gdk.ModifierType, accel_flags: AccelFlags, closure: GObject.Closure): void;
-connect(...args: never[]): never;
-connect_by_path(accel_path: string, closure: GObject.Closure): void;
-disconnect(closure: GObject.Closure | null): boolean;
-disconnect(...args: never[]): never;
-disconnect_key(accel_key: number, accel_mods: Gdk.ModifierType): boolean;
-find(find_func: AccelGroupFindFunc, data: object | null): AccelKey;
-get_is_locked(): boolean;
-get_modifier_mask(): Gdk.ModifierType;
-lock(): void;
-query(accel_key: number, accel_mods: Gdk.ModifierType): [AccelGroupEntry[] | null, number | null];
-unlock(): void;
-vfunc_accel_changed(keyval: number, modifier: Gdk.ModifierType, accel_closure: GObject.Closure): void;
-static from_accel_closure(closure: GObject.Closure): AccelGroup | null;
-}
-export class AccelLabel extends Label {constructor(config?: properties);
-accel_closure: GObject.Closure;
-accel_widget: Widget;
-get_accel(): [number,Gdk.ModifierType];
-get_accel_widget(): Widget | null;
-get_accel_width(): number;
-refetch(): boolean;
-set_accel(accelerator_key: number, accelerator_mods: Gdk.ModifierType): void;
-set_accel_closure(accel_closure: GObject.Closure | null): void;
-set_accel_widget(accel_widget: Widget | null): void;
-}
-export class AccelMap  {constructor(config?: properties);
-static add_entry(accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType): void;
-static add_filter(filter_pattern: string): void;
-static change_entry(accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType, replace: boolean): boolean;
-static foreach(data: object | null, foreach_func: AccelMapForeach): void;
-static foreach_unfiltered(data: object | null, foreach_func: AccelMapForeach): void;
-static get(): AccelMap;
-static load(file_name: unknown): void;
-static load_fd(fd: number): void;
-static load_scanner(scanner: GLib.Scanner): void;
-static lock_path(accel_path: string): void;
-static lookup_entry(accel_path: string): [boolean, AccelKey | null];
-static save(file_name: unknown): void;
-static save_fd(fd: number): void;
-static unlock_path(accel_path: string): void;
-}
-export class Accessible  {constructor(config?: properties);
-widget: Widget;
-readonly priv: AccessiblePrivate;
-connect_widget_destroyed(): void;
-get_widget(): Widget | null;
-set_widget(widget: Widget | null): void;
-}
-export class Action extends GObject.Object {constructor(config?: properties);
-action_group: ActionGroup;
-always_show_image: boolean;
-gicon: Gio.Icon;
-hide_if_empty: boolean;
-icon_name: string;
-is_important: boolean;
-label: string;
-name: string;
-sensitive: boolean;
-short_label: string;
-stock_id: string;
-tooltip: string;
-visible: boolean;
-visible_horizontal: boolean;
-visible_overflown: boolean;
-visible_vertical: boolean;
-activate(): void;
-block_activate(): void;
-connect_accelerator(): void;
-create_icon(icon_size: number): Widget;
-create_menu(): Widget;
-create_menu_item(): Widget;
-create_tool_item(): Widget;
-disconnect_accelerator(): void;
-get_accel_closure(): GObject.Closure;
-get_accel_path(): string;
-get_always_show_image(): boolean;
-get_gicon(): Gio.Icon;
-get_icon_name(): string;
-get_is_important(): boolean;
-get_label(): string;
-get_name(): string;
-get_proxies(): string[];
-get_sensitive(): boolean;
-get_short_label(): string;
-get_stock_id(): string;
-get_tooltip(): string;
-get_visible(): boolean;
-get_visible_horizontal(): boolean;
-get_visible_vertical(): boolean;
-is_sensitive(): boolean;
-is_visible(): boolean;
-set_accel_group(accel_group: AccelGroup | null): void;
-set_accel_path(accel_path: string): void;
-set_always_show_image(always_show: boolean): void;
-set_gicon(icon: Gio.Icon): void;
-set_icon_name(icon_name: string): void;
-set_is_important(is_important: boolean): void;
-set_label(label: string): void;
-set_sensitive(sensitive: boolean): void;
-set_short_label(short_label: string): void;
-set_stock_id(stock_id: string): void;
-set_tooltip(tooltip: string): void;
-set_visible(visible: boolean): void;
-set_visible_horizontal(visible_horizontal: boolean): void;
-set_visible_vertical(visible_vertical: boolean): void;
-unblock_activate(): void;
-vfunc_activate(): void;
-vfunc_connect_proxy(proxy: Widget): void;
-vfunc_create_menu(): Widget;
-vfunc_create_menu_item(): Widget;
-vfunc_create_tool_item(): Widget;
-vfunc_disconnect_proxy(proxy: Widget): void;
-}
-export class ActionBar extends Bin {constructor(config?: properties);
-get_center_widget(): Widget | null;
-pack_end(child: Widget): void;
-pack_start(child: Widget): void;
-set_center_widget(center_widget: Widget | null): void;
-}
-export class ActionGroup extends GObject.Object {constructor(config?: properties);
-accel_group: AccelGroup;
-name: string;
-sensitive: boolean;
-visible: boolean;
-add_action(action: Action): void;
-add_action_with_accel(action: Action, accelerator: string | null): void;
-add_actions(entries: ActionEntry[], n_entries: number, user_data: object | null): void;
-add_actions_full(entries: ActionEntry[], n_entries: number, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
-add_radio_actions(entries: RadioActionEntry[], n_entries: number, value: number, on_change: GObject.Callback, user_data: object | null): void;
-add_radio_actions_full(entries: RadioActionEntry[], n_entries: number, value: number, on_change: GObject.Callback, user_data: object | null, destroy: GLib.DestroyNotify): void;
-add_toggle_actions(entries: ToggleActionEntry[], n_entries: number, user_data: object | null): void;
-add_toggle_actions_full(entries: ToggleActionEntry[], n_entries: number, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
-get_accel_group(): AccelGroup;
-get_action(action_name: string): Action;
-get_name(): string;
-get_sensitive(): boolean;
-get_visible(): boolean;
-list_actions(): GLib.List;
-remove_action(action: Action): void;
-set_accel_group(accel_group: AccelGroup | null): void;
-set_sensitive(sensitive: boolean): void;
-set_translate_func(func: TranslateFunc, data: object | null, notify: GLib.DestroyNotify): void;
-set_translation_domain(domain: string | null): void;
-set_visible(visible: boolean): void;
-translate_string(string: string): string;
-vfunc_get_action(action_name: string): Action;
-}
-export class Adjustment extends GObject.InitiallyUnowned {constructor(config?: properties);
-lower: number;
-page_increment: number;
-page_size: number;
-step_increment: number;
-upper: number;
-value: number;
-changed(): void;
-clamp_page(lower: number, upper: number): void;
-configure(value: number, lower: number, upper: number, step_increment: number, page_increment: number, page_size: number): void;
-get_lower(): number;
-get_minimum_increment(): number;
-get_page_increment(): number;
-get_page_size(): number;
-get_step_increment(): number;
-get_upper(): number;
-get_value(): number;
-set_lower(lower: number): void;
-set_page_increment(page_increment: number): void;
-set_page_size(page_size: number): void;
-set_step_increment(step_increment: number): void;
-set_upper(upper: number): void;
-set_value(value: number): void;
-value_changed(): void;
-vfunc_changed(): void;
-vfunc_value_changed(): void;
-}
-export class Alignment extends Bin {constructor(config?: properties);
-bottom_padding: number;
-left_padding: number;
-right_padding: number;
-top_padding: number;
-xalign: number;
-xscale: number;
-yalign: number;
-yscale: number;
-get_padding(): [number | null,number | null,number | null,number | null];
-set(xalign: number, yalign: number, xscale: number, yscale: number): void;
-set_padding(padding_top: number, padding_bottom: number, padding_left: number, padding_right: number): void;
-}
-export class AppChooserButton extends ComboBox {constructor(config?: properties);
-heading: string;
-show_default_item: boolean;
-show_dialog_item: boolean;
-append_custom_item(name: string, label: string, icon: Gio.Icon): void;
-append_separator(): void;
-get_heading(): string | null;
-get_show_default_item(): boolean;
-get_show_dialog_item(): boolean;
-set_active_custom_item(name: string): void;
-set_heading(heading: string): void;
-set_show_default_item(setting: boolean): void;
-set_show_dialog_item(setting: boolean): void;
-vfunc_custom_item_activated(item_name: string): void;
-}
-export class AppChooserDialog extends Dialog {constructor(config?: properties);
-gfile: Gio.File;
-heading: string;static new_for_content_type(parent: Window | null, flags: DialogFlags, content_type: string): Widget;
-get_heading(): string | null;
-get_widget(): Widget;
-set_heading(heading: string): void;
-}
-export class AppChooserWidget extends Box {constructor(config?: properties);
-default_text: string;
-show_default: boolean;
-show_fallback: boolean;
-show_other: boolean;
-show_recommended: boolean;
-get_default_text(): string;
-get_show_all(): boolean;
-get_show_default(): boolean;
-get_show_fallback(): boolean;
-get_show_other(): boolean;
-get_show_recommended(): boolean;
-set_default_text(text: string): void;
-set_show_all(setting: boolean): void;
-set_show_default(setting: boolean): void;
-set_show_fallback(setting: boolean): void;
-set_show_other(setting: boolean): void;
-set_show_recommended(setting: boolean): void;
-vfunc_application_activated(app_info: Gio.AppInfo): void;
-vfunc_application_selected(app_info: Gio.AppInfo): void;
-vfunc_populate_popup(menu: Menu, app_info: Gio.AppInfo): void;
-}
-export class Application extends Gio.Application {constructor(config?: properties);
-readonly active_window: Window;
-app_menu: Gio.MenuModel;
-menubar: Gio.MenuModel;
-register_session: boolean;
-readonly screensaver_active: boolean;
-add_accelerator(accelerator: string, action_name: string, parameter: GLib.Variant | null): void;
-add_window(window: Window): void;
-get_accels_for_action(detailed_action_name: string): string[];
-get_actions_for_accel(accel: string): string[];
-get_active_window(): Window | null;
-get_app_menu(): Gio.MenuModel | null;
-get_menu_by_id(id: string): Gio.Menu;
-get_menubar(): Gio.MenuModel;
-get_window_by_id(id: number): Window | null;
-get_windows(): GLib.List;
-inhibit(window: Window | null, flags: ApplicationInhibitFlags, reason: string | null): number;
-is_inhibited(flags: ApplicationInhibitFlags): boolean;
-list_action_descriptions(): string[];
-prefers_app_menu(): boolean;
-remove_accelerator(action_name: string, parameter: GLib.Variant | null): void;
-remove_window(window: Window): void;
-set_accels_for_action(detailed_action_name: string, accels: string[]): void;
-set_app_menu(app_menu: Gio.MenuModel | null): void;
-set_menubar(menubar: Gio.MenuModel | null): void;
-uninhibit(cookie: number): void;
-vfunc_window_added(window: Window): void;
-vfunc_window_removed(window: Window): void;
-}
-export class ApplicationWindow extends Window {constructor(config?: properties);
-show_menubar: boolean;
-get_help_overlay(): ShortcutsWindow | null;
-get_id(): number;
-get_show_menubar(): boolean;
-set_help_overlay(help_overlay: ShortcutsWindow | null): void;
-set_show_menubar(show_menubar: boolean): void;
-}
-export class Arrow extends Misc {constructor(config?: properties);
-arrow_type: ArrowType;
-shadow_type: ShadowType;
-set(arrow_type: ArrowType, shadow_type: ShadowType): void;
-}
-export class ArrowAccessible  {constructor(config?: properties);
-readonly priv: ArrowAccessiblePrivate;
-}
-export class AspectFrame extends Frame {constructor(config?: properties);
-obey_child: boolean;
-ratio: number;
-xalign: number;
-yalign: number;
-set(xalign: number, yalign: number, ratio: number, obey_child: boolean): void;
-}
-export class Assistant extends Window {constructor(config?: properties);
-use_header_bar: number;
-add_action_widget(child: Widget): void;
-append_page(page: Widget): number;
-commit(): void;
-get_current_page(): number;
-get_n_pages(): number;
-get_nth_page(page_num: number): Widget | null;
-get_page_complete(page: Widget): boolean;
-get_page_has_padding(page: Widget): boolean;
-get_page_header_image(page: Widget): GdkPixbuf.Pixbuf;
-get_page_side_image(page: Widget): GdkPixbuf.Pixbuf;
-get_page_title(page: Widget): string;
-get_page_type(page: Widget): AssistantPageType;
-insert_page(page: Widget, position: number): number;
-next_page(): void;
-prepend_page(page: Widget): number;
-previous_page(): void;
-remove_action_widget(child: Widget): void;
-remove_page(page_num: number): void;
-set_current_page(page_num: number): void;
-set_forward_page_func(page_func: AssistantPageFunc | null, data: object | null, destroy: GLib.DestroyNotify): void;
-set_page_complete(page: Widget, complete: boolean): void;
-set_page_has_padding(page: Widget, has_padding: boolean): void;
-set_page_header_image(page: Widget, pixbuf: GdkPixbuf.Pixbuf | null): void;
-set_page_side_image(page: Widget, pixbuf: GdkPixbuf.Pixbuf | null): void;
-set_page_title(page: Widget, title: string): void;
-set_page_type(page: Widget, type: AssistantPageType): void;
-update_buttons_state(): void;
-vfunc_apply(): void;
-vfunc_cancel(): void;
-vfunc_close(): void;
-vfunc_prepare(page: Widget): void;
-}
-export class Bin  {constructor(config?: properties);
-readonly container: Container;
-readonly priv: BinPrivate;
-get_child(): Widget | null;
-}
-export class BooleanCellAccessible  {constructor(config?: properties);
-readonly priv: BooleanCellAccessiblePrivate;
-}
-export class Box extends Container {constructor(config?: properties);
-baseline_position: BaselinePosition;
-homogeneous: boolean;
-spacing: number;
-get_baseline_position(): BaselinePosition;
-get_center_widget(): Widget | null;
-get_homogeneous(): boolean;
-get_spacing(): number;
-pack_end(child: Widget, expand: boolean, fill: boolean, padding: number): void;
-pack_start(child: Widget, expand: boolean, fill: boolean, padding: number): void;
-query_child_packing(child: Widget): [boolean,boolean,number,PackType];
-reorder_child(child: Widget, position: number): void;
-set_baseline_position(position: BaselinePosition): void;
-set_center_widget(widget: Widget | null): void;
-set_child_packing(child: Widget, expand: boolean, fill: boolean, padding: number, pack_type: PackType): void;
-set_homogeneous(homogeneous: boolean): void;
-set_spacing(spacing: number): void;
-}
-export class Builder extends GObject.Object {constructor(config?: properties);
-translation_domain: string;static new_from_file(filename: string): Builder;
-static new_from_resource(resource_path: string): Builder;
-static new_from_string(string: string, length: number): Builder;
-add_callback_symbol(callback_name: string, callback_symbol: GObject.Callback): void;
-add_callback_symbols(first_callback_name: string, first_callback_symbol: GObject.Callback, ___: unknown[]): void;
-add_from_file(filename: string): number;
-add_from_resource(resource_path: string): number;
-add_from_string(buffer: string, length: number): number;
-add_objects_from_file(filename: string, object_ids: string[]): number;
-add_objects_from_resource(resource_path: string, object_ids: string[]): number;
-add_objects_from_string(buffer: string, length: number, object_ids: string[]): number;
-connect_signals(user_data: object | null): void;
-connect_signals_full(func: BuilderConnectFunc, user_data: object | null): void;
-expose_object(name: string, object: GObject.Object): void;
-extend_with_template(widget: Widget, template_type: unknown, buffer: string, length: number): number;
-get_application(): Application | null;
-get_object(name: string): GObject.Object | null;
-get_objects(): string[];
-get_translation_domain(): string;
-get_type_from_name(type_name: string): unknown;
-lookup_callback_symbol(callback_name: string): GObject.Callback | null;
-set_application(application: Application): void;
-set_translation_domain(domain: string | null): void;
-value_from_string(pspec: GObject.ParamSpec, string: string): [boolean, GObject.Value];
-value_from_string_type(type: unknown, string: string): [boolean, GObject.Value];
-vfunc_get_type_from_name(type_name: string): unknown;
-}
-export class Button extends Bin {constructor(config?: properties);
-always_show_image: boolean;
-image: Widget;
-image_position: PositionType;
-label: string;
-relief: ReliefStyle;
-use_stock: boolean;
-use_underline: boolean;
-xalign: number;
-yalign: number;static new_from_icon_name(icon_name: string | null, size: number): Widget;
-static new_from_stock(stock_id: string): Widget;
-static new_with_label(label: string): Widget;
-static new_with_mnemonic(label: string): Widget;
-clicked(): void;
-enter(): void;
-get_alignment(): [number,number];
-get_always_show_image(): boolean;
-get_event_window(): Gdk.Window;
-get_focus_on_click(): boolean;
-get_image(): Widget | null;
-get_image_position(): PositionType;
-get_label(): string;
-get_relief(): ReliefStyle;
-get_use_stock(): boolean;
-get_use_underline(): boolean;
-leave(): void;
-pressed(): void;
-released(): void;
-set_alignment(xalign: number, yalign: number): void;
-set_always_show_image(always_show: boolean): void;
-set_focus_on_click(focus_on_click: boolean): void;
-set_image(image: Widget | null): void;
-set_image_position(position: PositionType): void;
-set_label(label: string): void;
-set_relief(relief: ReliefStyle): void;
-set_use_stock(use_stock: boolean): void;
-set_use_underline(use_underline: boolean): void;
-vfunc_activate(): void;
-vfunc_clicked(): void;
-vfunc_enter(): void;
-vfunc_leave(): void;
-vfunc_pressed(): void;
-vfunc_released(): void;
-}
-export class ButtonAccessible  {constructor(config?: properties);
-readonly priv: ButtonAccessiblePrivate;
-}
-export class ButtonBox extends Box {constructor(config?: properties);
-layout_style: ButtonBoxStyle;
-get_child_non_homogeneous(child: Widget): boolean;
-get_child_secondary(child: Widget): boolean;
-get_layout(): ButtonBoxStyle;
-set_child_non_homogeneous(child: Widget, non_homogeneous: boolean): void;
-set_child_secondary(child: Widget, is_secondary: boolean): void;
-set_layout(layout_style: ButtonBoxStyle): void;
-}
-export class Calendar extends Widget {constructor(config?: properties);
-day: number;
-detail_height_rows: number;
-detail_width_chars: number;
-month: number;
-no_month_change: boolean;
-show_day_names: boolean;
-show_details: boolean;
-show_heading: boolean;
-show_week_numbers: boolean;
-year: number;
-clear_marks(): void;
-get_date(): [number | null,number | null,number | null];
-get_day_is_marked(day: number): boolean;
-get_detail_height_rows(): number;
-get_detail_width_chars(): number;
-get_display_options(): CalendarDisplayOptions;
-mark_day(day: number): void;
-select_day(day: number): void;
-select_month(month: number, year: number): void;
-set_detail_func(func: CalendarDetailFunc, data: object | null, destroy: GLib.DestroyNotify): void;
-set_detail_height_rows(rows: number): void;
-set_detail_width_chars(chars: number): void;
-set_display_options(flags: CalendarDisplayOptions): void;
-unmark_day(day: number): void;
-vfunc_day_selected(): void;
-vfunc_day_selected_double_click(): void;
-vfunc_month_changed(): void;
-vfunc_next_month(): void;
-vfunc_next_year(): void;
-vfunc_prev_month(): void;
-vfunc_prev_year(): void;
-}
-export class CellAccessible  {constructor(config?: properties);
-readonly priv: CellAccessiblePrivate;
-}
-export class CellArea  {constructor(config?: properties);
-readonly edit_widget: CellEditable;
-readonly edited_cell: CellRenderer;
-focus_cell: CellRenderer;
-readonly priv: CellAreaPrivate;
-activate(context: CellAreaContext, widget: Widget, cell_area: Gdk.Rectangle, flags: CellRendererState, edit_only: boolean): boolean;
-activate_cell(widget: Widget, renderer: CellRenderer, event: Gdk.Event, cell_area: Gdk.Rectangle, flags: CellRendererState): boolean;
-add(renderer: CellRenderer): void;
-add_focus_sibling(renderer: CellRenderer, sibling: CellRenderer): void;
-add_with_properties(renderer: CellRenderer, first_prop_name: string, ___: unknown[]): void;
-apply_attributes(tree_model: TreeModel, iter: TreeIter, is_expander: boolean, is_expanded: boolean): void;
-attribute_connect(renderer: CellRenderer, attribute: string, column: number): void;
-attribute_disconnect(renderer: CellRenderer, attribute: string): void;
-attribute_get_column(renderer: CellRenderer, attribute: string): number;
-cell_get(renderer: CellRenderer, first_prop_name: string, ___: unknown[]): void;
-cell_get_property(renderer: CellRenderer, property_name: string, value: GObject.Value): void;
-cell_get_valist(renderer: CellRenderer, first_property_name: string, var_args: any): void;
-cell_set(renderer: CellRenderer, first_prop_name: string, ___: unknown[]): void;
-cell_set_property(renderer: CellRenderer, property_name: string, value: GObject.Value): void;
-cell_set_valist(renderer: CellRenderer, first_property_name: string, var_args: any): void;
-copy_context(context: CellAreaContext): CellAreaContext;
-create_context(): CellAreaContext;
-event(context: CellAreaContext, widget: Widget, event: Gdk.Event, cell_area: Gdk.Rectangle, flags: CellRendererState): number;
-focus(direction: DirectionType): boolean;
-foreach(callback: CellCallback, callback_data: object | null): void;
-foreach_alloc(context: CellAreaContext, widget: Widget, cell_area: Gdk.Rectangle, background_area: Gdk.Rectangle, callback: CellAllocCallback, callback_data: object | null): void;
-get_cell_allocation(context: CellAreaContext, widget: Widget, renderer: CellRenderer, cell_area: Gdk.Rectangle): [Gdk.Rectangle];
-get_cell_at_position(context: CellAreaContext, widget: Widget, cell_area: Gdk.Rectangle, x: number, y: number): [CellRenderer, Gdk.Rectangle | null];
-get_current_path_string(): string;
-get_edit_widget(): CellEditable;
-get_edited_cell(): CellRenderer;
-get_focus_cell(): CellRenderer;
-get_focus_from_sibling(renderer: CellRenderer): CellRenderer | null;
-get_focus_siblings(renderer: CellRenderer): GLib.List;
-get_preferred_height(context: CellAreaContext, widget: Widget): [number | null,number | null];
-get_preferred_height_for_width(context: CellAreaContext, widget: Widget, width: number): [number | null,number | null];
-get_preferred_width(context: CellAreaContext, widget: Widget): [number | null,number | null];
-get_preferred_width_for_height(context: CellAreaContext, widget: Widget, height: number): [number | null,number | null];
-get_request_mode(): SizeRequestMode;
-has_renderer(renderer: CellRenderer): boolean;
-inner_cell_area(widget: Widget, cell_area: Gdk.Rectangle): [Gdk.Rectangle];
-is_activatable(): boolean;
-is_focus_sibling(renderer: CellRenderer, sibling: CellRenderer): boolean;
-remove(renderer: CellRenderer): void;
-remove_focus_sibling(renderer: CellRenderer, sibling: CellRenderer): void;
-render(context: CellAreaContext, widget: Widget, cr: cairo.Context, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState, paint_focus: boolean): void;
-request_renderer(renderer: CellRenderer, orientation: Orientation, widget: Widget, for_size: number): [number | null,number | null];
-set_focus_cell(renderer: CellRenderer): void;
-stop_editing(canceled: boolean): void;
-}
-export class CellAreaBox extends CellArea {constructor(config?: properties);
-spacing: number;
-get_spacing(): number;
-pack_end(renderer: CellRenderer, expand: boolean, align: boolean, fixed: boolean): void;
-pack_start(renderer: CellRenderer, expand: boolean, align: boolean, fixed: boolean): void;
-set_spacing(spacing: number): void;
-}
-export class CellAreaContext  {constructor(config?: properties);
-area: CellArea;
-readonly minimum_height: number;
-readonly minimum_width: number;
-readonly natural_height: number;
-readonly natural_width: number;
-readonly priv: CellAreaContextPrivate;
-allocate(width: number, height: number): void;
-get_allocation(): [number | null,number | null];
-get_area(): CellArea;
-get_preferred_height(): [number | null,number | null];
-get_preferred_height_for_width(width: number): [number | null,number | null];
-get_preferred_width(): [number | null,number | null];
-get_preferred_width_for_height(height: number): [number | null,number | null];
-push_preferred_height(minimum_height: number, natural_height: number): void;
-push_preferred_width(minimum_width: number, natural_width: number): void;
-reset(): void;
-}
-export class CellRenderer  {constructor(config?: properties);
-cell_background: string;
-cell_background_gdk: Gdk.Color;
-cell_background_rgba: Gdk.RGBA;
-cell_background_set: boolean;
-readonly editing: boolean;
-height: number;
-is_expanded: boolean;
-is_expander: boolean;
-mode: CellRendererMode;
-sensitive: boolean;
-visible: boolean;
-width: number;
-xalign: number;
-xpad: number;
-yalign: number;
-ypad: number;
-readonly priv: CellRendererPrivate;
-activate(event: Gdk.Event, widget: Widget, path: string, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState): boolean;
-get_aligned_area(widget: Widget, flags: CellRendererState, cell_area: Gdk.Rectangle): [Gdk.Rectangle];
-get_alignment(): [number | null,number | null];
-get_fixed_size(): [number | null,number | null];
-get_padding(): [number | null,number | null];
-get_preferred_height(widget: Widget): [number | null,number | null];
-get_preferred_height_for_width(widget: Widget, width: number): [number | null,number | null];
-get_preferred_size(widget: Widget): [Requisition | null,Requisition | null];
-get_preferred_width(widget: Widget): [number | null,number | null];
-get_preferred_width_for_height(widget: Widget, height: number): [number | null,number | null];
-get_request_mode(): SizeRequestMode;
-get_sensitive(): boolean;
-get_size(widget: Widget, cell_area: Gdk.Rectangle | null): [number | null,number | null,number | null,number | null];
-get_state(widget: Widget | null, cell_state: CellRendererState): StateFlags;
-get_visible(): boolean;
-is_activatable(): boolean;
-render(cr: cairo.Context, widget: Widget, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState): void;
-set_alignment(xalign: number, yalign: number): void;
-set_fixed_size(width: number, height: number): void;
-set_padding(xpad: number, ypad: number): void;
-set_sensitive(sensitive: boolean): void;
-set_visible(visible: boolean): void;
-start_editing(event: Gdk.Event | null, widget: Widget, path: string, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState): CellEditable | null;
-stop_editing(canceled: boolean): void;
-}
-export class CellRendererAccel extends CellRendererText {constructor(config?: properties);
-accel_key: number;
-accel_mode: CellRendererAccelMode;
-accel_mods: Gdk.ModifierType;
-keycode: number;
-vfunc_accel_cleared(path_string: string): void;
-vfunc_accel_edited(path_string: string, accel_key: number, accel_mods: Gdk.ModifierType, hardware_keycode: number): void;
-}
-export class CellRendererCombo extends CellRendererText {constructor(config?: properties);
-has_entry: boolean;
-model: TreeModel;
-text_column: number;
-}
-export class CellRendererPixbuf extends CellRenderer {constructor(config?: properties);
-follow_state: boolean;
-gicon: Gio.Icon;
-icon_name: string;
-pixbuf: GdkPixbuf.Pixbuf;
-pixbuf_expander_closed: GdkPixbuf.Pixbuf;
-pixbuf_expander_open: GdkPixbuf.Pixbuf;
-stock_detail: string;
-stock_id: string;
-stock_size: number;
-surface: cairo.Surface;
-}
-export class CellRendererProgress extends CellRenderer {constructor(config?: properties);
-inverted: boolean;
-pulse: number;
-text: string;
-text_xalign: number;
-text_yalign: number;
-value: number;
-}
-export class CellRendererSpin extends CellRendererText {constructor(config?: properties);
-adjustment: Adjustment;
-climb_rate: number;
-digits: number;
-}
-export class CellRendererSpinner extends CellRenderer {constructor(config?: properties);
-active: boolean;
-pulse: number;
-size: IconSize;
-}
-export class CellRendererText extends CellRenderer {constructor(config?: properties);
-align_set: boolean;
-alignment: Pango.Alignment;
-attributes: Pango.AttrList;
-background: string;
-background_gdk: Gdk.Color;
-background_rgba: Gdk.RGBA;
-background_set: boolean;
-editable: boolean;
-editable_set: boolean;
-ellipsize: Pango.EllipsizeMode;
-ellipsize_set: boolean;
-family: string;
-family_set: boolean;
-font: string;
-font_desc: Pango.FontDescription;
-foreground: string;
-foreground_gdk: Gdk.Color;
-foreground_rgba: Gdk.RGBA;
-foreground_set: boolean;
-language: string;
-language_set: boolean;
-markup: string;
-max_width_chars: number;
-placeholder_text: string;
-rise: number;
-rise_set: boolean;
-scale: number;
-scale_set: boolean;
-single_paragraph_mode: boolean;
-size: number;
-size_points: number;
-size_set: boolean;
-stretch: Pango.Stretch;
-stretch_set: boolean;
-strikethrough: boolean;
-strikethrough_set: boolean;
-style: Pango.Style;
-style_set: boolean;
-text: string;
-underline: Pango.Underline;
-underline_set: boolean;
-variant: Pango.Variant;
-variant_set: boolean;
-weight: number;
-weight_set: boolean;
-width_chars: number;
-wrap_mode: Pango.WrapMode;
-wrap_width: number;
-set_fixed_height_from_font(number_of_rows: number): void;
-vfunc_edited(path: string, new_text: string): void;
-}
-export class CellRendererToggle extends CellRenderer {constructor(config?: properties);
-activatable: boolean;
-active: boolean;
-inconsistent: boolean;
-indicator_size: number;
-radio: boolean;
-get_activatable(): boolean;
-get_active(): boolean;
-get_radio(): boolean;
-set_activatable(setting: boolean): void;
-set_active(setting: boolean): void;
-set_radio(radio: boolean): void;
-vfunc_toggled(path: string): void;
-}
-export class CellView extends Widget {constructor(config?: properties);
-background: string;
-background_gdk: Gdk.Color;
-background_rgba: Gdk.RGBA;
-background_set: boolean;
-cell_area: CellArea;
-cell_area_context: CellAreaContext;
-draw_sensitive: boolean;
-fit_model: boolean;
-model: TreeModel;static new_with_context(area: CellArea, context: CellAreaContext): Widget;
-static new_with_markup(markup: string): Widget;
-static new_with_pixbuf(pixbuf: GdkPixbuf.Pixbuf): Widget;
-static new_with_text(text: string): Widget;
-get_displayed_row(): TreePath | null;
-get_draw_sensitive(): boolean;
-get_fit_model(): boolean;
-get_model(): TreeModel | null;
-get_size_of_row(path: TreePath): [boolean, Requisition];
-set_background_color(color: Gdk.Color): void;
-set_background_rgba(rgba: Gdk.RGBA): void;
-set_displayed_row(path: TreePath | null): void;
-set_draw_sensitive(draw_sensitive: boolean): void;
-set_fit_model(fit_model: boolean): void;
-set_model(model: TreeModel | null): void;
-}
-export class CheckButton extends ToggleButton {constructor(config?: properties);
-static new_with_label(label: string): Widget;
-static new_with_mnemonic(label: string): Widget;
-vfunc_draw_indicator(cr: cairo.Context): void;
-}
-export class CheckMenuItem extends MenuItem {constructor(config?: properties);
-active: boolean;
-draw_as_radio: boolean;
-inconsistent: boolean;static new_with_label(label: string): Widget;
-static new_with_mnemonic(label: string): Widget;
-get_active(): boolean;
-get_draw_as_radio(): boolean;
-get_inconsistent(): boolean;
-set_active(is_active: boolean): void;
-set_draw_as_radio(draw_as_radio: boolean): void;
-set_inconsistent(setting: boolean): void;
-toggled(): void;
-vfunc_draw_indicator(cr: cairo.Context): void;
-vfunc_toggled(): void;
-}
-export class CheckMenuItemAccessible  {constructor(config?: properties);
-readonly priv: CheckMenuItemAccessiblePrivate;
-}
-export class Clipboard  {constructor(config?: properties);
-clear(): void;
-get_display(): Gdk.Display;
-get_owner(): GObject.Object | null;
-get_selection(): Gdk.Atom;
-request_contents(target: Gdk.Atom, callback: ClipboardReceivedFunc, user_data: object | null): void;
-request_image(callback: ClipboardImageReceivedFunc, user_data: object | null): void;
-request_rich_text(buffer: TextBuffer, callback: ClipboardRichTextReceivedFunc, user_data: object | null): void;
-request_targets(callback: ClipboardTargetsReceivedFunc, user_data: object | null): void;
-request_text(callback: ClipboardTextReceivedFunc, user_data: object | null): void;
-request_uris(callback: ClipboardURIReceivedFunc, user_data: object | null): void;
-set_can_store(targets: TargetEntry[] | null, n_targets: number): void;
-set_image(pixbuf: GdkPixbuf.Pixbuf): void;
-set_text(text: string, len: number): void;
-set_with_data(targets: TargetEntry[], n_targets: number, get_func: ClipboardGetFunc, clear_func: ClipboardClearFunc, user_data: object | null): boolean;
-set_with_owner(targets: TargetEntry[], n_targets: number, get_func: ClipboardGetFunc, clear_func: ClipboardClearFunc, owner: GObject.Object): boolean;
-store(): void;
-wait_for_contents(target: Gdk.Atom): SelectionData | null;
-wait_for_image(): GdkPixbuf.Pixbuf | null;
-wait_for_rich_text(buffer: TextBuffer): [number[] | null, Gdk.Atom,number];
-wait_for_targets(): [boolean, Gdk.Atom[],number];
-wait_for_text(): string | null;
-wait_for_uris(): string[] | null;
-wait_is_image_available(): boolean;
-wait_is_rich_text_available(buffer: TextBuffer): boolean;
-wait_is_target_available(target: Gdk.Atom): boolean;
-wait_is_text_available(): boolean;
-wait_is_uris_available(): boolean;
-static get(selection: Gdk.Atom): Clipboard;
-static get_default(display: Gdk.Display): Clipboard;
-static get_for_display(display: Gdk.Display, selection: Gdk.Atom): Clipboard;
-}
-export class ColorButton extends Button {constructor(config?: properties);
-alpha: number;
-color: Gdk.Color;
-rgba: Gdk.RGBA;
-show_editor: boolean;
-title: string;
-use_alpha: boolean;static new_with_color(color: Gdk.Color): Widget;
-static new_with_rgba(rgba: Gdk.RGBA): Widget;
-get_alpha(): number;
-get_color(): [Gdk.Color];
-get_rgba(): [Gdk.RGBA];
-get_title(): string;
-get_use_alpha(): boolean;
-set_alpha(alpha: number): void;
-set_color(color: Gdk.Color): void;
-set_rgba(rgba: Gdk.RGBA): void;
-set_title(title: string): void;
-set_use_alpha(use_alpha: boolean): void;
-vfunc_color_set(): void;
-}
-export class ColorChooserDialog extends Dialog {constructor(config?: properties);
-show_editor: boolean;
-}
-export class ColorChooserWidget extends Box {constructor(config?: properties);
-show_editor: boolean;
-}
-export class ColorSelection extends Box {constructor(config?: properties);
-current_alpha: number;
-current_color: Gdk.Color;
-current_rgba: Gdk.RGBA;
-has_opacity_control: boolean;
-has_palette: boolean;
-get_current_alpha(): number;
-get_current_color(): [Gdk.Color];
-get_current_rgba(): [Gdk.RGBA];
-get_has_opacity_control(): boolean;
-get_has_palette(): boolean;
-get_previous_alpha(): number;
-get_previous_color(): [Gdk.Color];
-get_previous_rgba(): [Gdk.RGBA];
-is_adjusting(): boolean;
-set_current_alpha(alpha: number): void;
-set_current_color(color: Gdk.Color): void;
-set_current_rgba(rgba: Gdk.RGBA): void;
-set_has_opacity_control(has_opacity: boolean): void;
-set_has_palette(has_palette: boolean): void;
-set_previous_alpha(alpha: number): void;
-set_previous_color(color: Gdk.Color): void;
-set_previous_rgba(rgba: Gdk.RGBA): void;
-vfunc_color_changed(): void;
-static palette_from_string(str: string): [boolean, Gdk.Color[],number];
-static palette_to_string(colors: Gdk.Color[], n_colors: number): string;
-static set_change_palette_with_screen_hook(func: ColorSelectionChangePaletteWithScreenFunc): ColorSelectionChangePaletteWithScreenFunc;
-}
-export class ColorSelectionDialog extends Dialog {constructor(config?: properties);
-readonly cancel_button: Widget;
-readonly color_selection: Widget;
-readonly help_button: Widget;
-readonly ok_button: Widget;
-get_color_selection(): Widget;
-}
-export class ComboBox extends Bin {constructor(config?: properties);
-active: number;
-active_id: string;
-add_tearoffs: boolean;
-button_sensitivity: SensitivityType;
-cell_area: CellArea;
-column_span_column: number;
-entry_text_column: number;
-has_entry: boolean;
-has_frame: boolean;
-id_column: number;
-model: TreeModel;
-popup_fixed_width: boolean;
-readonly popup_shown: boolean;
-row_span_column: number;
-tearoff_title: string;
-wrap_width: number;static new_with_area(area: CellArea): Widget;
-static new_with_area_and_entry(area: CellArea): Widget;
-static new_with_entry(): Widget;
-static new_with_model(model: TreeModel): Widget;
-static new_with_model_and_entry(model: TreeModel): Widget;
-get_active(): number;
-get_active_id(): string | null;
-get_active_iter(): [boolean, TreeIter];
-get_add_tearoffs(): boolean;
-get_button_sensitivity(): SensitivityType;
-get_column_span_column(): number;
-get_entry_text_column(): number;
-get_focus_on_click(): boolean;
-get_has_entry(): boolean;
-get_id_column(): number;
-get_model(): TreeModel;
-get_popup_accessible(): Atk.Object;
-get_popup_fixed_width(): boolean;
-get_row_separator_func(): TreeViewRowSeparatorFunc;
-get_row_span_column(): number;
-get_title(): string;
-get_wrap_width(): number;
-popdown(): void;
-popup(): void;
-popup_for_device(device: Gdk.Device): void;
-set_active(index_: number): void;
-set_active_id(active_id: string | null): boolean;
-set_active_iter(iter: TreeIter | null): void;
-set_add_tearoffs(add_tearoffs: boolean): void;
-set_button_sensitivity(sensitivity: SensitivityType): void;
-set_column_span_column(column_span: number): void;
-set_entry_text_column(text_column: number): void;
-set_focus_on_click(focus_on_click: boolean): void;
-set_id_column(id_column: number): void;
-set_model(model: TreeModel | null): void;
-set_popup_fixed_width(fixed: boolean): void;
-set_row_separator_func(func: TreeViewRowSeparatorFunc, data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_row_span_column(row_span: number): void;
-set_title(title: string): void;
-set_wrap_width(width: number): void;
-vfunc_changed(): void;
-vfunc_format_entry_text(path: string): string;
-}
-export class ComboBoxAccessible  {constructor(config?: properties);
-readonly priv: ComboBoxAccessiblePrivate;
-}
-export class ComboBoxText extends ComboBox {constructor(config?: properties);
-static new_with_entry(): Widget;
-append(id: string | null, text: string): void;
-append_text(text: string): void;
-get_active_text(): string;
-insert(position: number, id: string | null, text: string): void;
-insert_text(position: number, text: string): void;
-prepend(id: string | null, text: string): void;
-prepend_text(text: string): void;
-remove(position: number): void;
-remove_all(): void;
-}
-export class Container  {constructor(config?: properties);
-border_width: number;
-child: Widget;
-resize_mode: ResizeMode;
-readonly widget: Widget;
-readonly priv: ContainerPrivate;
-add(widget: Widget): void;
-add_with_properties(widget: Widget, first_prop_name: string, ___: unknown[]): void;
-check_resize(): void;
-child_get(child: Widget, first_prop_name: string, ___: unknown[]): void;
-child_get_property(child: Widget, property_name: string, value: GObject.Value): void;
-child_get_valist(child: Widget, first_property_name: string, var_args: any): void;
-child_notify(child: Widget, child_property: string): void;
-child_notify_by_pspec(child: Widget, pspec: GObject.ParamSpec): void;
-child_set(child: Widget, first_prop_name: string, ___: unknown[]): void;
-child_set_property(child: Widget, property_name: string, value: GObject.Value): void;
-child_set_valist(child: Widget, first_property_name: string, var_args: any): void;
-child_type(): unknown;
-forall(callback: Callback, callback_data: object | null): void;
-foreach(callback: Callback, callback_data: object | null): void;
-get_border_width(): number;
-get_children(): GLib.List;
-get_focus_chain(): [boolean, GLib.List];
-get_focus_child(): Widget | null;
-get_focus_hadjustment(): Adjustment | null;
-get_focus_vadjustment(): Adjustment | null;
-get_path_for_child(child: Widget): WidgetPath;
-get_resize_mode(): ResizeMode;
-propagate_draw(child: Widget, cr: cairo.Context): void;
-remove(widget: Widget): void;
-resize_children(): void;
-set_border_width(border_width: number): void;
-set_focus_chain(focusable_widgets: GLib.List): void;
-set_focus_child(child: Widget | null): void;
-set_focus_hadjustment(adjustment: Adjustment): void;
-set_focus_vadjustment(adjustment: Adjustment): void;
-set_reallocate_redraws(needs_redraws: boolean): void;
-set_resize_mode(resize_mode: ResizeMode): void;
-unset_focus_chain(): void;
-}
-export class ContainerAccessible  {constructor(config?: properties);
-readonly priv: ContainerAccessiblePrivate;
-}
-export class ContainerCellAccessible extends CellAccessible {constructor(config?: properties);
-add_child(child: CellAccessible): void;
-get_children(): GLib.List;
-remove_child(child: CellAccessible): void;
-}
-export class CssProvider extends GObject.Object {constructor(config?: properties);
-load_from_data(data: number[], length: number): boolean;
-load_from_file(file: Gio.File): boolean;
-load_from_path(path: string): boolean;
-load_from_resource(resource_path: string): void;
-to_string(): string;
-vfunc_parsing_error(section: CssSection, error: GLib.Error): void;
-static get_default(): CssProvider;
-static get_named(name: string, variant: string | null): CssProvider;
-}
-export class Dialog extends Window {constructor(config?: properties);
-use_header_bar: number;static new_with_buttons(title: string | null, parent: Window | null, flags: DialogFlags, first_button_text: string | null, ___: unknown[]): Widget;
-add_action_widget(child: Widget, response_id: number): void;
-add_button(button_text: string, response_id: number): Widget;
-add_buttons(first_button_text: string, ___: unknown[]): void;
-get_action_area(): Widget;
-get_content_area(): Box;
-get_header_bar(): Widget;
-get_response_for_widget(widget: Widget): number;
-get_widget_for_response(response_id: number): Widget | null;
-response(response_id: number): void;
-run(): number;
-set_alternative_button_order(first_response_id: number, ___: unknown[]): void;
-set_alternative_button_order_from_array(n_params: number, new_order: number[]): void;
-set_default_response(response_id: number): void;
-set_response_sensitive(response_id: number, setting: boolean): void;
-vfunc_close(): void;
-vfunc_response(response_id: number): void;
-}
-export class DrawingArea extends Widget {constructor(config?: properties);
-}
-export class Entry extends Widget {constructor(config?: properties);
-activates_default: boolean;
-attributes: Pango.AttrList;
-buffer: EntryBuffer;
-caps_lock_warning: boolean;
-completion: EntryCompletion;
-readonly cursor_position: number;
-editable: boolean;
-enable_emoji_completion: boolean;
-has_frame: boolean;
-im_module: string;
-inner_border: Border;
-input_hints: InputHints;
-input_purpose: InputPurpose;
-invisible_char: number;
-invisible_char_set: boolean;
-max_length: number;
-max_width_chars: number;
-overwrite_mode: boolean;
-placeholder_text: string;
-populate_all: boolean;
-primary_icon_activatable: boolean;
-primary_icon_gicon: Gio.Icon;
-primary_icon_name: string;
-primary_icon_pixbuf: GdkPixbuf.Pixbuf;
-primary_icon_sensitive: boolean;
-primary_icon_stock: string;
-readonly primary_icon_storage_type: ImageType;
-primary_icon_tooltip_markup: string;
-primary_icon_tooltip_text: string;
-progress_fraction: number;
-progress_pulse_step: number;
-readonly scroll_offset: number;
-secondary_icon_activatable: boolean;
-secondary_icon_gicon: Gio.Icon;
-secondary_icon_name: string;
-secondary_icon_pixbuf: GdkPixbuf.Pixbuf;
-secondary_icon_sensitive: boolean;
-secondary_icon_stock: string;
-readonly secondary_icon_storage_type: ImageType;
-secondary_icon_tooltip_markup: string;
-secondary_icon_tooltip_text: string;
-readonly selection_bound: number;
-shadow_type: ShadowType;
-show_emoji_icon: boolean;
-tabs: Pango.TabArray;
-text: string;
-readonly text_length: number;
-truncate_multiline: boolean;
-visibility: boolean;
-width_chars: number;
-xalign: number;static new_with_buffer(buffer: EntryBuffer): Widget;
-get_activates_default(): boolean;
-get_alignment(): number;
-get_attributes(): Pango.AttrList | null;
-get_buffer(): EntryBuffer;
-get_completion(): EntryCompletion;
-get_current_icon_drag_source(): number;
-get_cursor_hadjustment(): Adjustment | null;
-get_has_frame(): boolean;
-get_icon_activatable(icon_pos: EntryIconPosition): boolean;
-get_icon_area(icon_pos: EntryIconPosition): [Gdk.Rectangle];
-get_icon_at_pos(x: number, y: number): number;
-get_icon_gicon(icon_pos: EntryIconPosition): Gio.Icon | null;
-get_icon_name(icon_pos: EntryIconPosition): string | null;
-get_icon_pixbuf(icon_pos: EntryIconPosition): GdkPixbuf.Pixbuf | null;
-get_icon_sensitive(icon_pos: EntryIconPosition): boolean;
-get_icon_stock(icon_pos: EntryIconPosition): string;
-get_icon_storage_type(icon_pos: EntryIconPosition): ImageType;
-get_icon_tooltip_markup(icon_pos: EntryIconPosition): string | null;
-get_icon_tooltip_text(icon_pos: EntryIconPosition): string | null;
-get_inner_border(): Border | null;
-get_input_hints(): InputHints;
-get_input_purpose(): InputPurpose;
-get_invisible_char(): number;
-get_layout(): Pango.Layout;
-get_layout_offsets(): [number | null,number | null];
-get_max_length(): number;
-get_max_width_chars(): number;
-get_overwrite_mode(): boolean;
-get_placeholder_text(): string;
-get_progress_fraction(): number;
-get_progress_pulse_step(): number;
-get_tabs(): Pango.TabArray | null;
-get_text(): string;
-get_text_area(): [Gdk.Rectangle];
-get_text_length(): number;
-get_visibility(): boolean;
-get_width_chars(): number;
-grab_focus_without_selecting(): void;
-im_context_filter_keypress(event: Gdk.EventKey): boolean;
-layout_index_to_text_index(layout_index: number): number;
-progress_pulse(): void;
-reset_im_context(): void;
-set_activates_default(setting: boolean): void;
-set_alignment(xalign: number): void;
-set_attributes(attrs: Pango.AttrList): void;
-set_buffer(buffer: EntryBuffer): void;
-set_completion(completion: EntryCompletion | null): void;
-set_cursor_hadjustment(adjustment: Adjustment | null): void;
-set_has_frame(setting: boolean): void;
-set_icon_activatable(icon_pos: EntryIconPosition, activatable: boolean): void;
-set_icon_drag_source(icon_pos: EntryIconPosition, target_list: TargetList, actions: Gdk.DragAction): void;
-set_icon_from_gicon(icon_pos: EntryIconPosition, icon: Gio.Icon | null): void;
-set_icon_from_icon_name(icon_pos: EntryIconPosition, icon_name: string | null): void;
-set_icon_from_pixbuf(icon_pos: EntryIconPosition, pixbuf: GdkPixbuf.Pixbuf | null): void;
-set_icon_from_stock(icon_pos: EntryIconPosition, stock_id: string | null): void;
-set_icon_sensitive(icon_pos: EntryIconPosition, sensitive: boolean): void;
-set_icon_tooltip_markup(icon_pos: EntryIconPosition, tooltip: string | null): void;
-set_icon_tooltip_text(icon_pos: EntryIconPosition, tooltip: string | null): void;
-set_inner_border(border: Border | null): void;
-set_input_hints(hints: InputHints): void;
-set_input_purpose(purpose: InputPurpose): void;
-set_invisible_char(ch: number): void;
-set_max_length(max: number): void;
-set_max_width_chars(n_chars: number): void;
-set_overwrite_mode(overwrite: boolean): void;
-set_placeholder_text(text: string | null): void;
-set_progress_fraction(fraction: number): void;
-set_progress_pulse_step(fraction: number): void;
-set_tabs(tabs: Pango.TabArray): void;
-set_text(text: string): void;
-set_visibility(visible: boolean): void;
-set_width_chars(n_chars: number): void;
-text_index_to_layout_index(text_index: number): number;
-unset_invisible_char(): void;
-vfunc_activate(): void;
-activate(...args: never[]): never;
-vfunc_backspace(): void;
-vfunc_copy_clipboard(): void;
-vfunc_cut_clipboard(): void;
-vfunc_delete_from_cursor(type: DeleteType, count: number): void;
-vfunc_get_frame_size(x: number, y: number, width: number, height: number): void;
-vfunc_get_text_area_size(x: number, y: number, width: number, height: number): void;
-vfunc_insert_at_cursor(str: string): void;
-vfunc_insert_emoji(): void;
-vfunc_move_cursor(step: MovementStep, count: number, extend_selection: boolean): void;
-vfunc_paste_clipboard(): void;
-vfunc_populate_popup(popup: Widget): void;
-vfunc_toggle_overwrite(): void;
-}
-export class EntryAccessible  {constructor(config?: properties);
-readonly priv: EntryAccessiblePrivate;
-}
-export class EntryBuffer extends GObject.Object {constructor(config?: properties);
-readonly length: number;
-max_length: number;
-text: string;
-delete_text(position: number, n_chars: number): number;
-emit_deleted_text(position: number, n_chars: number): void;
-emit_inserted_text(position: number, chars: string, n_chars: number): void;
-get_bytes(): number;
-get_length(): number;
-get_max_length(): number;
-get_text(): string;
-insert_text(position: number, chars: string, n_chars: number): number;
-set_max_length(max_length: number): void;
-set_text(chars: string, n_chars: number): void;
-vfunc_delete_text(position: number, n_chars: number): number;
-vfunc_deleted_text(position: number, n_chars: number): void;
-vfunc_get_length(): number;
-vfunc_get_text(n_bytes: number): string;
-vfunc_insert_text(position: number, chars: string, n_chars: number): number;
-vfunc_inserted_text(position: number, chars: string, n_chars: number): void;
-}
-export class EntryCompletion extends GObject.Object {constructor(config?: properties);
-cell_area: CellArea;
-inline_completion: boolean;
-inline_selection: boolean;
-minimum_key_length: number;
-model: TreeModel;
-popup_completion: boolean;
-popup_set_width: boolean;
-popup_single_match: boolean;
-text_column: number;static new_with_area(area: CellArea): EntryCompletion;
-complete(): void;
-compute_prefix(key: string): string | null;
-delete_action(index_: number): void;
-get_completion_prefix(): string;
-get_entry(): Widget;
-get_inline_completion(): boolean;
-get_inline_selection(): boolean;
-get_minimum_key_length(): number;
-get_model(): TreeModel | null;
-get_popup_completion(): boolean;
-get_popup_set_width(): boolean;
-get_popup_single_match(): boolean;
-get_text_column(): number;
-insert_action_markup(index_: number, markup: string): void;
-insert_action_text(index_: number, text: string): void;
-insert_prefix(): void;
-set_inline_completion(inline_completion: boolean): void;
-set_inline_selection(inline_selection: boolean): void;
-set_match_func(func: EntryCompletionMatchFunc, func_data: object | null, func_notify: GLib.DestroyNotify): void;
-set_minimum_key_length(length: number): void;
-set_model(model: TreeModel | null): void;
-set_popup_completion(popup_completion: boolean): void;
-set_popup_set_width(popup_set_width: boolean): void;
-set_popup_single_match(popup_single_match: boolean): void;
-set_text_column(column: number): void;
-vfunc_action_activated(index_: number): void;
-vfunc_cursor_on_match(model: TreeModel, iter: TreeIter): boolean;
-vfunc_insert_prefix(prefix: string): boolean;
-vfunc_match_selected(model: TreeModel, iter: TreeIter): boolean;
-vfunc_no_matches(): void;
-}
-export class EntryIconAccessible  {constructor(config?: properties);
-}
-export class EventBox extends Bin {constructor(config?: properties);
-above_child: boolean;
-visible_window: boolean;
-get_above_child(): boolean;
-get_visible_window(): boolean;
-set_above_child(above_child: boolean): void;
-set_visible_window(visible_window: boolean): void;
-}
-export class EventController  {constructor(config?: properties);
-propagation_phase: PropagationPhase;
-widget: Widget;
-get_propagation_phase(): PropagationPhase;
-get_widget(): Widget;
-handle_event(event: Gdk.Event): boolean;
-reset(): void;
-set_propagation_phase(phase: PropagationPhase): void;
-}
-export class EventControllerKey extends EventController {constructor(config?: properties);
-forward(widget: Widget): boolean;
-get_group(): number;
-get_im_context(): IMContext;
-set_im_context(im_context: IMContext): void;
-}
-export class EventControllerMotion extends EventController {constructor(config?: properties);
-}
-export class EventControllerScroll extends EventController {constructor(config?: properties);
-flags: EventControllerScrollFlags;
-get_flags(): EventControllerScrollFlags;
-set_flags(flags: EventControllerScrollFlags): void;
-}
-export class Expander extends Bin {constructor(config?: properties);
-expanded: boolean;
-label: string;
-label_fill: boolean;
-label_widget: Widget;
-resize_toplevel: boolean;
-spacing: number;
-use_markup: boolean;
-use_underline: boolean;static new_with_mnemonic(label: string | null): Widget;
-get_expanded(): boolean;
-get_label(): string | null;
-get_label_fill(): boolean;
-get_label_widget(): Widget | null;
-get_resize_toplevel(): boolean;
-get_spacing(): number;
-get_use_markup(): boolean;
-get_use_underline(): boolean;
-set_expanded(expanded: boolean): void;
-set_label(label: string | null): void;
-set_label_fill(label_fill: boolean): void;
-set_label_widget(label_widget: Widget | null): void;
-set_resize_toplevel(resize_toplevel: boolean): void;
-set_spacing(spacing: number): void;
-set_use_markup(use_markup: boolean): void;
-set_use_underline(use_underline: boolean): void;
-vfunc_activate(): void;
-}
-export class ExpanderAccessible  {constructor(config?: properties);
-readonly priv: ExpanderAccessiblePrivate;
-}
-export class FileChooserButton extends Box {constructor(config?: properties);
-dialog: FileChooser;
-title: string;
-width_chars: number;static new_with_dialog(dialog: Dialog): Widget;
-get_focus_on_click(): boolean;
-get_title(): string;
-get_width_chars(): number;
-set_focus_on_click(focus_on_click: boolean): void;
-set_title(title: string): void;
-set_width_chars(n_chars: number): void;
-vfunc_file_set(): void;
-}
-export class FileChooserDialog extends Dialog {constructor(config?: properties);
-}
-export class FileChooserNative extends NativeDialog {constructor(config?: properties);
-accept_label: string;
-cancel_label: string;
-get_accept_label(): string | null;
-get_cancel_label(): string | null;
-set_accept_label(accept_label: string | null): void;
-set_cancel_label(cancel_label: string | null): void;
-}
-export class FileChooserWidget extends Box {constructor(config?: properties);
-search_mode: boolean;
-readonly subtitle: string;
-}
-export class FileFilter extends GObject.InitiallyUnowned {constructor(config?: properties);
-static new_from_gvariant(variant: GLib.Variant): FileFilter;
-add_custom(needed: FileFilterFlags, func: FileFilterFunc, data: object | null, notify: GLib.DestroyNotify): void;
-add_mime_type(mime_type: string): void;
-add_pattern(pattern: string): void;
-add_pixbuf_formats(): void;
-filter(filter_info: FileFilterInfo): boolean;
-get_name(): string | null;
-get_needed(): FileFilterFlags;
-set_name(name: string | null): void;
-to_gvariant(): GLib.Variant;
-}
-export class Fixed extends Container {constructor(config?: properties);
-move(widget: Widget, x: number, y: number): void;
-put(widget: Widget, x: number, y: number): void;
-}
-export class FlowBox extends Container {constructor(config?: properties);
-activate_on_single_click: boolean;
-column_spacing: number;
-homogeneous: boolean;
-max_children_per_line: number;
-min_children_per_line: number;
-row_spacing: number;
-selection_mode: SelectionMode;
-bind_model(model: Gio.ListModel | null, create_widget_func: FlowBoxCreateWidgetFunc, user_data: object | null, user_data_free_func: GLib.DestroyNotify): void;
-get_activate_on_single_click(): boolean;
-get_child_at_index(idx: number): FlowBoxChild | null;
-get_child_at_pos(x: number, y: number): FlowBoxChild | null;
-get_column_spacing(): number;
-get_homogeneous(): boolean;
-get_max_children_per_line(): number;
-get_min_children_per_line(): number;
-get_row_spacing(): number;
-get_selected_children(): GLib.List;
-get_selection_mode(): SelectionMode;
-insert(widget: Widget, position: number): void;
-invalidate_filter(): void;
-invalidate_sort(): void;
-select_all(): void;
-select_child(child: FlowBoxChild): void;
-selected_foreach(func: FlowBoxForeachFunc, data: object | null): void;
-set_activate_on_single_click(single: boolean): void;
-set_column_spacing(spacing: number): void;
-set_filter_func(filter_func: FlowBoxFilterFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
-set_hadjustment(adjustment: Adjustment): void;
-set_homogeneous(homogeneous: boolean): void;
-set_max_children_per_line(n_children: number): void;
-set_min_children_per_line(n_children: number): void;
-set_row_spacing(spacing: number): void;
-set_selection_mode(mode: SelectionMode): void;
-set_sort_func(sort_func: FlowBoxSortFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
-set_vadjustment(adjustment: Adjustment): void;
-unselect_all(): void;
-unselect_child(child: FlowBoxChild): void;
-vfunc_activate_cursor_child(): void;
-vfunc_child_activated(child: FlowBoxChild): void;
-vfunc_move_cursor(step: MovementStep, count: number): boolean;
-vfunc_select_all(): void;
-vfunc_selected_children_changed(): void;
-vfunc_toggle_cursor_child(): void;
-vfunc_unselect_all(): void;
-}
-export class FlowBoxAccessible  {constructor(config?: properties);
-readonly priv: FlowBoxAccessiblePrivate;
-}
-export class FlowBoxChild extends Bin {constructor(config?: properties);
-changed(): void;
-get_index(): number;
-is_selected(): boolean;
-vfunc_activate(): void;
-}
-export class FlowBoxChildAccessible  {constructor(config?: properties);
-}
-export class FontButton extends Button {constructor(config?: properties);
-font_name: string;
-show_size: boolean;
-show_style: boolean;
-title: string;
-use_font: boolean;
-use_size: boolean;static new_with_font(fontname: string): Widget;
-get_font_name(): string;
-get_show_size(): boolean;
-get_show_style(): boolean;
-get_title(): string;
-get_use_font(): boolean;
-get_use_size(): boolean;
-set_font_name(fontname: string): boolean;
-set_show_size(show_size: boolean): void;
-set_show_style(show_style: boolean): void;
-set_title(title: string): void;
-set_use_font(use_font: boolean): void;
-set_use_size(use_size: boolean): void;
-vfunc_font_set(): void;
-}
-export class FontChooserDialog extends Dialog {constructor(config?: properties);
-}
-export class FontChooserWidget extends Box {constructor(config?: properties);
-readonly tweak_action: Gio.Action;
-}
-export class FontSelection extends Box {constructor(config?: properties);
-font_name: string;
-preview_text: string;
-get_face(): Pango.FontFace;
-get_face_list(): Widget;
-get_family(): Pango.FontFamily;
-get_family_list(): Widget;
-get_font_name(): string;
-get_preview_entry(): Widget;
-get_preview_text(): string;
-get_size(): number;
-get_size_entry(): Widget;
-get_size_list(): Widget;
-set_font_name(fontname: string): boolean;
-set_preview_text(text: string): void;
-}
-export class FontSelectionDialog extends Dialog {constructor(config?: properties);
-get_cancel_button(): Widget;
-get_font_name(): string;
-get_font_selection(): Widget;
-get_ok_button(): Widget;
-get_preview_text(): string;
-set_font_name(fontname: string): boolean;
-set_preview_text(text: string): void;
-}
-export class Frame extends Bin {constructor(config?: properties);
-label: string;
-label_widget: Widget;
-label_xalign: number;
-label_yalign: number;
-shadow_type: ShadowType;
-get_label(): string | null;
-get_label_align(): [number | null,number | null];
-get_label_widget(): Widget | null;
-get_shadow_type(): ShadowType;
-set_label(label: string | null): void;
-set_label_align(xalign: number, yalign: number): void;
-set_label_widget(label_widget: Widget | null): void;
-set_shadow_type(type: ShadowType): void;
-vfunc_compute_child_allocation(allocation: Allocation): void;
-}
-export class FrameAccessible  {constructor(config?: properties);
-readonly priv: FrameAccessiblePrivate;
-}
-export class GLArea extends Widget {constructor(config?: properties);
-auto_render: boolean;
-readonly context: Gdk.GLContext;
-has_alpha: boolean;
-has_depth_buffer: boolean;
-has_stencil_buffer: boolean;
-use_es: boolean;
-attach_buffers(): void;
-get_auto_render(): boolean;
-get_context(): Gdk.GLContext;
-get_error(): GLib.Error | null;
-get_has_alpha(): boolean;
-get_has_depth_buffer(): boolean;
-get_has_stencil_buffer(): boolean;
-get_required_version(): [number,number];
-get_use_es(): boolean;
-make_current(): void;
-queue_render(): void;
-set_auto_render(auto_render: boolean): void;
-set_error(error: GLib.Error | null): void;
-set_has_alpha(has_alpha: boolean): void;
-set_has_depth_buffer(has_depth_buffer: boolean): void;
-set_has_stencil_buffer(has_stencil_buffer: boolean): void;
-set_required_version(major: number, minor: number): void;
-set_use_es(use_es: boolean): void;
-vfunc_create_context(): Gdk.GLContext;
-vfunc_render(context: Gdk.GLContext): boolean;
-vfunc_resize(width: number, height: number): void;
-}
-export class Gesture  {constructor(config?: properties);
-n_points: number;
-window: Gdk.Window;
-get_bounding_box(): [boolean, Gdk.Rectangle];
-get_bounding_box_center(): [boolean, number,number];
-get_device(): Gdk.Device | null;
-get_group(): GLib.List;
-get_last_event(sequence: Gdk.EventSequence | null): Gdk.Event | null;
-get_last_updated_sequence(): Gdk.EventSequence | null;
-get_point(sequence: Gdk.EventSequence | null): [boolean, number | null,number | null];
-get_sequence_state(sequence: Gdk.EventSequence): EventSequenceState;
-get_sequences(): GLib.List;
-get_window(): Gdk.Window | null;
-group(gesture: Gesture): void;
-handles_sequence(sequence: Gdk.EventSequence | null): boolean;
-is_active(): boolean;
-is_grouped_with(other: Gesture): boolean;
-is_recognized(): boolean;
-set_sequence_state(sequence: Gdk.EventSequence, state: EventSequenceState): boolean;
-set_state(state: EventSequenceState): boolean;
-set_window(window: Gdk.Window | null): void;
-ungroup(): void;
-}
-export class GestureDrag extends GestureSingle {constructor(config?: properties);
-get_offset(): [boolean, number | null,number | null];
-get_start_point(): [boolean, number | null,number | null];
-}
-export class GestureLongPress extends GestureSingle {constructor(config?: properties);
-delay_factor: number;
-}
-export class GestureMultiPress extends GestureSingle {constructor(config?: properties);
-get_area(): [boolean, Gdk.Rectangle];
-set_area(rect: Gdk.Rectangle | null): void;
-}
-export class GesturePan extends GestureDrag {constructor(config?: properties);
-orientation: Orientation;
-get_orientation(): Orientation;
-set_orientation(orientation: Orientation): void;
-}
-export class GestureRotate extends Gesture {constructor(config?: properties);
-get_angle_delta(): number;
-}
-export class GestureSingle  {constructor(config?: properties);
-button: number;
-exclusive: boolean;
-touch_only: boolean;
-get_button(): number;
-get_current_button(): number;
-get_current_sequence(): Gdk.EventSequence | null;
-get_exclusive(): boolean;
-get_touch_only(): boolean;
-set_button(button: number): void;
-set_exclusive(exclusive: boolean): void;
-set_touch_only(touch_only: boolean): void;
-}
-export class GestureStylus extends GestureSingle {constructor(config?: properties);
-get_axes(axes: Gdk.AxisUse[]): [boolean, number[]];
-get_axis(axis: Gdk.AxisUse): [boolean, number];
-get_device_tool(): Gdk.DeviceTool | null;
-}
-export class GestureSwipe extends GestureSingle {constructor(config?: properties);
-get_velocity(): [boolean, number,number];
-}
-export class GestureZoom extends Gesture {constructor(config?: properties);
-get_scale_delta(): number;
-}
-export class Grid extends Container {constructor(config?: properties);
-baseline_row: number;
-column_homogeneous: boolean;
-column_spacing: number;
-row_homogeneous: boolean;
-row_spacing: number;
-attach(child: Widget, left: number, top: number, width: number, height: number): void;
-attach_next_to(child: Widget, sibling: Widget | null, side: PositionType, width: number, height: number): void;
-get_baseline_row(): number;
-get_child_at(left: number, top: number): Widget | null;
-get_column_homogeneous(): boolean;
-get_column_spacing(): number;
-get_row_baseline_position(row: number): BaselinePosition;
-get_row_homogeneous(): boolean;
-get_row_spacing(): number;
-insert_column(position: number): void;
-insert_next_to(sibling: Widget, side: PositionType): void;
-insert_row(position: number): void;
-remove_column(position: number): void;
-remove_row(position: number): void;
-set_baseline_row(row: number): void;
-set_column_homogeneous(homogeneous: boolean): void;
-set_column_spacing(spacing: number): void;
-set_row_baseline_position(row: number, pos: BaselinePosition): void;
-set_row_homogeneous(homogeneous: boolean): void;
-set_row_spacing(spacing: number): void;
-}
-export class HBox extends Box {constructor(config?: properties);
-}
-export class HButtonBox extends ButtonBox {constructor(config?: properties);
-}
-export class HPaned extends Paned {constructor(config?: properties);
-}
-export class HSV extends Widget {constructor(config?: properties);
-get_color(): [number,number,number];
-get_metrics(): [number,number];
-is_adjusting(): boolean;
-set_color(h: number, s: number, v: number): void;
-set_metrics(size: number, ring_width: number): void;
-vfunc_changed(): void;
-vfunc_move(type: DirectionType): void;
-static to_rgb(h: number, s: number, v: number): [number,number,number];
-}
-export class HScale extends Scale {constructor(config?: properties);
-static new_with_range(min: number, max: number, step: number): Widget;
-static new_with_range(...args: never[]): Widget;
-}
-export class HScrollbar extends Scrollbar {constructor(config?: properties);
-}
-export class HSeparator extends Separator {constructor(config?: properties);
-}
-export class HandleBox extends Bin {constructor(config?: properties);
-handle_position: PositionType;
-shadow_type: ShadowType;
-snap_edge: PositionType;
-snap_edge_set: boolean;
-get_child_detached(): boolean;
-get_handle_position(): PositionType;
-get_shadow_type(): ShadowType;
-get_snap_edge(): PositionType;
-set_handle_position(position: PositionType): void;
-set_shadow_type(type: ShadowType): void;
-set_snap_edge(edge: PositionType): void;
-vfunc_child_attached(child: Widget): void;
-vfunc_child_detached(child: Widget): void;
-}
-export class HeaderBar extends Container {constructor(config?: properties);
-custom_title: Widget;
-decoration_layout: string;
-decoration_layout_set: boolean;
-has_subtitle: boolean;
-show_close_button: boolean;
-spacing: number;
-subtitle: string;
-title: string;
-get_custom_title(): Widget | null;
-get_decoration_layout(): string;
-get_has_subtitle(): boolean;
-get_show_close_button(): boolean;
-get_subtitle(): string | null;
-get_title(): string | null;
-pack_end(child: Widget): void;
-pack_start(child: Widget): void;
-set_custom_title(title_widget: Widget | null): void;
-set_decoration_layout(layout: string | null): void;
-set_has_subtitle(setting: boolean): void;
-set_show_close_button(setting: boolean): void;
-set_subtitle(subtitle: string | null): void;
-set_title(title: string | null): void;
-}
-export class HeaderBarAccessible  {constructor(config?: properties);
-}
-export class IMContext  {constructor(config?: properties);
-input_hints: InputHints;
-input_purpose: InputPurpose;
-delete_surrounding(offset: number, n_chars: number): boolean;
-filter_keypress(event: Gdk.EventKey): boolean;
-focus_in(): void;
-focus_out(): void;
-get_preedit_string(): [string,Pango.AttrList,number];
-get_surrounding(): [boolean, string,number];
-reset(): void;
-set_client_window(window: Gdk.Window | null): void;
-set_cursor_location(area: Gdk.Rectangle): void;
-set_surrounding(text: string, len: number, cursor_index: number): void;
-set_use_preedit(use_preedit: boolean): void;
-}
-export class IMContextSimple extends IMContext {constructor(config?: properties);
-add_compose_file(compose_file: string): void;
-add_table(data: number[], max_seq_len: number, n_seqs: number): void;
-}
-export class IMMulticontext extends IMContext {constructor(config?: properties);
-append_menuitems(menushell: MenuShell): void;
-get_context_id(): string;
-set_context_id(context_id: string): void;
-}
-export class IconFactory extends GObject.Object {constructor(config?: properties);
-add(stock_id: string, icon_set: IconSet): void;
-add_default(): void;
-lookup(stock_id: string): IconSet;
-remove_default(): void;
-static lookup_default(stock_id: string): IconSet;
-}
-export class IconInfo extends GObject.Object {constructor(config?: properties);
-static new_for_pixbuf(icon_theme: IconTheme, pixbuf: GdkPixbuf.Pixbuf): IconInfo;
-copy(): IconInfo;
-free(): void;
-get_attach_points(): [boolean, Gdk.Point[] | null,number | null];
-get_base_scale(): number;
-get_base_size(): number;
-get_builtin_pixbuf(): GdkPixbuf.Pixbuf | null;
-get_display_name(): string;
-get_embedded_rect(): [boolean, Gdk.Rectangle];
-get_filename(): unknown | null;
-is_symbolic(): boolean;
-load_icon(): GdkPixbuf.Pixbuf;
-load_icon_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-load_icon_finish(res: Gio.AsyncResult): GdkPixbuf.Pixbuf;
-load_surface(for_window: Gdk.Window | null): cairo.Surface;
-load_symbolic(fg: Gdk.RGBA, success_color: Gdk.RGBA | null, warning_color: Gdk.RGBA | null, error_color: Gdk.RGBA | null): [GdkPixbuf.Pixbuf, boolean | null];
-load_symbolic_async(fg: Gdk.RGBA, success_color: Gdk.RGBA | null, warning_color: Gdk.RGBA | null, error_color: Gdk.RGBA | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-load_symbolic_finish(res: Gio.AsyncResult): [GdkPixbuf.Pixbuf, boolean | null];
-load_symbolic_for_context(context: StyleContext): [GdkPixbuf.Pixbuf, boolean | null];
-load_symbolic_for_context_async(context: StyleContext, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-load_symbolic_for_context_finish(res: Gio.AsyncResult): [GdkPixbuf.Pixbuf, boolean | null];
-load_symbolic_for_style(style: Style, state: StateType): [GdkPixbuf.Pixbuf, boolean | null];
-set_raw_coordinates(raw_coordinates: boolean): void;
-}
-export class IconTheme extends GObject.Object {constructor(config?: properties);
-add_resource_path(path: string): void;
-append_search_path(path: unknown): void;
-choose_icon(icon_names: string[], size: number, flags: IconLookupFlags): IconInfo | null;
-choose_icon_for_scale(icon_names: string[], size: number, scale: number, flags: IconLookupFlags): IconInfo | null;
-get_example_icon_name(): string | null;
-get_icon_sizes(icon_name: string): number[];
-get_search_path(): [unknown[] | null,number];
-has_icon(icon_name: string): boolean;
-list_contexts(): GLib.List;
-list_icons(context: string | null): GLib.List;
-load_icon(icon_name: string, size: number, flags: IconLookupFlags): GdkPixbuf.Pixbuf | null;
-load_icon_for_scale(icon_name: string, size: number, scale: number, flags: IconLookupFlags): GdkPixbuf.Pixbuf | null;
-load_surface(icon_name: string, size: number, scale: number, for_window: Gdk.Window | null, flags: IconLookupFlags): cairo.Surface | null;
-lookup_by_gicon(icon: Gio.Icon, size: number, flags: IconLookupFlags): IconInfo | null;
-lookup_by_gicon_for_scale(icon: Gio.Icon, size: number, scale: number, flags: IconLookupFlags): IconInfo | null;
-lookup_icon(icon_name: string, size: number, flags: IconLookupFlags): IconInfo | null;
-lookup_icon_for_scale(icon_name: string, size: number, scale: number, flags: IconLookupFlags): IconInfo | null;
-prepend_search_path(path: unknown): void;
-rescan_if_needed(): boolean;
-set_custom_theme(theme_name: string | null): void;
-set_screen(screen: Gdk.Screen): void;
-set_search_path(path: unknown[], n_elements: number): void;
-vfunc_changed(): void;
-static add_builtin_icon(icon_name: string, size: number, pixbuf: GdkPixbuf.Pixbuf): void;
-static get_default(): IconTheme;
-static get_for_screen(screen: Gdk.Screen): IconTheme;
-}
-export class IconView extends Container {constructor(config?: properties);
-activate_on_single_click: boolean;
-cell_area: CellArea;
-column_spacing: number;
-columns: number;
-item_orientation: Orientation;
-item_padding: number;
-item_width: number;
-margin: number;
-markup_column: number;
-model: TreeModel;
-pixbuf_column: number;
-reorderable: boolean;
-row_spacing: number;
-selection_mode: SelectionMode;
-spacing: number;
-text_column: number;
-tooltip_column: number;static new_with_area(area: CellArea): Widget;
-static new_with_model(model: TreeModel): Widget;
-convert_widget_to_bin_window_coords(wx: number, wy: number): [number,number];
-create_drag_icon(path: TreePath): cairo.Surface;
-enable_model_drag_dest(targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
-enable_model_drag_source(start_button_mask: Gdk.ModifierType, targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
-get_activate_on_single_click(): boolean;
-get_cell_rect(path: TreePath, cell: CellRenderer | null): [boolean, Gdk.Rectangle];
-get_column_spacing(): number;
-get_columns(): number;
-get_cursor(): [boolean, TreePath | null,CellRenderer | null];
-get_dest_item_at_pos(drag_x: number, drag_y: number): [boolean, TreePath | null,IconViewDropPosition | null];
-get_drag_dest_item(): [TreePath | null,IconViewDropPosition | null];
-get_item_at_pos(x: number, y: number): [boolean, TreePath | null,CellRenderer | null];
-get_item_column(path: TreePath): number;
-get_item_orientation(): Orientation;
-get_item_padding(): number;
-get_item_row(path: TreePath): number;
-get_item_width(): number;
-get_margin(): number;
-get_markup_column(): number;
-get_model(): TreeModel | null;
-get_path_at_pos(x: number, y: number): TreePath | null;
-get_pixbuf_column(): number;
-get_reorderable(): boolean;
-get_row_spacing(): number;
-get_selected_items(): GLib.List;
-get_selection_mode(): SelectionMode;
-get_spacing(): number;
-get_text_column(): number;
-get_tooltip_column(): number;
-get_tooltip_context(x: number, y: number, keyboard_tip: boolean): [boolean, number,number,TreeModel | null,TreePath | null,TreeIter | null];
-get_visible_range(): [boolean, TreePath | null,TreePath | null];
-item_activated(path: TreePath): void;
-path_is_selected(path: TreePath): boolean;
-scroll_to_path(path: TreePath, use_align: boolean, row_align: number, col_align: number): void;
-select_all(): void;
-select_path(path: TreePath): void;
-selected_foreach(func: IconViewForeachFunc, data: object | null): void;
-set_activate_on_single_click(single: boolean): void;
-set_column_spacing(column_spacing: number): void;
-set_columns(columns: number): void;
-set_cursor(path: TreePath, cell: CellRenderer | null, start_editing: boolean): void;
-set_drag_dest_item(path: TreePath | null, pos: IconViewDropPosition): void;
-set_item_orientation(orientation: Orientation): void;
-set_item_padding(item_padding: number): void;
-set_item_width(item_width: number): void;
-set_margin(margin: number): void;
-set_markup_column(column: number): void;
-set_model(model: TreeModel | null): void;
-set_pixbuf_column(column: number): void;
-set_reorderable(reorderable: boolean): void;
-set_row_spacing(row_spacing: number): void;
-set_selection_mode(mode: SelectionMode): void;
-set_spacing(spacing: number): void;
-set_text_column(column: number): void;
-set_tooltip_cell(tooltip: Tooltip, path: TreePath, cell: CellRenderer | null): void;
-set_tooltip_column(column: number): void;
-set_tooltip_item(tooltip: Tooltip, path: TreePath): void;
-unselect_all(): void;
-unselect_path(path: TreePath): void;
-unset_model_drag_dest(): void;
-unset_model_drag_source(): void;
-vfunc_activate_cursor_item(): boolean;
-vfunc_item_activated(path: TreePath): void;
-vfunc_move_cursor(step: MovementStep, count: number): boolean;
-vfunc_select_all(): void;
-vfunc_select_cursor_item(): void;
-vfunc_selection_changed(): void;
-vfunc_toggle_cursor_item(): void;
-vfunc_unselect_all(): void;
-}
-export class IconViewAccessible  {constructor(config?: properties);
-readonly priv: IconViewAccessiblePrivate;
-}
-export class Image extends Misc {constructor(config?: properties);
-file: string;
-gicon: Gio.Icon;
-icon_name: string;
-icon_set: IconSet;
-icon_size: number;
-pixbuf: GdkPixbuf.Pixbuf;
-pixbuf_animation: GdkPixbuf.PixbufAnimation;
-pixel_size: number;
-resource: string;
-stock: string;
-readonly storage_type: ImageType;
-surface: cairo.Surface;
-use_fallback: boolean;static new_from_animation(animation: GdkPixbuf.PixbufAnimation): Widget;
-static new_from_file(filename: unknown): Widget;
-static new_from_gicon(icon: Gio.Icon, size: number): Widget;
-static new_from_icon_name(icon_name: string | null, size: number): Widget;
-static new_from_icon_set(icon_set: IconSet, size: number): Widget;
-static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): Widget;
-static new_from_resource(resource_path: string): Widget;
-static new_from_stock(stock_id: string, size: number): Widget;
-static new_from_surface(surface: cairo.Surface | null): Widget;
-clear(): void;
-get_animation(): GdkPixbuf.PixbufAnimation | null;
-get_gicon(): [Gio.Icon | null,number | null];
-get_icon_name(): [string | null,number | null];
-get_icon_set(): [IconSet | null,number | null];
-get_pixbuf(): GdkPixbuf.Pixbuf | null;
-get_pixel_size(): number;
-get_stock(): [string | null,number | null];
-get_storage_type(): ImageType;
-set_from_animation(animation: GdkPixbuf.PixbufAnimation): void;
-set_from_file(filename: unknown | null): void;
-set_from_gicon(icon: Gio.Icon, size: number): void;
-set_from_icon_name(icon_name: string | null, size: number): void;
-set_from_icon_set(icon_set: IconSet, size: number): void;
-set_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): void;
-set_from_resource(resource_path: string | null): void;
-set_from_stock(stock_id: string, size: number): void;
-set_from_surface(surface: cairo.Surface | null): void;
-set_pixel_size(pixel_size: number): void;
-}
-export class ImageAccessible  {constructor(config?: properties);
-readonly priv: ImageAccessiblePrivate;
-}
-export class ImageCellAccessible  {constructor(config?: properties);
-readonly priv: ImageCellAccessiblePrivate;
-}
-export class ImageMenuItem extends MenuItem {constructor(config?: properties);
-accel_group: AccelGroup;
-always_show_image: boolean;
-image: Widget;
-use_stock: boolean;static new_from_stock(stock_id: string, accel_group: AccelGroup | null): Widget;
-static new_with_label(label: string): Widget;
-static new_with_mnemonic(label: string): Widget;
-get_always_show_image(): boolean;
-get_image(): Widget;
-get_use_stock(): boolean;
-set_accel_group(accel_group: AccelGroup): void;
-set_always_show_image(always_show: boolean): void;
-set_image(image: Widget | null): void;
-set_use_stock(use_stock: boolean): void;
-}
-export class InfoBar extends Box {constructor(config?: properties);
-message_type: MessageType;
-revealed: boolean;
-show_close_button: boolean;static new_with_buttons(first_button_text: string | null, ___: unknown[]): Widget;
-add_action_widget(child: Widget, response_id: number): void;
-add_button(button_text: string, response_id: number): Button;
-add_buttons(first_button_text: string, ___: unknown[]): void;
-get_action_area(): Widget;
-get_content_area(): Widget;
-get_message_type(): MessageType;
-get_revealed(): boolean;
-get_show_close_button(): boolean;
-response(response_id: number): void;
-set_default_response(response_id: number): void;
-set_message_type(message_type: MessageType): void;
-set_response_sensitive(response_id: number, setting: boolean): void;
-set_revealed(revealed: boolean): void;
-set_show_close_button(setting: boolean): void;
-vfunc_close(): void;
-vfunc_response(response_id: number): void;
-}
-export class Invisible extends Widget {constructor(config?: properties);
-screen: Gdk.Screen;static new_for_screen(screen: Gdk.Screen): Widget;
-get_screen(): Gdk.Screen;
-set_screen(screen: Gdk.Screen): void;
-}
-export class Label extends Misc {constructor(config?: properties);
-angle: number;
-attributes: Pango.AttrList;
-readonly cursor_position: number;
-ellipsize: Pango.EllipsizeMode;
-justify: Justification;
-label: string;
-lines: number;
-max_width_chars: number;
-readonly mnemonic_keyval: number;
-mnemonic_widget: Widget;
-pattern: string;
-selectable: boolean;
-readonly selection_bound: number;
-single_line_mode: boolean;
-track_visited_links: boolean;
-use_markup: boolean;
-use_underline: boolean;
-width_chars: number;
-wrap: boolean;
-wrap_mode: Pango.WrapMode;
-xalign: number;
-yalign: number;static new_with_mnemonic(str: string | null): Widget;
-get_angle(): number;
-get_attributes(): Pango.AttrList | null;
-get_current_uri(): string;
-get_ellipsize(): Pango.EllipsizeMode;
-get_justify(): Justification;
-get_label(): string;
-get_layout(): Pango.Layout;
-get_layout_offsets(): [number | null,number | null];
-get_line_wrap(): boolean;
-get_line_wrap_mode(): Pango.WrapMode;
-get_lines(): number;
-get_max_width_chars(): number;
-get_mnemonic_keyval(): number;
-get_mnemonic_widget(): Widget | null;
-get_selectable(): boolean;
-get_selection_bounds(): [boolean, number,number];
-get_single_line_mode(): boolean;
-get_text(): string;
-get_track_visited_links(): boolean;
-get_use_markup(): boolean;
-get_use_underline(): boolean;
-get_width_chars(): number;
-get_xalign(): number;
-get_yalign(): number;
-select_region(start_offset: number, end_offset: number): void;
-set_angle(angle: number): void;
-set_attributes(attrs: Pango.AttrList | null): void;
-set_ellipsize(mode: Pango.EllipsizeMode): void;
-set_justify(jtype: Justification): void;
-set_label(str: string): void;
-set_line_wrap(wrap: boolean): void;
-set_line_wrap_mode(wrap_mode: Pango.WrapMode): void;
-set_lines(lines: number): void;
-set_markup(str: string): void;
-set_markup_with_mnemonic(str: string): void;
-set_max_width_chars(n_chars: number): void;
-set_mnemonic_widget(widget: Widget | null): void;
-set_pattern(pattern: string): void;
-set_selectable(setting: boolean): void;
-set_single_line_mode(single_line_mode: boolean): void;
-set_text(str: string): void;
-set_text_with_mnemonic(str: string): void;
-set_track_visited_links(track_links: boolean): void;
-set_use_markup(setting: boolean): void;
-set_use_underline(setting: boolean): void;
-set_width_chars(n_chars: number): void;
-set_xalign(xalign: number): void;
-set_yalign(yalign: number): void;
-vfunc_activate_link(uri: string): boolean;
-vfunc_copy_clipboard(): void;
-vfunc_move_cursor(step: MovementStep, count: number, extend_selection: boolean): void;
-vfunc_populate_popup(menu: Menu): void;
-}
-export class LabelAccessible  {constructor(config?: properties);
-readonly priv: LabelAccessiblePrivate;
-}
-export class Layout extends Container {constructor(config?: properties);
-height: number;
-width: number;
-get_bin_window(): Gdk.Window;
-get_hadjustment(): Adjustment;
-get_size(): [number | null,number | null];
-get_vadjustment(): Adjustment;
-move(child_widget: Widget, x: number, y: number): void;
-put(child_widget: Widget, x: number, y: number): void;
-set_hadjustment(adjustment: Adjustment | null): void;
-set_size(width: number, height: number): void;
-set_vadjustment(adjustment: Adjustment | null): void;
-}
-export class LevelBar extends Widget {constructor(config?: properties);
-inverted: boolean;
-max_value: number;
-min_value: number;
-mode: LevelBarMode;
-value: number;static new_for_interval(min_value: number, max_value: number): Widget;
-add_offset_value(name: string, value: number): void;
-get_inverted(): boolean;
-get_max_value(): number;
-get_min_value(): number;
-get_mode(): LevelBarMode;
-get_offset_value(name: string | null): [boolean, number];
-get_value(): number;
-remove_offset_value(name: string | null): void;
-set_inverted(inverted: boolean): void;
-set_max_value(value: number): void;
-set_min_value(value: number): void;
-set_mode(mode: LevelBarMode): void;
-set_value(value: number): void;
-vfunc_offset_changed(name: string): void;
-}
-export class LevelBarAccessible  {constructor(config?: properties);
-readonly priv: LevelBarAccessiblePrivate;
-}
-export class LinkButton extends Button {constructor(config?: properties);
-uri: string;
-visited: boolean;static new_with_label(uri: string, label: string | null): Widget;
-static new_with_label(...args: never[]): Widget;
-get_uri(): string;
-get_visited(): boolean;
-set_uri(uri: string): void;
-set_visited(visited: boolean): void;
-vfunc_activate_link(): boolean;
-}
-export class LinkButtonAccessible  {constructor(config?: properties);
-readonly priv: LinkButtonAccessiblePrivate;
-}
-export class ListBox extends Container {constructor(config?: properties);
-activate_on_single_click: boolean;
-selection_mode: SelectionMode;
-bind_model(model: Gio.ListModel | null, create_widget_func: ListBoxCreateWidgetFunc | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify): void;
-drag_highlight_row(row: ListBoxRow): void;
-drag_unhighlight_row(): void;
-get_activate_on_single_click(): boolean;
-get_adjustment(): Adjustment;
-get_row_at_index(index_: number): ListBoxRow | null;
-get_row_at_y(y: number): ListBoxRow | null;
-get_selected_row(): ListBoxRow;
-get_selected_rows(): GLib.List;
-get_selection_mode(): SelectionMode;
-insert(child: Widget, position: number): void;
-invalidate_filter(): void;
-invalidate_headers(): void;
-invalidate_sort(): void;
-prepend(child: Widget): void;
-select_all(): void;
-select_row(row: ListBoxRow | null): void;
-selected_foreach(func: ListBoxForeachFunc, data: object | null): void;
-set_activate_on_single_click(single: boolean): void;
-set_adjustment(adjustment: Adjustment | null): void;
-set_filter_func(filter_func: ListBoxFilterFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
-set_header_func(update_header: ListBoxUpdateHeaderFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
-set_placeholder(placeholder: Widget | null): void;
-set_selection_mode(mode: SelectionMode): void;
-set_sort_func(sort_func: ListBoxSortFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
-unselect_all(): void;
-unselect_row(row: ListBoxRow): void;
-vfunc_activate_cursor_row(): void;
-vfunc_move_cursor(step: MovementStep, count: number): void;
-vfunc_row_activated(row: ListBoxRow): void;
-vfunc_row_selected(row: ListBoxRow): void;
-vfunc_select_all(): void;
-vfunc_selected_rows_changed(): void;
-vfunc_toggle_cursor_row(): void;
-vfunc_unselect_all(): void;
-}
-export class ListBoxAccessible  {constructor(config?: properties);
-readonly priv: ListBoxAccessiblePrivate;
-}
-export class ListBoxRow extends Bin {constructor(config?: properties);
-activatable: boolean;
-selectable: boolean;
-changed(): void;
-get_activatable(): boolean;
-get_header(): Widget | null;
-get_index(): number;
-get_selectable(): boolean;
-is_selected(): boolean;
-set_activatable(activatable: boolean): void;
-set_header(header: Widget | null): void;
-set_selectable(selectable: boolean): void;
-vfunc_activate(): void;
-}
-export class ListBoxRowAccessible  {constructor(config?: properties);
-}
-export class ListStore extends GObject.Object {constructor(config?: properties);
-static newv(n_columns: number, types: unknown[]): ListStore;
-static newv(...args: never[]): ListStore;
-append(): [TreeIter];
-clear(): void;
-insert(position: number): [TreeIter];
-insert_after(sibling: TreeIter | null): [TreeIter];
-insert_before(sibling: TreeIter | null): [TreeIter];
-insert_with_values(position: number, ___: unknown[]): [TreeIter | null];
-insert_with_valuesv(position: number, columns: number[], values: GObject.Value[], n_values: number): [TreeIter | null];
-iter_is_valid(iter: TreeIter): boolean;
-move_after(iter: TreeIter, position: TreeIter | null): void;
-move_before(iter: TreeIter, position: TreeIter | null): void;
-prepend(): [TreeIter];
-remove(iter: TreeIter): boolean;
-reorder(new_order: number[]): void;
-set(iter: TreeIter, ___: unknown[]): void;
-set(...args: never[]): never;
-set_column_types(n_columns: number, types: unknown[]): void;
-set_valist(iter: TreeIter, var_args: any): void;
-set_valist(...args: never[]): never;
-set_value(iter: TreeIter, column: number, value: GObject.Value): void;
-set_valuesv(iter: TreeIter, columns: number[], values: GObject.Value[], n_values: number): void;
-swap(a: TreeIter, b: TreeIter): void;
-}
-export class LockButton extends Button {constructor(config?: properties);
-permission: Gio.Permission;
-text_lock: string;
-text_unlock: string;
-tooltip_lock: string;
-tooltip_not_authorized: string;
-tooltip_unlock: string;
-get_permission(): Gio.Permission;
-set_permission(permission: Gio.Permission | null): void;
-}
-export class LockButtonAccessible  {constructor(config?: properties);
-readonly priv: LockButtonAccessiblePrivate;
-}
-export class Menu extends MenuShell {constructor(config?: properties);
-accel_group: AccelGroup;
-accel_path: string;
-active: number;
-anchor_hints: Gdk.AnchorHints;
-attach_widget: Widget;
-menu_type_hint: Gdk.WindowTypeHint;
-monitor: number;
-rect_anchor_dx: number;
-rect_anchor_dy: number;
-reserve_toggle_size: boolean;
-tearoff_state: boolean;
-tearoff_title: string;static new_from_model(model: Gio.MenuModel): Widget;
-attach(child: Widget, left_attach: number, right_attach: number, top_attach: number, bottom_attach: number): void;
-attach_to_widget(attach_widget: Widget, detacher: MenuDetachFunc | null): void;
-detach(): void;
-get_accel_group(): AccelGroup;
-get_accel_path(): string;
-get_active(): Widget;
-get_attach_widget(): Widget;
-get_monitor(): number;
-get_reserve_toggle_size(): boolean;
-get_tearoff_state(): boolean;
-get_title(): string;
-place_on_monitor(monitor: Gdk.Monitor): void;
-popdown(): void;
-popup(parent_menu_shell: Widget | null, parent_menu_item: Widget | null, func: MenuPositionFunc | null, data: object | null, button: number, activate_time: number): void;
-popup_at_pointer(trigger_event: Gdk.Event | null): void;
-popup_at_rect(rect_window: Gdk.Window, rect: Gdk.Rectangle, rect_anchor: Gdk.Gravity, menu_anchor: Gdk.Gravity, trigger_event: Gdk.Event | null): void;
-popup_at_widget(widget: Widget, widget_anchor: Gdk.Gravity, menu_anchor: Gdk.Gravity, trigger_event: Gdk.Event | null): void;
-popup_for_device(device: Gdk.Device | null, parent_menu_shell: Widget | null, parent_menu_item: Widget | null, func: MenuPositionFunc | null, data: object | null, destroy: GLib.DestroyNotify | null, button: number, activate_time: number): void;
-reorder_child(child: Widget, position: number): void;
-reposition(): void;
-set_accel_group(accel_group: AccelGroup | null): void;
-set_accel_path(accel_path: string | null): void;
-set_active(index: number): void;
-set_monitor(monitor_num: number): void;
-set_reserve_toggle_size(reserve_toggle_size: boolean): void;
-set_screen(screen: Gdk.Screen | null): void;
-set_tearoff_state(torn_off: boolean): void;
-set_title(title: string | null): void;
-static get_for_attach_widget(widget: Widget): GLib.List;
-}
-export class MenuAccessible  {constructor(config?: properties);
-readonly priv: MenuAccessiblePrivate;
-}
-export class MenuBar extends MenuShell {constructor(config?: properties);
-child_pack_direction: PackDirection;
-pack_direction: PackDirection;static new_from_model(model: Gio.MenuModel): Widget;
-get_child_pack_direction(): PackDirection;
-get_pack_direction(): PackDirection;
-set_child_pack_direction(child_pack_dir: PackDirection): void;
-set_pack_direction(pack_dir: PackDirection): void;
-}
-export class MenuButton extends ToggleButton {constructor(config?: properties);
-align_widget: Container;
-direction: ArrowType;
-menu_model: Gio.MenuModel;
-popover: Popover;
-popup: Menu;
-use_popover: boolean;
-get_align_widget(): Widget | null;
-get_direction(): ArrowType;
-get_menu_model(): Gio.MenuModel | null;
-get_popover(): Popover | null;
-get_popup(): Menu | null;
-get_use_popover(): boolean;
-set_align_widget(align_widget: Widget | null): void;
-set_direction(direction: ArrowType): void;
-set_menu_model(menu_model: Gio.MenuModel | null): void;
-set_popover(popover: Widget | null): void;
-set_popup(menu: Widget | null): void;
-set_use_popover(use_popover: boolean): void;
-}
-export class MenuButtonAccessible  {constructor(config?: properties);
-readonly priv: MenuButtonAccessiblePrivate;
-}
-export class MenuItem extends Bin {constructor(config?: properties);
-accel_path: string;
-label: string;
-right_justified: boolean;
-submenu: Menu;
-use_underline: boolean;static new_with_label(label: string): Widget;
-static new_with_mnemonic(label: string): Widget;
-activate(): void;
-deselect(): void;
-get_accel_path(): string | null;
-get_label(): string;
-get_reserve_indicator(): boolean;
-get_right_justified(): boolean;
-get_submenu(): Widget | null;
-get_use_underline(): boolean;
-select(): void;
-set_accel_path(accel_path: string | null): void;
-set_label(label: string): void;
-set_reserve_indicator(reserve: boolean): void;
-set_right_justified(right_justified: boolean): void;
-set_submenu(submenu: Menu | null): void;
-set_use_underline(setting: boolean): void;
-toggle_size_allocate(allocation: number): void;
-toggle_size_request(requisition: number): [number];
-vfunc_activate(): void;
-vfunc_activate_item(): void;
-vfunc_deselect(): void;
-vfunc_get_label(): string;
-vfunc_select(): void;
-vfunc_set_label(label: string): void;
-vfunc_toggle_size_allocate(allocation: number): void;
-vfunc_toggle_size_request(requisition: number): [number];
-}
-export class MenuItemAccessible  {constructor(config?: properties);
-readonly priv: MenuItemAccessiblePrivate;
-}
-export class MenuShell  {constructor(config?: properties);
-take_focus: boolean;
-readonly container: Container;
-readonly priv: MenuShellPrivate;
-activate_item(menu_item: Widget, force_deactivate: boolean): void;
-append(child: MenuItem): void;
-bind_model(model: Gio.MenuModel | null, action_namespace: string | null, with_separators: boolean): void;
-cancel(): void;
-deactivate(): void;
-deselect(): void;
-get_parent_shell(): Widget;
-get_selected_item(): Widget;
-get_take_focus(): boolean;
-insert(child: Widget, position: number): void;
-prepend(child: Widget): void;
-select_first(search_sensitive: boolean): void;
-select_item(menu_item: Widget): void;
-set_take_focus(take_focus: boolean): void;
-}
-export class MenuShellAccessible  {constructor(config?: properties);
-readonly priv: MenuShellAccessiblePrivate;
-}
-export class MenuToolButton extends ToolButton {constructor(config?: properties);
-menu: Menu;static new_from_stock(stock_id: string): ToolItem;
-get_menu(): Widget;
-set_arrow_tooltip_markup(markup: string): void;
-set_arrow_tooltip_text(text: string): void;
-set_menu(menu: Widget): void;
-vfunc_show_menu(): void;
-}
-export class MessageDialog extends Dialog {constructor(config?: properties);
-buttons: ButtonsType;
-image: Widget;
-readonly message_area: Widget;
-message_type: MessageType;
-secondary_text: string;
-secondary_use_markup: boolean;
-text: string;
-use_markup: boolean;static new_with_markup(parent: Window | null, flags: DialogFlags, type: MessageType, buttons: ButtonsType, message_format: string | null, ___: unknown[]): Widget;
-format_secondary_markup(message_format: string, ___: unknown[]): void;
-format_secondary_text(message_format: string | null, ___: unknown[]): void;
-get_image(): Widget;
-get_message_area(): Widget;
-set_image(image: Widget): void;
-set_markup(str: string): void;
-}
-export class Misc  {constructor(config?: properties);
-xalign: number;
-xpad: number;
-yalign: number;
-ypad: number;
-readonly widget: Widget;
-readonly priv: MiscPrivate;
-get_alignment(): [number | null,number | null];
-get_padding(): [number | null,number | null];
-set_alignment(xalign: number, yalign: number): void;
-set_padding(xpad: number, ypad: number): void;
-}
-export class ModelButton extends Button {constructor(config?: properties);
-active: boolean;
-centered: boolean;
-icon: Gio.Icon;
-iconic: boolean;
-inverted: boolean;
-menu_name: string;
-role: ButtonRole;
-text: string;
-use_markup: boolean;
-}
-export class MountOperation extends Gio.MountOperation {constructor(config?: properties);
-screen: Gdk.Screen;
-get_parent(): Window;
-get_screen(): Gdk.Screen;
-is_showing(): boolean;
-set_parent(parent: Window | null): void;
-set_screen(screen: Gdk.Screen): void;
-}
-export class NativeDialog  {constructor(config?: properties);
-modal: boolean;
-title: string;
-transient_for: Window;
-visible: boolean;
-destroy(): void;
-get_modal(): boolean;
-get_title(): string | null;
-get_transient_for(): Window | null;
-get_visible(): boolean;
-hide(): void;
-run(): number;
-set_modal(modal: boolean): void;
-set_title(title: string): void;
-set_transient_for(parent: Window | null): void;
-show(): void;
-}
-export class Notebook extends Container {constructor(config?: properties);
-enable_popup: boolean;
-group_name: string;
-page: number;
-scrollable: boolean;
-show_border: boolean;
-show_tabs: boolean;
-tab_pos: PositionType;
-append_page(child: Widget, tab_label: Widget | null): number;
-append_page_menu(child: Widget, tab_label: Widget | null, menu_label: Widget | null): number;
-detach_tab(child: Widget): void;
-get_action_widget(pack_type: PackType): Widget | null;
-get_current_page(): number;
-get_group_name(): string | null;
-get_menu_label(child: Widget): Widget | null;
-get_menu_label_text(child: Widget): string | null;
-get_n_pages(): number;
-get_nth_page(page_num: number): Widget | null;
-get_scrollable(): boolean;
-get_show_border(): boolean;
-get_show_tabs(): boolean;
-get_tab_detachable(child: Widget): boolean;
-get_tab_hborder(): number;
-get_tab_label(child: Widget): Widget | null;
-get_tab_label_text(child: Widget): string | null;
-get_tab_pos(): PositionType;
-get_tab_reorderable(child: Widget): boolean;
-get_tab_vborder(): number;
-insert_page(child: Widget, tab_label: Widget | null, position: number): number;
-insert_page_menu(child: Widget, tab_label: Widget | null, menu_label: Widget | null, position: number): number;
-next_page(): void;
-page_num(child: Widget): number;
-popup_disable(): void;
-popup_enable(): void;
-prepend_page(child: Widget, tab_label: Widget | null): number;
-prepend_page_menu(child: Widget, tab_label: Widget | null, menu_label: Widget | null): number;
-prev_page(): void;
-remove_page(page_num: number): void;
-reorder_child(child: Widget, position: number): void;
-set_action_widget(widget: Widget, pack_type: PackType): void;
-set_current_page(page_num: number): void;
-set_group_name(group_name: string | null): void;
-set_menu_label(child: Widget, menu_label: Widget | null): void;
-set_menu_label_text(child: Widget, menu_text: string): void;
-set_scrollable(scrollable: boolean): void;
-set_show_border(show_border: boolean): void;
-set_show_tabs(show_tabs: boolean): void;
-set_tab_detachable(child: Widget, detachable: boolean): void;
-set_tab_label(child: Widget, tab_label: Widget | null): void;
-set_tab_label_text(child: Widget, tab_text: string): void;
-set_tab_pos(pos: PositionType): void;
-set_tab_reorderable(child: Widget, reorderable: boolean): void;
-vfunc_change_current_page(offset: number): boolean;
-vfunc_create_window(page: Widget, x: number, y: number): Notebook;
-vfunc_focus_tab(type: NotebookTab): boolean;
-vfunc_insert_page(child: Widget, tab_label: Widget, menu_label: Widget, position: number): number;
-vfunc_move_focus_out(direction: DirectionType): void;
-vfunc_page_added(child: Widget, page_num: number): void;
-vfunc_page_removed(child: Widget, page_num: number): void;
-vfunc_page_reordered(child: Widget, page_num: number): void;
-vfunc_reorder_tab(direction: DirectionType, move_to_last: boolean): boolean;
-vfunc_select_page(move_focus: boolean): boolean;
-vfunc_switch_page(page: Widget, page_num: number): void;
-}
-export class NotebookAccessible  {constructor(config?: properties);
-readonly priv: NotebookAccessiblePrivate;
-}
-export class NotebookPageAccessible extends Atk.Object {constructor(config?: properties);
-invalidate(): void;
-}
-export class NumerableIcon  {constructor(config?: properties);
-background_icon: Gio.Icon;
-background_icon_name: string;
-count: number;
-label: string;
-style_context: StyleContext;
-readonly priv: NumerableIconPrivate;
-get_background_gicon(): Gio.Icon | null;
-get_background_icon_name(): string | null;
-get_count(): number;
-get_label(): string | null;
-get_style_context(): StyleContext | null;
-set_background_gicon(icon: Gio.Icon | null): void;
-set_background_icon_name(icon_name: string | null): void;
-set_count(count: number): void;
-set_label(label: string | null): void;
-set_style_context(style: StyleContext): void;
-static _new(base_icon: Gio.Icon): Gio.Icon;
-static new_with_style_context(base_icon: Gio.Icon, context: StyleContext): Gio.Icon;
-}
-export class OffscreenWindow extends Window {constructor(config?: properties);
-get_pixbuf(): GdkPixbuf.Pixbuf | null;
-get_surface(): cairo.Surface | null;
-}
-export class Overlay extends Bin {constructor(config?: properties);
-add_overlay(widget: Widget): void;
-get_overlay_pass_through(widget: Widget): boolean;
-reorder_overlay(child: Widget, index_: number): void;
-set_overlay_pass_through(widget: Widget, pass_through: boolean): void;
-vfunc_get_child_position(widget: Widget, allocation: Allocation): boolean;
-}
-export class PadController extends EventController {constructor(config?: properties);
-action_group: Gio.ActionGroup;
-pad: Gdk.Device;
-set_action(type: PadActionType, index: number, mode: number, label: string, action_name: string): void;
-set_action_entries(entries: PadActionEntry[], n_entries: number): void;
-}
-export class PageSetup extends GObject.Object {constructor(config?: properties);
-static new_from_file(file_name: unknown): PageSetup;
-static new_from_gvariant(variant: GLib.Variant): PageSetup;
-static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PageSetup;
-copy(): PageSetup;
-get_bottom_margin(unit: Unit): number;
-get_left_margin(unit: Unit): number;
-get_orientation(): PageOrientation;
-get_page_height(unit: Unit): number;
-get_page_width(unit: Unit): number;
-get_paper_height(unit: Unit): number;
-get_paper_size(): PaperSize;
-get_paper_width(unit: Unit): number;
-get_right_margin(unit: Unit): number;
-get_top_margin(unit: Unit): number;
-load_file(file_name: unknown): boolean;
-load_key_file(key_file: GLib.KeyFile, group_name: string | null): boolean;
-set_bottom_margin(margin: number, unit: Unit): void;
-set_left_margin(margin: number, unit: Unit): void;
-set_orientation(orientation: PageOrientation): void;
-set_paper_size(size: PaperSize): void;
-set_paper_size_and_default_margins(size: PaperSize): void;
-set_right_margin(margin: number, unit: Unit): void;
-set_top_margin(margin: number, unit: Unit): void;
-to_file(file_name: unknown): boolean;
-to_gvariant(): GLib.Variant;
-to_key_file(key_file: GLib.KeyFile, group_name: string | null): void;
-}
-export class Paned extends Container {constructor(config?: properties);
-readonly max_position: number;
-readonly min_position: number;
-position: number;
-position_set: boolean;
-wide_handle: boolean;
-add1(child: Widget): void;
-add2(child: Widget): void;
-get_child1(): Widget | null;
-get_child2(): Widget | null;
-get_handle_window(): Gdk.Window;
-get_position(): number;
-get_wide_handle(): boolean;
-pack1(child: Widget, resize: boolean, shrink: boolean): void;
-pack2(child: Widget, resize: boolean, shrink: boolean): void;
-set_position(position: number): void;
-set_wide_handle(wide: boolean): void;
-vfunc_accept_position(): boolean;
-vfunc_cancel_position(): boolean;
-vfunc_cycle_child_focus(reverse: boolean): boolean;
-vfunc_cycle_handle_focus(reverse: boolean): boolean;
-vfunc_move_handle(scroll: ScrollType): boolean;
-vfunc_toggle_handle_focus(): boolean;
-}
-export class PanedAccessible  {constructor(config?: properties);
-readonly priv: PanedAccessiblePrivate;
-}
-export class PlacesSidebar extends ScrolledWindow {constructor(config?: properties);
-local_only: boolean;
-location: Gio.File;
-open_flags: PlacesOpenFlags;
-populate_all: boolean;
-show_connect_to_server: boolean;
-show_desktop: boolean;
-show_enter_location: boolean;
-show_other_locations: boolean;
-show_recent: boolean;
-show_starred_location: boolean;
-show_trash: boolean;
-add_shortcut(location: Gio.File): void;
-get_local_only(): boolean;
-get_location(): Gio.File | null;
-get_nth_bookmark(n: number): Gio.File | null;
-get_open_flags(): PlacesOpenFlags;
-get_show_connect_to_server(): boolean;
-get_show_desktop(): boolean;
-get_show_enter_location(): boolean;
-get_show_other_locations(): boolean;
-get_show_recent(): boolean;
-get_show_starred_location(): boolean;
-get_show_trash(): boolean;
-list_shortcuts(): string[];
-remove_shortcut(location: Gio.File): void;
-set_drop_targets_visible(visible: boolean, context: Gdk.DragContext): void;
-set_local_only(local_only: boolean): void;
-set_location(location: Gio.File | null): void;
-set_open_flags(flags: PlacesOpenFlags): void;
-set_show_connect_to_server(show_connect_to_server: boolean): void;
-set_show_desktop(show_desktop: boolean): void;
-set_show_enter_location(show_enter_location: boolean): void;
-set_show_other_locations(show_other_locations: boolean): void;
-set_show_recent(show_recent: boolean): void;
-set_show_starred_location(show_starred_location: boolean): void;
-set_show_trash(show_trash: boolean): void;
-}
-export class Plug extends Window {constructor(config?: properties);
-readonly socket_window: Gdk.Window;static new_for_display(display: Gdk.Display, socket_id: xlib.Window): Widget;
-construct(socket_id: xlib.Window): void;
-construct_for_display(display: Gdk.Display, socket_id: xlib.Window): void;
-get_embedded(): boolean;
-get_id(): xlib.Window;
-get_socket_window(): Gdk.Window | null;
-vfunc_embedded(): void;
-}
-export class Popover extends Bin {constructor(config?: properties);
-constrain_to: PopoverConstraint;
-modal: boolean;
-pointing_to: Gdk.Rectangle;
-position: PositionType;
-relative_to: Widget;
-transitions_enabled: boolean;static new_from_model(relative_to: Widget | null, model: Gio.MenuModel): Widget;
-bind_model(model: Gio.MenuModel | null, action_namespace: string | null): void;
-get_constrain_to(): PopoverConstraint;
-get_default_widget(): Widget | null;
-get_modal(): boolean;
-get_pointing_to(): [boolean, Gdk.Rectangle];
-get_position(): PositionType;
-get_relative_to(): Widget;
-get_transitions_enabled(): boolean;
-popdown(): void;
-popup(): void;
-set_constrain_to(constraint: PopoverConstraint): void;
-set_default_widget(widget: Widget | null): void;
-set_modal(modal: boolean): void;
-set_pointing_to(rect: Gdk.Rectangle): void;
-set_position(position: PositionType): void;
-set_relative_to(relative_to: Widget | null): void;
-set_transitions_enabled(transitions_enabled: boolean): void;
-vfunc_closed(): void;
-}
-export class PopoverAccessible  {constructor(config?: properties);
-}
-export class PopoverMenu extends Popover {constructor(config?: properties);
-visible_submenu: string;
-open_submenu(name: string): void;
-}
-export class PrintContext  {constructor(config?: properties);
-create_pango_context(): Pango.Context;
-create_pango_layout(): Pango.Layout;
-get_cairo_context(): cairo.Context;
-get_dpi_x(): number;
-get_dpi_y(): number;
-get_hard_margins(): [boolean, number,number,number,number];
-get_height(): number;
-get_page_setup(): PageSetup;
-get_pango_fontmap(): Pango.FontMap;
-get_width(): number;
-set_cairo_context(cr: cairo.Context, dpi_x: number, dpi_y: number): void;
-}
-export class PrintOperation extends GObject.Object {constructor(config?: properties);
-allow_async: boolean;
-current_page: number;
-custom_tab_label: string;
-default_page_setup: PageSetup;
-embed_page_setup: boolean;
-export_filename: string;
-has_selection: boolean;
-job_name: string;
-n_pages: number;
-readonly n_pages_to_print: number;
-print_settings: PrintSettings;
-show_progress: boolean;
-readonly status: PrintStatus;
-readonly status_string: string;
-support_selection: boolean;
-track_print_status: boolean;
-unit: Unit;
-use_full_page: boolean;
-cancel(): void;
-draw_page_finish(): void;
-get_default_page_setup(): PageSetup;
-get_embed_page_setup(): boolean;
-get_error(): void;
-get_has_selection(): boolean;
-get_n_pages_to_print(): number;
-get_print_settings(): PrintSettings;
-get_status(): PrintStatus;
-get_status_string(): string;
-get_support_selection(): boolean;
-is_finished(): boolean;
-run(action: PrintOperationAction, parent: Window | null): PrintOperationResult;
-set_allow_async(allow_async: boolean): void;
-set_current_page(current_page: number): void;
-set_custom_tab_label(label: string | null): void;
-set_default_page_setup(default_page_setup: PageSetup | null): void;
-set_defer_drawing(): void;
-set_embed_page_setup(embed: boolean): void;
-set_export_filename(filename: unknown): void;
-set_has_selection(has_selection: boolean): void;
-set_job_name(job_name: string): void;
-set_n_pages(n_pages: number): void;
-set_print_settings(print_settings: PrintSettings | null): void;
-set_show_progress(show_progress: boolean): void;
-set_support_selection(support_selection: boolean): void;
-set_track_print_status(track_status: boolean): void;
-set_unit(unit: Unit): void;
-set_use_full_page(full_page: boolean): void;
-vfunc_begin_print(context: PrintContext): void;
-vfunc_create_custom_widget(): Widget;
-vfunc_custom_widget_apply(widget: Widget): void;
-vfunc_done(result: PrintOperationResult): void;
-vfunc_draw_page(context: PrintContext, page_nr: number): void;
-vfunc_end_print(context: PrintContext): void;
-vfunc_paginate(context: PrintContext): boolean;
-vfunc_preview(preview: PrintOperationPreview, context: PrintContext, parent: Window): boolean;
-vfunc_request_page_setup(context: PrintContext, page_nr: number, setup: PageSetup): void;
-vfunc_status_changed(): void;
-vfunc_update_custom_widget(widget: Widget, setup: PageSetup, settings: PrintSettings): void;
-}
-export class PrintSettings extends GObject.Object {constructor(config?: properties);
-static new_from_file(file_name: unknown): PrintSettings;
-static new_from_gvariant(variant: GLib.Variant): PrintSettings;
-static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PrintSettings;
-copy(): PrintSettings;
-foreach(func: PrintSettingsFunc, user_data: object | null): void;
-get(key: string): string;
-get(...args: never[]): never;
-get_bool(key: string): boolean;
-get_collate(): boolean;
-get_default_source(): string;
-get_dither(): string;
-get_double(key: string): number;
-get_double_with_default(key: string, def: number): number;
-get_duplex(): PrintDuplex;
-get_finishings(): string;
-get_int(key: string): number;
-get_int_with_default(key: string, def: number): number;
-get_length(key: string, unit: Unit): number;
-get_media_type(): string;
-get_n_copies(): number;
-get_number_up(): number;
-get_number_up_layout(): NumberUpLayout;
-get_orientation(): PageOrientation;
-get_output_bin(): string;
-get_page_ranges(): [PageRange[], number];
-get_page_set(): PageSet;
-get_paper_height(unit: Unit): number;
-get_paper_size(): PaperSize;
-get_paper_width(unit: Unit): number;
-get_print_pages(): PrintPages;
-get_printer(): string;
-get_printer_lpi(): number;
-get_quality(): PrintQuality;
-get_resolution(): number;
-get_resolution_x(): number;
-get_resolution_y(): number;
-get_reverse(): boolean;
-get_scale(): number;
-get_use_color(): boolean;
-has_key(key: string): boolean;
-load_file(file_name: unknown): boolean;
-load_key_file(key_file: GLib.KeyFile, group_name: string | null): boolean;
-set(key: string, value: string | null): void;
-set(...args: never[]): never;
-set_bool(key: string, value: boolean): void;
-set_collate(collate: boolean): void;
-set_default_source(default_source: string): void;
-set_dither(dither: string): void;
-set_double(key: string, value: number): void;
-set_duplex(duplex: PrintDuplex): void;
-set_finishings(finishings: string): void;
-set_int(key: string, value: number): void;
-set_length(key: string, value: number, unit: Unit): void;
-set_media_type(media_type: string): void;
-set_n_copies(num_copies: number): void;
-set_number_up(number_up: number): void;
-set_number_up_layout(number_up_layout: NumberUpLayout): void;
-set_orientation(orientation: PageOrientation): void;
-set_output_bin(output_bin: string): void;
-set_page_ranges(page_ranges: PageRange[], num_ranges: number): void;
-set_page_set(page_set: PageSet): void;
-set_paper_height(height: number, unit: Unit): void;
-set_paper_size(paper_size: PaperSize): void;
-set_paper_width(width: number, unit: Unit): void;
-set_print_pages(pages: PrintPages): void;
-set_printer(printer: string): void;
-set_printer_lpi(lpi: number): void;
-set_quality(quality: PrintQuality): void;
-set_resolution(resolution: number): void;
-set_resolution_xy(resolution_x: number, resolution_y: number): void;
-set_reverse(reverse: boolean): void;
-set_scale(scale: number): void;
-set_use_color(use_color: boolean): void;
-to_file(file_name: unknown): boolean;
-to_gvariant(): GLib.Variant;
-to_key_file(key_file: GLib.KeyFile, group_name: string | null): void;
-unset(key: string): void;
-}
-export class ProgressBar extends Widget {constructor(config?: properties);
-ellipsize: Pango.EllipsizeMode;
-fraction: number;
-inverted: boolean;
-pulse_step: number;
-show_text: boolean;
-text: string;
-get_ellipsize(): Pango.EllipsizeMode;
-get_fraction(): number;
-get_inverted(): boolean;
-get_pulse_step(): number;
-get_show_text(): boolean;
-get_text(): string | null;
-pulse(): void;
-set_ellipsize(mode: Pango.EllipsizeMode): void;
-set_fraction(fraction: number): void;
-set_inverted(inverted: boolean): void;
-set_pulse_step(fraction: number): void;
-set_show_text(show_text: boolean): void;
-set_text(text: string | null): void;
-}
-export class ProgressBarAccessible  {constructor(config?: properties);
-readonly priv: ProgressBarAccessiblePrivate;
-}
-export class RadioAction extends ToggleAction {constructor(config?: properties);
-current_value: number;
-group: RadioAction;
-value: number;
-get_current_value(): number;
-get_group(): string[];
-join_group(group_source: RadioAction | null): void;
-set_current_value(current_value: number): void;
-set_group(group: string[]): void;
-vfunc_changed(current: RadioAction): void;
-}
-export class RadioButton extends CheckButton {constructor(config?: properties);
-group: RadioButton;static new_from_widget(radio_group_member: RadioButton | null): Widget;
-static new_with_label(group: string[], label: string): Widget;
-static new_with_label(...args: never[]): Widget;
-static new_with_label_from_widget(radio_group_member: RadioButton | null, label: string): Widget;
-static new_with_mnemonic(group: string[], label: string): Widget;
-static new_with_mnemonic(...args: never[]): Widget;
-static new_with_mnemonic_from_widget(radio_group_member: RadioButton | null, label: string): Widget;
-get_group(): string[];
-join_group(group_source: RadioButton | null): void;
-set_group(group: string[]): void;
-vfunc_group_changed(): void;
-}
-export class RadioButtonAccessible  {constructor(config?: properties);
-readonly priv: RadioButtonAccessiblePrivate;
-}
-export class RadioMenuItem extends CheckMenuItem {constructor(config?: properties);
-group: RadioMenuItem;static new_from_widget(group: RadioMenuItem | null): Widget;
-static new_with_label(group: string[], label: string): Widget;
-static new_with_label(...args: never[]): Widget;
-static new_with_label_from_widget(group: RadioMenuItem | null, label: string | null): Widget;
-static new_with_mnemonic(group: string[], label: string): Widget;
-static new_with_mnemonic(...args: never[]): Widget;
-static new_with_mnemonic_from_widget(group: RadioMenuItem | null, label: string | null): Widget;
-get_group(): string[];
-join_group(group_source: RadioMenuItem | null): void;
-set_group(group: string[]): void;
-vfunc_group_changed(): void;
-}
-export class RadioMenuItemAccessible  {constructor(config?: properties);
-readonly priv: RadioMenuItemAccessiblePrivate;
-}
-export class RadioToolButton extends ToggleToolButton {constructor(config?: properties);
-group: RadioToolButton;static new_from_stock(group: string[], stock_id: string): ToolItem;
-static new_from_stock(...args: never[]): ToolItem;
-static new_from_widget(group: RadioToolButton | null): ToolItem;
-static new_with_stock_from_widget(group: RadioToolButton | null, stock_id: string): ToolItem;
-get_group(): string[];
-set_group(group: string[]): void;
-}
-export class Range  {constructor(config?: properties);
-adjustment: Adjustment;
-fill_level: number;
-inverted: boolean;
-lower_stepper_sensitivity: SensitivityType;
-restrict_to_fill_level: boolean;
-round_digits: number;
-show_fill_level: boolean;
-upper_stepper_sensitivity: SensitivityType;
-readonly widget: Widget;
-readonly priv: RangePrivate;
-get_adjustment(): Adjustment;
-get_fill_level(): number;
-get_flippable(): boolean;
-get_inverted(): boolean;
-get_lower_stepper_sensitivity(): SensitivityType;
-get_min_slider_size(): number;
-get_range_rect(): [Gdk.Rectangle];
-get_restrict_to_fill_level(): boolean;
-get_round_digits(): number;
-get_show_fill_level(): boolean;
-get_slider_range(): [number | null,number | null];
-get_slider_size_fixed(): boolean;
-get_upper_stepper_sensitivity(): SensitivityType;
-get_value(): number;
-set_adjustment(adjustment: Adjustment): void;
-set_fill_level(fill_level: number): void;
-set_flippable(flippable: boolean): void;
-set_increments(step: number, page: number): void;
-set_inverted(setting: boolean): void;
-set_lower_stepper_sensitivity(sensitivity: SensitivityType): void;
-set_min_slider_size(min_size: number): void;
-set_range(min: number, max: number): void;
-set_restrict_to_fill_level(restrict_to_fill_level: boolean): void;
-set_round_digits(round_digits: number): void;
-set_show_fill_level(show_fill_level: boolean): void;
-set_slider_size_fixed(size_fixed: boolean): void;
-set_upper_stepper_sensitivity(sensitivity: SensitivityType): void;
-set_value(value: number): void;
-}
-export class RangeAccessible  {constructor(config?: properties);
-readonly priv: RangeAccessiblePrivate;
-}
-export class RcStyle extends GObject.Object {constructor(config?: properties);
-copy(): RcStyle;
-vfunc_create_rc_style(): RcStyle;
-vfunc_create_style(): Style;
-vfunc_merge(src: RcStyle): void;
-vfunc_parse(settings: Settings, scanner: GLib.Scanner): number;
-}
-export class RecentAction extends Action {constructor(config?: properties);
-show_numbers: boolean;static new_for_manager(name: string, label: string | null, tooltip: string | null, stock_id: string | null, manager: RecentManager | null): Action;
-get_show_numbers(): boolean;
-set_show_numbers(show_numbers: boolean): void;
-}
-export class RecentChooserDialog extends Dialog {constructor(config?: properties);
-static new_for_manager(title: string | null, parent: Window | null, manager: RecentManager, first_button_text: string | null, ___: unknown[]): Widget;
-}
-export class RecentChooserMenu extends Menu {constructor(config?: properties);
-show_numbers: boolean;static new_for_manager(manager: RecentManager): Widget;
-get_show_numbers(): boolean;
-set_show_numbers(show_numbers: boolean): void;
-}
-export class RecentChooserWidget extends Box {constructor(config?: properties);
-static new_for_manager(manager: RecentManager): Widget;
-}
-export class RecentFilter extends GObject.InitiallyUnowned {constructor(config?: properties);
-add_age(days: number): void;
-add_application(application: string): void;
-add_custom(needed: RecentFilterFlags, func: RecentFilterFunc, data: object | null, data_destroy: GLib.DestroyNotify): void;
-add_group(group: string): void;
-add_mime_type(mime_type: string): void;
-add_pattern(pattern: string): void;
-add_pixbuf_formats(): void;
-filter(filter_info: RecentFilterInfo): boolean;
-get_name(): string | null;
-get_needed(): RecentFilterFlags;
-set_name(name: string): void;
-}
-export class RecentManager extends GObject.Object {constructor(config?: properties);
-filename: string;
-readonly size: number;
-add_full(uri: string, recent_data: RecentData): boolean;
-add_item(uri: string): boolean;
-get_items(): GLib.List;
-has_item(uri: string): boolean;
-lookup_item(uri: string): RecentInfo | null;
-move_item(uri: string, new_uri: string | null): boolean;
-purge_items(): number;
-remove_item(uri: string): boolean;
-vfunc_changed(): void;
-static get_default(): RecentManager;
-}
-export class RendererCellAccessible extends CellAccessible {constructor(config?: properties);
-renderer: CellRenderer;
-}
-export class Revealer extends Bin {constructor(config?: properties);
-readonly child_revealed: boolean;
-reveal_child: boolean;
-transition_duration: number;
-transition_type: RevealerTransitionType;
-get_child_revealed(): boolean;
-get_reveal_child(): boolean;
-get_transition_duration(): number;
-get_transition_type(): RevealerTransitionType;
-set_reveal_child(reveal_child: boolean): void;
-set_transition_duration(duration: number): void;
-set_transition_type(transition: RevealerTransitionType): void;
-}
-export class Scale extends Range {constructor(config?: properties);
-digits: number;
-has_origin: boolean;
-value_pos: PositionType;static new_with_range(orientation: Orientation, min: number, max: number, step: number): Widget;
-add_mark(value: number, position: PositionType, markup: string | null): void;
-clear_marks(): void;
-get_digits(): number;
-get_draw_value(): boolean;
-get_has_origin(): boolean;
-get_layout(): Pango.Layout | null;
-get_layout_offsets(): [number | null,number | null];
-get_value_pos(): PositionType;
-set_digits(digits: number): void;
-set_draw_value(draw_value: boolean): void;
-set_has_origin(has_origin: boolean): void;
-set_value_pos(pos: PositionType): void;
-vfunc_draw_value(): void;
-vfunc_format_value(value: number): string;
-vfunc_get_layout_offsets(): [number | null,number | null];
-}
-export class ScaleAccessible  {constructor(config?: properties);
-readonly priv: ScaleAccessiblePrivate;
-}
-export class ScaleButton extends Button {constructor(config?: properties);
-adjustment: Adjustment;
-icons: string[];
-size: IconSize;
-value: number;
-get_adjustment(): Adjustment;
-get_minus_button(): Button;
-get_plus_button(): Button;
-get_popup(): Widget;
-get_value(): number;
-set_adjustment(adjustment: Adjustment): void;
-set_icons(icons: string[]): void;
-set_value(value: number): void;
-vfunc_value_changed(value: number): void;
-}
-export class ScaleButtonAccessible  {constructor(config?: properties);
-readonly priv: ScaleButtonAccessiblePrivate;
-}
-export class Scrollbar extends Range {constructor(config?: properties);
-}
-export class ScrolledWindow extends Bin {constructor(config?: properties);
-hadjustment: Adjustment;
-hscrollbar_policy: PolicyType;
-kinetic_scrolling: boolean;
-max_content_height: number;
-max_content_width: number;
-min_content_height: number;
-min_content_width: number;
-overlay_scrolling: boolean;
-propagate_natural_height: boolean;
-propagate_natural_width: boolean;
-shadow_type: ShadowType;
-vadjustment: Adjustment;
-vscrollbar_policy: PolicyType;
-window_placement: CornerType;
-window_placement_set: boolean;
-add_with_viewport(child: Widget): void;
-get_capture_button_press(): boolean;
-get_hadjustment(): Adjustment;
-get_hscrollbar(): Widget;
-get_kinetic_scrolling(): boolean;
-get_max_content_height(): number;
-get_max_content_width(): number;
-get_min_content_height(): number;
-get_min_content_width(): number;
-get_overlay_scrolling(): boolean;
-get_placement(): CornerType;
-get_policy(): [PolicyType | null,PolicyType | null];
-get_propagate_natural_height(): boolean;
-get_propagate_natural_width(): boolean;
-get_shadow_type(): ShadowType;
-get_vadjustment(): Adjustment;
-get_vscrollbar(): Widget;
-set_capture_button_press(capture_button_press: boolean): void;
-set_hadjustment(hadjustment: Adjustment | null): void;
-set_kinetic_scrolling(kinetic_scrolling: boolean): void;
-set_max_content_height(height: number): void;
-set_max_content_width(width: number): void;
-set_min_content_height(height: number): void;
-set_min_content_width(width: number): void;
-set_overlay_scrolling(overlay_scrolling: boolean): void;
-set_placement(window_placement: CornerType): void;
-set_policy(hscrollbar_policy: PolicyType, vscrollbar_policy: PolicyType): void;
-set_propagate_natural_height(propagate: boolean): void;
-set_propagate_natural_width(propagate: boolean): void;
-set_shadow_type(type: ShadowType): void;
-set_vadjustment(vadjustment: Adjustment | null): void;
-unset_placement(): void;
-vfunc_move_focus_out(direction: DirectionType): void;
-vfunc_scroll_child(scroll: ScrollType, horizontal: boolean): boolean;
-}
-export class ScrolledWindowAccessible  {constructor(config?: properties);
-readonly priv: ScrolledWindowAccessiblePrivate;
-}
-export class SearchBar extends Bin {constructor(config?: properties);
-search_mode_enabled: boolean;
-show_close_button: boolean;
-connect_entry(entry: Entry): void;
-get_search_mode(): boolean;
-get_show_close_button(): boolean;
-handle_event(event: Gdk.Event): boolean;
-set_search_mode(search_mode: boolean): void;
-set_show_close_button(visible: boolean): void;
-}
-export class SearchEntry extends Entry {constructor(config?: properties);
-handle_event(event: Gdk.Event): boolean;
-vfunc_next_match(): void;
-vfunc_previous_match(): void;
-vfunc_search_changed(): void;
-vfunc_stop_search(): void;
-}
-export class Separator extends Widget {constructor(config?: properties);
-}
-export class SeparatorMenuItem extends MenuItem {constructor(config?: properties);
-}
-export class SeparatorToolItem extends ToolItem {constructor(config?: properties);
-get_draw(): boolean;
-set_draw(draw: boolean): void;
-}
-export class Settings  {constructor(config?: properties);
-readonly color_hash: GLib.HashTable;
-gtk_alternative_button_order: boolean;
-gtk_alternative_sort_arrows: boolean;
-gtk_application_prefer_dark_theme: boolean;
-gtk_auto_mnemonics: boolean;
-gtk_button_images: boolean;
-gtk_can_change_accels: boolean;
-gtk_color_palette: string;
-gtk_color_scheme: string;
-gtk_cursor_blink: boolean;
-gtk_cursor_blink_time: number;
-gtk_cursor_blink_timeout: number;
-gtk_cursor_theme_name: string;
-gtk_cursor_theme_size: number;
-gtk_decoration_layout: string;
-gtk_dialogs_use_header: boolean;
-gtk_dnd_drag_threshold: number;
-gtk_double_click_distance: number;
-gtk_double_click_time: number;
-gtk_enable_accels: boolean;
-gtk_enable_animations: boolean;
-gtk_enable_event_sounds: boolean;
-gtk_enable_input_feedback_sounds: boolean;
-gtk_enable_mnemonics: boolean;
-gtk_enable_primary_paste: boolean;
-gtk_enable_tooltips: boolean;
-gtk_entry_password_hint_timeout: number;
-gtk_entry_select_on_focus: boolean;
-gtk_error_bell: boolean;
-gtk_fallback_icon_theme: string;
-gtk_file_chooser_backend: string;
-gtk_font_name: string;
-gtk_fontconfig_timestamp: number;
-gtk_icon_sizes: string;
-gtk_icon_theme_name: string;
-gtk_im_module: string;
-gtk_im_preedit_style: IMPreeditStyle;
-gtk_im_status_style: IMStatusStyle;
-gtk_key_theme_name: string;
-gtk_keynav_cursor_only: boolean;
-gtk_keynav_use_caret: boolean;
-gtk_keynav_wrap_around: boolean;
-gtk_label_select_on_focus: boolean;
-gtk_long_press_time: number;
-gtk_menu_bar_accel: string;
-gtk_menu_bar_popup_delay: number;
-gtk_menu_images: boolean;
-gtk_menu_popdown_delay: number;
-gtk_menu_popup_delay: number;
-gtk_modules: string;
-gtk_overlay_scrolling: boolean;
-gtk_primary_button_warps_slider: boolean;
-gtk_print_backends: string;
-gtk_print_preview_command: string;
-gtk_recent_files_enabled: boolean;
-gtk_recent_files_limit: number;
-gtk_recent_files_max_age: number;
-gtk_scrolled_window_placement: CornerType;
-gtk_shell_shows_app_menu: boolean;
-gtk_shell_shows_desktop: boolean;
-gtk_shell_shows_menubar: boolean;
-gtk_show_input_method_menu: boolean;
-gtk_show_unicode_menu: boolean;
-gtk_sound_theme_name: string;
-gtk_split_cursor: boolean;
-gtk_theme_name: string;
-gtk_timeout_expand: number;
-gtk_timeout_initial: number;
-gtk_timeout_repeat: number;
-gtk_titlebar_double_click: string;
-gtk_titlebar_middle_click: string;
-gtk_titlebar_right_click: string;
-gtk_toolbar_icon_size: IconSize;
-gtk_toolbar_style: ToolbarStyle;
-gtk_tooltip_browse_mode_timeout: number;
-gtk_tooltip_browse_timeout: number;
-gtk_tooltip_timeout: number;
-gtk_touchscreen_mode: boolean;
-gtk_visible_focus: PolicyType;
-gtk_xft_antialias: number;
-gtk_xft_dpi: number;
-gtk_xft_hinting: number;
-gtk_xft_hintstyle: string;
-gtk_xft_rgba: string;
-readonly priv: SettingsPrivate;
-reset_property(name: string): void;
-set_double_property(name: string, v_double: number, origin: string): void;
-set_long_property(name: string, v_long: number, origin: string): void;
-set_property_value(name: string, svalue: SettingsValue): void;
-set_string_property(name: string, v_string: string, origin: string): void;
-static get_default(): Settings | null;
-static get_for_screen(screen: Gdk.Screen): Settings;
-static install_property(pspec: GObject.ParamSpec): void;
-static install_property_parser(pspec: GObject.ParamSpec, parser: RcPropertyParser): void;
-}
-export class ShortcutLabel extends Box {constructor(config?: properties);
-accelerator: string;
-disabled_text: string;
-get_accelerator(): string | null;
-get_disabled_text(): string | null;
-set_accelerator(accelerator: string): void;
-set_disabled_text(disabled_text: string): void;
-}
-export class ShortcutsGroup  {constructor(config?: properties);
-accel_size_group: SizeGroup;
-readonly height: number;
-title: string;
-title_size_group: SizeGroup;
-view: string;
-}
-export class ShortcutsSection  {constructor(config?: properties);
-max_height: number;
-section_name: string;
-title: string;
-view_name: string;
-}
-export class ShortcutsShortcut  {constructor(config?: properties);
-accel_size_group: SizeGroup;
-accelerator: string;
-action_name: string;
-direction: TextDirection;
-icon: Gio.Icon;
-icon_set: boolean;
-shortcut_type: ShortcutType;
-subtitle: string;
-subtitle_set: boolean;
-title: string;
-title_size_group: SizeGroup;
-}
-export class ShortcutsWindow  {constructor(config?: properties);
-section_name: string;
-view_name: string;
-readonly window: Window;
-}
-export class SizeGroup extends GObject.Object {constructor(config?: properties);
-ignore_hidden: boolean;
-mode: SizeGroupMode;
-add_widget(widget: Widget): void;
-get_ignore_hidden(): boolean;
-get_mode(): SizeGroupMode;
-get_widgets(): string[];
-remove_widget(widget: Widget): void;
-set_ignore_hidden(ignore_hidden: boolean): void;
-set_mode(mode: SizeGroupMode): void;
-}
-export class Socket extends Container {constructor(config?: properties);
-add_id(window: xlib.Window): void;
-get_id(): xlib.Window;
-get_plug_window(): Gdk.Window | null;
-vfunc_plug_added(): void;
-vfunc_plug_removed(): boolean;
-}
-export class SpinButton extends Entry {constructor(config?: properties);
-adjustment: Adjustment;
-climb_rate: number;
-digits: number;
-numeric: boolean;
-snap_to_ticks: boolean;
-update_policy: SpinButtonUpdatePolicy;
-value: number;
-wrap: boolean;static new_with_range(min: number, max: number, step: number): Widget;
-configure(adjustment: Adjustment | null, climb_rate: number, digits: number): void;
-get_adjustment(): Adjustment;
-get_digits(): number;
-get_increments(): [number | null,number | null];
-get_numeric(): boolean;
-get_range(): [number | null,number | null];
-get_snap_to_ticks(): boolean;
-get_update_policy(): SpinButtonUpdatePolicy;
-get_value(): number;
-get_value_as_int(): number;
-get_wrap(): boolean;
-set_adjustment(adjustment: Adjustment): void;
-set_digits(digits: number): void;
-set_increments(step: number, page: number): void;
-set_numeric(numeric: boolean): void;
-set_range(min: number, max: number): void;
-set_snap_to_ticks(snap_to_ticks: boolean): void;
-set_update_policy(policy: SpinButtonUpdatePolicy): void;
-set_value(value: number): void;
-set_wrap(wrap: boolean): void;
-spin(direction: SpinType, increment: number): void;
-update(): void;
-vfunc_change_value(scroll: ScrollType): void;
-vfunc_input(new_value: number): number;
-vfunc_output(): number;
-vfunc_value_changed(): void;
-vfunc_wrapped(): void;
-}
-export class SpinButtonAccessible  {constructor(config?: properties);
-readonly priv: SpinButtonAccessiblePrivate;
-}
-export class Spinner extends Widget {constructor(config?: properties);
-active: boolean;
-start(): void;
-stop(): void;
-}
-export class SpinnerAccessible  {constructor(config?: properties);
-readonly priv: SpinnerAccessiblePrivate;
-}
-export class Stack extends Container {constructor(config?: properties);
-hhomogeneous: boolean;
-homogeneous: boolean;
-interpolate_size: boolean;
-transition_duration: number;
-readonly transition_running: boolean;
-transition_type: StackTransitionType;
-vhomogeneous: boolean;
-visible_child: Widget;
-visible_child_name: string;
-add_named(child: Widget, name: string): void;
-add_titled(child: Widget, name: string, title: string): void;
-get_child_by_name(name: string): Widget | null;
-get_hhomogeneous(): boolean;
-get_homogeneous(): boolean;
-get_interpolate_size(): boolean;
-get_transition_duration(): number;
-get_transition_running(): boolean;
-get_transition_type(): StackTransitionType;
-get_vhomogeneous(): boolean;
-get_visible_child(): Widget | null;
-get_visible_child_name(): string | null;
-set_hhomogeneous(hhomogeneous: boolean): void;
-set_homogeneous(homogeneous: boolean): void;
-set_interpolate_size(interpolate_size: boolean): void;
-set_transition_duration(duration: number): void;
-set_transition_type(transition: StackTransitionType): void;
-set_vhomogeneous(vhomogeneous: boolean): void;
-set_visible_child(child: Widget): void;
-set_visible_child_full(name: string, transition: StackTransitionType): void;
-set_visible_child_name(name: string): void;
-}
-export class StackAccessible  {constructor(config?: properties);
-}
-export class StackSidebar extends Bin {constructor(config?: properties);
-stack: Stack;
-get_stack(): Stack | null;
-set_stack(stack: Stack): void;
-}
-export class StackSwitcher extends Box {constructor(config?: properties);
-icon_size: number;
-stack: Stack;
-get_stack(): Stack | null;
-set_stack(stack: Stack | null): void;
-}
-export class StatusIcon extends GObject.Object {constructor(config?: properties);
-readonly embedded: boolean;
-file: string;
-gicon: Gio.Icon;
-has_tooltip: boolean;
-icon_name: string;
-readonly orientation: Orientation;
-pixbuf: GdkPixbuf.Pixbuf;
-screen: Gdk.Screen;
-readonly size: number;
-stock: string;
-readonly storage_type: ImageType;
-title: string;
-tooltip_markup: string;
-tooltip_text: string;
-visible: boolean;static new_from_file(filename: unknown): StatusIcon;
-static new_from_gicon(icon: Gio.Icon): StatusIcon;
-static new_from_icon_name(icon_name: string): StatusIcon;
-static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): StatusIcon;
-static new_from_stock(stock_id: string): StatusIcon;
-get_geometry(): [boolean, Gdk.Screen | null,Gdk.Rectangle | null,Orientation | null];
-get_gicon(): Gio.Icon | null;
-get_has_tooltip(): boolean;
-get_icon_name(): string | null;
-get_pixbuf(): GdkPixbuf.Pixbuf | null;
-get_screen(): Gdk.Screen;
-get_size(): number;
-get_stock(): string | null;
-get_storage_type(): ImageType;
-get_title(): string;
-get_tooltip_markup(): string | null;
-get_tooltip_text(): string | null;
-get_visible(): boolean;
-get_x11_window_id(): number;
-is_embedded(): boolean;
-set_from_file(filename: unknown): void;
-set_from_gicon(icon: Gio.Icon): void;
-set_from_icon_name(icon_name: string): void;
-set_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): void;
-set_from_stock(stock_id: string): void;
-set_has_tooltip(has_tooltip: boolean): void;
-set_name(name: string): void;
-set_screen(screen: Gdk.Screen): void;
-set_title(title: string): void;
-set_tooltip_markup(markup: string | null): void;
-set_tooltip_text(text: string): void;
-set_visible(visible: boolean): void;
-vfunc_activate(): void;
-vfunc_button_press_event(event: Gdk.EventButton): boolean;
-vfunc_button_release_event(event: Gdk.EventButton): boolean;
-vfunc_popup_menu(button: number, activate_time: number): void;
-vfunc_query_tooltip(x: number, y: number, keyboard_mode: boolean, tooltip: Tooltip): boolean;
-vfunc_scroll_event(event: Gdk.EventScroll): boolean;
-vfunc_size_changed(size: number): boolean;
-static position_menu(menu: Menu, x: number, y: number, user_data: StatusIcon): [number,number,boolean];
-}
-export class Statusbar extends Box {constructor(config?: properties);
-get_context_id(context_description: string): number;
-get_message_area(): Box;
-pop(context_id: number): void;
-push(context_id: number, text: string): number;
-remove(context_id: number, message_id: number): void;
-remove(...args: never[]): never;
-remove_all(context_id: number): void;
-vfunc_text_popped(context_id: number, text: string): void;
-vfunc_text_pushed(context_id: number, text: string): void;
-}
-export class StatusbarAccessible  {constructor(config?: properties);
-readonly priv: StatusbarAccessiblePrivate;
-}
-export class Style extends GObject.Object {constructor(config?: properties);
-context: StyleContext;
-apply_default_background(cr: cairo.Context, window: Gdk.Window, state_type: StateType, x: number, y: number, width: number, height: number): void;
-attach(window: Gdk.Window): Style;
-copy(): Style;
-detach(): void;
-get(widget_type: unknown, first_property_name: string, ___: unknown[]): void;
-get(...args: never[]): never;
-get_style_property(widget_type: unknown, property_name: string): [GObject.Value];
-get_valist(widget_type: unknown, first_property_name: string, var_args: any): void;
-get_valist(...args: never[]): never;
-has_context(): boolean;
-lookup_color(color_name: string): [boolean, Gdk.Color];
-lookup_icon_set(stock_id: string): IconSet;
-render_icon(source: IconSource, direction: TextDirection, state: StateType, size: number, widget: Widget | null, detail: string | null): GdkPixbuf.Pixbuf;
-set_background(window: Gdk.Window, state_type: StateType): void;
-vfunc_clone(): Style;
-vfunc_copy(src: Style): void;
-vfunc_draw_arrow(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, arrow_type: ArrowType, fill: boolean, x: number, y: number, width: number, height: number): void;
-vfunc_draw_box(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_box_gap(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, gap_side: PositionType, gap_x: number, gap_width: number): void;
-vfunc_draw_check(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_diamond(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_expander(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, x: number, y: number, expander_style: ExpanderStyle): void;
-vfunc_draw_extension(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, gap_side: PositionType): void;
-vfunc_draw_flat_box(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_focus(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_handle(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, orientation: Orientation): void;
-vfunc_draw_hline(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, x1: number, x2: number, y: number): void;
-vfunc_draw_layout(cr: cairo.Context, state_type: StateType, use_text: boolean, widget: Widget, detail: string, x: number, y: number, layout: Pango.Layout): void;
-vfunc_draw_option(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_resize_grip(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, edge: Gdk.WindowEdge, x: number, y: number, width: number, height: number): void;
-vfunc_draw_shadow(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_shadow_gap(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, gap_side: PositionType, gap_x: number, gap_width: number): void;
-vfunc_draw_slider(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, orientation: Orientation): void;
-vfunc_draw_spinner(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, step: number, x: number, y: number, width: number, height: number): void;
-vfunc_draw_tab(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
-vfunc_draw_vline(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, y1_: number, y2_: number, x: number): void;
-vfunc_init_from_rc(rc_style: RcStyle): void;
-vfunc_realize(): void;
-vfunc_render_icon(source: IconSource, direction: TextDirection, state: StateType, size: number, widget: Widget | null, detail: string | null): GdkPixbuf.Pixbuf;
-vfunc_set_background(window: Gdk.Window, state_type: StateType): void;
-vfunc_unrealize(): void;
-}
-export class StyleContext extends GObject.Object {constructor(config?: properties);
-direction: TextDirection;
-paint_clock: Gdk.FrameClock;
-screen: Gdk.Screen;
-add_class(class_name: string): void;
-add_provider(provider: StyleProvider, priority: number): void;
-add_region(region_name: string, flags: RegionFlags): void;
-cancel_animations(region_id: object | null): void;
-get(state: StateFlags, ___: unknown[]): void;
-get(...args: never[]): never;
-get_background_color(state: StateFlags): [Gdk.RGBA];
-get_border(state: StateFlags): [Border];
-get_border_color(state: StateFlags): [Gdk.RGBA];
-get_color(state: StateFlags): [Gdk.RGBA];
-get_direction(): TextDirection;
-get_font(state: StateFlags): Pango.FontDescription;
-get_frame_clock(): Gdk.FrameClock | null;
-get_junction_sides(): JunctionSides;
-get_margin(state: StateFlags): [Border];
-get_padding(state: StateFlags): [Border];
-get_parent(): StyleContext | null;
-get_path(): WidgetPath;
-get_property(property: string, state: StateFlags): [GObject.Value];
-get_property(...args: never[]): never;
-get_scale(): number;
-get_screen(): Gdk.Screen;
-get_section(property: string): CssSection | null;
-get_state(): StateFlags;
-get_style(___: unknown[]): void;
-get_style_property(property_name: string, value: GObject.Value): void;
-get_style_valist(args: any): void;
-get_valist(state: StateFlags, args: any): void;
-get_valist(...args: never[]): never;
-has_class(class_name: string): boolean;
-has_region(region_name: string): [boolean, RegionFlags | null];
-invalidate(): void;
-list_classes(): GLib.List;
-list_regions(): GLib.List;
-lookup_color(color_name: string): [boolean, Gdk.RGBA];
-lookup_icon_set(stock_id: string): IconSet | null;
-notify_state_change(window: Gdk.Window, region_id: object | null, state: StateType, state_value: boolean): void;
-pop_animatable_region(): void;
-push_animatable_region(region_id: object | null): void;
-remove_class(class_name: string): void;
-remove_provider(provider: StyleProvider): void;
-remove_region(region_name: string): void;
-restore(): void;
-save(): void;
-scroll_animations(window: Gdk.Window, dx: number, dy: number): void;
-set_background(window: Gdk.Window): void;
-set_direction(direction: TextDirection): void;
-set_frame_clock(frame_clock: Gdk.FrameClock): void;
-set_junction_sides(sides: JunctionSides): void;
-set_parent(parent: StyleContext | null): void;
-set_path(path: WidgetPath): void;
-set_scale(scale: number): void;
-set_screen(screen: Gdk.Screen): void;
-set_state(flags: StateFlags): void;
-state_is_running(state: StateType): [boolean, number];
-to_string(flags: StyleContextPrintFlags): string;
-vfunc_changed(): void;
-static add_provider_for_screen(screen: Gdk.Screen, provider: StyleProvider, priority: number): void;
-static remove_provider_for_screen(screen: Gdk.Screen, provider: StyleProvider): void;
-static reset_widgets(screen: Gdk.Screen): void;
-}
-export class StyleProperties extends GObject.Object {constructor(config?: properties);
-clear(): void;
-get(state: StateFlags, ___: unknown[]): void;
-get(...args: never[]): never;
-get_property(property: string, state: StateFlags): [boolean, GObject.Value];
-get_property(...args: never[]): never;
-get_valist(state: StateFlags, args: any): void;
-get_valist(...args: never[]): never;
-lookup_color(name: string): SymbolicColor;
-map_color(name: string, color: SymbolicColor): void;
-merge(props_to_merge: StyleProperties, replace: boolean): void;
-set(state: StateFlags, ___: unknown[]): void;
-set(...args: never[]): never;
-set_property(property: string, state: StateFlags, value: GObject.Value): void;
-set_property(...args: never[]): never;
-set_valist(state: StateFlags, args: any): void;
-set_valist(...args: never[]): never;
-unset_property(property: string, state: StateFlags): void;
-static lookup_property(property_name: string): [boolean, StylePropertyParser,GObject.ParamSpec];
-static register_property(parse_func: StylePropertyParser | null, pspec: GObject.ParamSpec): void;
-}
-export class Switch extends Widget {constructor(config?: properties);
-active: boolean;
-state: boolean;
-get_active(): boolean;
-get_state(): boolean;
-get_state(...args: never[]): never;
-set_active(is_active: boolean): void;
-set_state(state: boolean): void;
-set_state(...args: never[]): never;
-vfunc_activate(): void;
-activate(...args: never[]): never;
-vfunc_state_set(state: boolean): boolean;
-}
-export class SwitchAccessible  {constructor(config?: properties);
-readonly priv: SwitchAccessiblePrivate;
-}
-export class Table extends Container {constructor(config?: properties);
-column_spacing: number;
-homogeneous: boolean;
-n_columns: number;
-n_rows: number;
-row_spacing: number;
-attach(child: Widget, left_attach: number, right_attach: number, top_attach: number, bottom_attach: number, xoptions: AttachOptions, yoptions: AttachOptions, xpadding: number, ypadding: number): void;
-attach_defaults(widget: Widget, left_attach: number, right_attach: number, top_attach: number, bottom_attach: number): void;
-get_col_spacing(column: number): number;
-get_default_col_spacing(): number;
-get_default_row_spacing(): number;
-get_homogeneous(): boolean;
-get_row_spacing(row: number): number;
-get_size(): [number | null,number | null];
-resize(rows: number, columns: number): void;
-set_col_spacing(column: number, spacing: number): void;
-set_col_spacings(spacing: number): void;
-set_homogeneous(homogeneous: boolean): void;
-set_row_spacing(row: number, spacing: number): void;
-set_row_spacings(spacing: number): void;
-}
-export class TearoffMenuItem extends MenuItem {constructor(config?: properties);
-}
-export class TextBuffer extends GObject.Object {constructor(config?: properties);
-readonly copy_target_list: TargetList;
-readonly cursor_position: number;
-readonly has_selection: boolean;
-readonly paste_target_list: TargetList;
-tag_table: TextTagTable;
-text: string;
-add_mark(mark: TextMark, where: TextIter): void;
-add_selection_clipboard(clipboard: Clipboard): void;
-apply_tag(tag: TextTag, start: TextIter, end: TextIter): void;
-apply_tag_by_name(name: string, start: TextIter, end: TextIter): void;
-backspace(iter: TextIter, interactive: boolean, default_editable: boolean): boolean;
-begin_user_action(): void;
-copy_clipboard(clipboard: Clipboard): void;
-create_child_anchor(iter: TextIter): TextChildAnchor;
-create_mark(mark_name: string | null, where: TextIter, left_gravity: boolean): TextMark;
-create_tag(tag_name: string | null, first_property_name: string | null, ___: unknown[]): TextTag;
-cut_clipboard(clipboard: Clipboard, default_editable: boolean): void;
-_delete(start: TextIter, end: TextIter): void;
-delete_interactive(start_iter: TextIter, end_iter: TextIter, default_editable: boolean): boolean;
-delete_mark(mark: TextMark): void;
-delete_mark_by_name(name: string): void;
-delete_selection(interactive: boolean, default_editable: boolean): boolean;
-deserialize(content_buffer: TextBuffer, format: Gdk.Atom, iter: TextIter, data: number[], length: number): boolean;
-deserialize_get_can_create_tags(format: Gdk.Atom): boolean;
-deserialize_set_can_create_tags(format: Gdk.Atom, can_create_tags: boolean): void;
-end_user_action(): void;
-get_bounds(): [TextIter,TextIter];
-get_char_count(): number;
-get_copy_target_list(): TargetList;
-get_deserialize_formats(): [Gdk.Atom[], number];
-get_end_iter(): [TextIter];
-get_has_selection(): boolean;
-get_insert(): TextMark;
-get_iter_at_child_anchor(anchor: TextChildAnchor): [TextIter];
-get_iter_at_line(line_number: number): [TextIter];
-get_iter_at_line_index(line_number: number, byte_index: number): [TextIter];
-get_iter_at_line_offset(line_number: number, char_offset: number): [TextIter];
-get_iter_at_mark(mark: TextMark): [TextIter];
-get_iter_at_offset(char_offset: number): [TextIter];
-get_line_count(): number;
-get_mark(name: string): TextMark | null;
-get_modified(): boolean;
-get_paste_target_list(): TargetList;
-get_selection_bound(): TextMark;
-get_selection_bounds(): [boolean, TextIter,TextIter];
-get_serialize_formats(): [Gdk.Atom[], number];
-get_slice(start: TextIter, end: TextIter, include_hidden_chars: boolean): string;
-get_start_iter(): [TextIter];
-get_tag_table(): TextTagTable;
-get_text(start: TextIter, end: TextIter, include_hidden_chars: boolean): string;
-insert(iter: TextIter, text: string, len: number): void;
-insert_at_cursor(text: string, len: number): void;
-insert_child_anchor(iter: TextIter, anchor: TextChildAnchor): void;
-insert_interactive(iter: TextIter, text: string, len: number, default_editable: boolean): boolean;
-insert_interactive_at_cursor(text: string, len: number, default_editable: boolean): boolean;
-insert_markup(iter: TextIter, markup: string, len: number): void;
-insert_pixbuf(iter: TextIter, pixbuf: GdkPixbuf.Pixbuf): void;
-insert_range(iter: TextIter, start: TextIter, end: TextIter): void;
-insert_range_interactive(iter: TextIter, start: TextIter, end: TextIter, default_editable: boolean): boolean;
-insert_with_tags(iter: TextIter, text: string, len: number, first_tag: TextTag, ___: unknown[]): void;
-insert_with_tags_by_name(iter: TextIter, text: string, len: number, first_tag_name: string, ___: unknown[]): void;
-move_mark(mark: TextMark, where: TextIter): void;
-move_mark_by_name(name: string, where: TextIter): void;
-paste_clipboard(clipboard: Clipboard, override_location: TextIter | null, default_editable: boolean): void;
-place_cursor(where: TextIter): void;
-register_deserialize_format(mime_type: string, _function: TextBufferDeserializeFunc, user_data: object | null, user_data_destroy: GLib.DestroyNotify): Gdk.Atom;
-register_deserialize_tagset(tagset_name: string | null): Gdk.Atom;
-register_serialize_format(mime_type: string, _function: TextBufferSerializeFunc, user_data: object | null, user_data_destroy: GLib.DestroyNotify): Gdk.Atom;
-register_serialize_tagset(tagset_name: string | null): Gdk.Atom;
-remove_all_tags(start: TextIter, end: TextIter): void;
-remove_selection_clipboard(clipboard: Clipboard): void;
-remove_tag(tag: TextTag, start: TextIter, end: TextIter): void;
-remove_tag_by_name(name: string, start: TextIter, end: TextIter): void;
-select_range(ins: TextIter, bound: TextIter): void;
-serialize(content_buffer: TextBuffer, format: Gdk.Atom, start: TextIter, end: TextIter): [number[], number];
-set_modified(setting: boolean): void;
-set_text(text: string, len: number): void;
-unregister_deserialize_format(format: Gdk.Atom): void;
-unregister_serialize_format(format: Gdk.Atom): void;
-vfunc_apply_tag(tag: TextTag, start: TextIter, end: TextIter): void;
-vfunc_begin_user_action(): void;
-vfunc_changed(): void;
-vfunc_delete_range(start: TextIter, end: TextIter): void;
-vfunc_end_user_action(): void;
-vfunc_insert_child_anchor(iter: TextIter, anchor: TextChildAnchor): void;
-vfunc_insert_pixbuf(iter: TextIter, pixbuf: GdkPixbuf.Pixbuf): void;
-vfunc_insert_text(pos: TextIter, new_text: string, new_text_length: number): void;
-vfunc_mark_deleted(mark: TextMark): void;
-vfunc_mark_set(location: TextIter, mark: TextMark): void;
-vfunc_modified_changed(): void;
-vfunc_paste_done(clipboard: Clipboard): void;
-vfunc_remove_tag(tag: TextTag, start: TextIter, end: TextIter): void;
-}
-export class TextCellAccessible  {constructor(config?: properties);
-readonly priv: TextCellAccessiblePrivate;
-}
-export class TextChildAnchor extends GObject.Object {constructor(config?: properties);
-get_deleted(): boolean;
-get_widgets(): GLib.List;
-}
-export class TextMark extends GObject.Object {constructor(config?: properties);
-left_gravity: boolean;
-name: string;
-get_buffer(): TextBuffer;
-get_deleted(): boolean;
-get_left_gravity(): boolean;
-get_name(): string | null;
-get_visible(): boolean;
-set_visible(setting: boolean): void;
-}
-export class TextTag extends GObject.Object {constructor(config?: properties);
-accumulative_margin: boolean;
-background: string;
-background_full_height: boolean;
-background_full_height_set: boolean;
-background_gdk: Gdk.Color;
-background_rgba: Gdk.RGBA;
-background_set: boolean;
-direction: TextDirection;
-editable: boolean;
-editable_set: boolean;
-fallback: boolean;
-fallback_set: boolean;
-family: string;
-family_set: boolean;
-font: string;
-font_desc: Pango.FontDescription;
-font_features: string;
-font_features_set: boolean;
-foreground: string;
-foreground_gdk: Gdk.Color;
-foreground_rgba: Gdk.RGBA;
-foreground_set: boolean;
-indent: number;
-indent_set: boolean;
-invisible: boolean;
-invisible_set: boolean;
-justification: Justification;
-justification_set: boolean;
-language: string;
-language_set: boolean;
-left_margin: number;
-left_margin_set: boolean;
-letter_spacing: number;
-letter_spacing_set: boolean;
-name: string;
-paragraph_background: string;
-paragraph_background_gdk: Gdk.Color;
-paragraph_background_rgba: Gdk.RGBA;
-paragraph_background_set: boolean;
-pixels_above_lines: number;
-pixels_above_lines_set: boolean;
-pixels_below_lines: number;
-pixels_below_lines_set: boolean;
-pixels_inside_wrap: number;
-pixels_inside_wrap_set: boolean;
-right_margin: number;
-right_margin_set: boolean;
-rise: number;
-rise_set: boolean;
-scale: number;
-scale_set: boolean;
-size: number;
-size_points: number;
-size_set: boolean;
-stretch: Pango.Stretch;
-stretch_set: boolean;
-strikethrough: boolean;
-strikethrough_rgba: Gdk.RGBA;
-strikethrough_rgba_set: boolean;
-strikethrough_set: boolean;
-style: Pango.Style;
-style_set: boolean;
-tabs: Pango.TabArray;
-tabs_set: boolean;
-underline: Pango.Underline;
-underline_rgba: Gdk.RGBA;
-underline_rgba_set: boolean;
-underline_set: boolean;
-variant: Pango.Variant;
-variant_set: boolean;
-weight: number;
-weight_set: boolean;
-wrap_mode: WrapMode;
-wrap_mode_set: boolean;
-changed(size_changed: boolean): void;
-event(event_object: GObject.Object, event: Gdk.Event, iter: TextIter): boolean;
-get_priority(): number;
-set_priority(priority: number): void;
-vfunc_event(event_object: GObject.Object, event: Gdk.Event, iter: TextIter): boolean;
-}
-export class TextTagTable extends GObject.Object {constructor(config?: properties);
-add(tag: TextTag): boolean;
-foreach(func: TextTagTableForeach, data: object | null): void;
-get_size(): number;
-lookup(name: string): TextTag | null;
-remove(tag: TextTag): void;
-vfunc_tag_added(tag: TextTag): void;
-vfunc_tag_changed(tag: TextTag, size_changed: boolean): void;
-vfunc_tag_removed(tag: TextTag): void;
-}
-export class TextView extends Container {constructor(config?: properties);
-accepts_tab: boolean;
-bottom_margin: number;
-buffer: TextBuffer;
-cursor_visible: boolean;
-editable: boolean;
-im_module: string;
-indent: number;
-input_hints: InputHints;
-input_purpose: InputPurpose;
-justification: Justification;
-left_margin: number;
-monospace: boolean;
-overwrite: boolean;
-pixels_above_lines: number;
-pixels_below_lines: number;
-pixels_inside_wrap: number;
-populate_all: boolean;
-right_margin: number;
-tabs: Pango.TabArray;
-top_margin: number;
-wrap_mode: WrapMode;static new_with_buffer(buffer: TextBuffer): Widget;
-add_child_at_anchor(child: Widget, anchor: TextChildAnchor): void;
-add_child_in_window(child: Widget, which_window: TextWindowType, xpos: number, ypos: number): void;
-backward_display_line(iter: TextIter): boolean;
-backward_display_line_start(iter: TextIter): boolean;
-buffer_to_window_coords(win: TextWindowType, buffer_x: number, buffer_y: number): [number | null,number | null];
-forward_display_line(iter: TextIter): boolean;
-forward_display_line_end(iter: TextIter): boolean;
-get_accepts_tab(): boolean;
-get_border_window_size(type: TextWindowType): number;
-get_bottom_margin(): number;
-get_buffer(): TextBuffer;
-get_cursor_locations(iter: TextIter | null): [Gdk.Rectangle | null,Gdk.Rectangle | null];
-get_cursor_visible(): boolean;
-get_default_attributes(): TextAttributes;
-get_editable(): boolean;
-get_hadjustment(): Adjustment;
-get_indent(): number;
-get_input_hints(): InputHints;
-get_input_purpose(): InputPurpose;
-get_iter_at_location(x: number, y: number): [boolean, TextIter];
-get_iter_at_position(x: number, y: number): [boolean, TextIter,number | null];
-get_iter_location(iter: TextIter): [Gdk.Rectangle];
-get_justification(): Justification;
-get_left_margin(): number;
-get_line_at_y(y: number): [TextIter,number];
-get_line_yrange(iter: TextIter): [number,number];
-get_monospace(): boolean;
-get_overwrite(): boolean;
-get_pixels_above_lines(): number;
-get_pixels_below_lines(): number;
-get_pixels_inside_wrap(): number;
-get_right_margin(): number;
-get_tabs(): Pango.TabArray | null;
-get_top_margin(): number;
-get_vadjustment(): Adjustment;
-get_visible_rect(): [Gdk.Rectangle];
-get_window(win: TextWindowType): Gdk.Window | null;
-get_window_type(window: Gdk.Window): TextWindowType;
-get_wrap_mode(): WrapMode;
-im_context_filter_keypress(event: Gdk.EventKey): boolean;
-move_child(child: Widget, xpos: number, ypos: number): void;
-move_mark_onscreen(mark: TextMark): boolean;
-move_visually(iter: TextIter, count: number): boolean;
-place_cursor_onscreen(): boolean;
-reset_cursor_blink(): void;
-reset_im_context(): void;
-scroll_mark_onscreen(mark: TextMark): void;
-scroll_to_iter(iter: TextIter, within_margin: number, use_align: boolean, xalign: number, yalign: number): boolean;
-scroll_to_mark(mark: TextMark, within_margin: number, use_align: boolean, xalign: number, yalign: number): void;
-set_accepts_tab(accepts_tab: boolean): void;
-set_border_window_size(type: TextWindowType, size: number): void;
-set_bottom_margin(bottom_margin: number): void;
-set_buffer(buffer: TextBuffer | null): void;
-set_cursor_visible(setting: boolean): void;
-set_editable(setting: boolean): void;
-set_indent(indent: number): void;
-set_input_hints(hints: InputHints): void;
-set_input_purpose(purpose: InputPurpose): void;
-set_justification(justification: Justification): void;
-set_left_margin(left_margin: number): void;
-set_monospace(monospace: boolean): void;
-set_overwrite(overwrite: boolean): void;
-set_pixels_above_lines(pixels_above_lines: number): void;
-set_pixels_below_lines(pixels_below_lines: number): void;
-set_pixels_inside_wrap(pixels_inside_wrap: number): void;
-set_right_margin(right_margin: number): void;
-set_tabs(tabs: Pango.TabArray): void;
-set_top_margin(top_margin: number): void;
-set_wrap_mode(wrap_mode: WrapMode): void;
-starts_display_line(iter: TextIter): boolean;
-window_to_buffer_coords(win: TextWindowType, window_x: number, window_y: number): [number | null,number | null];
-vfunc_backspace(): void;
-vfunc_copy_clipboard(): void;
-vfunc_create_buffer(): TextBuffer;
-vfunc_cut_clipboard(): void;
-vfunc_delete_from_cursor(type: DeleteType, count: number): void;
-vfunc_draw_layer(layer: TextViewLayer, cr: cairo.Context): void;
-vfunc_extend_selection(granularity: TextExtendSelection, location: TextIter, start: TextIter, end: TextIter): boolean;
-vfunc_insert_at_cursor(str: string): void;
-vfunc_insert_emoji(): void;
-vfunc_move_cursor(step: MovementStep, count: number, extend_selection: boolean): void;
-vfunc_paste_clipboard(): void;
-vfunc_populate_popup(popup: Widget): void;
-vfunc_set_anchor(): void;
-vfunc_toggle_overwrite(): void;
-}
-export class TextViewAccessible  {constructor(config?: properties);
-readonly priv: TextViewAccessiblePrivate;
-}
-export class ThemingEngine  {constructor(config?: properties);
-name: string;
-readonly parent_object: GObject.Object;
-readonly priv: ThemingEnginePrivate;
-get(state: StateFlags, ___: unknown[]): void;
-get_background_color(state: StateFlags): [Gdk.RGBA];
-get_border(state: StateFlags): [Border];
-get_border_color(state: StateFlags): [Gdk.RGBA];
-get_color(state: StateFlags): [Gdk.RGBA];
-get_direction(): TextDirection;
-get_font(state: StateFlags): Pango.FontDescription;
-get_junction_sides(): JunctionSides;
-get_margin(state: StateFlags): [Border];
-get_padding(state: StateFlags): [Border];
-get_path(): WidgetPath;
-get_property(property: string, state: StateFlags): [GObject.Value];
-get_screen(): Gdk.Screen | null;
-get_state(): StateFlags;
-get_style(___: unknown[]): void;
-get_style_property(property_name: string): [GObject.Value];
-get_style_valist(args: any): void;
-get_valist(state: StateFlags, args: any): void;
-has_class(style_class: string): boolean;
-has_region(style_region: string): [boolean, RegionFlags | null];
-lookup_color(color_name: string): [boolean, Gdk.RGBA];
-state_is_running(state: StateType): [boolean, number];
-static load(name: string): ThemingEngine | null;
-static register_property(name_space: string, parse_func: StylePropertyParser | null, pspec: GObject.ParamSpec): void;
-}
-export class ToggleAction extends Action {constructor(config?: properties);
-active: boolean;
-draw_as_radio: boolean;
-get_active(): boolean;
-get_draw_as_radio(): boolean;
-set_active(is_active: boolean): void;
-set_draw_as_radio(draw_as_radio: boolean): void;
-toggled(): void;
-vfunc_toggled(): void;
-}
-export class ToggleButton extends Button {constructor(config?: properties);
-active: boolean;
-draw_indicator: boolean;
-inconsistent: boolean;static new_with_label(label: string): Widget;
-static new_with_mnemonic(label: string): Widget;
-get_active(): boolean;
-get_inconsistent(): boolean;
-get_mode(): boolean;
-set_active(is_active: boolean): void;
-set_inconsistent(setting: boolean): void;
-set_mode(draw_indicator: boolean): void;
-toggled(): void;
-vfunc_toggled(): void;
-}
-export class ToggleButtonAccessible  {constructor(config?: properties);
-readonly priv: ToggleButtonAccessiblePrivate;
-}
-export class ToggleToolButton extends ToolButton {constructor(config?: properties);
-active: boolean;static new_from_stock(stock_id: string): ToolItem;
-get_active(): boolean;
-set_active(is_active: boolean): void;
-vfunc_toggled(): void;
-}
-export class ToolButton extends ToolItem {constructor(config?: properties);
-icon_name: string;
-icon_widget: Widget;
-label: string;
-label_widget: Widget;
-stock_id: string;
-use_underline: boolean;static new_from_stock(stock_id: string): ToolItem;
-get_icon_name(): string | null;
-get_icon_widget(): Widget | null;
-get_label(): string | null;
-get_label_widget(): Widget | null;
-get_stock_id(): string;
-get_use_underline(): boolean;
-set_icon_name(icon_name: string | null): void;
-set_icon_widget(icon_widget: Widget | null): void;
-set_label(label: string | null): void;
-set_label_widget(label_widget: Widget | null): void;
-set_stock_id(stock_id: string | null): void;
-set_use_underline(use_underline: boolean): void;
-vfunc_clicked(): void;
-}
-export class ToolItem extends Bin {constructor(config?: properties);
-is_important: boolean;
-visible_horizontal: boolean;
-visible_vertical: boolean;
-get_ellipsize_mode(): Pango.EllipsizeMode;
-get_expand(): boolean;
-get_homogeneous(): boolean;
-get_icon_size(): number;
-get_is_important(): boolean;
-get_orientation(): Orientation;
-get_proxy_menu_item(menu_item_id: string): Widget | null;
-get_relief_style(): ReliefStyle;
-get_text_alignment(): number;
-get_text_orientation(): Orientation;
-get_text_size_group(): SizeGroup;
-get_toolbar_style(): ToolbarStyle;
-get_use_drag_window(): boolean;
-get_visible_horizontal(): boolean;
-get_visible_vertical(): boolean;
-rebuild_menu(): void;
-retrieve_proxy_menu_item(): Widget;
-set_expand(expand: boolean): void;
-set_homogeneous(homogeneous: boolean): void;
-set_is_important(is_important: boolean): void;
-set_proxy_menu_item(menu_item_id: string, menu_item: Widget | null): void;
-set_tooltip_markup(markup: string): void;
-set_tooltip_text(text: string): void;
-set_use_drag_window(use_drag_window: boolean): void;
-set_visible_horizontal(visible_horizontal: boolean): void;
-set_visible_vertical(visible_vertical: boolean): void;
-toolbar_reconfigured(): void;
-vfunc_create_menu_proxy(): boolean;
-vfunc_toolbar_reconfigured(): void;
-}
-export class ToolItemGroup extends Container {constructor(config?: properties);
-collapsed: boolean;
-ellipsize: Pango.EllipsizeMode;
-header_relief: ReliefStyle;
-label: string;
-label_widget: Widget;
-get_collapsed(): boolean;
-get_drop_item(x: number, y: number): ToolItem;
-get_ellipsize(): Pango.EllipsizeMode;
-get_header_relief(): ReliefStyle;
-get_item_position(item: ToolItem): number;
-get_label(): string;
-get_label_widget(): Widget;
-get_n_items(): number;
-get_nth_item(index: number): ToolItem;
-insert(item: ToolItem, position: number): void;
-set_collapsed(collapsed: boolean): void;
-set_ellipsize(ellipsize: Pango.EllipsizeMode): void;
-set_header_relief(style: ReliefStyle): void;
-set_item_position(item: ToolItem, position: number): void;
-set_label(label: string): void;
-set_label_widget(label_widget: Widget): void;
-}
-export class ToolPalette extends Container {constructor(config?: properties);
-icon_size: IconSize;
-icon_size_set: boolean;
-toolbar_style: ToolbarStyle;
-add_drag_dest(widget: Widget, flags: DestDefaults, targets: ToolPaletteDragTargets, actions: Gdk.DragAction): void;
-get_drag_item(selection: SelectionData): Widget;
-get_drop_group(x: number, y: number): ToolItemGroup | null;
-get_drop_item(x: number, y: number): ToolItem | null;
-get_exclusive(group: ToolItemGroup): boolean;
-get_expand(group: ToolItemGroup): boolean;
-get_group_position(group: ToolItemGroup): number;
-get_hadjustment(): Adjustment;
-get_icon_size(): number;
-get_style(): ToolbarStyle;
-get_vadjustment(): Adjustment;
-set_drag_source(targets: ToolPaletteDragTargets): void;
-set_exclusive(group: ToolItemGroup, exclusive: boolean): void;
-set_expand(group: ToolItemGroup, expand: boolean): void;
-set_group_position(group: ToolItemGroup, position: number): void;
-set_icon_size(icon_size: number): void;
-set_style(style: ToolbarStyle): void;
-unset_icon_size(): void;
-unset_style(): void;
-static get_drag_target_group(): TargetEntry;
-static get_drag_target_item(): TargetEntry;
-}
-export class Toolbar extends Container {constructor(config?: properties);
-icon_size: IconSize;
-icon_size_set: boolean;
-show_arrow: boolean;
-toolbar_style: ToolbarStyle;
-get_drop_index(x: number, y: number): number;
-get_icon_size(): IconSize;
-get_item_index(item: ToolItem): number;
-get_n_items(): number;
-get_nth_item(n: number): ToolItem | null;
-get_relief_style(): ReliefStyle;
-get_show_arrow(): boolean;
-get_style(): ToolbarStyle;
-insert(item: ToolItem, pos: number): void;
-set_drop_highlight_item(tool_item: ToolItem | null, index_: number): void;
-set_icon_size(icon_size: IconSize): void;
-set_show_arrow(show_arrow: boolean): void;
-set_style(style: ToolbarStyle): void;
-unset_icon_size(): void;
-unset_style(): void;
-vfunc_orientation_changed(orientation: Orientation): void;
-vfunc_popup_context_menu(x: number, y: number, button_number: number): boolean;
-vfunc_style_changed(style: ToolbarStyle): void;
-}
-export class Tooltip  {constructor(config?: properties);
-set_custom(custom_widget: Widget | null): void;
-set_icon(pixbuf: GdkPixbuf.Pixbuf | null): void;
-set_icon_from_gicon(gicon: Gio.Icon | null, size: number): void;
-set_icon_from_icon_name(icon_name: string | null, size: number): void;
-set_icon_from_stock(stock_id: string | null, size: number): void;
-set_markup(markup: string | null): void;
-set_text(text: string | null): void;
-set_tip_area(rect: Gdk.Rectangle): void;
-static trigger_tooltip_query(display: Gdk.Display): void;
-}
-export class ToplevelAccessible  {constructor(config?: properties);
-readonly priv: ToplevelAccessiblePrivate;
-get_children(): GLib.List;
-}
-export class TreeModelFilter  {constructor(config?: properties);
-child_model: TreeModel;
-virtual_root: TreePath;
-readonly priv: TreeModelFilterPrivate;
-clear_cache(): void;
-convert_child_iter_to_iter(child_iter: TreeIter): [boolean, TreeIter];
-convert_child_path_to_path(child_path: TreePath): TreePath | null;
-convert_iter_to_child_iter(filter_iter: TreeIter): [TreeIter];
-convert_path_to_child_path(filter_path: TreePath): TreePath | null;
-get_model(): TreeModel;
-refilter(): void;
-set_modify_func(n_columns: number, types: unknown[], func: TreeModelFilterModifyFunc, data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_visible_column(column: number): void;
-set_visible_func(func: TreeModelFilterVisibleFunc, data: object | null, destroy: GLib.DestroyNotify | null): void;
-}
-export class TreeModelSort  {constructor(config?: properties);
-model: TreeModel;
-readonly priv: TreeModelSortPrivate;
-clear_cache(): void;
-convert_child_iter_to_iter(child_iter: TreeIter): [boolean, TreeIter];
-convert_child_path_to_path(child_path: TreePath): TreePath | null;
-convert_iter_to_child_iter(sorted_iter: TreeIter): [TreeIter];
-convert_path_to_child_path(sorted_path: TreePath): TreePath | null;
-get_model(): TreeModel;
-iter_is_valid(iter: TreeIter): boolean;
-reset_default_sort_func(): void;
-}
-export class TreeSelection  {constructor(config?: properties);
-mode: SelectionMode;
-readonly priv: TreeSelectionPrivate;
-count_selected_rows(): number;
-get_mode(): SelectionMode;
-get_select_function(): TreeSelectionFunc;
-get_selected(): [boolean, TreeModel | null,TreeIter | null];
-get_selected_rows(): [GLib.List, TreeModel | null];
-get_tree_view(): TreeView;
-get_user_data(): object | null;
-iter_is_selected(iter: TreeIter): boolean;
-path_is_selected(path: TreePath): boolean;
-select_all(): void;
-select_iter(iter: TreeIter): void;
-select_path(path: TreePath): void;
-select_range(start_path: TreePath, end_path: TreePath): void;
-selected_foreach(func: TreeSelectionForeachFunc, data: object | null): void;
-set_mode(type: SelectionMode): void;
-set_select_function(func: TreeSelectionFunc | null, data: object | null, destroy: GLib.DestroyNotify): void;
-unselect_all(): void;
-unselect_iter(iter: TreeIter): void;
-unselect_path(path: TreePath): void;
-unselect_range(start_path: TreePath, end_path: TreePath): void;
-}
-export class TreeStore extends GObject.Object {constructor(config?: properties);
-static newv(n_columns: number, types: unknown[]): TreeStore;
-static newv(...args: never[]): TreeStore;
-append(parent: TreeIter | null): [TreeIter];
-clear(): void;
-insert(parent: TreeIter | null, position: number): [TreeIter];
-insert_after(parent: TreeIter | null, sibling: TreeIter | null): [TreeIter];
-insert_before(parent: TreeIter | null, sibling: TreeIter | null): [TreeIter];
-insert_with_values(parent: TreeIter | null, position: number, ___: unknown[]): [TreeIter | null];
-insert_with_valuesv(parent: TreeIter | null, position: number, columns: number[], values: GObject.Value[], n_values: number): [TreeIter | null];
-is_ancestor(iter: TreeIter, descendant: TreeIter): boolean;
-iter_depth(iter: TreeIter): number;
-iter_is_valid(iter: TreeIter): boolean;
-move_after(iter: TreeIter, position: TreeIter | null): void;
-move_before(iter: TreeIter, position: TreeIter | null): void;
-prepend(parent: TreeIter | null): [TreeIter];
-remove(iter: TreeIter): boolean;
-reorder(parent: TreeIter | null, new_order: number[]): void;
-set(iter: TreeIter, ___: unknown[]): void;
-set(...args: never[]): never;
-set_column_types(n_columns: number, types: unknown[]): void;
-set_valist(iter: TreeIter, var_args: any): void;
-set_valist(...args: never[]): never;
-set_value(iter: TreeIter, column: number, value: GObject.Value): void;
-set_valuesv(iter: TreeIter, columns: number[], values: GObject.Value[], n_values: number): void;
-swap(a: TreeIter, b: TreeIter): void;
-}
-export class TreeView extends Container {constructor(config?: properties);
-activate_on_single_click: boolean;
-enable_grid_lines: TreeViewGridLines;
-enable_search: boolean;
-enable_tree_lines: boolean;
-expander_column: TreeViewColumn;
-fixed_height_mode: boolean;
-headers_clickable: boolean;
-headers_visible: boolean;
-hover_expand: boolean;
-hover_selection: boolean;
-level_indentation: number;
-model: TreeModel;
-reorderable: boolean;
-rubber_banding: boolean;
-rules_hint: boolean;
-search_column: number;
-show_expanders: boolean;
-tooltip_column: number;static new_with_model(model: TreeModel): Widget;
-append_column(column: TreeViewColumn): number;
-collapse_all(): void;
-collapse_row(path: TreePath): boolean;
-columns_autosize(): void;
-convert_bin_window_to_tree_coords(bx: number, by: number): [number,number];
-convert_bin_window_to_widget_coords(bx: number, by: number): [number,number];
-convert_tree_to_bin_window_coords(tx: number, ty: number): [number,number];
-convert_tree_to_widget_coords(tx: number, ty: number): [number,number];
-convert_widget_to_bin_window_coords(wx: number, wy: number): [number,number];
-convert_widget_to_tree_coords(wx: number, wy: number): [number,number];
-create_row_drag_icon(path: TreePath): cairo.Surface;
-enable_model_drag_dest(targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
-enable_model_drag_source(start_button_mask: Gdk.ModifierType, targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
-expand_all(): void;
-expand_row(path: TreePath, open_all: boolean): boolean;
-expand_to_path(path: TreePath): void;
-get_activate_on_single_click(): boolean;
-get_background_area(path: TreePath | null, column: TreeViewColumn | null): [Gdk.Rectangle];
-get_bin_window(): Gdk.Window | null;
-get_cell_area(path: TreePath | null, column: TreeViewColumn | null): [Gdk.Rectangle];
-get_column(n: number): TreeViewColumn | null;
-get_columns(): GLib.List;
-get_cursor(): [TreePath | null,TreeViewColumn | null];
-get_dest_row_at_pos(drag_x: number, drag_y: number): [boolean, TreePath | null,TreeViewDropPosition | null];
-get_drag_dest_row(): [TreePath | null,TreeViewDropPosition | null];
-get_enable_search(): boolean;
-get_enable_tree_lines(): boolean;
-get_expander_column(): TreeViewColumn;
-get_fixed_height_mode(): boolean;
-get_grid_lines(): TreeViewGridLines;
-get_hadjustment(): Adjustment;
-get_headers_clickable(): boolean;
-get_headers_visible(): boolean;
-get_hover_expand(): boolean;
-get_hover_selection(): boolean;
-get_level_indentation(): number;
-get_model(): TreeModel | null;
-get_n_columns(): number;
-get_path_at_pos(x: number, y: number): [boolean, TreePath | null,TreeViewColumn | null,number | null,number | null];
-get_reorderable(): boolean;
-get_row_separator_func(): TreeViewRowSeparatorFunc;
-get_rubber_banding(): boolean;
-get_rules_hint(): boolean;
-get_search_column(): number;
-get_search_entry(): Entry;
-get_search_equal_func(): TreeViewSearchEqualFunc;
-get_search_position_func(): TreeViewSearchPositionFunc;
-get_selection(): TreeSelection;
-get_show_expanders(): boolean;
-get_tooltip_column(): number;
-get_tooltip_context(x: number, y: number, keyboard_tip: boolean): [boolean, number,number,TreeModel | null,TreePath | null,TreeIter | null];
-get_vadjustment(): Adjustment;
-get_visible_range(): [boolean, TreePath | null,TreePath | null];
-get_visible_rect(): [Gdk.Rectangle];
-insert_column(column: TreeViewColumn, position: number): number;
-insert_column_with_attributes(position: number, title: string, cell: CellRenderer, ___: unknown[]): number;
-insert_column_with_data_func(position: number, title: string, cell: CellRenderer, func: TreeCellDataFunc, data: object | null, dnotify: GLib.DestroyNotify): number;
-is_blank_at_pos(x: number, y: number): [boolean, TreePath | null,TreeViewColumn | null,number | null,number | null];
-is_rubber_banding_active(): boolean;
-map_expanded_rows(func: TreeViewMappingFunc, data: object | null): void;
-move_column_after(column: TreeViewColumn, base_column: TreeViewColumn | null): void;
-remove_column(column: TreeViewColumn): number;
-row_activated(path: TreePath, column: TreeViewColumn): void;
-row_expanded(path: TreePath): boolean;
-scroll_to_cell(path: TreePath | null, column: TreeViewColumn | null, use_align: boolean, row_align: number, col_align: number): void;
-scroll_to_point(tree_x: number, tree_y: number): void;
-set_activate_on_single_click(single: boolean): void;
-set_column_drag_function(func: TreeViewColumnDropFunc | null, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_cursor(path: TreePath, focus_column: TreeViewColumn | null, start_editing: boolean): void;
-set_cursor_on_cell(path: TreePath, focus_column: TreeViewColumn | null, focus_cell: CellRenderer | null, start_editing: boolean): void;
-set_destroy_count_func(func: TreeDestroyCountFunc | null, data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_drag_dest_row(path: TreePath | null, pos: TreeViewDropPosition): void;
-set_enable_search(enable_search: boolean): void;
-set_enable_tree_lines(enabled: boolean): void;
-set_expander_column(column: TreeViewColumn | null): void;
-set_fixed_height_mode(enable: boolean): void;
-set_grid_lines(grid_lines: TreeViewGridLines): void;
-set_hadjustment(adjustment: Adjustment | null): void;
-set_headers_clickable(setting: boolean): void;
-set_headers_visible(headers_visible: boolean): void;
-set_hover_expand(expand: boolean): void;
-set_hover_selection(hover: boolean): void;
-set_level_indentation(indentation: number): void;
-set_model(model: TreeModel | null): void;
-set_reorderable(reorderable: boolean): void;
-set_row_separator_func(func: TreeViewRowSeparatorFunc | null, data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_rubber_banding(enable: boolean): void;
-set_rules_hint(setting: boolean): void;
-set_search_column(column: number): void;
-set_search_entry(entry: Entry | null): void;
-set_search_equal_func(search_equal_func: TreeViewSearchEqualFunc, search_user_data: object | null, search_destroy: GLib.DestroyNotify | null): void;
-set_search_position_func(func: TreeViewSearchPositionFunc | null, data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_show_expanders(enabled: boolean): void;
-set_tooltip_cell(tooltip: Tooltip, path: TreePath | null, column: TreeViewColumn | null, cell: CellRenderer | null): void;
-set_tooltip_column(column: number): void;
-set_tooltip_row(tooltip: Tooltip, path: TreePath): void;
-set_vadjustment(adjustment: Adjustment | null): void;
-unset_rows_drag_dest(): void;
-unset_rows_drag_source(): void;
-vfunc_columns_changed(): void;
-vfunc_cursor_changed(): void;
-vfunc_expand_collapse_cursor_row(logical: boolean, expand: boolean, open_all: boolean): boolean;
-vfunc_move_cursor(step: MovementStep, count: number): boolean;
-vfunc_row_activated(path: TreePath, column: TreeViewColumn): void;
-vfunc_row_collapsed(iter: TreeIter, path: TreePath): void;
-vfunc_row_expanded(iter: TreeIter, path: TreePath): void;
-vfunc_select_all(): boolean;
-vfunc_select_cursor_parent(): boolean;
-vfunc_select_cursor_row(start_editing: boolean): boolean;
-vfunc_start_interactive_search(): boolean;
-vfunc_test_collapse_row(iter: TreeIter, path: TreePath): boolean;
-vfunc_test_expand_row(iter: TreeIter, path: TreePath): boolean;
-vfunc_toggle_cursor_row(): boolean;
-vfunc_unselect_all(): boolean;
-}
-export class TreeViewAccessible  {constructor(config?: properties);
-readonly priv: TreeViewAccessiblePrivate;
-}
-export class TreeViewColumn extends GObject.InitiallyUnowned {constructor(config?: properties);
-alignment: number;
-cell_area: CellArea;
-clickable: boolean;
-expand: boolean;
-fixed_width: number;
-max_width: number;
-min_width: number;
-reorderable: boolean;
-resizable: boolean;
-sizing: TreeViewColumnSizing;
-sort_column_id: number;
-sort_indicator: boolean;
-sort_order: SortType;
-spacing: number;
-title: string;
-visible: boolean;
-widget: Widget;
-readonly width: number;
-readonly x_offset: number;static new_with_area(area: CellArea): TreeViewColumn;
-static new_with_attributes(title: string, cell: CellRenderer, ___: unknown[]): TreeViewColumn;
-add_attribute(cell_renderer: CellRenderer, attribute: string, column: number): void;
-cell_get_position(cell_renderer: CellRenderer): [boolean, number | null,number | null];
-cell_get_size(cell_area: Gdk.Rectangle | null): [number | null,number | null,number | null,number | null];
-cell_is_visible(): boolean;
-cell_set_cell_data(tree_model: TreeModel, iter: TreeIter, is_expander: boolean, is_expanded: boolean): void;
-clear(): void;
-clear_attributes(cell_renderer: CellRenderer): void;
-clicked(): void;
-focus_cell(cell: CellRenderer): void;
-get_alignment(): number;
-get_button(): Widget;
-get_clickable(): boolean;
-get_expand(): boolean;
-get_fixed_width(): number;
-get_max_width(): number;
-get_min_width(): number;
-get_reorderable(): boolean;
-get_resizable(): boolean;
-get_sizing(): TreeViewColumnSizing;
-get_sort_column_id(): number;
-get_sort_indicator(): boolean;
-get_sort_order(): SortType;
-get_spacing(): number;
-get_title(): string;
-get_tree_view(): Widget | null;
-get_visible(): boolean;
-get_widget(): Widget | null;
-get_width(): number;
-get_x_offset(): number;
-pack_end(cell: CellRenderer, expand: boolean): void;
-pack_start(cell: CellRenderer, expand: boolean): void;
-queue_resize(): void;
-set_alignment(xalign: number): void;
-set_attributes(cell_renderer: CellRenderer, ___: unknown[]): void;
-set_cell_data_func(cell_renderer: CellRenderer, func: TreeCellDataFunc | null, func_data: object | null, destroy: GLib.DestroyNotify): void;
-set_clickable(clickable: boolean): void;
-set_expand(expand: boolean): void;
-set_fixed_width(fixed_width: number): void;
-set_max_width(max_width: number): void;
-set_min_width(min_width: number): void;
-set_reorderable(reorderable: boolean): void;
-set_resizable(resizable: boolean): void;
-set_sizing(type: TreeViewColumnSizing): void;
-set_sort_column_id(sort_column_id: number): void;
-set_sort_indicator(setting: boolean): void;
-set_sort_order(order: SortType): void;
-set_spacing(spacing: number): void;
-set_title(title: string): void;
-set_visible(visible: boolean): void;
-set_widget(widget: Widget | null): void;
-vfunc_clicked(): void;
-}
-export class UIManager extends GObject.Object {constructor(config?: properties);
-add_tearoffs: boolean;
-readonly ui: string;
-add_ui(merge_id: number, path: string, name: string, action: string | null, type: UIManagerItemType, top: boolean): void;
-add_ui_from_file(filename: unknown): number;
-add_ui_from_resource(resource_path: string): number;
-add_ui_from_string(buffer: string, length: number): number;
-ensure_update(): void;
-get_accel_group(): AccelGroup;
-get_action(path: string): Action;
-get_action_groups(): GLib.List;
-get_add_tearoffs(): boolean;
-get_toplevels(types: UIManagerItemType): string[];
-get_ui(): string;
-get_widget(path: string): Widget;
-insert_action_group(action_group: ActionGroup, pos: number): void;
-new_merge_id(): number;
-remove_action_group(action_group: ActionGroup): void;
-remove_ui(merge_id: number): void;
-set_add_tearoffs(add_tearoffs: boolean): void;
-vfunc_actions_changed(): void;
-vfunc_add_widget(widget: Widget): void;
-vfunc_connect_proxy(action: Action, proxy: Widget): void;
-vfunc_disconnect_proxy(action: Action, proxy: Widget): void;
-vfunc_get_action(path: string): Action;
-vfunc_get_widget(path: string): Widget;
-vfunc_post_activate(action: Action): void;
-vfunc_pre_activate(action: Action): void;
-}
-export class VBox extends Box {constructor(config?: properties);
-}
-export class VButtonBox extends ButtonBox {constructor(config?: properties);
-}
-export class VPaned extends Paned {constructor(config?: properties);
-}
-export class VScale extends Scale {constructor(config?: properties);
-static new_with_range(min: number, max: number, step: number): Widget;
-static new_with_range(...args: never[]): Widget;
-}
-export class VScrollbar extends Scrollbar {constructor(config?: properties);
-}
-export class VSeparator extends Separator {constructor(config?: properties);
-}
-export class Viewport extends Bin {constructor(config?: properties);
-shadow_type: ShadowType;
-get_bin_window(): Gdk.Window;
-get_hadjustment(): Adjustment;
-get_shadow_type(): ShadowType;
-get_vadjustment(): Adjustment;
-get_view_window(): Gdk.Window;
-set_hadjustment(adjustment: Adjustment | null): void;
-set_shadow_type(type: ShadowType): void;
-set_vadjustment(adjustment: Adjustment | null): void;
-}
-export class VolumeButton extends ScaleButton {constructor(config?: properties);
-use_symbolic: boolean;
-}
-export class Widget extends GObject.InitiallyUnowned {constructor(config?: properties);
-app_paintable: boolean;
-can_default: boolean;
-can_focus: boolean;
-readonly composite_child: boolean;
-double_buffered: boolean;
-events: Gdk.EventMask;
-expand: boolean;
-focus_on_click: boolean;
-halign: Align;
-has_tooltip: boolean;
-height_request: number;
-hexpand: boolean;
-hexpand_set: boolean;
-margin: number;
-margin_bottom: number;
-margin_end: number;
-margin_left: number;
-margin_right: number;
-margin_start: number;
-margin_top: number;
-name: string;
-no_show_all: boolean;
-opacity: number;
-receives_default: boolean;
-readonly scale_factor: number;
-sensitive: boolean;
-style: Style;
-tooltip_markup: string;
-tooltip_text: string;
-valign: Align;
-vexpand: boolean;
-vexpand_set: boolean;
-visible: boolean;
-width_request: number;
-readonly window: Gdk.Window;
-activate(): boolean;
-add_accelerator(accel_signal: string, accel_group: AccelGroup, accel_key: number, accel_mods: Gdk.ModifierType, accel_flags: AccelFlags): void;
-add_device_events(device: Gdk.Device, events: Gdk.EventMask): void;
-add_events(events: number): void;
-add_mnemonic_label(label: Widget): void;
-add_tick_callback(callback: TickCallback, user_data: object | null, notify: GLib.DestroyNotify): number;
-can_activate_accel(signal_id: number): boolean;
-child_focus(direction: DirectionType): boolean;
-child_notify(child_property: string): void;
-class_path(): [number | null,string | null,string | null];
-compute_expand(orientation: Orientation): boolean;
-create_pango_context(): Pango.Context;
-create_pango_layout(text: string | null): Pango.Layout;
-destroy(): void;
-destroyed(widget_pointer: Widget): [Widget];
-device_is_shadowed(device: Gdk.Device): boolean;
-drag_begin(targets: TargetList, actions: Gdk.DragAction, button: number, event: Gdk.Event | null): Gdk.DragContext;
-drag_begin_with_coordinates(targets: TargetList, actions: Gdk.DragAction, button: number, event: Gdk.Event | null, x: number, y: number): Gdk.DragContext;
-drag_check_threshold(start_x: number, start_y: number, current_x: number, current_y: number): boolean;
-drag_dest_add_image_targets(): void;
-drag_dest_add_text_targets(): void;
-drag_dest_add_uri_targets(): void;
-drag_dest_find_target(context: Gdk.DragContext, target_list: TargetList | null): Gdk.Atom;
-drag_dest_get_target_list(): TargetList | null;
-drag_dest_get_track_motion(): boolean;
-drag_dest_set(flags: DestDefaults, targets: TargetEntry[] | null, n_targets: number, actions: Gdk.DragAction): void;
-drag_dest_set_proxy(proxy_window: Gdk.Window, protocol: Gdk.DragProtocol, use_coordinates: boolean): void;
-drag_dest_set_target_list(target_list: TargetList | null): void;
-drag_dest_set_track_motion(track_motion: boolean): void;
-drag_dest_unset(): void;
-drag_get_data(context: Gdk.DragContext, target: Gdk.Atom, time_: number): void;
-drag_highlight(): void;
-drag_source_add_image_targets(): void;
-drag_source_add_text_targets(): void;
-drag_source_add_uri_targets(): void;
-drag_source_get_target_list(): TargetList | null;
-drag_source_set(start_button_mask: Gdk.ModifierType, targets: TargetEntry[] | null, n_targets: number, actions: Gdk.DragAction): void;
-drag_source_set_icon_gicon(icon: Gio.Icon): void;
-drag_source_set_icon_name(icon_name: string): void;
-drag_source_set_icon_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
-drag_source_set_icon_stock(stock_id: string): void;
-drag_source_set_target_list(target_list: TargetList | null): void;
-drag_source_unset(): void;
-drag_unhighlight(): void;
-draw(cr: cairo.Context): void;
-ensure_style(): void;
-error_bell(): void;
-event(event: Gdk.Event): boolean;
-freeze_child_notify(): void;
-get_accessible(): Atk.Object;
-get_action_group(prefix: string): Gio.ActionGroup | null;
-get_allocated_baseline(): number;
-get_allocated_height(): number;
-get_allocated_size(): [Allocation,number | null];
-get_allocated_width(): number;
-get_allocation(): [Allocation];
-get_ancestor(widget_type: unknown): Widget | null;
-get_app_paintable(): boolean;
-get_can_default(): boolean;
-get_can_focus(): boolean;
-get_child_requisition(): [Requisition];
-get_child_visible(): boolean;
-get_clip(): [Allocation];
-get_clipboard(selection: Gdk.Atom): Clipboard;
-get_composite_name(): string;
-get_device_enabled(device: Gdk.Device): boolean;
-get_device_events(device: Gdk.Device): Gdk.EventMask;
-get_direction(): TextDirection;
-get_display(): Gdk.Display;
-get_double_buffered(): boolean;
-get_events(): number;
-get_focus_on_click(): boolean;
-get_font_map(): Pango.FontMap | null;
-get_font_options(): cairo.FontOptions | null;
-get_frame_clock(): Gdk.FrameClock | null;
-get_halign(): Align;
-get_has_tooltip(): boolean;
-get_has_window(): boolean;
-get_hexpand(): boolean;
-get_hexpand_set(): boolean;
-get_mapped(): boolean;
-get_margin_bottom(): number;
-get_margin_end(): number;
-get_margin_left(): number;
-get_margin_right(): number;
-get_margin_start(): number;
-get_margin_top(): number;
-get_modifier_mask(intent: Gdk.ModifierIntent): Gdk.ModifierType;
-get_modifier_style(): RcStyle;
-get_name(): string;
-get_no_show_all(): boolean;
-get_opacity(): number;
-get_pango_context(): Pango.Context;
-get_parent(): Widget | null;
-get_parent_window(): Gdk.Window | null;
-get_path(): WidgetPath;
-get_pointer(): [number | null,number | null];
-get_preferred_height(): [number | null,number | null];
-get_preferred_height_and_baseline_for_width(width: number): [number | null,number | null,number | null,number | null];
-get_preferred_height_for_width(width: number): [number | null,number | null];
-get_preferred_size(): [Requisition | null,Requisition | null];
-get_preferred_width(): [number | null,number | null];
-get_preferred_width_for_height(height: number): [number | null,number | null];
-get_realized(): boolean;
-get_receives_default(): boolean;
-get_request_mode(): SizeRequestMode;
-get_requisition(): [Requisition];
-get_root_window(): Gdk.Window;
-get_scale_factor(): number;
-get_screen(): Gdk.Screen;
-get_sensitive(): boolean;
-get_settings(): Settings;
-get_size_request(): [number | null,number | null];
-get_state(): StateType;
-get_state_flags(): StateFlags;
-get_style(): Style;
-get_style_context(): StyleContext;
-get_support_multidevice(): boolean;
-get_template_child(widget_type: unknown, name: string): GObject.Object;
-get_tooltip_markup(): string | null;
-get_tooltip_text(): string | null;
-get_tooltip_window(): Window;
-get_toplevel(): Widget;
-get_valign(): Align;
-get_valign_with_baseline(): Align;
-get_vexpand(): boolean;
-get_vexpand_set(): boolean;
-get_visible(): boolean;
-get_visual(): Gdk.Visual;
-get_window(): Gdk.Window | null;
-grab_add(): void;
-grab_default(): void;
-grab_focus(): void;
-grab_remove(): void;
-has_default(): boolean;
-has_focus(): boolean;
-has_grab(): boolean;
-has_rc_style(): boolean;
-has_screen(): boolean;
-has_visible_focus(): boolean;
-hide(): void;
-hide_on_delete(): boolean;
-in_destruction(): boolean;
-init_template(): void;
-input_shape_combine_region(region: cairo.Region | null): void;
-insert_action_group(name: string, group: Gio.ActionGroup | null): void;
-intersect(area: Gdk.Rectangle): [boolean, Gdk.Rectangle | null];
-is_ancestor(ancestor: Widget): boolean;
-is_composited(): boolean;
-is_drawable(): boolean;
-is_focus(): boolean;
-is_sensitive(): boolean;
-is_toplevel(): boolean;
-is_visible(): boolean;
-keynav_failed(direction: DirectionType): boolean;
-list_accel_closures(): GLib.List;
-list_action_prefixes(): string[];
-list_mnemonic_labels(): GLib.List;
-map(): void;
-mnemonic_activate(group_cycling: boolean): boolean;
-modify_base(state: StateType, color: Gdk.Color | null): void;
-modify_bg(state: StateType, color: Gdk.Color | null): void;
-modify_cursor(primary: Gdk.Color | null, secondary: Gdk.Color | null): void;
-modify_fg(state: StateType, color: Gdk.Color | null): void;
-modify_font(font_desc: Pango.FontDescription | null): void;
-modify_style(style: RcStyle): void;
-modify_text(state: StateType, color: Gdk.Color | null): void;
-override_background_color(state: StateFlags, color: Gdk.RGBA | null): void;
-override_color(state: StateFlags, color: Gdk.RGBA | null): void;
-override_cursor(cursor: Gdk.RGBA | null, secondary_cursor: Gdk.RGBA | null): void;
-override_font(font_desc: Pango.FontDescription | null): void;
-override_symbolic_color(name: string, color: Gdk.RGBA | null): void;
-path(): [number | null,string | null,string | null];
-queue_allocate(): void;
-queue_compute_expand(): void;
-queue_draw(): void;
-queue_draw_area(x: number, y: number, width: number, height: number): void;
-queue_draw_region(region: cairo.Region): void;
-queue_resize(): void;
-queue_resize_no_redraw(): void;
-realize(): void;
-region_intersect(region: cairo.Region): cairo.Region;
-register_window(window: Gdk.Window): void;
-remove_accelerator(accel_group: AccelGroup, accel_key: number, accel_mods: Gdk.ModifierType): boolean;
-remove_mnemonic_label(label: Widget): void;
-remove_tick_callback(id: number): void;
-render_icon(stock_id: string, size: number, detail: string | null): GdkPixbuf.Pixbuf | null;
-render_icon_pixbuf(stock_id: string, size: number): GdkPixbuf.Pixbuf | null;
-reparent(new_parent: Widget): void;
-reset_rc_styles(): void;
-reset_style(): void;
-send_expose(event: Gdk.Event): number;
-send_focus_change(event: Gdk.Event): boolean;
-set_accel_path(accel_path: string | null, accel_group: AccelGroup | null): void;
-set_allocation(allocation: Allocation): void;
-set_app_paintable(app_paintable: boolean): void;
-set_can_default(can_default: boolean): void;
-set_can_focus(can_focus: boolean): void;
-set_child_visible(is_visible: boolean): void;
-set_clip(clip: Allocation): void;
-set_composite_name(name: string): void;
-set_device_enabled(device: Gdk.Device, enabled: boolean): void;
-set_device_events(device: Gdk.Device, events: Gdk.EventMask): void;
-set_direction(dir: TextDirection): void;
-set_double_buffered(double_buffered: boolean): void;
-set_events(events: number): void;
-set_focus_on_click(focus_on_click: boolean): void;
-set_font_map(font_map: Pango.FontMap | null): void;
-set_font_options(options: cairo.FontOptions | null): void;
-set_halign(align: Align): void;
-set_has_tooltip(has_tooltip: boolean): void;
-set_has_window(has_window: boolean): void;
-set_hexpand(expand: boolean): void;
-set_hexpand_set(set: boolean): void;
-set_mapped(mapped: boolean): void;
-set_margin_bottom(margin: number): void;
-set_margin_end(margin: number): void;
-set_margin_left(margin: number): void;
-set_margin_right(margin: number): void;
-set_margin_start(margin: number): void;
-set_margin_top(margin: number): void;
-set_name(name: string): void;
-set_no_show_all(no_show_all: boolean): void;
-set_opacity(opacity: number): void;
-set_parent(parent: Widget): void;
-set_parent_window(parent_window: Gdk.Window): void;
-set_realized(realized: boolean): void;
-set_receives_default(receives_default: boolean): void;
-set_redraw_on_allocate(redraw_on_allocate: boolean): void;
-set_sensitive(sensitive: boolean): void;
-set_size_request(width: number, height: number): void;
-set_state(state: StateType): void;
-set_state_flags(flags: StateFlags, clear: boolean): void;
-set_style(style: Style | null): void;
-set_support_multidevice(support_multidevice: boolean): void;
-set_tooltip_markup(markup: string | null): void;
-set_tooltip_text(text: string | null): void;
-set_tooltip_window(custom_window: Window | null): void;
-set_valign(align: Align): void;
-set_vexpand(expand: boolean): void;
-set_vexpand_set(set: boolean): void;
-set_visible(visible: boolean): void;
-set_visual(visual: Gdk.Visual | null): void;
-set_window(window: Gdk.Window): void;
-shape_combine_region(region: cairo.Region | null): void;
-show(): void;
-show_all(): void;
-show_now(): void;
-size_allocate(allocation: Allocation): void;
-size_allocate_with_baseline(allocation: Allocation, baseline: number): void;
-size_request(): [Requisition];
-style_attach(): void;
-style_get(first_property_name: string, ___: unknown[]): void;
-style_get_property(property_name: string, value: GObject.Value): void;
-style_get_valist(first_property_name: string, var_args: any): void;
-thaw_child_notify(): void;
-translate_coordinates(dest_widget: Widget, src_x: number, src_y: number): [boolean, number | null,number | null];
-trigger_tooltip_query(): void;
-unmap(): void;
-unparent(): void;
-unrealize(): void;
-unregister_window(window: Gdk.Window): void;
-unset_state_flags(flags: StateFlags): void;
-vfunc_adjust_baseline_allocation(baseline: number): void;
-vfunc_adjust_baseline_request(minimum_baseline: number, natural_baseline: number): void;
-vfunc_adjust_size_allocation(orientation: Orientation, minimum_size: number, natural_size: number, allocated_pos: number, allocated_size: number): void;
-vfunc_adjust_size_request(orientation: Orientation, minimum_size: number, natural_size: number): void;
-vfunc_button_press_event(event: Gdk.EventButton): boolean;
-vfunc_button_release_event(event: Gdk.EventButton): boolean;
-vfunc_can_activate_accel(signal_id: number): boolean;
-vfunc_child_notify(child_property: GObject.ParamSpec): void;
-vfunc_composited_changed(): void;
-vfunc_compute_expand(hexpand_p: boolean, vexpand_p: boolean): void;
-vfunc_configure_event(event: Gdk.EventConfigure): boolean;
-vfunc_damage_event(event: Gdk.EventExpose): boolean;
-vfunc_delete_event(event: Gdk.EventAny): boolean;
-vfunc_destroy(): void;
-vfunc_destroy_event(event: Gdk.EventAny): boolean;
-vfunc_direction_changed(previous_direction: TextDirection): void;
-vfunc_dispatch_child_properties_changed(n_pspecs: number, pspecs: GObject.ParamSpec): void;
-vfunc_drag_begin(context: Gdk.DragContext): void;
-vfunc_drag_data_delete(context: Gdk.DragContext): void;
-vfunc_drag_data_get(context: Gdk.DragContext, selection_data: SelectionData, info: number, time_: number): void;
-vfunc_drag_data_received(context: Gdk.DragContext, x: number, y: number, selection_data: SelectionData, info: number, time_: number): void;
-vfunc_drag_drop(context: Gdk.DragContext, x: number, y: number, time_: number): boolean;
-vfunc_drag_end(context: Gdk.DragContext): void;
-vfunc_drag_failed(context: Gdk.DragContext, result: DragResult): boolean;
-vfunc_drag_leave(context: Gdk.DragContext, time_: number): void;
-vfunc_drag_motion(context: Gdk.DragContext, x: number, y: number, time_: number): boolean;
-vfunc_draw(cr: cairo.Context): boolean;
-vfunc_enter_notify_event(event: Gdk.EventCrossing): boolean;
-vfunc_event(event: Gdk.Event): boolean;
-vfunc_focus(direction: DirectionType): boolean;
-vfunc_focus_in_event(event: Gdk.EventFocus): boolean;
-vfunc_focus_out_event(event: Gdk.EventFocus): boolean;
-vfunc_get_accessible(): Atk.Object;
-vfunc_get_preferred_height(): [number | null,number | null];
-vfunc_get_preferred_height_and_baseline_for_width(width: number): [number | null,number | null,number | null,number | null];
-vfunc_get_preferred_height_for_width(width: number): [number | null,number | null];
-vfunc_get_preferred_width(): [number | null,number | null];
-vfunc_get_preferred_width_for_height(height: number): [number | null,number | null];
-vfunc_get_request_mode(): SizeRequestMode;
-vfunc_grab_broken_event(event: Gdk.EventGrabBroken): boolean;
-vfunc_grab_focus(): void;
-vfunc_grab_notify(was_grabbed: boolean): void;
-vfunc_hide(): void;
-vfunc_hierarchy_changed(previous_toplevel: Widget): void;
-vfunc_key_press_event(event: Gdk.EventKey): boolean;
-vfunc_key_release_event(event: Gdk.EventKey): boolean;
-vfunc_keynav_failed(direction: DirectionType): boolean;
-vfunc_leave_notify_event(event: Gdk.EventCrossing): boolean;
-vfunc_map(): void;
-vfunc_map_event(event: Gdk.EventAny): boolean;
-vfunc_mnemonic_activate(group_cycling: boolean): boolean;
-vfunc_motion_notify_event(event: Gdk.EventMotion): boolean;
-vfunc_move_focus(direction: DirectionType): void;
-vfunc_parent_set(previous_parent: Widget): void;
-vfunc_popup_menu(): boolean;
-vfunc_property_notify_event(event: Gdk.EventProperty): boolean;
-vfunc_proximity_in_event(event: Gdk.EventProximity): boolean;
-vfunc_proximity_out_event(event: Gdk.EventProximity): boolean;
-vfunc_query_tooltip(x: number, y: number, keyboard_tooltip: boolean, tooltip: Tooltip): boolean;
-vfunc_queue_draw_region(region: cairo.Region): void;
-vfunc_realize(): void;
-vfunc_screen_changed(previous_screen: Gdk.Screen): void;
-vfunc_scroll_event(event: Gdk.EventScroll): boolean;
-vfunc_selection_clear_event(event: Gdk.EventSelection): boolean;
-vfunc_selection_get(selection_data: SelectionData, info: number, time_: number): void;
-vfunc_selection_notify_event(event: Gdk.EventSelection): boolean;
-vfunc_selection_received(selection_data: SelectionData, time_: number): void;
-vfunc_selection_request_event(event: Gdk.EventSelection): boolean;
-vfunc_show(): void;
-vfunc_show_all(): void;
-vfunc_show_help(help_type: WidgetHelpType): boolean;
-vfunc_size_allocate(allocation: Allocation): void;
-vfunc_state_changed(previous_state: StateType): void;
-vfunc_state_flags_changed(previous_state_flags: StateFlags): void;
-vfunc_style_set(previous_style: Style): void;
-vfunc_style_updated(): void;
-vfunc_touch_event(event: Gdk.EventTouch): boolean;
-vfunc_unmap(): void;
-vfunc_unmap_event(event: Gdk.EventAny): boolean;
-vfunc_unrealize(): void;
-vfunc_visibility_notify_event(event: Gdk.EventVisibility): boolean;
-vfunc_window_state_event(event: Gdk.EventWindowState): boolean;
-static get_default_direction(): TextDirection;
-static get_default_style(): Style;
-static pop_composite_child(): void;
-static push_composite_child(): void;
-static set_default_direction(dir: TextDirection): void;
-}
-export class WidgetAccessible  {constructor(config?: properties);
-readonly priv: WidgetAccessiblePrivate;
-}
-export class Window extends Bin {constructor(config?: properties);
-accept_focus: boolean;
-application: Application;
-attached_to: Widget;
-decorated: boolean;
-default_height: number;
-default_width: number;
-deletable: boolean;
-destroy_with_parent: boolean;
-focus_on_map: boolean;
-focus_visible: boolean;
-gravity: Gdk.Gravity;
-has_resize_grip: boolean;
-hide_titlebar_when_maximized: boolean;
-icon: GdkPixbuf.Pixbuf;
-icon_name: string;
-mnemonics_visible: boolean;
-modal: boolean;
-resizable: boolean;
-readonly resize_grip_visible: boolean;
-role: string;
-screen: Gdk.Screen;
-skip_pager_hint: boolean;
-skip_taskbar_hint: boolean;
-startup_id: string;
-title: string;
-transient_for: Window;
-type: WindowType;
-type_hint: Gdk.WindowTypeHint;
-urgency_hint: boolean;
-window_position: WindowPosition;
-activate_default(): boolean;
-activate_focus(): boolean;
-activate_key(event: Gdk.EventKey): boolean;
-add_accel_group(accel_group: AccelGroup): void;
-add_mnemonic(keyval: number, target: Widget): void;
-begin_move_drag(button: number, root_x: number, root_y: number, timestamp: number): void;
-begin_resize_drag(edge: Gdk.WindowEdge, button: number, root_x: number, root_y: number, timestamp: number): void;
-close(): void;
-deiconify(): void;
-fullscreen(): void;
-fullscreen_on_monitor(screen: Gdk.Screen, monitor: number): void;
-get_accept_focus(): boolean;
-get_application(): Application | null;
-get_attached_to(): Widget | null;
-get_decorated(): boolean;
-get_default_size(): [number | null,number | null];
-get_default_widget(): Widget | null;
-get_deletable(): boolean;
-get_destroy_with_parent(): boolean;
-get_focus(): Widget | null;
-get_focus_on_map(): boolean;
-get_focus_visible(): boolean;
-get_gravity(): Gdk.Gravity;
-get_group(): WindowGroup;
-get_has_resize_grip(): boolean;
-get_hide_titlebar_when_maximized(): boolean;
-get_icon(): GdkPixbuf.Pixbuf | null;
-get_icon_list(): GLib.List;
-get_icon_name(): string | null;
-get_mnemonic_modifier(): Gdk.ModifierType;
-get_mnemonics_visible(): boolean;
-get_modal(): boolean;
-get_opacity(): number;
-get_position(): [number | null,number | null];
-get_resizable(): boolean;
-get_resize_grip_area(): [boolean, Gdk.Rectangle];
-get_role(): string | null;
-get_screen(): Gdk.Screen;
-get_size(): [number | null,number | null];
-get_skip_pager_hint(): boolean;
-get_skip_taskbar_hint(): boolean;
-get_title(): string | null;
-get_titlebar(): Widget | null;
-get_transient_for(): Window | null;
-get_type_hint(): Gdk.WindowTypeHint;
-get_urgency_hint(): boolean;
-get_window_type(): WindowType;
-has_group(): boolean;
-has_toplevel_focus(): boolean;
-iconify(): void;
-is_active(): boolean;
-is_maximized(): boolean;
-maximize(): void;
-mnemonic_activate(keyval: number, modifier: Gdk.ModifierType): boolean;
-move(x: number, y: number): void;
-parse_geometry(geometry: string): boolean;
-present(): void;
-present_with_time(timestamp: number): void;
-propagate_key_event(event: Gdk.EventKey): boolean;
-remove_accel_group(accel_group: AccelGroup): void;
-remove_mnemonic(keyval: number, target: Widget): void;
-reshow_with_initial_size(): void;
-resize(width: number, height: number): void;
-resize_grip_is_visible(): boolean;
-resize_to_geometry(width: number, height: number): void;
-set_accept_focus(setting: boolean): void;
-set_application(application: Application | null): void;
-set_attached_to(attach_widget: Widget | null): void;
-set_decorated(setting: boolean): void;
-set_default(default_widget: Widget | null): void;
-set_default_geometry(width: number, height: number): void;
-set_default_size(width: number, height: number): void;
-set_deletable(setting: boolean): void;
-set_destroy_with_parent(setting: boolean): void;
-set_focus(focus: Widget | null): void;
-set_focus_on_map(setting: boolean): void;
-set_focus_visible(setting: boolean): void;
-set_geometry_hints(geometry_widget: Widget | null, geometry: Gdk.Geometry | null, geom_mask: Gdk.WindowHints): void;
-set_gravity(gravity: Gdk.Gravity): void;
-set_has_resize_grip(value: boolean): void;
-set_has_user_ref_count(setting: boolean): void;
-set_hide_titlebar_when_maximized(setting: boolean): void;
-set_icon(icon: GdkPixbuf.Pixbuf | null): void;
-set_icon_from_file(filename: unknown): boolean;
-set_icon_list(list: GLib.List): void;
-set_icon_name(name: string | null): void;
-set_keep_above(setting: boolean): void;
-set_keep_below(setting: boolean): void;
-set_mnemonic_modifier(modifier: Gdk.ModifierType): void;
-set_mnemonics_visible(setting: boolean): void;
-set_modal(modal: boolean): void;
-set_opacity(opacity: number): void;
-set_position(position: WindowPosition): void;
-set_resizable(resizable: boolean): void;
-set_role(role: string): void;
-set_screen(screen: Gdk.Screen): void;
-set_skip_pager_hint(setting: boolean): void;
-set_skip_taskbar_hint(setting: boolean): void;
-set_startup_id(startup_id: string): void;
-set_title(title: string): void;
-set_titlebar(titlebar: Widget | null): void;
-set_transient_for(parent: Window | null): void;
-set_type_hint(hint: Gdk.WindowTypeHint): void;
-set_urgency_hint(setting: boolean): void;
-set_wmclass(wmclass_name: string, wmclass_class: string): void;
-stick(): void;
-unfullscreen(): void;
-unmaximize(): void;
-unstick(): void;
-vfunc_activate_default(): void;
-vfunc_activate_focus(): void;
-vfunc_enable_debugging(toggle: boolean): boolean;
-vfunc_keys_changed(): void;
-vfunc_set_focus(focus: Widget | null): void;
-static get_default_icon_list(): GLib.List;
-static get_default_icon_name(): string;
-static list_toplevels(): GLib.List;
-static set_auto_startup_notification(setting: boolean): void;
-static set_default_icon(icon: GdkPixbuf.Pixbuf): void;
-static set_default_icon_from_file(filename: unknown): boolean;
-static set_default_icon_list(list: GLib.List): void;
-static set_default_icon_name(name: string): void;
-static set_interactive_debugging(enable: boolean): void;
-}
-export class WindowAccessible  {constructor(config?: properties);
-readonly priv: WindowAccessiblePrivate;
-}
-export class WindowGroup extends GObject.Object {constructor(config?: properties);
-add_window(window: Window): void;
-get_current_device_grab(device: Gdk.Device): Widget | null;
-get_current_grab(): Widget;
-list_windows(): GLib.List;
-remove_window(window: Window): void;
-}
-export class AboutDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly activate_link: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AboutDialogPrivate  {constructor(config?: properties);
-}
-export class AccelGroupClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly accel_changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AccelGroupEntry  {constructor(config?: properties);
-key: AccelKey;
-closure: GObject.Closure;
-accel_path_quark: GLib.Quark;
-}
-export class AccelGroupPrivate  {constructor(config?: properties);
-}
-export class AccelKey  {constructor(config?: properties);
-accel_key: number;
-accel_mods: Gdk.ModifierType;
-accel_flags: number;
-}
-export class AccelLabelClass  {constructor(config?: properties);
-readonly parent_class: LabelClass;
-readonly signal_quote1: string;
-readonly signal_quote2: string;
-readonly mod_name_shift: string;
-readonly mod_name_control: string;
-readonly mod_name_alt: string;
-readonly mod_separator: string;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AccelLabelPrivate  {constructor(config?: properties);
-}
-export class AccelMapClass  {constructor(config?: properties);
-}
-export class AccessibleClass  {constructor(config?: properties);
-readonly parent_class: Atk.ObjectClass;
-readonly connect_widget_destroyed: unknown;
-readonly widget_set: unknown;
-readonly widget_unset: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AccessiblePrivate  {constructor(config?: properties);
-}
-export class ActionBarClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ActionBarPrivate  {constructor(config?: properties);
-}
-export class ActionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly activate: unknown;
-readonly menu_item_type: unknown;
-readonly toolbar_item_type: unknown;
-readonly create_menu_item: unknown;
-readonly create_tool_item: unknown;
-readonly connect_proxy: unknown;
-readonly disconnect_proxy: unknown;
-readonly create_menu: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ActionEntry  {constructor(config?: properties);
-name: string;
-stock_id: string;
-label: string;
-accelerator: string;
-tooltip: string;
-callback: GObject.Callback;
-}
-export class ActionGroupClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_action: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ActionGroupPrivate  {constructor(config?: properties);
-}
-export class ActionPrivate  {constructor(config?: properties);
-}
-export class ActionableInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_action_name: unknown;
-readonly set_action_name: unknown;
-readonly get_action_target_value: unknown;
-readonly set_action_target_value: unknown;
-}
-export class ActivatableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly update: unknown;
-readonly sync_action_properties: unknown;
-}
-export class AdjustmentClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly changed: unknown;
-readonly value_changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AdjustmentPrivate  {constructor(config?: properties);
-}
-export class AlignmentClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AlignmentPrivate  {constructor(config?: properties);
-}
-export class AppChooserButtonClass  {constructor(config?: properties);
-readonly parent_class: ComboBoxClass;
-readonly custom_item_activated: unknown;
-readonly padding: object[];
-}
-export class AppChooserButtonPrivate  {constructor(config?: properties);
-}
-export class AppChooserDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly padding: object[];
-}
-export class AppChooserDialogPrivate  {constructor(config?: properties);
-}
-export class AppChooserWidgetClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly application_selected: unknown;
-readonly application_activated: unknown;
-readonly populate_popup: unknown;
-readonly padding: object[];
-}
-export class AppChooserWidgetPrivate  {constructor(config?: properties);
-}
-export class ApplicationClass  {constructor(config?: properties);
-readonly parent_class: Gio.ApplicationClass;
-readonly window_added: unknown;
-readonly window_removed: unknown;
-readonly padding: object[];
-}
-export class ApplicationPrivate  {constructor(config?: properties);
-}
-export class ApplicationWindowClass  {constructor(config?: properties);
-readonly parent_class: WindowClass;
-readonly padding: object[];
-}
-export class ApplicationWindowPrivate  {constructor(config?: properties);
-}
-export class ArrowAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class ArrowAccessiblePrivate  {constructor(config?: properties);
-}
-export class ArrowClass  {constructor(config?: properties);
-readonly parent_class: MiscClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ArrowPrivate  {constructor(config?: properties);
-}
-export class AspectFrameClass  {constructor(config?: properties);
-readonly parent_class: FrameClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class AspectFramePrivate  {constructor(config?: properties);
-}
-export class AssistantClass  {constructor(config?: properties);
-readonly parent_class: WindowClass;
-readonly prepare: unknown;
-readonly apply: unknown;
-readonly close: unknown;
-readonly cancel: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-}
-export class AssistantPrivate  {constructor(config?: properties);
-}
-export class BinClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class BinPrivate  {constructor(config?: properties);
-}
-export class BindingArg  {constructor(config?: properties);
-arg_type: unknown;
-}
-export class BindingEntry  {constructor(config?: properties);
-keyval: number;
-modifiers: Gdk.ModifierType;
-binding_set: BindingSet;
-destroyed: number;
-in_emission: number;
-marks_unbound: number;
-set_next: BindingEntry;
-hash_next: BindingEntry;
-signals: BindingSignal;
-static add_signal(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType, signal_name: string, n_args: number, ___: unknown[]): void;
-static add_signal_from_string(binding_set: BindingSet, signal_desc: string): GLib.TokenType;
-static add_signall(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType, signal_name: string, binding_args: string[]): void;
-static remove(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType): void;
-static skip(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType): void;
-}
-export class BindingSet  {constructor(config?: properties);
-set_name: string;
-priority: number;
-widget_path_pspecs: string[];
-widget_class_pspecs: string[];
-class_branch_pspecs: string[];
-entries: BindingEntry;
-current: BindingEntry;
-parsed: number;
-activate(keyval: number, modifiers: Gdk.ModifierType, object: GObject.Object): boolean;
-add_path(path_type: PathType, path_pattern: string, priority: PathPriorityType): void;
-static by_class(object_class: object | null): BindingSet;
-static find(set_name: string): BindingSet | null;
-static _new(set_name: string): BindingSet;
-}
-export class BindingSignal  {constructor(config?: properties);
-next: BindingSignal;
-signal_name: string;
-n_args: number;
-args: BindingArg[];
-}
-export class BooleanCellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: RendererCellAccessibleClass;
-}
-export class BooleanCellAccessiblePrivate  {constructor(config?: properties);
-}
-export class Border  {constructor(config?: properties);
-copy(): Border;
-free(): void;
-}
-export class BoxClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class BoxPrivate  {constructor(config?: properties);
-}
-export class BuildableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly set_name: unknown;
-readonly get_name: unknown;
-readonly add_child: unknown;
-readonly set_buildable_property: unknown;
-readonly construct_child: unknown;
-readonly custom_tag_start: unknown;
-readonly custom_tag_end: unknown;
-readonly custom_finished: unknown;
-readonly parser_finished: unknown;
-readonly get_internal_child: unknown;
-}
-export class BuilderClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_type_from_name: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class BuilderPrivate  {constructor(config?: properties);
-}
-export class ButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class ButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class ButtonBoxClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ButtonBoxPrivate  {constructor(config?: properties);
-}
-export class ButtonClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly pressed: unknown;
-readonly released: unknown;
-readonly clicked: unknown;
-readonly enter: unknown;
-readonly leave: unknown;
-readonly activate: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ButtonPrivate  {constructor(config?: properties);
-}
-export class CalendarClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly month_changed: unknown;
-readonly day_selected: unknown;
-readonly day_selected_double_click: unknown;
-readonly prev_month: unknown;
-readonly next_month: unknown;
-readonly prev_year: unknown;
-readonly next_year: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CalendarPrivate  {constructor(config?: properties);
-}
-export class CellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: AccessibleClass;
-readonly update_cache: unknown;
-}
-export class CellAccessibleParentIface  {constructor(config?: properties);
-readonly get_cell_extents: unknown;
-readonly get_cell_area: unknown;
-readonly grab_focus: unknown;
-readonly get_child_index: unknown;
-readonly get_renderer_state: unknown;
-readonly expand_collapse: unknown;
-readonly activate: unknown;
-readonly edit: unknown;
-readonly update_relationset: unknown;
-readonly get_cell_position: unknown;
-readonly get_column_header_cells: unknown;
-readonly get_row_header_cells: unknown;
-}
-export class CellAccessiblePrivate  {constructor(config?: properties);
-}
-export class CellAreaBoxClass  {constructor(config?: properties);
-readonly parent_class: CellAreaClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellAreaBoxPrivate  {constructor(config?: properties);
-}
-export class CellAreaClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly add: unknown;
-readonly remove: unknown;
-readonly foreach: unknown;
-readonly foreach_alloc: unknown;
-readonly event: unknown;
-readonly render: unknown;
-readonly apply_attributes: unknown;
-readonly create_context: unknown;
-readonly copy_context: unknown;
-readonly get_request_mode: unknown;
-readonly get_preferred_width: unknown;
-readonly get_preferred_height_for_width: unknown;
-readonly get_preferred_height: unknown;
-readonly get_preferred_width_for_height: unknown;
-readonly set_cell_property: unknown;
-readonly get_cell_property: unknown;
-readonly focus: unknown;
-readonly is_activatable: unknown;
-readonly activate: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-find_cell_property(property_name: string): GObject.ParamSpec;
-install_cell_property(property_id: number, pspec: GObject.ParamSpec): void;
-list_cell_properties(): [GObject.ParamSpec[], number];
-}
-export class CellAreaContextClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly allocate: unknown;
-readonly reset: unknown;
-readonly get_preferred_height_for_width: unknown;
-readonly get_preferred_width_for_height: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-}
-export class CellAreaContextPrivate  {constructor(config?: properties);
-}
-export class CellAreaPrivate  {constructor(config?: properties);
-}
-export class CellEditableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly editing_done: unknown;
-readonly remove_widget: unknown;
-readonly start_editing: unknown;
-}
-export class CellLayoutIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly pack_start: unknown;
-readonly pack_end: unknown;
-readonly clear: unknown;
-readonly add_attribute: unknown;
-readonly set_cell_data_func: unknown;
-readonly clear_attributes: unknown;
-readonly reorder: unknown;
-readonly get_cells: unknown;
-readonly get_area: unknown;
-}
-export class CellRendererAccelClass  {constructor(config?: properties);
-readonly parent_class: CellRendererTextClass;
-readonly accel_edited: unknown;
-readonly accel_cleared: unknown;
-readonly _gtk_reserved0: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererAccelPrivate  {constructor(config?: properties);
-}
-export class CellRendererClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly get_request_mode: unknown;
-readonly get_preferred_width: unknown;
-readonly get_preferred_height_for_width: unknown;
-readonly get_preferred_height: unknown;
-readonly get_preferred_width_for_height: unknown;
-readonly get_aligned_area: unknown;
-readonly get_size: unknown;
-readonly render: unknown;
-readonly activate: unknown;
-readonly start_editing: unknown;
-readonly editing_canceled: unknown;
-readonly editing_started: unknown;
-readonly priv: CellRendererClassPrivate;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-set_accessible_type(type: unknown): void;
-}
-export class CellRendererClassPrivate  {constructor(config?: properties);
-}
-export class CellRendererComboClass  {constructor(config?: properties);
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererComboPrivate  {constructor(config?: properties);
-}
-export class CellRendererPixbufClass  {constructor(config?: properties);
-readonly parent_class: CellRendererClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererPixbufPrivate  {constructor(config?: properties);
-}
-export class CellRendererPrivate  {constructor(config?: properties);
-}
-export class CellRendererProgressClass  {constructor(config?: properties);
-readonly parent_class: CellRendererClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererProgressPrivate  {constructor(config?: properties);
-}
-export class CellRendererSpinClass  {constructor(config?: properties);
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererSpinPrivate  {constructor(config?: properties);
-}
-export class CellRendererSpinnerClass  {constructor(config?: properties);
-readonly parent_class: CellRendererClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererSpinnerPrivate  {constructor(config?: properties);
-}
-export class CellRendererTextClass  {constructor(config?: properties);
-readonly parent_class: CellRendererClass;
-readonly edited: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererTextPrivate  {constructor(config?: properties);
-}
-export class CellRendererToggleClass  {constructor(config?: properties);
-readonly parent_class: CellRendererClass;
-readonly toggled: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellRendererTogglePrivate  {constructor(config?: properties);
-}
-export class CellViewClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CellViewPrivate  {constructor(config?: properties);
-}
-export class CheckButtonClass  {constructor(config?: properties);
-readonly parent_class: ToggleButtonClass;
-readonly draw_indicator: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CheckMenuItemAccessibleClass  {constructor(config?: properties);
-readonly parent_class: MenuItemAccessibleClass;
-}
-export class CheckMenuItemAccessiblePrivate  {constructor(config?: properties);
-}
-export class CheckMenuItemClass  {constructor(config?: properties);
-readonly parent_class: MenuItemClass;
-readonly toggled: unknown;
-readonly draw_indicator: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CheckMenuItemPrivate  {constructor(config?: properties);
-}
-export class ColorButtonClass  {constructor(config?: properties);
-readonly parent_class: ButtonClass;
-readonly color_set: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ColorButtonPrivate  {constructor(config?: properties);
-}
-export class ColorChooserDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ColorChooserDialogPrivate  {constructor(config?: properties);
-}
-export class ColorChooserInterface  {constructor(config?: properties);
-readonly base_interface: GObject.TypeInterface;
-readonly get_rgba: unknown;
-readonly set_rgba: unknown;
-readonly add_palette: unknown;
-readonly color_activated: unknown;
-readonly padding: object[];
-}
-export class ColorChooserWidgetClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class ColorChooserWidgetPrivate  {constructor(config?: properties);
-}
-export class ColorSelectionClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly color_changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ColorSelectionDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ColorSelectionDialogPrivate  {constructor(config?: properties);
-}
-export class ColorSelectionPrivate  {constructor(config?: properties);
-}
-export class ComboBoxAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class ComboBoxAccessiblePrivate  {constructor(config?: properties);
-}
-export class ComboBoxClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly changed: unknown;
-readonly format_entry_text: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-}
-export class ComboBoxPrivate  {constructor(config?: properties);
-}
-export class ComboBoxTextClass  {constructor(config?: properties);
-readonly parent_class: ComboBoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ComboBoxTextPrivate  {constructor(config?: properties);
-}
-export class ContainerAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-readonly add_gtk: unknown;
-readonly remove_gtk: unknown;
-}
-export class ContainerAccessiblePrivate  {constructor(config?: properties);
-}
-export class ContainerCellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: CellAccessibleClass;
-}
-export class ContainerCellAccessiblePrivate  {constructor(config?: properties);
-}
-export class ContainerClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly add: unknown;
-readonly remove: unknown;
-readonly check_resize: unknown;
-readonly forall: unknown;
-readonly set_focus_child: unknown;
-readonly child_type: unknown;
-readonly composite_name: unknown;
-readonly set_child_property: unknown;
-readonly get_child_property: unknown;
-readonly get_path_for_child: unknown;
-readonly _handle_border_width: number;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-find_child_property(property_name: string): GObject.ParamSpec | null;
-handle_border_width(): void;
-install_child_properties(n_pspecs: number, pspecs: GObject.ParamSpec[]): void;
-install_child_property(property_id: number, pspec: GObject.ParamSpec): void;
-list_child_properties(): [GObject.ParamSpec[], number];
-}
-export class ContainerPrivate  {constructor(config?: properties);
-}
-export class CssProviderClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly parsing_error: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class CssProviderPrivate  {constructor(config?: properties);
-}
-export class CssSection  {constructor(config?: properties);
-get_end_line(): number;
-get_end_position(): number;
-get_file(): Gio.File;
-get_parent(): CssSection | null;
-get_section_type(): CssSectionType;
-get_start_line(): number;
-get_start_position(): number;
-ref(): CssSection;
-unref(): void;
-}
-export class DialogClass  {constructor(config?: properties);
-readonly parent_class: WindowClass;
-readonly response: unknown;
-readonly close: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class DialogPrivate  {constructor(config?: properties);
-}
-export class DrawingAreaClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class EditableInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly insert_text: unknown;
-readonly delete_text: unknown;
-readonly changed: unknown;
-readonly do_insert_text: unknown;
-readonly do_delete_text: unknown;
-readonly get_chars: unknown;
-readonly set_selection_bounds: unknown;
-readonly get_selection_bounds: unknown;
-readonly set_position: unknown;
-readonly get_position: unknown;
-}
-export class EntryAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class EntryAccessiblePrivate  {constructor(config?: properties);
-}
-export class EntryBufferClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly inserted_text: unknown;
-readonly deleted_text: unknown;
-readonly get_text: unknown;
-readonly get_length: unknown;
-readonly insert_text: unknown;
-readonly delete_text: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class EntryBufferPrivate  {constructor(config?: properties);
-}
-export class EntryClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly populate_popup: unknown;
-readonly activate: unknown;
-readonly move_cursor: unknown;
-readonly insert_at_cursor: unknown;
-readonly delete_from_cursor: unknown;
-readonly backspace: unknown;
-readonly cut_clipboard: unknown;
-readonly copy_clipboard: unknown;
-readonly paste_clipboard: unknown;
-readonly toggle_overwrite: unknown;
-readonly get_text_area_size: unknown;
-readonly get_frame_size: unknown;
-readonly insert_emoji: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-}
-export class EntryCompletionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly match_selected: unknown;
-readonly action_activated: unknown;
-readonly insert_prefix: unknown;
-readonly cursor_on_match: unknown;
-readonly no_matches: unknown;
-readonly _gtk_reserved0: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-}
-export class EntryCompletionPrivate  {constructor(config?: properties);
-}
-export class EntryPrivate  {constructor(config?: properties);
-}
-export class EventBoxClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class EventBoxPrivate  {constructor(config?: properties);
-}
-export class EventControllerClass  {constructor(config?: properties);
-}
-export class EventControllerKeyClass  {constructor(config?: properties);
-}
-export class EventControllerMotionClass  {constructor(config?: properties);
-}
-export class EventControllerScrollClass  {constructor(config?: properties);
-}
-export class ExpanderAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class ExpanderAccessiblePrivate  {constructor(config?: properties);
-}
-export class ExpanderClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly activate: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ExpanderPrivate  {constructor(config?: properties);
-}
-export class FileChooserButtonClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly file_set: unknown;
-readonly __gtk_reserved1: unknown;
-readonly __gtk_reserved2: unknown;
-readonly __gtk_reserved3: unknown;
-readonly __gtk_reserved4: unknown;
-}
-export class FileChooserButtonPrivate  {constructor(config?: properties);
-}
-export class FileChooserDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FileChooserDialogPrivate  {constructor(config?: properties);
-}
-export class FileChooserNativeClass  {constructor(config?: properties);
-readonly parent_class: NativeDialogClass;
-}
-export class FileChooserWidgetClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FileChooserWidgetPrivate  {constructor(config?: properties);
-}
-export class FileFilterInfo  {constructor(config?: properties);
-contains: FileFilterFlags;
-filename: string;
-uri: string;
-display_name: string;
-mime_type: string;
-}
-export class FixedChild  {constructor(config?: properties);
-widget: Widget;
-x: number;
-y: number;
-}
-export class FixedClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FixedPrivate  {constructor(config?: properties);
-}
-export class FlowBoxAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class FlowBoxAccessiblePrivate  {constructor(config?: properties);
-}
-export class FlowBoxChildAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class FlowBoxChildClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly activate: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-}
-export class FlowBoxClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly child_activated: unknown;
-readonly selected_children_changed: unknown;
-readonly activate_cursor_child: unknown;
-readonly toggle_cursor_child: unknown;
-readonly move_cursor: unknown;
-readonly select_all: unknown;
-readonly unselect_all: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-}
-export class FontButtonClass  {constructor(config?: properties);
-readonly parent_class: ButtonClass;
-readonly font_set: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FontButtonPrivate  {constructor(config?: properties);
-}
-export class FontChooserDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FontChooserDialogPrivate  {constructor(config?: properties);
-}
-export class FontChooserIface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_font_family: unknown;
-readonly get_font_face: unknown;
-readonly get_font_size: unknown;
-readonly set_filter_func: unknown;
-readonly font_activated: unknown;
-readonly set_font_map: unknown;
-readonly get_font_map: unknown;
-readonly padding: object[];
-}
-export class FontChooserWidgetClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class FontChooserWidgetPrivate  {constructor(config?: properties);
-}
-export class FontSelectionClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FontSelectionDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FontSelectionDialogPrivate  {constructor(config?: properties);
-}
-export class FontSelectionPrivate  {constructor(config?: properties);
-}
-export class FrameAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class FrameAccessiblePrivate  {constructor(config?: properties);
-}
-export class FrameClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly compute_child_allocation: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class FramePrivate  {constructor(config?: properties);
-}
-export class GLAreaClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly render: unknown;
-readonly resize: unknown;
-readonly create_context: unknown;
-readonly _padding: object[];
-}
-export class GestureClass  {constructor(config?: properties);
-}
-export class GestureDragClass  {constructor(config?: properties);
-}
-export class GestureLongPressClass  {constructor(config?: properties);
-}
-export class GestureMultiPressClass  {constructor(config?: properties);
-}
-export class GesturePanClass  {constructor(config?: properties);
-}
-export class GestureRotateClass  {constructor(config?: properties);
-}
-export class GestureSingleClass  {constructor(config?: properties);
-}
-export class GestureStylusClass  {constructor(config?: properties);
-}
-export class GestureSwipeClass  {constructor(config?: properties);
-}
-export class GestureZoomClass  {constructor(config?: properties);
-}
-export class Gradient  {constructor(config?: properties);
-static new_linear(x0: number, y0: number, x1: number, y1: number): Gradient;
-static new_radial(x0: number, y0: number, radius0: number, x1: number, y1: number, radius1: number): Gradient;
-add_color_stop(offset: number, color: SymbolicColor): void;
-ref(): Gradient;
-resolve(props: StyleProperties): [boolean, cairo.Pattern];
-resolve_for_context(context: StyleContext): cairo.Pattern;
-to_string(): string;
-unref(): void;
-}
-export class GridClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class GridPrivate  {constructor(config?: properties);
-}
-export class HBoxClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-}
-export class HButtonBoxClass  {constructor(config?: properties);
-readonly parent_class: ButtonBoxClass;
-}
-export class HPanedClass  {constructor(config?: properties);
-readonly parent_class: PanedClass;
-}
-export class HSVClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly changed: unknown;
-readonly move: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class HSVPrivate  {constructor(config?: properties);
-}
-export class HScaleClass  {constructor(config?: properties);
-readonly parent_class: ScaleClass;
-}
-export class HScrollbarClass  {constructor(config?: properties);
-readonly parent_class: ScrollbarClass;
-}
-export class HSeparatorClass  {constructor(config?: properties);
-readonly parent_class: SeparatorClass;
-}
-export class HandleBoxClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly child_attached: unknown;
-readonly child_detached: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class HandleBoxPrivate  {constructor(config?: properties);
-}
-export class HeaderBarAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class HeaderBarAccessiblePrivate  {constructor(config?: properties);
-}
-export class HeaderBarClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class HeaderBarPrivate  {constructor(config?: properties);
-}
-export class IMContextClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly preedit_start: unknown;
-readonly preedit_end: unknown;
-readonly preedit_changed: unknown;
-readonly commit: unknown;
-readonly retrieve_surrounding: unknown;
-readonly delete_surrounding: unknown;
-readonly set_client_window: unknown;
-readonly get_preedit_string: unknown;
-readonly filter_keypress: unknown;
-readonly focus_in: unknown;
-readonly focus_out: unknown;
-readonly reset: unknown;
-readonly set_cursor_location: unknown;
-readonly set_use_preedit: unknown;
-readonly set_surrounding: unknown;
-readonly get_surrounding: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-}
-export class IMContextInfo  {constructor(config?: properties);
-context_id: string;
-context_name: string;
-domain: string;
-domain_dirname: string;
-default_locales: string;
-}
-export class IMContextSimpleClass  {constructor(config?: properties);
-readonly parent_class: IMContextClass;
-}
-export class IMContextSimplePrivate  {constructor(config?: properties);
-}
-export class IMMulticontextClass  {constructor(config?: properties);
-readonly parent_class: IMContextClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class IMMulticontextPrivate  {constructor(config?: properties);
-}
-export class IconFactoryClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class IconFactoryPrivate  {constructor(config?: properties);
-}
-export class IconInfoClass  {constructor(config?: properties);
-}
-export class IconSet  {constructor(config?: properties);
-static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): IconSet;
-add_source(source: IconSource): void;
-copy(): IconSet;
-get_sizes(): [number[],number];
-ref(): IconSet;
-render_icon(style: Style | null, direction: TextDirection, state: StateType, size: number, widget: Widget | null, detail: string | null): GdkPixbuf.Pixbuf;
-render_icon_pixbuf(context: StyleContext, size: number): GdkPixbuf.Pixbuf;
-render_icon_surface(context: StyleContext, size: number, scale: number, for_window: Gdk.Window | null): cairo.Surface;
-unref(): void;
-}
-export class IconSource  {constructor(config?: properties);
-copy(): IconSource;
-free(): void;
-get_direction(): TextDirection;
-get_direction_wildcarded(): boolean;
-get_filename(): unknown;
-get_icon_name(): string;
-get_pixbuf(): GdkPixbuf.Pixbuf;
-get_size(): number;
-get_size_wildcarded(): boolean;
-get_state(): StateType;
-get_state_wildcarded(): boolean;
-set_direction(direction: TextDirection): void;
-set_direction_wildcarded(setting: boolean): void;
-set_filename(filename: unknown): void;
-set_icon_name(icon_name: string | null): void;
-set_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
-set_size(size: number): void;
-set_size_wildcarded(setting: boolean): void;
-set_state(state: StateType): void;
-set_state_wildcarded(setting: boolean): void;
-}
-export class IconThemeClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class IconThemePrivate  {constructor(config?: properties);
-}
-export class IconViewAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class IconViewAccessiblePrivate  {constructor(config?: properties);
-}
-export class IconViewClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly item_activated: unknown;
-readonly selection_changed: unknown;
-readonly select_all: unknown;
-readonly unselect_all: unknown;
-readonly select_cursor_item: unknown;
-readonly toggle_cursor_item: unknown;
-readonly move_cursor: unknown;
-readonly activate_cursor_item: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class IconViewPrivate  {constructor(config?: properties);
-}
-export class ImageAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class ImageAccessiblePrivate  {constructor(config?: properties);
-}
-export class ImageCellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: RendererCellAccessibleClass;
-}
-export class ImageCellAccessiblePrivate  {constructor(config?: properties);
-}
-export class ImageClass  {constructor(config?: properties);
-readonly parent_class: MiscClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ImageMenuItemClass  {constructor(config?: properties);
-readonly parent_class: MenuItemClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ImageMenuItemPrivate  {constructor(config?: properties);
-}
-export class ImagePrivate  {constructor(config?: properties);
-}
-export class InfoBarClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly response: unknown;
-readonly close: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class InfoBarPrivate  {constructor(config?: properties);
-}
-export class InvisibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class InvisiblePrivate  {constructor(config?: properties);
-}
-export class LabelAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class LabelAccessiblePrivate  {constructor(config?: properties);
-}
-export class LabelClass  {constructor(config?: properties);
-readonly parent_class: MiscClass;
-readonly move_cursor: unknown;
-readonly copy_clipboard: unknown;
-readonly populate_popup: unknown;
-readonly activate_link: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class LabelPrivate  {constructor(config?: properties);
-}
-export class LabelSelectionInfo  {constructor(config?: properties);
-}
-export class LayoutClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class LayoutPrivate  {constructor(config?: properties);
-}
-export class LevelBarAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class LevelBarAccessiblePrivate  {constructor(config?: properties);
-}
-export class LevelBarClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly offset_changed: unknown;
-readonly padding: object[];
-}
-export class LevelBarPrivate  {constructor(config?: properties);
-}
-export class LinkButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ButtonAccessibleClass;
-}
-export class LinkButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class LinkButtonClass  {constructor(config?: properties);
-readonly parent_class: ButtonClass;
-readonly activate_link: unknown;
-readonly _gtk_padding1: unknown;
-readonly _gtk_padding2: unknown;
-readonly _gtk_padding3: unknown;
-readonly _gtk_padding4: unknown;
-}
-export class LinkButtonPrivate  {constructor(config?: properties);
-}
-export class ListBoxAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class ListBoxAccessiblePrivate  {constructor(config?: properties);
-}
-export class ListBoxClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly row_selected: unknown;
-readonly row_activated: unknown;
-readonly activate_cursor_row: unknown;
-readonly toggle_cursor_row: unknown;
-readonly move_cursor: unknown;
-readonly selected_rows_changed: unknown;
-readonly select_all: unknown;
-readonly unselect_all: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-}
-export class ListBoxRowAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class ListBoxRowClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly activate: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-}
-export class ListStoreClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ListStorePrivate  {constructor(config?: properties);
-}
-export class LockButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ButtonAccessibleClass;
-}
-export class LockButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class LockButtonClass  {constructor(config?: properties);
-readonly parent_class: ButtonClass;
-readonly reserved0: unknown;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-readonly reserved5: unknown;
-readonly reserved6: unknown;
-readonly reserved7: unknown;
-}
-export class LockButtonPrivate  {constructor(config?: properties);
-}
-export class MenuAccessibleClass  {constructor(config?: properties);
-readonly parent_class: MenuShellAccessibleClass;
-}
-export class MenuAccessiblePrivate  {constructor(config?: properties);
-}
-export class MenuBarClass  {constructor(config?: properties);
-readonly parent_class: MenuShellClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MenuBarPrivate  {constructor(config?: properties);
-}
-export class MenuButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ToggleButtonAccessibleClass;
-}
-export class MenuButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class MenuButtonClass  {constructor(config?: properties);
-readonly parent_class: ToggleButtonClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MenuButtonPrivate  {constructor(config?: properties);
-}
-export class MenuClass  {constructor(config?: properties);
-readonly parent_class: MenuShellClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MenuItemAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class MenuItemAccessiblePrivate  {constructor(config?: properties);
-}
-export class MenuItemClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly hide_on_activate: number;
-readonly activate: unknown;
-readonly activate_item: unknown;
-readonly toggle_size_request: unknown;
-readonly toggle_size_allocate: unknown;
-readonly set_label: unknown;
-readonly get_label: unknown;
-readonly select: unknown;
-readonly deselect: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MenuItemPrivate  {constructor(config?: properties);
-}
-export class MenuPrivate  {constructor(config?: properties);
-}
-export class MenuShellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class MenuShellAccessiblePrivate  {constructor(config?: properties);
-}
-export class MenuShellClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly submenu_placement: number;
-readonly deactivate: unknown;
-readonly selection_done: unknown;
-readonly move_current: unknown;
-readonly activate_current: unknown;
-readonly cancel: unknown;
-readonly select_item: unknown;
-readonly insert: unknown;
-readonly get_popup_delay: unknown;
-readonly move_selected: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MenuShellPrivate  {constructor(config?: properties);
-}
-export class MenuToolButtonClass  {constructor(config?: properties);
-readonly parent_class: ToolButtonClass;
-readonly show_menu: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MenuToolButtonPrivate  {constructor(config?: properties);
-}
-export class MessageDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MessageDialogPrivate  {constructor(config?: properties);
-}
-export class MiscClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MiscPrivate  {constructor(config?: properties);
-}
-export class MountOperationClass  {constructor(config?: properties);
-readonly parent_class: Gio.MountOperationClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class MountOperationPrivate  {constructor(config?: properties);
-}
-export class NativeDialogClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly response: unknown;
-readonly show: unknown;
-readonly hide: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class NotebookAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class NotebookAccessiblePrivate  {constructor(config?: properties);
-}
-export class NotebookClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly switch_page: unknown;
-readonly select_page: unknown;
-readonly focus_tab: unknown;
-readonly change_current_page: unknown;
-readonly move_focus_out: unknown;
-readonly reorder_tab: unknown;
-readonly insert_page: unknown;
-readonly create_window: unknown;
-readonly page_reordered: unknown;
-readonly page_removed: unknown;
-readonly page_added: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class NotebookPageAccessibleClass  {constructor(config?: properties);
-readonly parent_class: Atk.ObjectClass;
-}
-export class NotebookPageAccessiblePrivate  {constructor(config?: properties);
-}
-export class NotebookPrivate  {constructor(config?: properties);
-}
-export class NumerableIconClass  {constructor(config?: properties);
-readonly parent_class: Gio.EmblemedIconClass;
-readonly padding: object[];
-}
-export class NumerableIconPrivate  {constructor(config?: properties);
-}
-export class OffscreenWindowClass  {constructor(config?: properties);
-readonly parent_class: WindowClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class OrientableIface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-}
-export class OverlayClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly get_child_position: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class OverlayPrivate  {constructor(config?: properties);
-}
-export class PadActionEntry  {constructor(config?: properties);
-type: PadActionType;
-index: number;
-mode: number;
-label: string;
-action_name: string;
-}
-export class PadControllerClass  {constructor(config?: properties);
-}
-export class PageRange  {constructor(config?: properties);
-start: number;
-end: number;
-}
-export class PanedAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class PanedAccessiblePrivate  {constructor(config?: properties);
-}
-export class PanedClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly cycle_child_focus: unknown;
-readonly toggle_handle_focus: unknown;
-readonly move_handle: unknown;
-readonly cycle_handle_focus: unknown;
-readonly accept_position: unknown;
-readonly cancel_position: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class PanedPrivate  {constructor(config?: properties);
-}
-export class PaperSize  {constructor(config?: properties);
-static new_custom(name: string, display_name: string, width: number, height: number, unit: Unit): PaperSize;
-static new_from_gvariant(variant: GLib.Variant): PaperSize;
-static new_from_ipp(ipp_name: string, width: number, height: number): PaperSize;
-static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PaperSize;
-static new_from_ppd(ppd_name: string, ppd_display_name: string, width: number, height: number): PaperSize;
-copy(): PaperSize;
-free(): void;
-get_default_bottom_margin(unit: Unit): number;
-get_default_left_margin(unit: Unit): number;
-get_default_right_margin(unit: Unit): number;
-get_default_top_margin(unit: Unit): number;
-get_display_name(): string;
-get_height(unit: Unit): number;
-get_name(): string;
-get_ppd_name(): string;
-get_width(unit: Unit): number;
-is_custom(): boolean;
-is_equal(size2: PaperSize): boolean;
-is_ipp(): boolean;
-set_size(width: number, height: number, unit: Unit): void;
-to_gvariant(): GLib.Variant;
-to_key_file(key_file: GLib.KeyFile, group_name: string): void;
-static get_default(): string;
-static get_paper_sizes(include_custom: boolean): GLib.List;
-}
-export class PlacesSidebarClass  {constructor(config?: properties);
-}
-export class PlugClass  {constructor(config?: properties);
-readonly parent_class: WindowClass;
-readonly embedded: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class PlugPrivate  {constructor(config?: properties);
-}
-export class PopoverAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class PopoverClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly closed: unknown;
-readonly reserved: object[];
-}
-export class PopoverMenuClass  {constructor(config?: properties);
-readonly parent_class: PopoverClass;
-readonly reserved: object[];
-}
-export class PopoverPrivate  {constructor(config?: properties);
-}
-export class PrintOperationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly done: unknown;
-readonly begin_print: unknown;
-readonly paginate: unknown;
-readonly request_page_setup: unknown;
-readonly draw_page: unknown;
-readonly end_print: unknown;
-readonly status_changed: unknown;
-readonly create_custom_widget: unknown;
-readonly custom_widget_apply: unknown;
-readonly preview: unknown;
-readonly update_custom_widget: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class PrintOperationPreviewIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly ready: unknown;
-readonly got_page_size: unknown;
-readonly render_page: unknown;
-readonly is_selected: unknown;
-readonly end_preview: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class PrintOperationPrivate  {constructor(config?: properties);
-}
-export class ProgressBarAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class ProgressBarAccessiblePrivate  {constructor(config?: properties);
-}
-export class ProgressBarClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ProgressBarPrivate  {constructor(config?: properties);
-}
-export class RadioActionClass  {constructor(config?: properties);
-readonly parent_class: ToggleActionClass;
-readonly changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RadioActionEntry  {constructor(config?: properties);
-name: string;
-stock_id: string;
-label: string;
-accelerator: string;
-tooltip: string;
-value: number;
-}
-export class RadioActionPrivate  {constructor(config?: properties);
-}
-export class RadioButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ToggleButtonAccessibleClass;
-}
-export class RadioButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class RadioButtonClass  {constructor(config?: properties);
-readonly parent_class: CheckButtonClass;
-readonly group_changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RadioButtonPrivate  {constructor(config?: properties);
-}
-export class RadioMenuItemAccessibleClass  {constructor(config?: properties);
-readonly parent_class: CheckMenuItemAccessibleClass;
-}
-export class RadioMenuItemAccessiblePrivate  {constructor(config?: properties);
-}
-export class RadioMenuItemClass  {constructor(config?: properties);
-readonly parent_class: CheckMenuItemClass;
-readonly group_changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RadioMenuItemPrivate  {constructor(config?: properties);
-}
-export class RadioToolButtonClass  {constructor(config?: properties);
-readonly parent_class: ToggleToolButtonClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RangeAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class RangeAccessiblePrivate  {constructor(config?: properties);
-}
-export class RangeClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly slider_detail: string;
-readonly stepper_detail: string;
-readonly value_changed: unknown;
-readonly adjust_bounds: unknown;
-readonly move_slider: unknown;
-readonly get_range_border: unknown;
-readonly change_value: unknown;
-readonly get_range_size_request: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-}
-export class RangePrivate  {constructor(config?: properties);
-}
-export class RcContext  {constructor(config?: properties);
-}
-export class RcProperty  {constructor(config?: properties);
-type_name: GLib.Quark;
-property_name: GLib.Quark;
-origin: string;
-value: GObject.Value;
-static parse_border(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
-static parse_color(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
-static parse_enum(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
-static parse_flags(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
-static parse_requisition(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
-}
-export class RcStyleClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly create_rc_style: unknown;
-readonly parse: unknown;
-readonly merge: unknown;
-readonly create_style: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RecentActionClass  {constructor(config?: properties);
-readonly parent_class: ActionClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RecentActionPrivate  {constructor(config?: properties);
-}
-export class RecentChooserDialogClass  {constructor(config?: properties);
-readonly parent_class: DialogClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RecentChooserDialogPrivate  {constructor(config?: properties);
-}
-export class RecentChooserIface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly set_current_uri: unknown;
-readonly get_current_uri: unknown;
-readonly select_uri: unknown;
-readonly unselect_uri: unknown;
-readonly select_all: unknown;
-readonly unselect_all: unknown;
-readonly get_items: unknown;
-readonly get_recent_manager: unknown;
-readonly add_filter: unknown;
-readonly remove_filter: unknown;
-readonly list_filters: unknown;
-readonly set_sort_func: unknown;
-readonly item_activated: unknown;
-readonly selection_changed: unknown;
-}
-export class RecentChooserMenuClass  {constructor(config?: properties);
-readonly parent_class: MenuClass;
-readonly gtk_recent1: unknown;
-readonly gtk_recent2: unknown;
-readonly gtk_recent3: unknown;
-readonly gtk_recent4: unknown;
-}
-export class RecentChooserMenuPrivate  {constructor(config?: properties);
-}
-export class RecentChooserWidgetClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class RecentChooserWidgetPrivate  {constructor(config?: properties);
-}
-export class RecentData  {constructor(config?: properties);
-display_name: string;
-description: string;
-mime_type: string;
-app_name: string;
-app_exec: string;
-groups: string[];
-is_private: boolean;
-}
-export class RecentFilterInfo  {constructor(config?: properties);
-contains: RecentFilterFlags;
-uri: string;
-display_name: string;
-mime_type: string;
-applications: string[];
-groups: string[];
-age: number;
-}
-export class RecentInfo  {constructor(config?: properties);
-create_app_info(app_name: string | null): Gio.AppInfo | null;
-exists(): boolean;
-get_added(): number;
-get_age(): number;
-get_application_info(app_name: string): [boolean, string,number,number];
-get_applications(): [string[], number | null];
-get_description(): string;
-get_display_name(): string;
-get_gicon(): Gio.Icon | null;
-get_groups(): [string[], number | null];
-get_icon(size: number): GdkPixbuf.Pixbuf | null;
-get_mime_type(): string;
-get_modified(): number;
-get_private_hint(): boolean;
-get_short_name(): string;
-get_uri(): string;
-get_uri_display(): string | null;
-get_visited(): number;
-has_application(app_name: string): boolean;
-has_group(group_name: string): boolean;
-is_local(): boolean;
-last_application(): string;
-match(info_b: RecentInfo): boolean;
-ref(): RecentInfo;
-unref(): void;
-}
-export class RecentManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly _gtk_recent1: unknown;
-readonly _gtk_recent2: unknown;
-readonly _gtk_recent3: unknown;
-readonly _gtk_recent4: unknown;
-}
-export class RecentManagerPrivate  {constructor(config?: properties);
-}
-export class RendererCellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: CellAccessibleClass;
-}
-export class RendererCellAccessiblePrivate  {constructor(config?: properties);
-}
-export class RequestedSize  {constructor(config?: properties);
-data: object;
-minimum_size: number;
-natural_size: number;
-}
-export class Requisition  {constructor(config?: properties);
-copy(): Requisition;
-free(): void;
-}
-export class RevealerClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-}
-export class ScaleAccessibleClass  {constructor(config?: properties);
-readonly parent_class: RangeAccessibleClass;
-}
-export class ScaleAccessiblePrivate  {constructor(config?: properties);
-}
-export class ScaleButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ButtonAccessibleClass;
-}
-export class ScaleButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class ScaleButtonClass  {constructor(config?: properties);
-readonly parent_class: ButtonClass;
-readonly value_changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ScaleButtonPrivate  {constructor(config?: properties);
-}
-export class ScaleClass  {constructor(config?: properties);
-readonly parent_class: RangeClass;
-readonly format_value: unknown;
-readonly draw_value: unknown;
-readonly get_layout_offsets: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ScalePrivate  {constructor(config?: properties);
-}
-export class ScrollableInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_border: unknown;
-}
-export class ScrollbarClass  {constructor(config?: properties);
-readonly parent_class: RangeClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ScrolledWindowAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class ScrolledWindowAccessiblePrivate  {constructor(config?: properties);
-}
-export class ScrolledWindowClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly scrollbar_spacing: number;
-readonly scroll_child: unknown;
-readonly move_focus_out: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ScrolledWindowPrivate  {constructor(config?: properties);
-}
-export class SearchBarClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SearchEntryClass  {constructor(config?: properties);
-readonly parent_class: EntryClass;
-readonly search_changed: unknown;
-readonly next_match: unknown;
-readonly previous_match: unknown;
-readonly stop_search: unknown;
-}
-export class SelectionData  {constructor(config?: properties);
-copy(): SelectionData;
-free(): void;
-get_data(): number[];
-get_data_type(): Gdk.Atom;
-get_data_with_length(): [number[], number];
-get_display(): Gdk.Display;
-get_format(): number;
-get_length(): number;
-get_pixbuf(): GdkPixbuf.Pixbuf | null;
-get_selection(): Gdk.Atom;
-get_target(): Gdk.Atom;
-get_targets(): [boolean, Gdk.Atom[],number];
-get_text(): string | null;
-get_uris(): string[];
-set(type: Gdk.Atom, format: number, data: number[], length: number): void;
-set_pixbuf(pixbuf: GdkPixbuf.Pixbuf): boolean;
-set_text(str: string, len: number): boolean;
-set_uris(uris: string[]): boolean;
-targets_include_image(writable: boolean): boolean;
-targets_include_rich_text(buffer: TextBuffer): boolean;
-targets_include_text(): boolean;
-targets_include_uri(): boolean;
-}
-export class SeparatorClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SeparatorMenuItemClass  {constructor(config?: properties);
-readonly parent_class: MenuItemClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SeparatorPrivate  {constructor(config?: properties);
-}
-export class SeparatorToolItemClass  {constructor(config?: properties);
-readonly parent_class: ToolItemClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SeparatorToolItemPrivate  {constructor(config?: properties);
-}
-export class SettingsClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SettingsPrivate  {constructor(config?: properties);
-}
-export class SettingsValue  {constructor(config?: properties);
-origin: string;
-value: GObject.Value;
-}
-export class ShortcutLabelClass  {constructor(config?: properties);
-}
-export class ShortcutsGroupClass  {constructor(config?: properties);
-}
-export class ShortcutsSectionClass  {constructor(config?: properties);
-}
-export class ShortcutsShortcutClass  {constructor(config?: properties);
-}
-export class ShortcutsWindowClass  {constructor(config?: properties);
-readonly parent_class: WindowClass;
-readonly close: unknown;
-readonly search: unknown;
-}
-export class SizeGroupClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SizeGroupPrivate  {constructor(config?: properties);
-}
-export class SocketClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly plug_added: unknown;
-readonly plug_removed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SocketPrivate  {constructor(config?: properties);
-}
-export class SpinButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: EntryAccessibleClass;
-}
-export class SpinButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class SpinButtonClass  {constructor(config?: properties);
-readonly parent_class: EntryClass;
-readonly input: unknown;
-readonly output: unknown;
-readonly value_changed: unknown;
-readonly change_value: unknown;
-readonly wrapped: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SpinButtonPrivate  {constructor(config?: properties);
-}
-export class SpinnerAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class SpinnerAccessiblePrivate  {constructor(config?: properties);
-}
-export class SpinnerClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class SpinnerPrivate  {constructor(config?: properties);
-}
-export class StackAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class StackClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-}
-export class StackSidebarClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class StackSidebarPrivate  {constructor(config?: properties);
-}
-export class StackSwitcherClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class StatusIconClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly activate: unknown;
-readonly popup_menu: unknown;
-readonly size_changed: unknown;
-readonly button_press_event: unknown;
-readonly button_release_event: unknown;
-readonly scroll_event: unknown;
-readonly query_tooltip: unknown;
-readonly __gtk_reserved1: unknown;
-readonly __gtk_reserved2: unknown;
-readonly __gtk_reserved3: unknown;
-readonly __gtk_reserved4: unknown;
-}
-export class StatusIconPrivate  {constructor(config?: properties);
-}
-export class StatusbarAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class StatusbarAccessiblePrivate  {constructor(config?: properties);
-}
-export class StatusbarClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-readonly reserved: object;
-readonly text_pushed: unknown;
-readonly text_popped: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class StatusbarPrivate  {constructor(config?: properties);
-}
-export class StockItem  {constructor(config?: properties);
-stock_id: string;
-label: string;
-modifier: Gdk.ModifierType;
-keyval: number;
-translation_domain: string;
-copy(): StockItem;
-free(): void;
-}
-export class StyleClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly realize: unknown;
-readonly unrealize: unknown;
-readonly copy: unknown;
-readonly clone: unknown;
-readonly init_from_rc: unknown;
-readonly set_background: unknown;
-readonly render_icon: unknown;
-readonly draw_hline: unknown;
-readonly draw_vline: unknown;
-readonly draw_shadow: unknown;
-readonly draw_arrow: unknown;
-readonly draw_diamond: unknown;
-readonly draw_box: unknown;
-readonly draw_flat_box: unknown;
-readonly draw_check: unknown;
-readonly draw_option: unknown;
-readonly draw_tab: unknown;
-readonly draw_shadow_gap: unknown;
-readonly draw_box_gap: unknown;
-readonly draw_extension: unknown;
-readonly draw_focus: unknown;
-readonly draw_slider: unknown;
-readonly draw_handle: unknown;
-readonly draw_expander: unknown;
-readonly draw_layout: unknown;
-readonly draw_resize_grip: unknown;
-readonly draw_spinner: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-readonly _gtk_reserved9: unknown;
-readonly _gtk_reserved10: unknown;
-readonly _gtk_reserved11: unknown;
-}
-export class StyleContextClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class StyleContextPrivate  {constructor(config?: properties);
-}
-export class StylePropertiesClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class StylePropertiesPrivate  {constructor(config?: properties);
-}
-export class StyleProviderIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_style: unknown;
-readonly get_style_property: unknown;
-readonly get_icon_factory: unknown;
-}
-export class SwitchAccessibleClass  {constructor(config?: properties);
-readonly parent_class: WidgetAccessibleClass;
-}
-export class SwitchAccessiblePrivate  {constructor(config?: properties);
-}
-export class SwitchClass  {constructor(config?: properties);
-readonly parent_class: WidgetClass;
-readonly activate: unknown;
-readonly state_set: unknown;
-readonly _switch_padding_1: unknown;
-readonly _switch_padding_2: unknown;
-readonly _switch_padding_3: unknown;
-readonly _switch_padding_4: unknown;
-readonly _switch_padding_5: unknown;
-}
-export class SwitchPrivate  {constructor(config?: properties);
-}
-export class SymbolicColor  {constructor(config?: properties);
-static new_alpha(color: SymbolicColor, factor: number): SymbolicColor;
-static new_literal(color: Gdk.RGBA): SymbolicColor;
-static new_mix(color1: SymbolicColor, color2: SymbolicColor, factor: number): SymbolicColor;
-static new_name(name: string): SymbolicColor;
-static new_shade(color: SymbolicColor, factor: number): SymbolicColor;
-static new_win32(theme_class: string, id: number): SymbolicColor;
-ref(): SymbolicColor;
-resolve(props: StyleProperties | null): [boolean, Gdk.RGBA];
-to_string(): string;
-unref(): void;
-}
-export class TableChild  {constructor(config?: properties);
-widget: Widget;
-left_attach: number;
-right_attach: number;
-top_attach: number;
-bottom_attach: number;
-xpadding: number;
-ypadding: number;
-xexpand: number;
-yexpand: number;
-xshrink: number;
-yshrink: number;
-xfill: number;
-yfill: number;
-}
-export class TableClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TablePrivate  {constructor(config?: properties);
-}
-export class TableRowCol  {constructor(config?: properties);
-requisition: number;
-allocation: number;
-spacing: number;
-need_expand: number;
-need_shrink: number;
-expand: number;
-shrink: number;
-empty: number;
-}
-export class TargetEntry  {constructor(config?: properties);
-copy(): TargetEntry;
-free(): void;
-}
-export class TargetList  {constructor(config?: properties);
-add(target: Gdk.Atom, flags: number, info: number): void;
-add_image_targets(info: number, writable: boolean): void;
-add_rich_text_targets(info: number, deserializable: boolean, buffer: TextBuffer): void;
-add_table(targets: TargetEntry[], ntargets: number): void;
-add_text_targets(info: number): void;
-add_uri_targets(info: number): void;
-find(target: Gdk.Atom): [boolean, number | null];
-ref(): TargetList;
-remove(target: Gdk.Atom): void;
-unref(): void;
-}
-export class TargetPair  {constructor(config?: properties);
-target: Gdk.Atom;
-flags: number;
-info: number;
-}
-export class TearoffMenuItemClass  {constructor(config?: properties);
-readonly parent_class: MenuItemClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TearoffMenuItemPrivate  {constructor(config?: properties);
-}
-export class TextAppearance  {constructor(config?: properties);
-bg_color: Gdk.Color;
-fg_color: Gdk.Color;
-rise: number;
-underline: number;
-strikethrough: number;
-draw_bg: number;
-inside_selection: number;
-is_text: number;
-}
-export class TextAttributes  {constructor(config?: properties);
-copy(): TextAttributes;
-copy_values(dest: TextAttributes): void;
-ref(): TextAttributes;
-unref(): void;
-}
-export class TextBTree  {constructor(config?: properties);
-}
-export class TextBufferClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly insert_text: unknown;
-readonly insert_pixbuf: unknown;
-readonly insert_child_anchor: unknown;
-readonly delete_range: unknown;
-readonly changed: unknown;
-readonly modified_changed: unknown;
-readonly mark_set: unknown;
-readonly mark_deleted: unknown;
-readonly apply_tag: unknown;
-readonly remove_tag: unknown;
-readonly begin_user_action: unknown;
-readonly end_user_action: unknown;
-readonly paste_done: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TextBufferPrivate  {constructor(config?: properties);
-}
-export class TextCellAccessibleClass  {constructor(config?: properties);
-readonly parent_class: RendererCellAccessibleClass;
-}
-export class TextCellAccessiblePrivate  {constructor(config?: properties);
-}
-export class TextChildAnchorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TextIter  {constructor(config?: properties);
-readonly dummy1: object;
-readonly dummy2: object;
-readonly dummy3: number;
-readonly dummy4: number;
-readonly dummy5: number;
-readonly dummy6: number;
-readonly dummy7: number;
-readonly dummy8: number;
-readonly dummy9: object;
-readonly dummy10: object;
-readonly dummy11: number;
-readonly dummy12: number;
-readonly dummy13: number;
-readonly dummy14: object;
-assign(other: TextIter): void;
-backward_char(): boolean;
-backward_chars(count: number): boolean;
-backward_cursor_position(): boolean;
-backward_cursor_positions(count: number): boolean;
-backward_find_char(pred: TextCharPredicate, user_data: object | null, limit: TextIter | null): boolean;
-backward_line(): boolean;
-backward_lines(count: number): boolean;
-backward_search(str: string, flags: TextSearchFlags, limit: TextIter | null): [boolean, TextIter | null,TextIter | null];
-backward_sentence_start(): boolean;
-backward_sentence_starts(count: number): boolean;
-backward_to_tag_toggle(tag: TextTag | null): boolean;
-backward_visible_cursor_position(): boolean;
-backward_visible_cursor_positions(count: number): boolean;
-backward_visible_line(): boolean;
-backward_visible_lines(count: number): boolean;
-backward_visible_word_start(): boolean;
-backward_visible_word_starts(count: number): boolean;
-backward_word_start(): boolean;
-backward_word_starts(count: number): boolean;
-begins_tag(tag: TextTag | null): boolean;
-can_insert(default_editability: boolean): boolean;
-compare(rhs: TextIter): number;
-copy(): TextIter;
-editable(default_setting: boolean): boolean;
-ends_line(): boolean;
-ends_sentence(): boolean;
-ends_tag(tag: TextTag | null): boolean;
-ends_word(): boolean;
-equal(rhs: TextIter): boolean;
-forward_char(): boolean;
-forward_chars(count: number): boolean;
-forward_cursor_position(): boolean;
-forward_cursor_positions(count: number): boolean;
-forward_find_char(pred: TextCharPredicate, user_data: object | null, limit: TextIter | null): boolean;
-forward_line(): boolean;
-forward_lines(count: number): boolean;
-forward_search(str: string, flags: TextSearchFlags, limit: TextIter | null): [boolean, TextIter | null,TextIter | null];
-forward_sentence_end(): boolean;
-forward_sentence_ends(count: number): boolean;
-forward_to_end(): void;
-forward_to_line_end(): boolean;
-forward_to_tag_toggle(tag: TextTag | null): boolean;
-forward_visible_cursor_position(): boolean;
-forward_visible_cursor_positions(count: number): boolean;
-forward_visible_line(): boolean;
-forward_visible_lines(count: number): boolean;
-forward_visible_word_end(): boolean;
-forward_visible_word_ends(count: number): boolean;
-forward_word_end(): boolean;
-forward_word_ends(count: number): boolean;
-free(): void;
-get_attributes(): [boolean, TextAttributes];
-get_buffer(): TextBuffer;
-get_bytes_in_line(): number;
-get_char(): number;
-get_chars_in_line(): number;
-get_child_anchor(): TextChildAnchor;
-get_language(): Pango.Language;
-get_line(): number;
-get_line_index(): number;
-get_line_offset(): number;
-get_marks(): string[];
-get_offset(): number;
-get_pixbuf(): GdkPixbuf.Pixbuf;
-get_slice(end: TextIter): string;
-get_tags(): string[];
-get_text(end: TextIter): string;
-get_toggled_tags(toggled_on: boolean): string[];
-get_visible_line_index(): number;
-get_visible_line_offset(): number;
-get_visible_slice(end: TextIter): string;
-get_visible_text(end: TextIter): string;
-has_tag(tag: TextTag): boolean;
-in_range(start: TextIter, end: TextIter): boolean;
-inside_sentence(): boolean;
-inside_word(): boolean;
-is_cursor_position(): boolean;
-is_end(): boolean;
-is_start(): boolean;
-order(second: TextIter): void;
-set_line(line_number: number): void;
-set_line_index(byte_on_line: number): void;
-set_line_offset(char_on_line: number): void;
-set_offset(char_offset: number): void;
-set_visible_line_index(byte_on_line: number): void;
-set_visible_line_offset(char_on_line: number): void;
-starts_line(): boolean;
-starts_sentence(): boolean;
-starts_tag(tag: TextTag | null): boolean;
-starts_word(): boolean;
-toggles_tag(tag: TextTag | null): boolean;
-}
-export class TextMarkClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TextTagClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly event: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TextTagPrivate  {constructor(config?: properties);
-}
-export class TextTagTableClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly tag_changed: unknown;
-readonly tag_added: unknown;
-readonly tag_removed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TextTagTablePrivate  {constructor(config?: properties);
-}
-export class TextViewAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class TextViewAccessiblePrivate  {constructor(config?: properties);
-}
-export class TextViewClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly populate_popup: unknown;
-readonly move_cursor: unknown;
-readonly set_anchor: unknown;
-readonly insert_at_cursor: unknown;
-readonly delete_from_cursor: unknown;
-readonly backspace: unknown;
-readonly cut_clipboard: unknown;
-readonly copy_clipboard: unknown;
-readonly paste_clipboard: unknown;
-readonly toggle_overwrite: unknown;
-readonly create_buffer: unknown;
-readonly draw_layer: unknown;
-readonly extend_selection: unknown;
-readonly insert_emoji: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TextViewPrivate  {constructor(config?: properties);
-}
-export class ThemeEngine  {constructor(config?: properties);
-}
-export class ThemingEngineClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly render_line: unknown;
-readonly render_background: unknown;
-readonly render_frame: unknown;
-readonly render_frame_gap: unknown;
-readonly render_extension: unknown;
-readonly render_check: unknown;
-readonly render_option: unknown;
-readonly render_arrow: unknown;
-readonly render_expander: unknown;
-readonly render_focus: unknown;
-readonly render_layout: unknown;
-readonly render_slider: unknown;
-readonly render_handle: unknown;
-readonly render_activity: unknown;
-readonly render_icon_pixbuf: unknown;
-readonly render_icon: unknown;
-readonly render_icon_surface: unknown;
-readonly padding: object[];
-}
-export class ThemingEnginePrivate  {constructor(config?: properties);
-}
-export class ToggleActionClass  {constructor(config?: properties);
-readonly parent_class: ActionClass;
-readonly toggled: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToggleActionEntry  {constructor(config?: properties);
-name: string;
-stock_id: string;
-label: string;
-accelerator: string;
-tooltip: string;
-callback: GObject.Callback;
-is_active: boolean;
-}
-export class ToggleActionPrivate  {constructor(config?: properties);
-}
-export class ToggleButtonAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ButtonAccessibleClass;
-}
-export class ToggleButtonAccessiblePrivate  {constructor(config?: properties);
-}
-export class ToggleButtonClass  {constructor(config?: properties);
-readonly parent_class: ButtonClass;
-readonly toggled: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToggleButtonPrivate  {constructor(config?: properties);
-}
-export class ToggleToolButtonClass  {constructor(config?: properties);
-readonly parent_class: ToolButtonClass;
-readonly toggled: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToggleToolButtonPrivate  {constructor(config?: properties);
-}
-export class ToolButtonClass  {constructor(config?: properties);
-readonly parent_class: ToolItemClass;
-readonly button_type: unknown;
-readonly clicked: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToolButtonPrivate  {constructor(config?: properties);
-}
-export class ToolItemClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly create_menu_proxy: unknown;
-readonly toolbar_reconfigured: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToolItemGroupClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToolItemGroupPrivate  {constructor(config?: properties);
-}
-export class ToolItemPrivate  {constructor(config?: properties);
-}
-export class ToolPaletteClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToolPalettePrivate  {constructor(config?: properties);
-}
-export class ToolShellIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_icon_size: unknown;
-readonly get_orientation: unknown;
-readonly get_style: unknown;
-readonly get_relief_style: unknown;
-readonly rebuild_menu: unknown;
-readonly get_text_orientation: unknown;
-readonly get_text_alignment: unknown;
-readonly get_ellipsize_mode: unknown;
-readonly get_text_size_group: unknown;
-}
-export class ToolbarClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly orientation_changed: unknown;
-readonly style_changed: unknown;
-readonly popup_context_menu: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ToolbarPrivate  {constructor(config?: properties);
-}
-export class ToplevelAccessibleClass  {constructor(config?: properties);
-readonly parent_class: Atk.ObjectClass;
-}
-export class ToplevelAccessiblePrivate  {constructor(config?: properties);
-}
-export class TreeDragDestIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly drag_data_received: unknown;
-readonly row_drop_possible: unknown;
-}
-export class TreeDragSourceIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly row_draggable: unknown;
-readonly drag_data_get: unknown;
-readonly drag_data_delete: unknown;
-}
-export class TreeIter  {constructor(config?: properties);
-stamp: number;
-user_data: object;
-user_data2: object;
-user_data3: object;
-copy(): TreeIter;
-free(): void;
-}
-export class TreeModelFilterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly visible: unknown;
-readonly modify: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TreeModelFilterPrivate  {constructor(config?: properties);
-}
-export class TreeModelIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly row_changed: unknown;
-readonly row_inserted: unknown;
-readonly row_has_child_toggled: unknown;
-readonly row_deleted: unknown;
-readonly rows_reordered: unknown;
-readonly get_flags: unknown;
-readonly get_n_columns: unknown;
-readonly get_column_type: unknown;
-readonly get_iter: unknown;
-readonly get_path: unknown;
-readonly get_value: unknown;
-readonly iter_next: unknown;
-readonly iter_previous: unknown;
-readonly iter_children: unknown;
-readonly iter_has_child: unknown;
-readonly iter_n_children: unknown;
-readonly iter_nth_child: unknown;
-readonly iter_parent: unknown;
-readonly ref_node: unknown;
-readonly unref_node: unknown;
-}
-export class TreeModelSortClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TreeModelSortPrivate  {constructor(config?: properties);
-}
-export class TreePath  {constructor(config?: properties);
-static new_first(): TreePath;
-static new_from_indices(first_index: number, ___: unknown[]): TreePath;
-static new_from_indicesv(indices: number[], length: number): TreePath;
-static new_from_string(path: string): TreePath;
-append_index(index_: number): void;
-compare(b: TreePath): number;
-copy(): TreePath;
-down(): void;
-free(): void;
-get_depth(): number;
-get_indices(): number;
-get_indices_with_depth(): [number[], number | null];
-is_ancestor(descendant: TreePath): boolean;
-is_descendant(ancestor: TreePath): boolean;
-next(): void;
-prepend_index(index_: number): void;
-prev(): boolean;
-to_string(): string;
-up(): boolean;
-}
-export class TreeRowReference  {constructor(config?: properties);
-static new_proxy(proxy: GObject.Object, model: TreeModel, path: TreePath): TreeRowReference;
-copy(): TreeRowReference;
-free(): void;
-get_model(): TreeModel;
-get_path(): TreePath | null;
-valid(): boolean;
-static deleted(proxy: GObject.Object, path: TreePath): void;
-static inserted(proxy: GObject.Object, path: TreePath): void;
-static reordered(proxy: GObject.Object, path: TreePath, iter: TreeIter, new_order: number[]): void;
-}
-export class TreeSelectionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TreeSelectionPrivate  {constructor(config?: properties);
-}
-export class TreeSortableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly sort_column_changed: unknown;
-readonly get_sort_column_id: unknown;
-readonly set_sort_column_id: unknown;
-readonly set_sort_func: unknown;
-readonly set_default_sort_func: unknown;
-readonly has_default_sort_func: unknown;
-}
-export class TreeStoreClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TreeStorePrivate  {constructor(config?: properties);
-}
-export class TreeViewAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class TreeViewAccessiblePrivate  {constructor(config?: properties);
-}
-export class TreeViewClass  {constructor(config?: properties);
-readonly parent_class: ContainerClass;
-readonly row_activated: unknown;
-readonly test_expand_row: unknown;
-readonly test_collapse_row: unknown;
-readonly row_expanded: unknown;
-readonly row_collapsed: unknown;
-readonly columns_changed: unknown;
-readonly cursor_changed: unknown;
-readonly move_cursor: unknown;
-readonly select_all: unknown;
-readonly unselect_all: unknown;
-readonly select_cursor_row: unknown;
-readonly toggle_cursor_row: unknown;
-readonly expand_collapse_cursor_row: unknown;
-readonly select_cursor_parent: unknown;
-readonly start_interactive_search: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-readonly _gtk_reserved5: unknown;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-readonly _gtk_reserved8: unknown;
-}
-export class TreeViewColumnClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly clicked: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class TreeViewColumnPrivate  {constructor(config?: properties);
-}
-export class TreeViewPrivate  {constructor(config?: properties);
-}
-export class UIManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly add_widget: unknown;
-readonly actions_changed: unknown;
-readonly connect_proxy: unknown;
-readonly disconnect_proxy: unknown;
-readonly pre_activate: unknown;
-readonly post_activate: unknown;
-readonly get_widget: unknown;
-readonly get_action: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class UIManagerPrivate  {constructor(config?: properties);
-}
-export class VBoxClass  {constructor(config?: properties);
-readonly parent_class: BoxClass;
-}
-export class VButtonBoxClass  {constructor(config?: properties);
-readonly parent_class: ButtonBoxClass;
-}
-export class VPanedClass  {constructor(config?: properties);
-readonly parent_class: PanedClass;
-}
-export class VScaleClass  {constructor(config?: properties);
-readonly parent_class: ScaleClass;
-}
-export class VScrollbarClass  {constructor(config?: properties);
-readonly parent_class: ScrollbarClass;
-}
-export class VSeparatorClass  {constructor(config?: properties);
-readonly parent_class: SeparatorClass;
-}
-export class ViewportClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class ViewportPrivate  {constructor(config?: properties);
-}
-export class VolumeButtonClass  {constructor(config?: properties);
-readonly parent_class: ScaleButtonClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class WidgetAccessibleClass  {constructor(config?: properties);
-readonly parent_class: AccessibleClass;
-readonly notify_gtk: unknown;
-}
-export class WidgetAccessiblePrivate  {constructor(config?: properties);
-}
-export class WidgetClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly activate_signal: number;
-readonly dispatch_child_properties_changed: unknown;
-readonly destroy: unknown;
-readonly show: unknown;
-readonly hide: unknown;
-readonly map: unknown;
-readonly unmap: unknown;
-readonly realize: unknown;
-readonly unrealize: unknown;
-readonly size_allocate: unknown;
-readonly state_changed: unknown;
-readonly state_flags_changed: unknown;
-readonly parent_set: unknown;
-readonly hierarchy_changed: unknown;
-readonly style_set: unknown;
-readonly direction_changed: unknown;
-readonly grab_notify: unknown;
-readonly child_notify: unknown;
-readonly get_request_mode: unknown;
-readonly get_preferred_height: unknown;
-readonly get_preferred_width_for_height: unknown;
-readonly get_preferred_width: unknown;
-readonly get_preferred_height_for_width: unknown;
-readonly mnemonic_activate: unknown;
-readonly grab_focus: unknown;
-readonly focus: unknown;
-readonly move_focus: unknown;
-readonly keynav_failed: unknown;
-readonly event: unknown;
-readonly button_press_event: unknown;
-readonly button_release_event: unknown;
-readonly scroll_event: unknown;
-readonly motion_notify_event: unknown;
-readonly delete_event: unknown;
-readonly destroy_event: unknown;
-readonly key_press_event: unknown;
-readonly key_release_event: unknown;
-readonly enter_notify_event: unknown;
-readonly leave_notify_event: unknown;
-readonly configure_event: unknown;
-readonly focus_in_event: unknown;
-readonly focus_out_event: unknown;
-readonly map_event: unknown;
-readonly unmap_event: unknown;
-readonly property_notify_event: unknown;
-readonly selection_clear_event: unknown;
-readonly selection_request_event: unknown;
-readonly selection_notify_event: unknown;
-readonly proximity_in_event: unknown;
-readonly proximity_out_event: unknown;
-readonly visibility_notify_event: unknown;
-readonly window_state_event: unknown;
-readonly damage_event: unknown;
-readonly grab_broken_event: unknown;
-readonly selection_get: unknown;
-readonly selection_received: unknown;
-readonly drag_begin: unknown;
-readonly drag_end: unknown;
-readonly drag_data_get: unknown;
-readonly drag_data_delete: unknown;
-readonly drag_leave: unknown;
-readonly drag_motion: unknown;
-readonly drag_drop: unknown;
-readonly drag_data_received: unknown;
-readonly drag_failed: unknown;
-readonly popup_menu: unknown;
-readonly show_help: unknown;
-readonly get_accessible: unknown;
-readonly screen_changed: unknown;
-readonly can_activate_accel: unknown;
-readonly composited_changed: unknown;
-readonly query_tooltip: unknown;
-readonly compute_expand: unknown;
-readonly adjust_size_request: unknown;
-readonly adjust_size_allocation: unknown;
-readonly style_updated: unknown;
-readonly touch_event: unknown;
-readonly get_preferred_height_and_baseline_for_width: unknown;
-readonly adjust_baseline_request: unknown;
-readonly adjust_baseline_allocation: unknown;
-readonly queue_draw_region: unknown;
-readonly priv: WidgetClassPrivate;
-readonly _gtk_reserved6: unknown;
-readonly _gtk_reserved7: unknown;
-bind_template_callback_full(callback_name: string, callback_symbol: GObject.Callback): void;
-bind_template_child_full(name: string, internal_child: boolean, struct_offset: number): void;
-find_style_property(property_name: string): GObject.ParamSpec;
-get_css_name(): string;
-install_style_property(pspec: GObject.ParamSpec): void;
-install_style_property_parser(pspec: GObject.ParamSpec, parser: RcPropertyParser): void;
-list_style_properties(): [GObject.ParamSpec[], number];
-set_accessible_role(role: Atk.Role): void;
-set_accessible_type(type: unknown): void;
-set_connect_func(connect_func: BuilderConnectFunc, connect_data: object | null, connect_data_destroy: GLib.DestroyNotify): void;
-set_css_name(name: string): void;
-set_template(template_bytes: GLib.Bytes): void;
-set_template_from_resource(resource_name: string): void;
-}
-export class WidgetClassPrivate  {constructor(config?: properties);
-}
-export class WidgetPath  {constructor(config?: properties);
-append_for_widget(widget: Widget): number;
-append_type(type: unknown): number;
-append_with_siblings(siblings: WidgetPath, sibling_index: number): number;
-copy(): WidgetPath;
-free(): void;
-get_object_type(): unknown;
-has_parent(type: unknown): boolean;
-is_type(type: unknown): boolean;
-iter_add_class(pos: number, name: string): void;
-iter_add_region(pos: number, name: string, flags: RegionFlags): void;
-iter_clear_classes(pos: number): void;
-iter_clear_regions(pos: number): void;
-iter_get_name(pos: number): string | null;
-iter_get_object_name(pos: number): string | null;
-iter_get_object_type(pos: number): unknown;
-iter_get_sibling_index(pos: number): number;
-iter_get_siblings(pos: number): WidgetPath;
-iter_get_state(pos: number): StateFlags;
-iter_has_class(pos: number, name: string): boolean;
-iter_has_name(pos: number, name: string): boolean;
-iter_has_qclass(pos: number, qname: GLib.Quark): boolean;
-iter_has_qname(pos: number, qname: GLib.Quark): boolean;
-iter_has_qregion(pos: number, qname: GLib.Quark): [boolean, RegionFlags];
-iter_has_region(pos: number, name: string): [boolean, RegionFlags];
-iter_list_classes(pos: number): string[];
-iter_list_regions(pos: number): string[];
-iter_remove_class(pos: number, name: string): void;
-iter_remove_region(pos: number, name: string): void;
-iter_set_name(pos: number, name: string): void;
-iter_set_object_name(pos: number, name: string | null): void;
-iter_set_object_type(pos: number, type: unknown): void;
-iter_set_state(pos: number, state: StateFlags): void;
-length(): number;
-prepend_type(type: unknown): void;
-ref(): WidgetPath;
-to_string(): string;
-unref(): void;
-}
-export class WidgetPrivate  {constructor(config?: properties);
-}
-export class WindowAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ContainerAccessibleClass;
-}
-export class WindowAccessiblePrivate  {constructor(config?: properties);
-}
-export class WindowClass  {constructor(config?: properties);
-readonly parent_class: BinClass;
-readonly set_focus: unknown;
-readonly activate_focus: unknown;
-readonly activate_default: unknown;
-readonly keys_changed: unknown;
-readonly enable_debugging: unknown;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-}
-export class WindowGeometryInfo  {constructor(config?: properties);
-}
-export class WindowGroupClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _gtk_reserved1: unknown;
-readonly _gtk_reserved2: unknown;
-readonly _gtk_reserved3: unknown;
-readonly _gtk_reserved4: unknown;
-}
-export class WindowGroupPrivate  {constructor(config?: properties);
-}
-export class WindowPrivate  {constructor(config?: properties);
-}
-export class _MountOperationHandler  {constructor(config?: properties);
-}
-export class _MountOperationHandlerIface  {constructor(config?: properties);
-parent_iface: GObject.TypeInterface;
-readonly handle_ask_password: unknown;
-readonly handle_ask_question: unknown;
-readonly handle_close: unknown;
-readonly handle_show_processes: unknown;
-}
-export class _MountOperationHandlerProxy  {constructor(config?: properties);
-readonly priv: unknown;
-}
-export class _MountOperationHandlerProxyClass  {constructor(config?: properties);
-parent_class: Gio.DBusProxyClass;
-}
-export class _MountOperationHandlerProxyPrivate  {constructor(config?: properties);
-}
-export class _MountOperationHandlerSkeleton  {constructor(config?: properties);
-readonly priv: unknown;
-}
-export class _MountOperationHandlerSkeletonClass  {constructor(config?: properties);
-parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class _MountOperationHandlerSkeletonPrivate  {constructor(config?: properties);
+export class AboutDialog extends Dialog {
+    constructor(config?: properties);
+    artists: string[];
+    authors: string[];
+    comments: string;
+    copyright: string;
+    documenters: string[];
+    license: string;
+    license_type: License;
+    logo: GdkPixbuf.Pixbuf;
+    logo_icon_name: string;
+    program_name: string;
+    translator_credits: string;
+    version: string;
+    website: string;
+    website_label: string;
+    wrap_license: boolean;
+    add_credit_section(section_name: string, people: string[]): void;
+    get_artists(): string[];
+    get_authors(): string[];
+    get_comments(): string;
+    get_copyright(): string;
+    get_documenters(): string[];
+    get_license(): string;
+    get_license_type(): License;
+    get_logo(): GdkPixbuf.Pixbuf;
+    get_logo_icon_name(): string;
+    get_program_name(): string;
+    get_translator_credits(): string;
+    get_version(): string;
+    get_website(): string;
+    get_website_label(): string;
+    get_wrap_license(): boolean;
+    set_artists(artists: string[]): void;
+    set_authors(authors: string[]): void;
+    set_comments(comments: string | null): void;
+    set_copyright(copyright: string | null): void;
+    set_documenters(documenters: string[]): void;
+    set_license(license: string | null): void;
+    set_license_type(license_type: License): void;
+    set_logo(logo: GdkPixbuf.Pixbuf | null): void;
+    set_logo_icon_name(icon_name: string | null): void;
+    set_program_name(name: string): void;
+    set_translator_credits(translator_credits: string | null): void;
+    set_version(version: string | null): void;
+    set_website(website: string | null): void;
+    set_website_label(website_label: string): void;
+    set_wrap_license(wrap_license: boolean): void;
+    vfunc_activate_link(uri: string): boolean;
+}
+export class AccelGroup extends GObject.Object {
+    constructor(config?: properties);
+    readonly is_locked: boolean;
+    readonly modifier_mask: Gdk.ModifierType;
+    activate(accel_quark: GLib.Quark, acceleratable: GObject.Object, accel_key: number, accel_mods: Gdk.ModifierType): boolean;
+    connect(accel_key: number, accel_mods: Gdk.ModifierType, accel_flags: AccelFlags, closure: GObject.Closure): void;
+    connect_by_path(accel_path: string, closure: GObject.Closure): void;
+    disconnect(closure: GObject.Closure | null): boolean;
+    disconnect_key(accel_key: number, accel_mods: Gdk.ModifierType): boolean;
+    find(find_func: AccelGroupFindFunc, data: object | null): AccelKey;
+    get_is_locked(): boolean;
+    get_modifier_mask(): Gdk.ModifierType;
+    lock(): void;
+    query(accel_key: number, accel_mods: Gdk.ModifierType): [AccelGroupEntry[] | null, number | null];
+    unlock(): void;
+    vfunc_accel_changed(keyval: number, modifier: Gdk.ModifierType, accel_closure: GObject.Closure): void;
+    static from_accel_closure(closure: GObject.Closure): AccelGroup | null;
+}
+export class AccelLabel extends Label {
+    constructor(config?: properties);
+    accel_closure: GObject.Closure;
+    accel_widget: Widget;
+    get_accel(): [number,Gdk.ModifierType];
+    get_accel_widget(): Widget | null;
+    get_accel_width(): number;
+    refetch(): boolean;
+    set_accel(accelerator_key: number, accelerator_mods: Gdk.ModifierType): void;
+    set_accel_closure(accel_closure: GObject.Closure | null): void;
+    set_accel_widget(accel_widget: Widget | null): void;
+}
+export class AccelMap  {
+    constructor(config?: properties);
+    static add_entry(accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType): void;
+    static add_filter(filter_pattern: string): void;
+    static change_entry(accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType, replace: boolean): boolean;
+    static foreach(data: object | null, foreach_func: AccelMapForeach): void;
+    static foreach_unfiltered(data: object | null, foreach_func: AccelMapForeach): void;
+    static get(): AccelMap;
+    static load(file_name: string): void;
+    static load_fd(fd: number): void;
+    static load_scanner(scanner: GLib.Scanner): void;
+    static lock_path(accel_path: string): void;
+    static lookup_entry(accel_path: string): [boolean, AccelKey | null];
+    static save(file_name: string): void;
+    static save_fd(fd: number): void;
+    static unlock_path(accel_path: string): void;
+}
+export class Accessible  {
+    constructor(config?: properties);
+    widget: Widget;
+    readonly priv: AccessiblePrivate;
+    connect_widget_destroyed(): void;
+    get_widget(): Widget | null;
+    set_widget(widget: Widget | null): void;
+}
+export class Action extends GObject.Object {
+    constructor(config?: properties);
+    action_group: ActionGroup;
+    always_show_image: boolean;
+    gicon: Gio.Icon;
+    hide_if_empty: boolean;
+    icon_name: string;
+    is_important: boolean;
+    label: string;
+    name: string;
+    sensitive: boolean;
+    short_label: string;
+    stock_id: string;
+    tooltip: string;
+    visible: boolean;
+    visible_horizontal: boolean;
+    visible_overflown: boolean;
+    visible_vertical: boolean;
+    activate(): void;
+    block_activate(): void;
+    connect_accelerator(): void;
+    create_icon(icon_size: number): Widget;
+    create_menu(): Widget;
+    create_menu_item(): Widget;
+    create_tool_item(): Widget;
+    disconnect_accelerator(): void;
+    get_accel_closure(): GObject.Closure;
+    get_accel_path(): string;
+    get_always_show_image(): boolean;
+    get_gicon(): Gio.Icon;
+    get_icon_name(): string;
+    get_is_important(): boolean;
+    get_label(): string;
+    get_name(): string;
+    get_proxies(): string[];
+    get_sensitive(): boolean;
+    get_short_label(): string;
+    get_stock_id(): string;
+    get_tooltip(): string;
+    get_visible(): boolean;
+    get_visible_horizontal(): boolean;
+    get_visible_vertical(): boolean;
+    is_sensitive(): boolean;
+    is_visible(): boolean;
+    set_accel_group(accel_group: AccelGroup | null): void;
+    set_accel_path(accel_path: string): void;
+    set_always_show_image(always_show: boolean): void;
+    set_gicon(icon: Gio.Icon): void;
+    set_icon_name(icon_name: string): void;
+    set_is_important(is_important: boolean): void;
+    set_label(label: string): void;
+    set_sensitive(sensitive: boolean): void;
+    set_short_label(short_label: string): void;
+    set_stock_id(stock_id: string): void;
+    set_tooltip(tooltip: string): void;
+    set_visible(visible: boolean): void;
+    set_visible_horizontal(visible_horizontal: boolean): void;
+    set_visible_vertical(visible_vertical: boolean): void;
+    unblock_activate(): void;
+    vfunc_activate(): void;
+    vfunc_connect_proxy(proxy: Widget): void;
+    vfunc_create_menu(): Widget;
+    vfunc_create_menu_item(): Widget;
+    vfunc_create_tool_item(): Widget;
+    vfunc_disconnect_proxy(proxy: Widget): void;
+}
+export class ActionBar extends Bin {
+    constructor(config?: properties);
+    get_center_widget(): Widget | null;
+    pack_end(child: Widget): void;
+    pack_start(child: Widget): void;
+    set_center_widget(center_widget: Widget | null): void;
+}
+export class ActionGroup extends GObject.Object {
+    constructor(config?: properties);
+    accel_group: AccelGroup;
+    name: string;
+    sensitive: boolean;
+    visible: boolean;
+    add_action(action: Action): void;
+    add_action_with_accel(action: Action, accelerator: string | null): void;
+    get_accel_group(): AccelGroup;
+    get_action(action_name: string): Action;
+    get_name(): string;
+    get_sensitive(): boolean;
+    get_visible(): boolean;
+    list_actions(): GLib.List;
+    remove_action(action: Action): void;
+    set_accel_group(accel_group: AccelGroup | null): void;
+    set_sensitive(sensitive: boolean): void;
+    set_translate_func(func: TranslateFunc, data: object | null, notify: GLib.DestroyNotify): void;
+    set_translation_domain(domain: string | null): void;
+    set_visible(visible: boolean): void;
+    translate_string(string: string): string;
+    vfunc_get_action(action_name: string): Action;
+}
+export class Adjustment extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    lower: number;
+    page_increment: number;
+    page_size: number;
+    step_increment: number;
+    upper: number;
+    value: number;
+    changed(): void;
+    clamp_page(lower: number, upper: number): void;
+    configure(value: number, lower: number, upper: number, step_increment: number, page_increment: number, page_size: number): void;
+    get_lower(): number;
+    get_minimum_increment(): number;
+    get_page_increment(): number;
+    get_page_size(): number;
+    get_step_increment(): number;
+    get_upper(): number;
+    get_value(): number;
+    set_lower(lower: number): void;
+    set_page_increment(page_increment: number): void;
+    set_page_size(page_size: number): void;
+    set_step_increment(step_increment: number): void;
+    set_upper(upper: number): void;
+    set_value(value: number): void;
+    value_changed(): void;
+    vfunc_changed(): void;
+    vfunc_value_changed(): void;
+}
+export class Alignment extends Bin {
+    constructor(config?: properties);
+    bottom_padding: number;
+    left_padding: number;
+    right_padding: number;
+    top_padding: number;
+    xalign: number;
+    xscale: number;
+    yalign: number;
+    yscale: number;
+    get_padding(): [number | null,number | null,number | null,number | null];
+    set(xalign: number, yalign: number, xscale: number, yscale: number): void;
+    set_padding(padding_top: number, padding_bottom: number, padding_left: number, padding_right: number): void;
+}
+export class AppChooserButton extends ComboBox {
+    constructor(config?: properties);
+    heading: string;
+    show_default_item: boolean;
+    show_dialog_item: boolean;
+    append_custom_item(name: string, label: string, icon: Gio.Icon): void;
+    append_separator(): void;
+    get_heading(): string | null;
+    get_show_default_item(): boolean;
+    get_show_dialog_item(): boolean;
+    set_active_custom_item(name: string): void;
+    set_heading(heading: string): void;
+    set_show_default_item(setting: boolean): void;
+    set_show_dialog_item(setting: boolean): void;
+    vfunc_custom_item_activated(item_name: string): void;
+}
+export class AppChooserDialog extends Dialog {
+    constructor(config?: properties);
+    gfile: Gio.File;
+    heading: string;static new_for_content_type(parent: Window | null, flags: DialogFlags, content_type: string): Widget;
+    get_heading(): string | null;
+    get_widget(): Widget;
+    set_heading(heading: string): void;
+}
+export class AppChooserWidget extends Box {
+    constructor(config?: properties);
+    default_text: string;
+    show_default: boolean;
+    show_fallback: boolean;
+    show_other: boolean;
+    show_recommended: boolean;
+    get_default_text(): string;
+    get_show_all(): boolean;
+    get_show_default(): boolean;
+    get_show_fallback(): boolean;
+    get_show_other(): boolean;
+    get_show_recommended(): boolean;
+    set_default_text(text: string): void;
+    set_show_all(setting: boolean): void;
+    set_show_default(setting: boolean): void;
+    set_show_fallback(setting: boolean): void;
+    set_show_other(setting: boolean): void;
+    set_show_recommended(setting: boolean): void;
+    vfunc_application_activated(app_info: Gio.AppInfo): void;
+    vfunc_application_selected(app_info: Gio.AppInfo): void;
+    vfunc_populate_popup(menu: Menu, app_info: Gio.AppInfo): void;
+}
+export class Application extends Gio.Application {
+    constructor(config?: properties);
+    readonly active_window: Window;
+    app_menu: Gio.MenuModel;
+    menubar: Gio.MenuModel;
+    register_session: boolean;
+    readonly screensaver_active: boolean;
+    add_accelerator(accelerator: string, action_name: string, parameter: GLib.Variant | null): void;
+    add_window(window: Window): void;
+    get_accels_for_action(detailed_action_name: string): string[];
+    get_actions_for_accel(accel: string): string[];
+    get_active_window(): Window | null;
+    get_app_menu(): Gio.MenuModel | null;
+    get_menu_by_id(id: string): Gio.Menu;
+    get_menubar(): Gio.MenuModel;
+    get_window_by_id(id: number): Window | null;
+    get_windows(): GLib.List;
+    inhibit(window: Window | null, flags: ApplicationInhibitFlags, reason: string | null): number;
+    is_inhibited(flags: ApplicationInhibitFlags): boolean;
+    list_action_descriptions(): string[];
+    prefers_app_menu(): boolean;
+    remove_accelerator(action_name: string, parameter: GLib.Variant | null): void;
+    remove_window(window: Window): void;
+    set_accels_for_action(detailed_action_name: string, accels: string[]): void;
+    set_app_menu(app_menu: Gio.MenuModel | null): void;
+    set_menubar(menubar: Gio.MenuModel | null): void;
+    uninhibit(cookie: number): void;
+    vfunc_window_added(window: Window): void;
+    vfunc_window_removed(window: Window): void;
+}
+export class ApplicationWindow extends Window {
+    constructor(config?: properties);
+    show_menubar: boolean;
+    get_help_overlay(): ShortcutsWindow | null;
+    get_id(): number;
+    get_show_menubar(): boolean;
+    set_help_overlay(help_overlay: ShortcutsWindow | null): void;
+    set_show_menubar(show_menubar: boolean): void;
+}
+export class Arrow extends Misc {
+    constructor(config?: properties);
+    arrow_type: ArrowType;
+    shadow_type: ShadowType;
+    set(arrow_type: ArrowType, shadow_type: ShadowType): void;
+}
+export class ArrowAccessible  {
+    constructor(config?: properties);
+    readonly priv: ArrowAccessiblePrivate;
+}
+export class AspectFrame extends Frame {
+    constructor(config?: properties);
+    obey_child: boolean;
+    ratio: number;
+    xalign: number;
+    yalign: number;
+    set(xalign: number, yalign: number, ratio: number, obey_child: boolean): void;
+}
+export class Assistant extends Window {
+    constructor(config?: properties);
+    use_header_bar: number;
+    add_action_widget(child: Widget): void;
+    append_page(page: Widget): number;
+    commit(): void;
+    get_current_page(): number;
+    get_n_pages(): number;
+    get_nth_page(page_num: number): Widget | null;
+    get_page_complete(page: Widget): boolean;
+    get_page_has_padding(page: Widget): boolean;
+    get_page_header_image(page: Widget): GdkPixbuf.Pixbuf;
+    get_page_side_image(page: Widget): GdkPixbuf.Pixbuf;
+    get_page_title(page: Widget): string;
+    get_page_type(page: Widget): AssistantPageType;
+    insert_page(page: Widget, position: number): number;
+    next_page(): void;
+    prepend_page(page: Widget): number;
+    previous_page(): void;
+    remove_action_widget(child: Widget): void;
+    remove_page(page_num: number): void;
+    set_current_page(page_num: number): void;
+    set_forward_page_func(page_func: AssistantPageFunc | null, data: object | null, destroy: GLib.DestroyNotify): void;
+    set_page_complete(page: Widget, complete: boolean): void;
+    set_page_has_padding(page: Widget, has_padding: boolean): void;
+    set_page_header_image(page: Widget, pixbuf: GdkPixbuf.Pixbuf | null): void;
+    set_page_side_image(page: Widget, pixbuf: GdkPixbuf.Pixbuf | null): void;
+    set_page_title(page: Widget, title: string): void;
+    set_page_type(page: Widget, type: AssistantPageType): void;
+    update_buttons_state(): void;
+    vfunc_apply(): void;
+    vfunc_cancel(): void;
+    vfunc_close(): void;
+    vfunc_prepare(page: Widget): void;
+}
+export class Bin  {
+    constructor(config?: properties);
+    readonly container: Container;
+    readonly priv: BinPrivate;
+    get_child(): Widget | null;
+}
+export class BooleanCellAccessible  {
+    constructor(config?: properties);
+    readonly priv: BooleanCellAccessiblePrivate;
+}
+export class Box extends Container {
+    constructor(config?: properties);
+    baseline_position: BaselinePosition;
+    homogeneous: boolean;
+    spacing: number;
+    get_baseline_position(): BaselinePosition;
+    get_center_widget(): Widget | null;
+    get_homogeneous(): boolean;
+    get_spacing(): number;
+    pack_end(child: Widget, expand: boolean, fill: boolean, padding: number): void;
+    pack_start(child: Widget, expand: boolean, fill: boolean, padding: number): void;
+    query_child_packing(child: Widget): [boolean,boolean,number,PackType];
+    reorder_child(child: Widget, position: number): void;
+    set_baseline_position(position: BaselinePosition): void;
+    set_center_widget(widget: Widget | null): void;
+    set_child_packing(child: Widget, expand: boolean, fill: boolean, padding: number, pack_type: PackType): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_spacing(spacing: number): void;
+}
+export class Builder extends GObject.Object {
+    constructor(config?: properties);
+    translation_domain: string;static new_from_file(filename: string): Builder;
+    static new_from_resource(resource_path: string): Builder;
+    static new_from_string(string: string, length: number): Builder;
+    add_callback_symbol(callback_name: string, callback_symbol: GObject.Callback): void;
+    add_from_file(filename: string): number;
+    add_from_resource(resource_path: string): number;
+    add_from_string(buffer: string, length: number): number;
+    add_objects_from_file(filename: string, object_ids: string[]): number;
+    add_objects_from_resource(resource_path: string, object_ids: string[]): number;
+    add_objects_from_string(buffer: string, length: number, object_ids: string[]): number;
+    connect_signals(user_data: object | null): void;
+    connect_signals_full(func: BuilderConnectFunc, user_data: object | null): void;
+    expose_object(name: string, object: GObject.Object): void;
+    extend_with_template(widget: Widget, template_type: GType, buffer: string, length: number): number;
+    get_application(): Application | null;
+    get_object(name: string): GObject.Object | null;
+    get_objects(): string[];
+    get_translation_domain(): string;
+    get_type_from_name(type_name: string): GType;
+    set_application(application: Application): void;
+    set_translation_domain(domain: string | null): void;
+    value_from_string(pspec: GObject.ParamSpec, string: string): [boolean, GObject.Value];
+    value_from_string_type(type: GType, string: string): [boolean, GObject.Value];
+    vfunc_get_type_from_name(type_name: string): GType;
+}
+export class Button extends Bin {
+    constructor(config?: properties);
+    always_show_image: boolean;
+    image: Widget;
+    image_position: PositionType;
+    label: string;
+    relief: ReliefStyle;
+    use_stock: boolean;
+    use_underline: boolean;
+    xalign: number;
+    yalign: number;static new_from_icon_name(icon_name: string | null, size: number): Widget;
+    static new_from_stock(stock_id: string): Widget;
+    static new_with_label(label: string): Widget;
+    static new_with_mnemonic(label: string): Widget;
+    clicked(): void;
+    enter(): void;
+    get_alignment(): [number,number];
+    get_always_show_image(): boolean;
+    get_event_window(): Gdk.Window;
+    get_focus_on_click(): boolean;
+    get_image(): Widget | null;
+    get_image_position(): PositionType;
+    get_label(): string;
+    get_relief(): ReliefStyle;
+    get_use_stock(): boolean;
+    get_use_underline(): boolean;
+    leave(): void;
+    pressed(): void;
+    released(): void;
+    set_alignment(xalign: number, yalign: number): void;
+    set_always_show_image(always_show: boolean): void;
+    set_focus_on_click(focus_on_click: boolean): void;
+    set_image(image: Widget | null): void;
+    set_image_position(position: PositionType): void;
+    set_label(label: string): void;
+    set_relief(relief: ReliefStyle): void;
+    set_use_stock(use_stock: boolean): void;
+    set_use_underline(use_underline: boolean): void;
+    vfunc_activate(): void;
+    vfunc_clicked(): void;
+    vfunc_enter(): void;
+    vfunc_leave(): void;
+    vfunc_pressed(): void;
+    vfunc_released(): void;
+}
+export class ButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: ButtonAccessiblePrivate;
+}
+export class ButtonBox extends Box {
+    constructor(config?: properties);
+    layout_style: ButtonBoxStyle;
+    get_child_non_homogeneous(child: Widget): boolean;
+    get_child_secondary(child: Widget): boolean;
+    get_layout(): ButtonBoxStyle;
+    set_child_non_homogeneous(child: Widget, non_homogeneous: boolean): void;
+    set_child_secondary(child: Widget, is_secondary: boolean): void;
+    set_layout(layout_style: ButtonBoxStyle): void;
+}
+export class Calendar extends Widget {
+    constructor(config?: properties);
+    day: number;
+    detail_height_rows: number;
+    detail_width_chars: number;
+    month: number;
+    no_month_change: boolean;
+    show_day_names: boolean;
+    show_details: boolean;
+    show_heading: boolean;
+    show_week_numbers: boolean;
+    year: number;
+    clear_marks(): void;
+    get_date(): [number | null,number | null,number | null];
+    get_day_is_marked(day: number): boolean;
+    get_detail_height_rows(): number;
+    get_detail_width_chars(): number;
+    get_display_options(): CalendarDisplayOptions;
+    mark_day(day: number): void;
+    select_day(day: number): void;
+    select_month(month: number, year: number): void;
+    set_detail_func(func: CalendarDetailFunc, data: object | null, destroy: GLib.DestroyNotify): void;
+    set_detail_height_rows(rows: number): void;
+    set_detail_width_chars(chars: number): void;
+    set_display_options(flags: CalendarDisplayOptions): void;
+    unmark_day(day: number): void;
+    vfunc_day_selected(): void;
+    vfunc_day_selected_double_click(): void;
+    vfunc_month_changed(): void;
+    vfunc_next_month(): void;
+    vfunc_next_year(): void;
+    vfunc_prev_month(): void;
+    vfunc_prev_year(): void;
+}
+export class CellAccessible  {
+    constructor(config?: properties);
+    readonly priv: CellAccessiblePrivate;
+}
+export class CellArea  {
+    constructor(config?: properties);
+    readonly edit_widget: CellEditable;
+    readonly edited_cell: CellRenderer;
+    focus_cell: CellRenderer;
+    readonly priv: CellAreaPrivate;
+    activate(context: CellAreaContext, widget: Widget, cell_area: Gdk.Rectangle, flags: CellRendererState, edit_only: boolean): boolean;
+    activate_cell(widget: Widget, renderer: CellRenderer, event: Gdk.Event, cell_area: Gdk.Rectangle, flags: CellRendererState): boolean;
+    add(renderer: CellRenderer): void;
+    add_focus_sibling(renderer: CellRenderer, sibling: CellRenderer): void;
+    apply_attributes(tree_model: TreeModel, iter: TreeIter, is_expander: boolean, is_expanded: boolean): void;
+    attribute_connect(renderer: CellRenderer, attribute: string, column: number): void;
+    attribute_disconnect(renderer: CellRenderer, attribute: string): void;
+    attribute_get_column(renderer: CellRenderer, attribute: string): number;
+    cell_get_property(renderer: CellRenderer, property_name: string, value: GObject.Value): void;
+    cell_set_property(renderer: CellRenderer, property_name: string, value: GObject.Value): void;
+    copy_context(context: CellAreaContext): CellAreaContext;
+    create_context(): CellAreaContext;
+    event(context: CellAreaContext, widget: Widget, event: Gdk.Event, cell_area: Gdk.Rectangle, flags: CellRendererState): number;
+    focus(direction: DirectionType): boolean;
+    foreach(callback: CellCallback, callback_data: object | null): void;
+    foreach_alloc(context: CellAreaContext, widget: Widget, cell_area: Gdk.Rectangle, background_area: Gdk.Rectangle, callback: CellAllocCallback, callback_data: object | null): void;
+    get_cell_allocation(context: CellAreaContext, widget: Widget, renderer: CellRenderer, cell_area: Gdk.Rectangle): [Gdk.Rectangle];
+    get_cell_at_position(context: CellAreaContext, widget: Widget, cell_area: Gdk.Rectangle, x: number, y: number): [CellRenderer, Gdk.Rectangle | null];
+    get_current_path_string(): string;
+    get_edit_widget(): CellEditable;
+    get_edited_cell(): CellRenderer;
+    get_focus_cell(): CellRenderer;
+    get_focus_from_sibling(renderer: CellRenderer): CellRenderer | null;
+    get_focus_siblings(renderer: CellRenderer): GLib.List;
+    get_preferred_height(context: CellAreaContext, widget: Widget): [number | null,number | null];
+    get_preferred_height_for_width(context: CellAreaContext, widget: Widget, width: number): [number | null,number | null];
+    get_preferred_width(context: CellAreaContext, widget: Widget): [number | null,number | null];
+    get_preferred_width_for_height(context: CellAreaContext, widget: Widget, height: number): [number | null,number | null];
+    get_request_mode(): SizeRequestMode;
+    has_renderer(renderer: CellRenderer): boolean;
+    inner_cell_area(widget: Widget, cell_area: Gdk.Rectangle): [Gdk.Rectangle];
+    is_activatable(): boolean;
+    is_focus_sibling(renderer: CellRenderer, sibling: CellRenderer): boolean;
+    remove(renderer: CellRenderer): void;
+    remove_focus_sibling(renderer: CellRenderer, sibling: CellRenderer): void;
+    render(context: CellAreaContext, widget: Widget, cr: cairo.Context, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState, paint_focus: boolean): void;
+    request_renderer(renderer: CellRenderer, orientation: Orientation, widget: Widget, for_size: number): [number | null,number | null];
+    set_focus_cell(renderer: CellRenderer): void;
+    stop_editing(canceled: boolean): void;
+}
+export class CellAreaBox extends CellArea {
+    constructor(config?: properties);
+    spacing: number;
+    get_spacing(): number;
+    pack_end(renderer: CellRenderer, expand: boolean, align: boolean, fixed: boolean): void;
+    pack_start(renderer: CellRenderer, expand: boolean, align: boolean, fixed: boolean): void;
+    set_spacing(spacing: number): void;
+}
+export class CellAreaContext  {
+    constructor(config?: properties);
+    area: CellArea;
+    readonly minimum_height: number;
+    readonly minimum_width: number;
+    readonly natural_height: number;
+    readonly natural_width: number;
+    readonly priv: CellAreaContextPrivate;
+    allocate(width: number, height: number): void;
+    get_allocation(): [number | null,number | null];
+    get_area(): CellArea;
+    get_preferred_height(): [number | null,number | null];
+    get_preferred_height_for_width(width: number): [number | null,number | null];
+    get_preferred_width(): [number | null,number | null];
+    get_preferred_width_for_height(height: number): [number | null,number | null];
+    push_preferred_height(minimum_height: number, natural_height: number): void;
+    push_preferred_width(minimum_width: number, natural_width: number): void;
+    reset(): void;
+}
+export class CellRenderer  {
+    constructor(config?: properties);
+    cell_background: string;
+    cell_background_gdk: Gdk.Color;
+    cell_background_rgba: Gdk.RGBA;
+    cell_background_set: boolean;
+    readonly editing: boolean;
+    height: number;
+    is_expanded: boolean;
+    is_expander: boolean;
+    mode: CellRendererMode;
+    sensitive: boolean;
+    visible: boolean;
+    width: number;
+    xalign: number;
+    xpad: number;
+    yalign: number;
+    ypad: number;
+    readonly priv: CellRendererPrivate;
+    activate(event: Gdk.Event, widget: Widget, path: string, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState): boolean;
+    get_aligned_area(widget: Widget, flags: CellRendererState, cell_area: Gdk.Rectangle): [Gdk.Rectangle];
+    get_alignment(): [number | null,number | null];
+    get_fixed_size(): [number | null,number | null];
+    get_padding(): [number | null,number | null];
+    get_preferred_height(widget: Widget): [number | null,number | null];
+    get_preferred_height_for_width(widget: Widget, width: number): [number | null,number | null];
+    get_preferred_size(widget: Widget): [Requisition | null,Requisition | null];
+    get_preferred_width(widget: Widget): [number | null,number | null];
+    get_preferred_width_for_height(widget: Widget, height: number): [number | null,number | null];
+    get_request_mode(): SizeRequestMode;
+    get_sensitive(): boolean;
+    get_size(widget: Widget, cell_area: Gdk.Rectangle | null): [number | null,number | null,number | null,number | null];
+    get_state(widget: Widget | null, cell_state: CellRendererState): StateFlags;
+    get_visible(): boolean;
+    is_activatable(): boolean;
+    render(cr: cairo.Context, widget: Widget, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState): void;
+    set_alignment(xalign: number, yalign: number): void;
+    set_fixed_size(width: number, height: number): void;
+    set_padding(xpad: number, ypad: number): void;
+    set_sensitive(sensitive: boolean): void;
+    set_visible(visible: boolean): void;
+    start_editing(event: Gdk.Event | null, widget: Widget, path: string, background_area: Gdk.Rectangle, cell_area: Gdk.Rectangle, flags: CellRendererState): CellEditable | null;
+    stop_editing(canceled: boolean): void;
+}
+export class CellRendererAccel extends CellRendererText {
+    constructor(config?: properties);
+    accel_key: number;
+    accel_mode: CellRendererAccelMode;
+    accel_mods: Gdk.ModifierType;
+    keycode: number;
+    vfunc_accel_cleared(path_string: string): void;
+    vfunc_accel_edited(path_string: string, accel_key: number, accel_mods: Gdk.ModifierType, hardware_keycode: number): void;
+}
+export class CellRendererCombo extends CellRendererText {
+    constructor(config?: properties);
+    has_entry: boolean;
+    model: TreeModel;
+    text_column: number;
+}
+export class CellRendererPixbuf extends CellRenderer {
+    constructor(config?: properties);
+    follow_state: boolean;
+    gicon: Gio.Icon;
+    icon_name: string;
+    pixbuf: GdkPixbuf.Pixbuf;
+    pixbuf_expander_closed: GdkPixbuf.Pixbuf;
+    pixbuf_expander_open: GdkPixbuf.Pixbuf;
+    stock_detail: string;
+    stock_id: string;
+    stock_size: number;
+    surface: cairo.Surface;
+}
+export class CellRendererProgress extends CellRenderer {
+    constructor(config?: properties);
+    inverted: boolean;
+    pulse: number;
+    text: string;
+    text_xalign: number;
+    text_yalign: number;
+    value: number;
+}
+export class CellRendererSpin extends CellRendererText {
+    constructor(config?: properties);
+    adjustment: Adjustment;
+    climb_rate: number;
+    digits: number;
+}
+export class CellRendererSpinner extends CellRenderer {
+    constructor(config?: properties);
+    active: boolean;
+    pulse: number;
+    size: IconSize;
+}
+export class CellRendererText extends CellRenderer {
+    constructor(config?: properties);
+    align_set: boolean;
+    alignment: Pango.Alignment;
+    attributes: Pango.AttrList;
+    background: string;
+    background_gdk: Gdk.Color;
+    background_rgba: Gdk.RGBA;
+    background_set: boolean;
+    editable: boolean;
+    editable_set: boolean;
+    ellipsize: Pango.EllipsizeMode;
+    ellipsize_set: boolean;
+    family: string;
+    family_set: boolean;
+    font: string;
+    font_desc: Pango.FontDescription;
+    foreground: string;
+    foreground_gdk: Gdk.Color;
+    foreground_rgba: Gdk.RGBA;
+    foreground_set: boolean;
+    language: string;
+    language_set: boolean;
+    markup: string;
+    max_width_chars: number;
+    placeholder_text: string;
+    rise: number;
+    rise_set: boolean;
+    scale: number;
+    scale_set: boolean;
+    single_paragraph_mode: boolean;
+    size: number;
+    size_points: number;
+    size_set: boolean;
+    stretch: Pango.Stretch;
+    stretch_set: boolean;
+    strikethrough: boolean;
+    strikethrough_set: boolean;
+    style: Pango.Style;
+    style_set: boolean;
+    text: string;
+    underline: Pango.Underline;
+    underline_set: boolean;
+    variant: Pango.Variant;
+    variant_set: boolean;
+    weight: number;
+    weight_set: boolean;
+    width_chars: number;
+    wrap_mode: Pango.WrapMode;
+    wrap_width: number;
+    set_fixed_height_from_font(number_of_rows: number): void;
+    vfunc_edited(path: string, new_text: string): void;
+}
+export class CellRendererToggle extends CellRenderer {
+    constructor(config?: properties);
+    activatable: boolean;
+    active: boolean;
+    inconsistent: boolean;
+    indicator_size: number;
+    radio: boolean;
+    get_activatable(): boolean;
+    get_active(): boolean;
+    get_radio(): boolean;
+    set_activatable(setting: boolean): void;
+    set_active(setting: boolean): void;
+    set_radio(radio: boolean): void;
+    vfunc_toggled(path: string): void;
+}
+export class CellView extends Widget {
+    constructor(config?: properties);
+    background: string;
+    background_gdk: Gdk.Color;
+    background_rgba: Gdk.RGBA;
+    background_set: boolean;
+    cell_area: CellArea;
+    cell_area_context: CellAreaContext;
+    draw_sensitive: boolean;
+    fit_model: boolean;
+    model: TreeModel;static new_with_context(area: CellArea, context: CellAreaContext): Widget;
+    static new_with_markup(markup: string): Widget;
+    static new_with_pixbuf(pixbuf: GdkPixbuf.Pixbuf): Widget;
+    static new_with_text(text: string): Widget;
+    get_displayed_row(): TreePath | null;
+    get_draw_sensitive(): boolean;
+    get_fit_model(): boolean;
+    get_model(): TreeModel | null;
+    get_size_of_row(path: TreePath): [boolean, Requisition];
+    set_background_color(color: Gdk.Color): void;
+    set_background_rgba(rgba: Gdk.RGBA): void;
+    set_displayed_row(path: TreePath | null): void;
+    set_draw_sensitive(draw_sensitive: boolean): void;
+    set_fit_model(fit_model: boolean): void;
+    set_model(model: TreeModel | null): void;
+}
+export class CheckButton extends ToggleButton {
+    constructor(config?: properties);
+    static new_with_label(label: string): Widget;
+    static new_with_mnemonic(label: string): Widget;
+    vfunc_draw_indicator(cr: cairo.Context): void;
+}
+export class CheckMenuItem extends MenuItem {
+    constructor(config?: properties);
+    active: boolean;
+    draw_as_radio: boolean;
+    inconsistent: boolean;static new_with_label(label: string): Widget;
+    static new_with_mnemonic(label: string): Widget;
+    get_active(): boolean;
+    get_draw_as_radio(): boolean;
+    get_inconsistent(): boolean;
+    set_active(is_active: boolean): void;
+    set_draw_as_radio(draw_as_radio: boolean): void;
+    set_inconsistent(setting: boolean): void;
+    toggled(): void;
+    vfunc_draw_indicator(cr: cairo.Context): void;
+    vfunc_toggled(): void;
+}
+export class CheckMenuItemAccessible  {
+    constructor(config?: properties);
+    readonly priv: CheckMenuItemAccessiblePrivate;
+}
+export class Clipboard  {
+    constructor(config?: properties);
+    clear(): void;
+    get_display(): Gdk.Display;
+    get_owner(): GObject.Object | null;
+    request_contents(target: Gdk.Atom, callback: ClipboardReceivedFunc, user_data: object | null): void;
+    request_image(callback: ClipboardImageReceivedFunc, user_data: object | null): void;
+    request_rich_text(buffer: TextBuffer, callback: ClipboardRichTextReceivedFunc, user_data: object | null): void;
+    request_targets(callback: ClipboardTargetsReceivedFunc, user_data: object | null): void;
+    request_text(callback: ClipboardTextReceivedFunc, user_data: object | null): void;
+    request_uris(callback: ClipboardURIReceivedFunc, user_data: object | null): void;
+    set_can_store(targets: TargetEntry[] | null, n_targets: number): void;
+    set_image(pixbuf: GdkPixbuf.Pixbuf): void;
+    set_text(text: string, len: number): void;
+    store(): void;
+    wait_for_contents(target: Gdk.Atom): SelectionData | null;
+    wait_for_image(): GdkPixbuf.Pixbuf | null;
+    wait_for_rich_text(buffer: TextBuffer): [number[] | null, Gdk.Atom,number];
+    wait_for_targets(): [boolean, Gdk.Atom[],number];
+    wait_for_text(): string | null;
+    wait_for_uris(): string[] | null;
+    wait_is_image_available(): boolean;
+    wait_is_rich_text_available(buffer: TextBuffer): boolean;
+    wait_is_target_available(target: Gdk.Atom): boolean;
+    wait_is_text_available(): boolean;
+    wait_is_uris_available(): boolean;
+    static get(selection: Gdk.Atom): Clipboard;
+    static get_default(display: Gdk.Display): Clipboard;
+    static get_for_display(display: Gdk.Display, selection: Gdk.Atom): Clipboard;
+}
+export class ColorButton extends Button {
+    constructor(config?: properties);
+    alpha: number;
+    color: Gdk.Color;
+    rgba: Gdk.RGBA;
+    show_editor: boolean;
+    title: string;
+    use_alpha: boolean;static new_with_color(color: Gdk.Color): Widget;
+    static new_with_rgba(rgba: Gdk.RGBA): Widget;
+    get_alpha(): number;
+    get_color(): [Gdk.Color];
+    get_title(): string;
+    get_use_alpha(): boolean;
+    set_alpha(alpha: number): void;
+    set_color(color: Gdk.Color): void;
+    set_title(title: string): void;
+    set_use_alpha(use_alpha: boolean): void;
+    vfunc_color_set(): void;
+}
+export class ColorChooserDialog extends Dialog {
+    constructor(config?: properties);
+    show_editor: boolean;
+}
+export class ColorChooserWidget extends Box {
+    constructor(config?: properties);
+    show_editor: boolean;
+}
+export class ColorSelection extends Box {
+    constructor(config?: properties);
+    current_alpha: number;
+    current_color: Gdk.Color;
+    current_rgba: Gdk.RGBA;
+    has_opacity_control: boolean;
+    has_palette: boolean;
+    get_current_alpha(): number;
+    get_current_color(): [Gdk.Color];
+    get_current_rgba(): [Gdk.RGBA];
+    get_has_opacity_control(): boolean;
+    get_has_palette(): boolean;
+    get_previous_alpha(): number;
+    get_previous_color(): [Gdk.Color];
+    get_previous_rgba(): [Gdk.RGBA];
+    is_adjusting(): boolean;
+    set_current_alpha(alpha: number): void;
+    set_current_color(color: Gdk.Color): void;
+    set_current_rgba(rgba: Gdk.RGBA): void;
+    set_has_opacity_control(has_opacity: boolean): void;
+    set_has_palette(has_palette: boolean): void;
+    set_previous_alpha(alpha: number): void;
+    set_previous_color(color: Gdk.Color): void;
+    set_previous_rgba(rgba: Gdk.RGBA): void;
+    vfunc_color_changed(): void;
+    static palette_from_string(str: string): [boolean, Gdk.Color[],number];
+    static palette_to_string(colors: Gdk.Color[], n_colors: number): string;
+}
+export class ColorSelectionDialog extends Dialog {
+    constructor(config?: properties);
+    readonly cancel_button: Widget;
+    readonly color_selection: Widget;
+    readonly help_button: Widget;
+    readonly ok_button: Widget;
+    get_color_selection(): Widget;
+}
+export class ComboBox extends Bin {
+    constructor(config?: properties);
+    active: number;
+    active_id: string;
+    add_tearoffs: boolean;
+    button_sensitivity: SensitivityType;
+    cell_area: CellArea;
+    column_span_column: number;
+    entry_text_column: number;
+    has_entry: boolean;
+    has_frame: boolean;
+    id_column: number;
+    model: TreeModel;
+    popup_fixed_width: boolean;
+    readonly popup_shown: boolean;
+    row_span_column: number;
+    tearoff_title: string;
+    wrap_width: number;static new_with_area(area: CellArea): Widget;
+    static new_with_area_and_entry(area: CellArea): Widget;
+    static new_with_entry(): Widget;
+    static new_with_model(model: TreeModel): Widget;
+    static new_with_model_and_entry(model: TreeModel): Widget;
+    get_active(): number;
+    get_active_id(): string | null;
+    get_active_iter(): [boolean, TreeIter];
+    get_add_tearoffs(): boolean;
+    get_button_sensitivity(): SensitivityType;
+    get_column_span_column(): number;
+    get_entry_text_column(): number;
+    get_focus_on_click(): boolean;
+    get_has_entry(): boolean;
+    get_id_column(): number;
+    get_model(): TreeModel;
+    get_popup_accessible(): Atk.Object;
+    get_popup_fixed_width(): boolean;
+    get_row_span_column(): number;
+    get_title(): string;
+    get_wrap_width(): number;
+    popdown(): void;
+    popup(): void;
+    popup_for_device(device: Gdk.Device): void;
+    set_active(index_: number): void;
+    set_active_id(active_id: string | null): boolean;
+    set_active_iter(iter: TreeIter | null): void;
+    set_add_tearoffs(add_tearoffs: boolean): void;
+    set_button_sensitivity(sensitivity: SensitivityType): void;
+    set_column_span_column(column_span: number): void;
+    set_entry_text_column(text_column: number): void;
+    set_focus_on_click(focus_on_click: boolean): void;
+    set_id_column(id_column: number): void;
+    set_model(model: TreeModel | null): void;
+    set_popup_fixed_width(fixed: boolean): void;
+    set_row_separator_func(func: TreeViewRowSeparatorFunc, data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_row_span_column(row_span: number): void;
+    set_title(title: string): void;
+    set_wrap_width(width: number): void;
+    vfunc_changed(): void;
+    vfunc_format_entry_text(path: string): string;
+}
+export class ComboBoxAccessible  {
+    constructor(config?: properties);
+    readonly priv: ComboBoxAccessiblePrivate;
+}
+export class ComboBoxText extends ComboBox {
+    constructor(config?: properties);
+    static new_with_entry(): Widget;
+    append(id: string | null, text: string): void;
+    append_text(text: string): void;
+    get_active_text(): string;
+    insert(position: number, id: string | null, text: string): void;
+    insert_text(position: number, text: string): void;
+    prepend(id: string | null, text: string): void;
+    prepend_text(text: string): void;
+    remove(position: number): void;
+    remove_all(): void;
+}
+export class Container  {
+    constructor(config?: properties);
+    border_width: number;
+    child: Widget;
+    resize_mode: ResizeMode;
+    readonly widget: Widget;
+    readonly priv: ContainerPrivate;
+    add(widget: Widget): void;
+    check_resize(): void;
+    child_get_property(child: Widget, property_name: string, value: GObject.Value): void;
+    child_notify(child: Widget, child_property: string): void;
+    child_notify_by_pspec(child: Widget, pspec: GObject.ParamSpec): void;
+    child_set_property(child: Widget, property_name: string, value: GObject.Value): void;
+    child_type(): GType;
+    forall(callback: Callback, callback_data: object | null): void;
+    foreach(callback: Callback, callback_data: object | null): void;
+    get_border_width(): number;
+    get_children(): GLib.List;
+    get_focus_chain(): [boolean, GLib.List];
+    get_focus_child(): Widget | null;
+    get_focus_hadjustment(): Adjustment | null;
+    get_focus_vadjustment(): Adjustment | null;
+    get_path_for_child(child: Widget): WidgetPath;
+    get_resize_mode(): ResizeMode;
+    propagate_draw(child: Widget, cr: cairo.Context): void;
+    remove(widget: Widget): void;
+    resize_children(): void;
+    set_border_width(border_width: number): void;
+    set_focus_chain(focusable_widgets: GLib.List): void;
+    set_focus_child(child: Widget | null): void;
+    set_focus_hadjustment(adjustment: Adjustment): void;
+    set_focus_vadjustment(adjustment: Adjustment): void;
+    set_reallocate_redraws(needs_redraws: boolean): void;
+    set_resize_mode(resize_mode: ResizeMode): void;
+    unset_focus_chain(): void;
+}
+export class ContainerAccessible  {
+    constructor(config?: properties);
+    readonly priv: ContainerAccessiblePrivate;
+}
+export class ContainerCellAccessible extends CellAccessible {
+    constructor(config?: properties);
+    add_child(child: CellAccessible): void;
+    get_children(): GLib.List;
+    remove_child(child: CellAccessible): void;
+}
+export class CssProvider extends GObject.Object {
+    constructor(config?: properties);
+    load_from_data(data: number[], length: number): boolean;
+    load_from_file(file: Gio.File): boolean;
+    load_from_path(path: string): boolean;
+    load_from_resource(resource_path: string): void;
+    to_string(): string;
+    vfunc_parsing_error(section: CssSection, error: GLib.Error): void;
+    static get_default(): CssProvider;
+    static get_named(name: string, variant: string | null): CssProvider;
+}
+export class Dialog extends Window {
+    constructor(config?: properties);
+    use_header_bar: number;static new_with_buttons(title: string | null, parent: Window | null, flags: DialogFlags, first_button_text: string | null, ___: any): Widget;
+    add_action_widget(child: Widget, response_id: number): void;
+    add_button(button_text: string, response_id: number): Widget;
+    get_action_area(): Widget;
+    get_content_area(): Box;
+    get_header_bar(): Widget;
+    get_response_for_widget(widget: Widget): number;
+    get_widget_for_response(response_id: number): Widget | null;
+    response(response_id: number): void;
+    run(): number;
+    set_alternative_button_order_from_array(n_params: number, new_order: number[]): void;
+    set_default_response(response_id: number): void;
+    set_response_sensitive(response_id: number, setting: boolean): void;
+    vfunc_close(): void;
+    vfunc_response(response_id: number): void;
+}
+export class DrawingArea extends Widget {
+    constructor(config?: properties);
+}
+export class Entry extends Widget {
+    constructor(config?: properties);
+    activates_default: boolean;
+    attributes: Pango.AttrList;
+    buffer: EntryBuffer;
+    caps_lock_warning: boolean;
+    completion: EntryCompletion;
+    readonly cursor_position: number;
+    editable: boolean;
+    enable_emoji_completion: boolean;
+    has_frame: boolean;
+    im_module: string;
+    inner_border: Border;
+    input_hints: InputHints;
+    input_purpose: InputPurpose;
+    invisible_char: number;
+    invisible_char_set: boolean;
+    max_length: number;
+    max_width_chars: number;
+    overwrite_mode: boolean;
+    placeholder_text: string;
+    populate_all: boolean;
+    primary_icon_activatable: boolean;
+    primary_icon_gicon: Gio.Icon;
+    primary_icon_name: string;
+    primary_icon_pixbuf: GdkPixbuf.Pixbuf;
+    primary_icon_sensitive: boolean;
+    primary_icon_stock: string;
+    readonly primary_icon_storage_type: ImageType;
+    primary_icon_tooltip_markup: string;
+    primary_icon_tooltip_text: string;
+    progress_fraction: number;
+    progress_pulse_step: number;
+    readonly scroll_offset: number;
+    secondary_icon_activatable: boolean;
+    secondary_icon_gicon: Gio.Icon;
+    secondary_icon_name: string;
+    secondary_icon_pixbuf: GdkPixbuf.Pixbuf;
+    secondary_icon_sensitive: boolean;
+    secondary_icon_stock: string;
+    readonly secondary_icon_storage_type: ImageType;
+    secondary_icon_tooltip_markup: string;
+    secondary_icon_tooltip_text: string;
+    readonly selection_bound: number;
+    shadow_type: ShadowType;
+    show_emoji_icon: boolean;
+    tabs: Pango.TabArray;
+    text: string;
+    readonly text_length: number;
+    truncate_multiline: boolean;
+    visibility: boolean;
+    width_chars: number;
+    xalign: number;static new_with_buffer(buffer: EntryBuffer): Widget;
+    get_activates_default(): boolean;
+    get_alignment(): number;
+    get_attributes(): Pango.AttrList | null;
+    get_buffer(): EntryBuffer;
+    get_completion(): EntryCompletion;
+    get_current_icon_drag_source(): number;
+    get_cursor_hadjustment(): Adjustment | null;
+    get_has_frame(): boolean;
+    get_icon_activatable(icon_pos: EntryIconPosition): boolean;
+    get_icon_area(icon_pos: EntryIconPosition): [Gdk.Rectangle];
+    get_icon_at_pos(x: number, y: number): number;
+    get_icon_gicon(icon_pos: EntryIconPosition): Gio.Icon | null;
+    get_icon_name(icon_pos: EntryIconPosition): string | null;
+    get_icon_pixbuf(icon_pos: EntryIconPosition): GdkPixbuf.Pixbuf | null;
+    get_icon_sensitive(icon_pos: EntryIconPosition): boolean;
+    get_icon_stock(icon_pos: EntryIconPosition): string;
+    get_icon_storage_type(icon_pos: EntryIconPosition): ImageType;
+    get_icon_tooltip_markup(icon_pos: EntryIconPosition): string | null;
+    get_icon_tooltip_text(icon_pos: EntryIconPosition): string | null;
+    get_inner_border(): Border | null;
+    get_input_hints(): InputHints;
+    get_input_purpose(): InputPurpose;
+    get_invisible_char(): number;
+    get_layout(): Pango.Layout;
+    get_layout_offsets(): [number | null,number | null];
+    get_max_length(): number;
+    get_max_width_chars(): number;
+    get_overwrite_mode(): boolean;
+    get_placeholder_text(): string;
+    get_progress_fraction(): number;
+    get_progress_pulse_step(): number;
+    get_tabs(): Pango.TabArray | null;
+    get_text(): string;
+    get_text_area(): [Gdk.Rectangle];
+    get_text_length(): number;
+    get_visibility(): boolean;
+    get_width_chars(): number;
+    grab_focus_without_selecting(): void;
+    im_context_filter_keypress(event: Gdk.EventKey): boolean;
+    layout_index_to_text_index(layout_index: number): number;
+    progress_pulse(): void;
+    reset_im_context(): void;
+    set_activates_default(setting: boolean): void;
+    set_alignment(xalign: number): void;
+    set_attributes(attrs: Pango.AttrList): void;
+    set_buffer(buffer: EntryBuffer): void;
+    set_completion(completion: EntryCompletion | null): void;
+    set_cursor_hadjustment(adjustment: Adjustment | null): void;
+    set_has_frame(setting: boolean): void;
+    set_icon_activatable(icon_pos: EntryIconPosition, activatable: boolean): void;
+    set_icon_drag_source(icon_pos: EntryIconPosition, target_list: TargetList, actions: Gdk.DragAction): void;
+    set_icon_from_gicon(icon_pos: EntryIconPosition, icon: Gio.Icon | null): void;
+    set_icon_from_icon_name(icon_pos: EntryIconPosition, icon_name: string | null): void;
+    set_icon_from_pixbuf(icon_pos: EntryIconPosition, pixbuf: GdkPixbuf.Pixbuf | null): void;
+    set_icon_from_stock(icon_pos: EntryIconPosition, stock_id: string | null): void;
+    set_icon_sensitive(icon_pos: EntryIconPosition, sensitive: boolean): void;
+    set_icon_tooltip_markup(icon_pos: EntryIconPosition, tooltip: string | null): void;
+    set_icon_tooltip_text(icon_pos: EntryIconPosition, tooltip: string | null): void;
+    set_inner_border(border: Border | null): void;
+    set_input_hints(hints: InputHints): void;
+    set_input_purpose(purpose: InputPurpose): void;
+    set_invisible_char(ch: number): void;
+    set_max_length(max: number): void;
+    set_max_width_chars(n_chars: number): void;
+    set_overwrite_mode(overwrite: boolean): void;
+    set_placeholder_text(text: string | null): void;
+    set_progress_fraction(fraction: number): void;
+    set_progress_pulse_step(fraction: number): void;
+    set_tabs(tabs: Pango.TabArray): void;
+    set_text(text: string): void;
+    set_visibility(visible: boolean): void;
+    set_width_chars(n_chars: number): void;
+    text_index_to_layout_index(text_index: number): number;
+    unset_invisible_char(): void;
+    vfunc_activate(): void;
+    activate(...args: never[]): never;
+    vfunc_backspace(): void;
+    vfunc_copy_clipboard(): void;
+    vfunc_cut_clipboard(): void;
+    vfunc_delete_from_cursor(type: DeleteType, count: number): void;
+    vfunc_get_frame_size(x: number, y: number, width: number, height: number): void;
+    vfunc_get_text_area_size(x: number, y: number, width: number, height: number): void;
+    vfunc_insert_at_cursor(str: string): void;
+    vfunc_insert_emoji(): void;
+    vfunc_move_cursor(step: MovementStep, count: number, extend_selection: boolean): void;
+    vfunc_paste_clipboard(): void;
+    vfunc_populate_popup(popup: Widget): void;
+    vfunc_toggle_overwrite(): void;
+}
+export class EntryAccessible  {
+    constructor(config?: properties);
+    readonly priv: EntryAccessiblePrivate;
+}
+export class EntryBuffer extends GObject.Object {
+    constructor(config?: properties);
+    readonly length: number;
+    max_length: number;
+    text: string;
+    delete_text(position: number, n_chars: number): number;
+    emit_deleted_text(position: number, n_chars: number): void;
+    emit_inserted_text(position: number, chars: string, n_chars: number): void;
+    get_bytes(): number;
+    get_length(): number;
+    get_max_length(): number;
+    get_text(): string;
+    insert_text(position: number, chars: string, n_chars: number): number;
+    set_max_length(max_length: number): void;
+    set_text(chars: string, n_chars: number): void;
+    vfunc_delete_text(position: number, n_chars: number): number;
+    vfunc_deleted_text(position: number, n_chars: number): void;
+    vfunc_get_length(): number;
+    vfunc_get_text(n_bytes: number): string;
+    vfunc_insert_text(position: number, chars: string, n_chars: number): number;
+    vfunc_inserted_text(position: number, chars: string, n_chars: number): void;
+}
+export class EntryCompletion extends GObject.Object {
+    constructor(config?: properties);
+    cell_area: CellArea;
+    inline_completion: boolean;
+    inline_selection: boolean;
+    minimum_key_length: number;
+    model: TreeModel;
+    popup_completion: boolean;
+    popup_set_width: boolean;
+    popup_single_match: boolean;
+    text_column: number;static new_with_area(area: CellArea): EntryCompletion;
+    complete(): void;
+    compute_prefix(key: string): string | null;
+    delete_action(index_: number): void;
+    get_completion_prefix(): string;
+    get_entry(): Widget;
+    get_inline_completion(): boolean;
+    get_inline_selection(): boolean;
+    get_minimum_key_length(): number;
+    get_model(): TreeModel | null;
+    get_popup_completion(): boolean;
+    get_popup_set_width(): boolean;
+    get_popup_single_match(): boolean;
+    get_text_column(): number;
+    insert_action_markup(index_: number, markup: string): void;
+    insert_action_text(index_: number, text: string): void;
+    insert_prefix(): void;
+    set_inline_completion(inline_completion: boolean): void;
+    set_inline_selection(inline_selection: boolean): void;
+    set_match_func(func: EntryCompletionMatchFunc, func_data: object | null, func_notify: GLib.DestroyNotify): void;
+    set_minimum_key_length(length: number): void;
+    set_model(model: TreeModel | null): void;
+    set_popup_completion(popup_completion: boolean): void;
+    set_popup_set_width(popup_set_width: boolean): void;
+    set_popup_single_match(popup_single_match: boolean): void;
+    set_text_column(column: number): void;
+    vfunc_action_activated(index_: number): void;
+    vfunc_cursor_on_match(model: TreeModel, iter: TreeIter): boolean;
+    vfunc_insert_prefix(prefix: string): boolean;
+    vfunc_match_selected(model: TreeModel, iter: TreeIter): boolean;
+    vfunc_no_matches(): void;
+}
+export class EntryIconAccessible  {
+    constructor(config?: properties);
+}
+export class EventBox extends Bin {
+    constructor(config?: properties);
+    above_child: boolean;
+    visible_window: boolean;
+    get_above_child(): boolean;
+    get_visible_window(): boolean;
+    set_above_child(above_child: boolean): void;
+    set_visible_window(visible_window: boolean): void;
+}
+export class EventController  {
+    constructor(config?: properties);
+    propagation_phase: PropagationPhase;
+    widget: Widget;
+    get_propagation_phase(): PropagationPhase;
+    get_widget(): Widget;
+    handle_event(event: Gdk.Event): boolean;
+    reset(): void;
+    set_propagation_phase(phase: PropagationPhase): void;
+}
+export class EventControllerKey extends EventController {
+    constructor(config?: properties);
+    forward(widget: Widget): boolean;
+    get_group(): number;
+    get_im_context(): IMContext;
+    set_im_context(im_context: IMContext): void;
+}
+export class EventControllerMotion extends EventController {
+    constructor(config?: properties);
+}
+export class EventControllerScroll extends EventController {
+    constructor(config?: properties);
+    flags: EventControllerScrollFlags;
+    get_flags(): EventControllerScrollFlags;
+    set_flags(flags: EventControllerScrollFlags): void;
+}
+export class Expander extends Bin {
+    constructor(config?: properties);
+    expanded: boolean;
+    label: string;
+    label_fill: boolean;
+    label_widget: Widget;
+    resize_toplevel: boolean;
+    spacing: number;
+    use_markup: boolean;
+    use_underline: boolean;static new_with_mnemonic(label: string | null): Widget;
+    get_expanded(): boolean;
+    get_label(): string | null;
+    get_label_fill(): boolean;
+    get_label_widget(): Widget | null;
+    get_resize_toplevel(): boolean;
+    get_spacing(): number;
+    get_use_markup(): boolean;
+    get_use_underline(): boolean;
+    set_expanded(expanded: boolean): void;
+    set_label(label: string | null): void;
+    set_label_fill(label_fill: boolean): void;
+    set_label_widget(label_widget: Widget | null): void;
+    set_resize_toplevel(resize_toplevel: boolean): void;
+    set_spacing(spacing: number): void;
+    set_use_markup(use_markup: boolean): void;
+    set_use_underline(use_underline: boolean): void;
+    vfunc_activate(): void;
+}
+export class ExpanderAccessible  {
+    constructor(config?: properties);
+    readonly priv: ExpanderAccessiblePrivate;
+}
+export class FileChooserButton extends Box {
+    constructor(config?: properties);
+    dialog: FileChooser;
+    title: string;
+    width_chars: number;static new_with_dialog(dialog: Dialog): Widget;
+    get_focus_on_click(): boolean;
+    get_title(): string;
+    get_width_chars(): number;
+    set_focus_on_click(focus_on_click: boolean): void;
+    set_title(title: string): void;
+    set_width_chars(n_chars: number): void;
+    vfunc_file_set(): void;
+}
+export class FileChooserDialog extends Dialog {
+    constructor(config?: properties);
+}
+export class FileChooserNative extends NativeDialog {
+    constructor(config?: properties);
+    accept_label: string;
+    cancel_label: string;
+    get_accept_label(): string | null;
+    get_cancel_label(): string | null;
+    set_accept_label(accept_label: string | null): void;
+    set_cancel_label(cancel_label: string | null): void;
+}
+export class FileChooserWidget extends Box {
+    constructor(config?: properties);
+    search_mode: boolean;
+    readonly subtitle: string;
+}
+export class FileFilter extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    static new_from_gvariant(variant: GLib.Variant): FileFilter;
+    add_custom(needed: FileFilterFlags, func: FileFilterFunc, data: object | null, notify: GLib.DestroyNotify): void;
+    add_mime_type(mime_type: string): void;
+    add_pattern(pattern: string): void;
+    add_pixbuf_formats(): void;
+    filter(filter_info: FileFilterInfo): boolean;
+    get_name(): string | null;
+    get_needed(): FileFilterFlags;
+    set_name(name: string | null): void;
+    to_gvariant(): GLib.Variant;
+}
+export class Fixed extends Container {
+    constructor(config?: properties);
+    move(widget: Widget, x: number, y: number): void;
+    put(widget: Widget, x: number, y: number): void;
+}
+export class FlowBox extends Container {
+    constructor(config?: properties);
+    activate_on_single_click: boolean;
+    column_spacing: number;
+    homogeneous: boolean;
+    max_children_per_line: number;
+    min_children_per_line: number;
+    row_spacing: number;
+    selection_mode: SelectionMode;
+    bind_model(model: Gio.ListModel | null, create_widget_func: FlowBoxCreateWidgetFunc, user_data: object | null, user_data_free_func: GLib.DestroyNotify): void;
+    get_activate_on_single_click(): boolean;
+    get_child_at_index(idx: number): FlowBoxChild | null;
+    get_child_at_pos(x: number, y: number): FlowBoxChild | null;
+    get_column_spacing(): number;
+    get_homogeneous(): boolean;
+    get_max_children_per_line(): number;
+    get_min_children_per_line(): number;
+    get_row_spacing(): number;
+    get_selected_children(): GLib.List;
+    get_selection_mode(): SelectionMode;
+    insert(widget: Widget, position: number): void;
+    invalidate_filter(): void;
+    invalidate_sort(): void;
+    select_all(): void;
+    select_child(child: FlowBoxChild): void;
+    selected_foreach(func: FlowBoxForeachFunc, data: object | null): void;
+    set_activate_on_single_click(single: boolean): void;
+    set_column_spacing(spacing: number): void;
+    set_filter_func(filter_func: FlowBoxFilterFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
+    set_hadjustment(adjustment: Adjustment): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_max_children_per_line(n_children: number): void;
+    set_min_children_per_line(n_children: number): void;
+    set_row_spacing(spacing: number): void;
+    set_selection_mode(mode: SelectionMode): void;
+    set_sort_func(sort_func: FlowBoxSortFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
+    set_vadjustment(adjustment: Adjustment): void;
+    unselect_all(): void;
+    unselect_child(child: FlowBoxChild): void;
+    vfunc_activate_cursor_child(): void;
+    vfunc_child_activated(child: FlowBoxChild): void;
+    vfunc_move_cursor(step: MovementStep, count: number): boolean;
+    vfunc_select_all(): void;
+    vfunc_selected_children_changed(): void;
+    vfunc_toggle_cursor_child(): void;
+    vfunc_unselect_all(): void;
+}
+export class FlowBoxAccessible  {
+    constructor(config?: properties);
+    readonly priv: FlowBoxAccessiblePrivate;
+}
+export class FlowBoxChild extends Bin {
+    constructor(config?: properties);
+    changed(): void;
+    get_index(): number;
+    is_selected(): boolean;
+    vfunc_activate(): void;
+}
+export class FlowBoxChildAccessible  {
+    constructor(config?: properties);
+}
+export class FontButton extends Button {
+    constructor(config?: properties);
+    font_name: string;
+    show_size: boolean;
+    show_style: boolean;
+    title: string;
+    use_font: boolean;
+    use_size: boolean;static new_with_font(fontname: string): Widget;
+    get_font_name(): string;
+    get_show_size(): boolean;
+    get_show_style(): boolean;
+    get_title(): string;
+    get_use_font(): boolean;
+    get_use_size(): boolean;
+    set_font_name(fontname: string): boolean;
+    set_show_size(show_size: boolean): void;
+    set_show_style(show_style: boolean): void;
+    set_title(title: string): void;
+    set_use_font(use_font: boolean): void;
+    set_use_size(use_size: boolean): void;
+    vfunc_font_set(): void;
+}
+export class FontChooserDialog extends Dialog {
+    constructor(config?: properties);
+}
+export class FontChooserWidget extends Box {
+    constructor(config?: properties);
+    readonly tweak_action: Gio.Action;
+}
+export class FontSelection extends Box {
+    constructor(config?: properties);
+    font_name: string;
+    preview_text: string;
+    get_face(): Pango.FontFace;
+    get_face_list(): Widget;
+    get_family(): Pango.FontFamily;
+    get_family_list(): Widget;
+    get_font_name(): string;
+    get_preview_entry(): Widget;
+    get_preview_text(): string;
+    get_size(): number;
+    get_size_entry(): Widget;
+    get_size_list(): Widget;
+    set_font_name(fontname: string): boolean;
+    set_preview_text(text: string): void;
+}
+export class FontSelectionDialog extends Dialog {
+    constructor(config?: properties);
+    get_cancel_button(): Widget;
+    get_font_name(): string;
+    get_font_selection(): Widget;
+    get_ok_button(): Widget;
+    get_preview_text(): string;
+    set_font_name(fontname: string): boolean;
+    set_preview_text(text: string): void;
+}
+export class Frame extends Bin {
+    constructor(config?: properties);
+    label: string;
+    label_widget: Widget;
+    label_xalign: number;
+    label_yalign: number;
+    shadow_type: ShadowType;
+    get_label(): string | null;
+    get_label_align(): [number | null,number | null];
+    get_label_widget(): Widget | null;
+    get_shadow_type(): ShadowType;
+    set_label(label: string | null): void;
+    set_label_align(xalign: number, yalign: number): void;
+    set_label_widget(label_widget: Widget | null): void;
+    set_shadow_type(type: ShadowType): void;
+    vfunc_compute_child_allocation(allocation: Allocation): void;
+}
+export class FrameAccessible  {
+    constructor(config?: properties);
+    readonly priv: FrameAccessiblePrivate;
+}
+export class GLArea extends Widget {
+    constructor(config?: properties);
+    auto_render: boolean;
+    readonly context: Gdk.GLContext;
+    has_alpha: boolean;
+    has_depth_buffer: boolean;
+    has_stencil_buffer: boolean;
+    use_es: boolean;
+    attach_buffers(): void;
+    get_auto_render(): boolean;
+    get_context(): Gdk.GLContext;
+    get_error(): GLib.Error | null;
+    get_has_alpha(): boolean;
+    get_has_depth_buffer(): boolean;
+    get_has_stencil_buffer(): boolean;
+    get_required_version(): [number,number];
+    get_use_es(): boolean;
+    make_current(): void;
+    queue_render(): void;
+    set_auto_render(auto_render: boolean): void;
+    set_error(error: GLib.Error | null): void;
+    set_has_alpha(has_alpha: boolean): void;
+    set_has_depth_buffer(has_depth_buffer: boolean): void;
+    set_has_stencil_buffer(has_stencil_buffer: boolean): void;
+    set_required_version(major: number, minor: number): void;
+    set_use_es(use_es: boolean): void;
+    vfunc_render(context: Gdk.GLContext): boolean;
+    vfunc_resize(width: number, height: number): void;
+}
+export class Gesture  {
+    constructor(config?: properties);
+    n_points: number;
+    window: Gdk.Window;
+    get_bounding_box(): [boolean, Gdk.Rectangle];
+    get_bounding_box_center(): [boolean, number,number];
+    get_device(): Gdk.Device | null;
+    get_group(): GLib.List;
+    get_last_event(sequence: Gdk.EventSequence | null): Gdk.Event | null;
+    get_last_updated_sequence(): Gdk.EventSequence | null;
+    get_point(sequence: Gdk.EventSequence | null): [boolean, number | null,number | null];
+    get_sequence_state(sequence: Gdk.EventSequence): EventSequenceState;
+    get_sequences(): GLib.List;
+    get_window(): Gdk.Window | null;
+    group(gesture: Gesture): void;
+    handles_sequence(sequence: Gdk.EventSequence | null): boolean;
+    is_active(): boolean;
+    is_grouped_with(other: Gesture): boolean;
+    is_recognized(): boolean;
+    set_sequence_state(sequence: Gdk.EventSequence, state: EventSequenceState): boolean;
+    set_state(state: EventSequenceState): boolean;
+    set_window(window: Gdk.Window | null): void;
+    ungroup(): void;
+}
+export class GestureDrag extends GestureSingle {
+    constructor(config?: properties);
+    get_offset(): [boolean, number | null,number | null];
+    get_start_point(): [boolean, number | null,number | null];
+}
+export class GestureLongPress extends GestureSingle {
+    constructor(config?: properties);
+    delay_factor: number;
+}
+export class GestureMultiPress extends GestureSingle {
+    constructor(config?: properties);
+    get_area(): [boolean, Gdk.Rectangle];
+    set_area(rect: Gdk.Rectangle | null): void;
+}
+export class GesturePan extends GestureDrag {
+    constructor(config?: properties);
+    orientation: Orientation;
+    get_orientation(): Orientation;
+    set_orientation(orientation: Orientation): void;
+}
+export class GestureRotate extends Gesture {
+    constructor(config?: properties);
+    get_angle_delta(): number;
+}
+export class GestureSingle  {
+    constructor(config?: properties);
+    button: number;
+    exclusive: boolean;
+    touch_only: boolean;
+    get_button(): number;
+    get_current_button(): number;
+    get_current_sequence(): Gdk.EventSequence | null;
+    get_exclusive(): boolean;
+    get_touch_only(): boolean;
+    set_button(button: number): void;
+    set_exclusive(exclusive: boolean): void;
+    set_touch_only(touch_only: boolean): void;
+}
+export class GestureStylus extends GestureSingle {
+    constructor(config?: properties);
+    get_axes(axes: Gdk.AxisUse[]): [boolean, number[]];
+    get_axis(axis: Gdk.AxisUse): [boolean, number];
+    get_device_tool(): Gdk.DeviceTool | null;
+}
+export class GestureSwipe extends GestureSingle {
+    constructor(config?: properties);
+    get_velocity(): [boolean, number,number];
+}
+export class GestureZoom extends Gesture {
+    constructor(config?: properties);
+    get_scale_delta(): number;
+}
+export class Grid extends Container {
+    constructor(config?: properties);
+    baseline_row: number;
+    column_homogeneous: boolean;
+    column_spacing: number;
+    row_homogeneous: boolean;
+    row_spacing: number;
+    attach(child: Widget, left: number, top: number, width: number, height: number): void;
+    attach_next_to(child: Widget, sibling: Widget | null, side: PositionType, width: number, height: number): void;
+    get_baseline_row(): number;
+    get_child_at(left: number, top: number): Widget | null;
+    get_column_homogeneous(): boolean;
+    get_column_spacing(): number;
+    get_row_baseline_position(row: number): BaselinePosition;
+    get_row_homogeneous(): boolean;
+    get_row_spacing(): number;
+    insert_column(position: number): void;
+    insert_next_to(sibling: Widget, side: PositionType): void;
+    insert_row(position: number): void;
+    remove_column(position: number): void;
+    remove_row(position: number): void;
+    set_baseline_row(row: number): void;
+    set_column_homogeneous(homogeneous: boolean): void;
+    set_column_spacing(spacing: number): void;
+    set_row_baseline_position(row: number, pos: BaselinePosition): void;
+    set_row_homogeneous(homogeneous: boolean): void;
+    set_row_spacing(spacing: number): void;
+}
+export class HBox extends Box {
+    constructor(config?: properties);
+}
+export class HButtonBox extends ButtonBox {
+    constructor(config?: properties);
+}
+export class HPaned extends Paned {
+    constructor(config?: properties);
+}
+export class HSV extends Widget {
+    constructor(config?: properties);
+    get_color(): [number,number,number];
+    get_metrics(): [number,number];
+    is_adjusting(): boolean;
+    set_color(h: number, s: number, v: number): void;
+    set_metrics(size: number, ring_width: number): void;
+    vfunc_changed(): void;
+    vfunc_move(type: DirectionType): void;
+    static to_rgb(h: number, s: number, v: number): [number,number,number];
+}
+export class HScale extends Scale {
+    constructor(config?: properties);
+    static new_with_range(min: number, max: number, step: number): Widget;
+    static new_with_range(...args: never[]): Widget;
+}
+export class HScrollbar extends Scrollbar {
+    constructor(config?: properties);
+}
+export class HSeparator extends Separator {
+    constructor(config?: properties);
+}
+export class HandleBox extends Bin {
+    constructor(config?: properties);
+    handle_position: PositionType;
+    shadow_type: ShadowType;
+    snap_edge: PositionType;
+    snap_edge_set: boolean;
+    get_child_detached(): boolean;
+    get_handle_position(): PositionType;
+    get_shadow_type(): ShadowType;
+    get_snap_edge(): PositionType;
+    set_handle_position(position: PositionType): void;
+    set_shadow_type(type: ShadowType): void;
+    set_snap_edge(edge: PositionType): void;
+    vfunc_child_attached(child: Widget): void;
+    vfunc_child_detached(child: Widget): void;
+}
+export class HeaderBar extends Container {
+    constructor(config?: properties);
+    custom_title: Widget;
+    decoration_layout: string;
+    decoration_layout_set: boolean;
+    has_subtitle: boolean;
+    show_close_button: boolean;
+    spacing: number;
+    subtitle: string;
+    title: string;
+    get_custom_title(): Widget | null;
+    get_decoration_layout(): string;
+    get_has_subtitle(): boolean;
+    get_show_close_button(): boolean;
+    get_subtitle(): string | null;
+    get_title(): string | null;
+    pack_end(child: Widget): void;
+    pack_start(child: Widget): void;
+    set_custom_title(title_widget: Widget | null): void;
+    set_decoration_layout(layout: string | null): void;
+    set_has_subtitle(setting: boolean): void;
+    set_show_close_button(setting: boolean): void;
+    set_subtitle(subtitle: string | null): void;
+    set_title(title: string | null): void;
+}
+export class HeaderBarAccessible  {
+    constructor(config?: properties);
+}
+export class IMContext  {
+    constructor(config?: properties);
+    input_hints: InputHints;
+    input_purpose: InputPurpose;
+    delete_surrounding(offset: number, n_chars: number): boolean;
+    filter_keypress(event: Gdk.EventKey): boolean;
+    focus_in(): void;
+    focus_out(): void;
+    get_preedit_string(): [string,Pango.AttrList,number];
+    get_surrounding(): [boolean, string,number];
+    reset(): void;
+    set_client_window(window: Gdk.Window | null): void;
+    set_cursor_location(area: Gdk.Rectangle): void;
+    set_surrounding(text: string, len: number, cursor_index: number): void;
+    set_use_preedit(use_preedit: boolean): void;
+}
+export class IMContextSimple extends IMContext {
+    constructor(config?: properties);
+    add_compose_file(compose_file: string): void;
+}
+export class IMMulticontext extends IMContext {
+    constructor(config?: properties);
+    append_menuitems(menushell: MenuShell): void;
+    get_context_id(): string;
+    set_context_id(context_id: string): void;
+}
+export class IconFactory extends GObject.Object {
+    constructor(config?: properties);
+    add(stock_id: string, icon_set: IconSet): void;
+    add_default(): void;
+    lookup(stock_id: string): IconSet;
+    remove_default(): void;
+    static lookup_default(stock_id: string): IconSet;
+}
+export class IconInfo extends GObject.Object {
+    constructor(config?: properties);
+    static new_for_pixbuf(icon_theme: IconTheme, pixbuf: GdkPixbuf.Pixbuf): IconInfo;
+    get_attach_points(): [boolean, Gdk.Point[] | null,number | null];
+    get_base_scale(): number;
+    get_base_size(): number;
+    get_builtin_pixbuf(): GdkPixbuf.Pixbuf | null;
+    get_display_name(): string;
+    get_embedded_rect(): [boolean, Gdk.Rectangle];
+    get_filename(): string | null;
+    is_symbolic(): boolean;
+    load_icon(): GdkPixbuf.Pixbuf;
+    load_icon_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    load_icon_finish(res: Gio.AsyncResult): GdkPixbuf.Pixbuf;
+    load_surface(for_window: Gdk.Window | null): cairo.Surface;
+    load_symbolic(fg: Gdk.RGBA, success_color: Gdk.RGBA | null, warning_color: Gdk.RGBA | null, error_color: Gdk.RGBA | null): [GdkPixbuf.Pixbuf, boolean | null];
+    load_symbolic_async(fg: Gdk.RGBA, success_color: Gdk.RGBA | null, warning_color: Gdk.RGBA | null, error_color: Gdk.RGBA | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    load_symbolic_finish(res: Gio.AsyncResult): [GdkPixbuf.Pixbuf, boolean | null];
+    load_symbolic_for_context(context: StyleContext): [GdkPixbuf.Pixbuf, boolean | null];
+    load_symbolic_for_context_async(context: StyleContext, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    load_symbolic_for_context_finish(res: Gio.AsyncResult): [GdkPixbuf.Pixbuf, boolean | null];
+    load_symbolic_for_style(style: Style, state: StateType): [GdkPixbuf.Pixbuf, boolean | null];
+    set_raw_coordinates(raw_coordinates: boolean): void;
+}
+export class IconTheme extends GObject.Object {
+    constructor(config?: properties);
+    add_resource_path(path: string): void;
+    append_search_path(path: string): void;
+    choose_icon(icon_names: string[], size: number, flags: IconLookupFlags): IconInfo | null;
+    choose_icon_for_scale(icon_names: string[], size: number, scale: number, flags: IconLookupFlags): IconInfo | null;
+    get_example_icon_name(): string | null;
+    get_icon_sizes(icon_name: string): number[];
+    get_search_path(): [string[] | null,number];
+    has_icon(icon_name: string): boolean;
+    list_contexts(): GLib.List;
+    list_icons(context: string | null): GLib.List;
+    load_icon(icon_name: string, size: number, flags: IconLookupFlags): GdkPixbuf.Pixbuf | null;
+    load_icon_for_scale(icon_name: string, size: number, scale: number, flags: IconLookupFlags): GdkPixbuf.Pixbuf | null;
+    load_surface(icon_name: string, size: number, scale: number, for_window: Gdk.Window | null, flags: IconLookupFlags): cairo.Surface | null;
+    lookup_by_gicon(icon: Gio.Icon, size: number, flags: IconLookupFlags): IconInfo | null;
+    lookup_by_gicon_for_scale(icon: Gio.Icon, size: number, scale: number, flags: IconLookupFlags): IconInfo | null;
+    lookup_icon(icon_name: string, size: number, flags: IconLookupFlags): IconInfo | null;
+    lookup_icon_for_scale(icon_name: string, size: number, scale: number, flags: IconLookupFlags): IconInfo | null;
+    prepend_search_path(path: string): void;
+    rescan_if_needed(): boolean;
+    set_custom_theme(theme_name: string | null): void;
+    set_screen(screen: Gdk.Screen): void;
+    set_search_path(path: string[], n_elements: number): void;
+    vfunc_changed(): void;
+    static add_builtin_icon(icon_name: string, size: number, pixbuf: GdkPixbuf.Pixbuf): void;
+    static get_default(): IconTheme;
+    static get_for_screen(screen: Gdk.Screen): IconTheme;
+}
+export class IconView extends Container {
+    constructor(config?: properties);
+    activate_on_single_click: boolean;
+    cell_area: CellArea;
+    column_spacing: number;
+    columns: number;
+    item_orientation: Orientation;
+    item_padding: number;
+    item_width: number;
+    margin: number;
+    markup_column: number;
+    model: TreeModel;
+    pixbuf_column: number;
+    reorderable: boolean;
+    row_spacing: number;
+    selection_mode: SelectionMode;
+    spacing: number;
+    text_column: number;
+    tooltip_column: number;static new_with_area(area: CellArea): Widget;
+    static new_with_model(model: TreeModel): Widget;
+    convert_widget_to_bin_window_coords(wx: number, wy: number): [number,number];
+    create_drag_icon(path: TreePath): cairo.Surface;
+    enable_model_drag_dest(targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
+    enable_model_drag_source(start_button_mask: Gdk.ModifierType, targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
+    get_activate_on_single_click(): boolean;
+    get_cell_rect(path: TreePath, cell: CellRenderer | null): [boolean, Gdk.Rectangle];
+    get_column_spacing(): number;
+    get_columns(): number;
+    get_cursor(): [boolean, TreePath | null,CellRenderer | null];
+    get_dest_item_at_pos(drag_x: number, drag_y: number): [boolean, TreePath | null,IconViewDropPosition | null];
+    get_drag_dest_item(): [TreePath | null,IconViewDropPosition | null];
+    get_item_at_pos(x: number, y: number): [boolean, TreePath | null,CellRenderer | null];
+    get_item_column(path: TreePath): number;
+    get_item_orientation(): Orientation;
+    get_item_padding(): number;
+    get_item_row(path: TreePath): number;
+    get_item_width(): number;
+    get_margin(): number;
+    get_markup_column(): number;
+    get_model(): TreeModel | null;
+    get_path_at_pos(x: number, y: number): TreePath | null;
+    get_pixbuf_column(): number;
+    get_reorderable(): boolean;
+    get_row_spacing(): number;
+    get_selected_items(): GLib.List;
+    get_selection_mode(): SelectionMode;
+    get_spacing(): number;
+    get_text_column(): number;
+    get_tooltip_column(): number;
+    get_tooltip_context(x: number, y: number, keyboard_tip: boolean): [boolean, number,number,TreeModel | null,TreePath | null,TreeIter | null];
+    get_visible_range(): [boolean, TreePath | null,TreePath | null];
+    item_activated(path: TreePath): void;
+    path_is_selected(path: TreePath): boolean;
+    scroll_to_path(path: TreePath, use_align: boolean, row_align: number, col_align: number): void;
+    select_all(): void;
+    select_path(path: TreePath): void;
+    selected_foreach(func: IconViewForeachFunc, data: object | null): void;
+    set_activate_on_single_click(single: boolean): void;
+    set_column_spacing(column_spacing: number): void;
+    set_columns(columns: number): void;
+    set_cursor(path: TreePath, cell: CellRenderer | null, start_editing: boolean): void;
+    set_drag_dest_item(path: TreePath | null, pos: IconViewDropPosition): void;
+    set_item_orientation(orientation: Orientation): void;
+    set_item_padding(item_padding: number): void;
+    set_item_width(item_width: number): void;
+    set_margin(margin: number): void;
+    set_markup_column(column: number): void;
+    set_model(model: TreeModel | null): void;
+    set_pixbuf_column(column: number): void;
+    set_reorderable(reorderable: boolean): void;
+    set_row_spacing(row_spacing: number): void;
+    set_selection_mode(mode: SelectionMode): void;
+    set_spacing(spacing: number): void;
+    set_text_column(column: number): void;
+    set_tooltip_cell(tooltip: Tooltip, path: TreePath, cell: CellRenderer | null): void;
+    set_tooltip_column(column: number): void;
+    set_tooltip_item(tooltip: Tooltip, path: TreePath): void;
+    unselect_all(): void;
+    unselect_path(path: TreePath): void;
+    unset_model_drag_dest(): void;
+    unset_model_drag_source(): void;
+    vfunc_activate_cursor_item(): boolean;
+    vfunc_item_activated(path: TreePath): void;
+    vfunc_move_cursor(step: MovementStep, count: number): boolean;
+    vfunc_select_all(): void;
+    vfunc_select_cursor_item(): void;
+    vfunc_selection_changed(): void;
+    vfunc_toggle_cursor_item(): void;
+    vfunc_unselect_all(): void;
+}
+export class IconViewAccessible  {
+    constructor(config?: properties);
+    readonly priv: IconViewAccessiblePrivate;
+}
+export class Image extends Misc {
+    constructor(config?: properties);
+    file: string;
+    gicon: Gio.Icon;
+    icon_name: string;
+    icon_set: IconSet;
+    icon_size: number;
+    pixbuf: GdkPixbuf.Pixbuf;
+    pixbuf_animation: GdkPixbuf.PixbufAnimation;
+    pixel_size: number;
+    resource: string;
+    stock: string;
+    readonly storage_type: ImageType;
+    surface: cairo.Surface;
+    use_fallback: boolean;static new_from_animation(animation: GdkPixbuf.PixbufAnimation): Widget;
+    static new_from_file(filename: string): Widget;
+    static new_from_gicon(icon: Gio.Icon, size: number): Widget;
+    static new_from_icon_name(icon_name: string | null, size: number): Widget;
+    static new_from_icon_set(icon_set: IconSet, size: number): Widget;
+    static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): Widget;
+    static new_from_resource(resource_path: string): Widget;
+    static new_from_stock(stock_id: string, size: number): Widget;
+    static new_from_surface(surface: cairo.Surface | null): Widget;
+    clear(): void;
+    get_animation(): GdkPixbuf.PixbufAnimation | null;
+    get_gicon(): [Gio.Icon | null,number | null];
+    get_icon_name(): [string | null,number | null];
+    get_icon_set(): [IconSet | null,number | null];
+    get_pixbuf(): GdkPixbuf.Pixbuf | null;
+    get_pixel_size(): number;
+    get_stock(): [string | null,number | null];
+    get_storage_type(): ImageType;
+    set_from_animation(animation: GdkPixbuf.PixbufAnimation): void;
+    set_from_file(filename: string | null): void;
+    set_from_gicon(icon: Gio.Icon, size: number): void;
+    set_from_icon_name(icon_name: string | null, size: number): void;
+    set_from_icon_set(icon_set: IconSet, size: number): void;
+    set_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): void;
+    set_from_resource(resource_path: string | null): void;
+    set_from_stock(stock_id: string, size: number): void;
+    set_from_surface(surface: cairo.Surface | null): void;
+    set_pixel_size(pixel_size: number): void;
+}
+export class ImageAccessible  {
+    constructor(config?: properties);
+    readonly priv: ImageAccessiblePrivate;
+}
+export class ImageCellAccessible  {
+    constructor(config?: properties);
+    readonly priv: ImageCellAccessiblePrivate;
+}
+export class ImageMenuItem extends MenuItem {
+    constructor(config?: properties);
+    accel_group: AccelGroup;
+    always_show_image: boolean;
+    image: Widget;
+    use_stock: boolean;static new_from_stock(stock_id: string, accel_group: AccelGroup | null): Widget;
+    static new_with_label(label: string): Widget;
+    static new_with_mnemonic(label: string): Widget;
+    get_always_show_image(): boolean;
+    get_image(): Widget;
+    get_use_stock(): boolean;
+    set_accel_group(accel_group: AccelGroup): void;
+    set_always_show_image(always_show: boolean): void;
+    set_image(image: Widget | null): void;
+    set_use_stock(use_stock: boolean): void;
+}
+export class InfoBar extends Box {
+    constructor(config?: properties);
+    message_type: MessageType;
+    revealed: boolean;
+    show_close_button: boolean;static new_with_buttons(first_button_text: string | null, ___: any): Widget;
+    add_action_widget(child: Widget, response_id: number): void;
+    add_button(button_text: string, response_id: number): Button;
+    get_action_area(): Widget;
+    get_content_area(): Widget;
+    get_message_type(): MessageType;
+    get_revealed(): boolean;
+    get_show_close_button(): boolean;
+    response(response_id: number): void;
+    set_default_response(response_id: number): void;
+    set_message_type(message_type: MessageType): void;
+    set_response_sensitive(response_id: number, setting: boolean): void;
+    set_revealed(revealed: boolean): void;
+    set_show_close_button(setting: boolean): void;
+    vfunc_close(): void;
+    vfunc_response(response_id: number): void;
+}
+export class Invisible extends Widget {
+    constructor(config?: properties);
+    screen: Gdk.Screen;static new_for_screen(screen: Gdk.Screen): Widget;
+    get_screen(): Gdk.Screen;
+    set_screen(screen: Gdk.Screen): void;
+}
+export class Label extends Misc {
+    constructor(config?: properties);
+    angle: number;
+    attributes: Pango.AttrList;
+    readonly cursor_position: number;
+    ellipsize: Pango.EllipsizeMode;
+    justify: Justification;
+    label: string;
+    lines: number;
+    max_width_chars: number;
+    readonly mnemonic_keyval: number;
+    mnemonic_widget: Widget;
+    pattern: string;
+    selectable: boolean;
+    readonly selection_bound: number;
+    single_line_mode: boolean;
+    track_visited_links: boolean;
+    use_markup: boolean;
+    use_underline: boolean;
+    width_chars: number;
+    wrap: boolean;
+    wrap_mode: Pango.WrapMode;
+    xalign: number;
+    yalign: number;static new_with_mnemonic(str: string | null): Widget;
+    get_angle(): number;
+    get_attributes(): Pango.AttrList | null;
+    get_current_uri(): string;
+    get_ellipsize(): Pango.EllipsizeMode;
+    get_justify(): Justification;
+    get_label(): string;
+    get_layout(): Pango.Layout;
+    get_layout_offsets(): [number | null,number | null];
+    get_line_wrap(): boolean;
+    get_line_wrap_mode(): Pango.WrapMode;
+    get_lines(): number;
+    get_max_width_chars(): number;
+    get_mnemonic_keyval(): number;
+    get_mnemonic_widget(): Widget | null;
+    get_selectable(): boolean;
+    get_selection_bounds(): [boolean, number,number];
+    get_single_line_mode(): boolean;
+    get_text(): string;
+    get_track_visited_links(): boolean;
+    get_use_markup(): boolean;
+    get_use_underline(): boolean;
+    get_width_chars(): number;
+    get_xalign(): number;
+    get_yalign(): number;
+    select_region(start_offset: number, end_offset: number): void;
+    set_angle(angle: number): void;
+    set_attributes(attrs: Pango.AttrList | null): void;
+    set_ellipsize(mode: Pango.EllipsizeMode): void;
+    set_justify(jtype: Justification): void;
+    set_label(str: string): void;
+    set_line_wrap(wrap: boolean): void;
+    set_line_wrap_mode(wrap_mode: Pango.WrapMode): void;
+    set_lines(lines: number): void;
+    set_markup(str: string): void;
+    set_markup_with_mnemonic(str: string): void;
+    set_max_width_chars(n_chars: number): void;
+    set_mnemonic_widget(widget: Widget | null): void;
+    set_pattern(pattern: string): void;
+    set_selectable(setting: boolean): void;
+    set_single_line_mode(single_line_mode: boolean): void;
+    set_text(str: string): void;
+    set_text_with_mnemonic(str: string): void;
+    set_track_visited_links(track_links: boolean): void;
+    set_use_markup(setting: boolean): void;
+    set_use_underline(setting: boolean): void;
+    set_width_chars(n_chars: number): void;
+    set_xalign(xalign: number): void;
+    set_yalign(yalign: number): void;
+    vfunc_activate_link(uri: string): boolean;
+    vfunc_copy_clipboard(): void;
+    vfunc_move_cursor(step: MovementStep, count: number, extend_selection: boolean): void;
+    vfunc_populate_popup(menu: Menu): void;
+}
+export class LabelAccessible  {
+    constructor(config?: properties);
+    readonly priv: LabelAccessiblePrivate;
+}
+export class Layout extends Container {
+    constructor(config?: properties);
+    height: number;
+    width: number;
+    get_bin_window(): Gdk.Window;
+    get_hadjustment(): Adjustment;
+    get_size(): [number | null,number | null];
+    get_vadjustment(): Adjustment;
+    move(child_widget: Widget, x: number, y: number): void;
+    put(child_widget: Widget, x: number, y: number): void;
+    set_hadjustment(adjustment: Adjustment | null): void;
+    set_size(width: number, height: number): void;
+    set_vadjustment(adjustment: Adjustment | null): void;
+}
+export class LevelBar extends Widget {
+    constructor(config?: properties);
+    inverted: boolean;
+    max_value: number;
+    min_value: number;
+    mode: LevelBarMode;
+    value: number;static new_for_interval(min_value: number, max_value: number): Widget;
+    add_offset_value(name: string, value: number): void;
+    get_inverted(): boolean;
+    get_max_value(): number;
+    get_min_value(): number;
+    get_mode(): LevelBarMode;
+    get_offset_value(name: string | null): [boolean, number];
+    get_value(): number;
+    remove_offset_value(name: string | null): void;
+    set_inverted(inverted: boolean): void;
+    set_max_value(value: number): void;
+    set_min_value(value: number): void;
+    set_mode(mode: LevelBarMode): void;
+    set_value(value: number): void;
+    vfunc_offset_changed(name: string): void;
+}
+export class LevelBarAccessible  {
+    constructor(config?: properties);
+    readonly priv: LevelBarAccessiblePrivate;
+}
+export class LinkButton extends Button {
+    constructor(config?: properties);
+    uri: string;
+    visited: boolean;static new_with_label(uri: string, label: string | null): Widget;
+    static new_with_label(...args: never[]): Widget;
+    get_uri(): string;
+    get_visited(): boolean;
+    set_uri(uri: string): void;
+    set_visited(visited: boolean): void;
+    vfunc_activate_link(): boolean;
+}
+export class LinkButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: LinkButtonAccessiblePrivate;
+}
+export class ListBox extends Container {
+    constructor(config?: properties);
+    activate_on_single_click: boolean;
+    selection_mode: SelectionMode;
+    bind_model(model: Gio.ListModel | null, create_widget_func: ListBoxCreateWidgetFunc | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify): void;
+    drag_highlight_row(row: ListBoxRow): void;
+    drag_unhighlight_row(): void;
+    get_activate_on_single_click(): boolean;
+    get_adjustment(): Adjustment;
+    get_row_at_index(index_: number): ListBoxRow | null;
+    get_row_at_y(y: number): ListBoxRow | null;
+    get_selected_row(): ListBoxRow;
+    get_selected_rows(): GLib.List;
+    get_selection_mode(): SelectionMode;
+    insert(child: Widget, position: number): void;
+    invalidate_filter(): void;
+    invalidate_headers(): void;
+    invalidate_sort(): void;
+    prepend(child: Widget): void;
+    select_all(): void;
+    select_row(row: ListBoxRow | null): void;
+    selected_foreach(func: ListBoxForeachFunc, data: object | null): void;
+    set_activate_on_single_click(single: boolean): void;
+    set_adjustment(adjustment: Adjustment | null): void;
+    set_filter_func(filter_func: ListBoxFilterFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
+    set_header_func(update_header: ListBoxUpdateHeaderFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
+    set_placeholder(placeholder: Widget | null): void;
+    set_selection_mode(mode: SelectionMode): void;
+    set_sort_func(sort_func: ListBoxSortFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
+    unselect_all(): void;
+    unselect_row(row: ListBoxRow): void;
+    vfunc_activate_cursor_row(): void;
+    vfunc_move_cursor(step: MovementStep, count: number): void;
+    vfunc_row_activated(row: ListBoxRow): void;
+    vfunc_row_selected(row: ListBoxRow): void;
+    vfunc_select_all(): void;
+    vfunc_selected_rows_changed(): void;
+    vfunc_toggle_cursor_row(): void;
+    vfunc_unselect_all(): void;
+}
+export class ListBoxAccessible  {
+    constructor(config?: properties);
+    readonly priv: ListBoxAccessiblePrivate;
+}
+export class ListBoxRow extends Bin {
+    constructor(config?: properties);
+    activatable: boolean;
+    selectable: boolean;
+    changed(): void;
+    get_activatable(): boolean;
+    get_header(): Widget | null;
+    get_index(): number;
+    get_selectable(): boolean;
+    is_selected(): boolean;
+    set_activatable(activatable: boolean): void;
+    set_header(header: Widget | null): void;
+    set_selectable(selectable: boolean): void;
+    vfunc_activate(): void;
+}
+export class ListBoxRowAccessible  {
+    constructor(config?: properties);
+}
+export class ListStore extends GObject.Object {
+    constructor(config?: properties);
+    static newv(n_columns: number, types: GType): ListStore;
+    static newv(...args: never[]): ListStore;
+    append(): [TreeIter];
+    clear(): void;
+    insert(position: number): [TreeIter];
+    insert_after(sibling: TreeIter | null): [TreeIter];
+    insert_before(sibling: TreeIter | null): [TreeIter];
+    insert_with_valuesv(position: number, columns: number[], values: GObject.Value[], n_values: number): [TreeIter | null];
+    iter_is_valid(iter: TreeIter): boolean;
+    move_after(iter: TreeIter, position: TreeIter | null): void;
+    move_before(iter: TreeIter, position: TreeIter | null): void;
+    prepend(): [TreeIter];
+    remove(iter: TreeIter): boolean;
+    reorder(new_order: number[]): void;
+    set_column_types(n_columns: number, types: GType): void;
+    set_value(iter: TreeIter, column: number, value: GObject.Value): void;
+    set_valuesv(iter: TreeIter, columns: number[], values: GObject.Value[], n_values: number): void;
+    swap(a: TreeIter, b: TreeIter): void;
+}
+export class LockButton extends Button {
+    constructor(config?: properties);
+    permission: Gio.Permission;
+    text_lock: string;
+    text_unlock: string;
+    tooltip_lock: string;
+    tooltip_not_authorized: string;
+    tooltip_unlock: string;
+    get_permission(): Gio.Permission;
+    set_permission(permission: Gio.Permission | null): void;
+}
+export class LockButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: LockButtonAccessiblePrivate;
+}
+export class Menu extends MenuShell {
+    constructor(config?: properties);
+    accel_group: AccelGroup;
+    accel_path: string;
+    active: number;
+    anchor_hints: Gdk.AnchorHints;
+    attach_widget: Widget;
+    menu_type_hint: Gdk.WindowTypeHint;
+    monitor: number;
+    rect_anchor_dx: number;
+    rect_anchor_dy: number;
+    reserve_toggle_size: boolean;
+    tearoff_state: boolean;
+    tearoff_title: string;static new_from_model(model: Gio.MenuModel): Widget;
+    attach(child: Widget, left_attach: number, right_attach: number, top_attach: number, bottom_attach: number): void;
+    attach_to_widget(attach_widget: Widget, detacher: MenuDetachFunc | null): void;
+    detach(): void;
+    get_accel_group(): AccelGroup;
+    get_accel_path(): string;
+    get_active(): Widget;
+    get_attach_widget(): Widget;
+    get_monitor(): number;
+    get_reserve_toggle_size(): boolean;
+    get_tearoff_state(): boolean;
+    get_title(): string;
+    place_on_monitor(monitor: Gdk.Monitor): void;
+    popdown(): void;
+    popup(parent_menu_shell: Widget | null, parent_menu_item: Widget | null, func: MenuPositionFunc | null, data: object | null, button: number, activate_time: number): void;
+    popup_at_pointer(trigger_event: Gdk.Event | null): void;
+    popup_at_rect(rect_window: Gdk.Window, rect: Gdk.Rectangle, rect_anchor: Gdk.Gravity, menu_anchor: Gdk.Gravity, trigger_event: Gdk.Event | null): void;
+    popup_at_widget(widget: Widget, widget_anchor: Gdk.Gravity, menu_anchor: Gdk.Gravity, trigger_event: Gdk.Event | null): void;
+    popup_for_device(device: Gdk.Device | null, parent_menu_shell: Widget | null, parent_menu_item: Widget | null, func: MenuPositionFunc | null, data: object | null, destroy: GLib.DestroyNotify | null, button: number, activate_time: number): void;
+    reorder_child(child: Widget, position: number): void;
+    reposition(): void;
+    set_accel_group(accel_group: AccelGroup | null): void;
+    set_accel_path(accel_path: string | null): void;
+    set_active(index: number): void;
+    set_monitor(monitor_num: number): void;
+    set_reserve_toggle_size(reserve_toggle_size: boolean): void;
+    set_screen(screen: Gdk.Screen | null): void;
+    set_tearoff_state(torn_off: boolean): void;
+    set_title(title: string | null): void;
+    static get_for_attach_widget(widget: Widget): GLib.List;
+}
+export class MenuAccessible  {
+    constructor(config?: properties);
+    readonly priv: MenuAccessiblePrivate;
+}
+export class MenuBar extends MenuShell {
+    constructor(config?: properties);
+    child_pack_direction: PackDirection;
+    pack_direction: PackDirection;static new_from_model(model: Gio.MenuModel): Widget;
+    get_child_pack_direction(): PackDirection;
+    get_pack_direction(): PackDirection;
+    set_child_pack_direction(child_pack_dir: PackDirection): void;
+    set_pack_direction(pack_dir: PackDirection): void;
+}
+export class MenuButton extends ToggleButton {
+    constructor(config?: properties);
+    align_widget: Container;
+    direction: ArrowType;
+    menu_model: Gio.MenuModel;
+    popover: Popover;
+    popup: Menu;
+    use_popover: boolean;
+    get_align_widget(): Widget | null;
+    get_direction(): ArrowType;
+    get_menu_model(): Gio.MenuModel | null;
+    get_popover(): Popover | null;
+    get_popup(): Menu | null;
+    get_use_popover(): boolean;
+    set_align_widget(align_widget: Widget | null): void;
+    set_direction(direction: ArrowType): void;
+    set_menu_model(menu_model: Gio.MenuModel | null): void;
+    set_popover(popover: Widget | null): void;
+    set_popup(menu: Widget | null): void;
+    set_use_popover(use_popover: boolean): void;
+}
+export class MenuButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: MenuButtonAccessiblePrivate;
+}
+export class MenuItem extends Bin {
+    constructor(config?: properties);
+    accel_path: string;
+    label: string;
+    right_justified: boolean;
+    submenu: Menu;
+    use_underline: boolean;static new_with_label(label: string): Widget;
+    static new_with_mnemonic(label: string): Widget;
+    activate(): void;
+    deselect(): void;
+    get_accel_path(): string | null;
+    get_label(): string;
+    get_reserve_indicator(): boolean;
+    get_right_justified(): boolean;
+    get_submenu(): Widget | null;
+    get_use_underline(): boolean;
+    select(): void;
+    set_accel_path(accel_path: string | null): void;
+    set_label(label: string): void;
+    set_reserve_indicator(reserve: boolean): void;
+    set_right_justified(right_justified: boolean): void;
+    set_submenu(submenu: Menu | null): void;
+    set_use_underline(setting: boolean): void;
+    toggle_size_allocate(allocation: number): void;
+    toggle_size_request(requisition: number): [number];
+    vfunc_activate(): void;
+    vfunc_activate_item(): void;
+    vfunc_deselect(): void;
+    vfunc_get_label(): string;
+    vfunc_select(): void;
+    vfunc_set_label(label: string): void;
+    vfunc_toggle_size_allocate(allocation: number): void;
+    vfunc_toggle_size_request(requisition: number): [number];
+}
+export class MenuItemAccessible  {
+    constructor(config?: properties);
+    readonly priv: MenuItemAccessiblePrivate;
+}
+export class MenuShell  {
+    constructor(config?: properties);
+    take_focus: boolean;
+    readonly container: Container;
+    readonly priv: MenuShellPrivate;
+    activate_item(menu_item: Widget, force_deactivate: boolean): void;
+    append(child: MenuItem): void;
+    bind_model(model: Gio.MenuModel | null, action_namespace: string | null, with_separators: boolean): void;
+    cancel(): void;
+    deactivate(): void;
+    deselect(): void;
+    get_parent_shell(): Widget;
+    get_selected_item(): Widget;
+    get_take_focus(): boolean;
+    insert(child: Widget, position: number): void;
+    prepend(child: Widget): void;
+    select_first(search_sensitive: boolean): void;
+    select_item(menu_item: Widget): void;
+    set_take_focus(take_focus: boolean): void;
+}
+export class MenuShellAccessible  {
+    constructor(config?: properties);
+    readonly priv: MenuShellAccessiblePrivate;
+}
+export class MenuToolButton extends ToolButton {
+    constructor(config?: properties);
+    menu: Menu;static new_from_stock(stock_id: string): ToolItem;
+    get_menu(): Widget;
+    set_arrow_tooltip_markup(markup: string): void;
+    set_arrow_tooltip_text(text: string): void;
+    set_menu(menu: Widget): void;
+    vfunc_show_menu(): void;
+}
+export class MessageDialog extends Dialog {
+    constructor(config?: properties);
+    buttons: ButtonsType;
+    image: Widget;
+    readonly message_area: Widget;
+    message_type: MessageType;
+    secondary_text: string;
+    secondary_use_markup: boolean;
+    text: string;
+    use_markup: boolean;static new_with_markup(parent: Window | null, flags: DialogFlags, type: MessageType, buttons: ButtonsType, message_format: string | null, ___: any): Widget;
+    get_image(): Widget;
+    get_message_area(): Widget;
+    set_image(image: Widget): void;
+    set_markup(str: string): void;
+}
+export class Misc  {
+    constructor(config?: properties);
+    xalign: number;
+    xpad: number;
+    yalign: number;
+    ypad: number;
+    readonly widget: Widget;
+    readonly priv: MiscPrivate;
+    get_alignment(): [number | null,number | null];
+    get_padding(): [number | null,number | null];
+    set_alignment(xalign: number, yalign: number): void;
+    set_padding(xpad: number, ypad: number): void;
+}
+export class ModelButton extends Button {
+    constructor(config?: properties);
+    active: boolean;
+    centered: boolean;
+    icon: Gio.Icon;
+    iconic: boolean;
+    inverted: boolean;
+    menu_name: string;
+    role: ButtonRole;
+    text: string;
+    use_markup: boolean;
+}
+export class MountOperation extends Gio.MountOperation {
+    constructor(config?: properties);
+    screen: Gdk.Screen;
+    get_parent(): Window;
+    get_screen(): Gdk.Screen;
+    is_showing(): boolean;
+    set_parent(parent: Window | null): void;
+    set_screen(screen: Gdk.Screen): void;
+}
+export class NativeDialog  {
+    constructor(config?: properties);
+    modal: boolean;
+    title: string;
+    transient_for: Window;
+    visible: boolean;
+    destroy(): void;
+    get_modal(): boolean;
+    get_title(): string | null;
+    get_transient_for(): Window | null;
+    get_visible(): boolean;
+    hide(): void;
+    run(): number;
+    set_modal(modal: boolean): void;
+    set_title(title: string): void;
+    set_transient_for(parent: Window | null): void;
+    show(): void;
+}
+export class Notebook extends Container {
+    constructor(config?: properties);
+    enable_popup: boolean;
+    group_name: string;
+    page: number;
+    scrollable: boolean;
+    show_border: boolean;
+    show_tabs: boolean;
+    tab_pos: PositionType;
+    append_page(child: Widget, tab_label: Widget | null): number;
+    append_page_menu(child: Widget, tab_label: Widget | null, menu_label: Widget | null): number;
+    detach_tab(child: Widget): void;
+    get_action_widget(pack_type: PackType): Widget | null;
+    get_current_page(): number;
+    get_group_name(): string | null;
+    get_menu_label(child: Widget): Widget | null;
+    get_menu_label_text(child: Widget): string | null;
+    get_n_pages(): number;
+    get_nth_page(page_num: number): Widget | null;
+    get_scrollable(): boolean;
+    get_show_border(): boolean;
+    get_show_tabs(): boolean;
+    get_tab_detachable(child: Widget): boolean;
+    get_tab_hborder(): number;
+    get_tab_label(child: Widget): Widget | null;
+    get_tab_label_text(child: Widget): string | null;
+    get_tab_pos(): PositionType;
+    get_tab_reorderable(child: Widget): boolean;
+    get_tab_vborder(): number;
+    insert_page(child: Widget, tab_label: Widget | null, position: number): number;
+    insert_page_menu(child: Widget, tab_label: Widget | null, menu_label: Widget | null, position: number): number;
+    next_page(): void;
+    page_num(child: Widget): number;
+    popup_disable(): void;
+    popup_enable(): void;
+    prepend_page(child: Widget, tab_label: Widget | null): number;
+    prepend_page_menu(child: Widget, tab_label: Widget | null, menu_label: Widget | null): number;
+    prev_page(): void;
+    remove_page(page_num: number): void;
+    reorder_child(child: Widget, position: number): void;
+    set_action_widget(widget: Widget, pack_type: PackType): void;
+    set_current_page(page_num: number): void;
+    set_group_name(group_name: string | null): void;
+    set_menu_label(child: Widget, menu_label: Widget | null): void;
+    set_menu_label_text(child: Widget, menu_text: string): void;
+    set_scrollable(scrollable: boolean): void;
+    set_show_border(show_border: boolean): void;
+    set_show_tabs(show_tabs: boolean): void;
+    set_tab_detachable(child: Widget, detachable: boolean): void;
+    set_tab_label(child: Widget, tab_label: Widget | null): void;
+    set_tab_label_text(child: Widget, tab_text: string): void;
+    set_tab_pos(pos: PositionType): void;
+    set_tab_reorderable(child: Widget, reorderable: boolean): void;
+    vfunc_change_current_page(offset: number): boolean;
+    vfunc_focus_tab(type: NotebookTab): boolean;
+    vfunc_insert_page(child: Widget, tab_label: Widget, menu_label: Widget, position: number): number;
+    vfunc_move_focus_out(direction: DirectionType): void;
+    vfunc_page_added(child: Widget, page_num: number): void;
+    vfunc_page_removed(child: Widget, page_num: number): void;
+    vfunc_page_reordered(child: Widget, page_num: number): void;
+    vfunc_reorder_tab(direction: DirectionType, move_to_last: boolean): boolean;
+    vfunc_select_page(move_focus: boolean): boolean;
+    vfunc_switch_page(page: Widget, page_num: number): void;
+}
+export class NotebookAccessible  {
+    constructor(config?: properties);
+    readonly priv: NotebookAccessiblePrivate;
+}
+export class NotebookPageAccessible extends Atk.Object {
+    constructor(config?: properties);
+    invalidate(): void;
+}
+export class NumerableIcon  {
+    constructor(config?: properties);
+    background_icon: Gio.Icon;
+    background_icon_name: string;
+    count: number;
+    label: string;
+    style_context: StyleContext;
+    readonly priv: NumerableIconPrivate;
+    get_background_gicon(): Gio.Icon | null;
+    get_background_icon_name(): string | null;
+    get_count(): number;
+    get_label(): string | null;
+    get_style_context(): StyleContext | null;
+    set_background_gicon(icon: Gio.Icon | null): void;
+    set_background_icon_name(icon_name: string | null): void;
+    set_count(count: number): void;
+    set_label(label: string | null): void;
+    set_style_context(style: StyleContext): void;
+    static _new(base_icon: Gio.Icon): Gio.Icon;
+    static new_with_style_context(base_icon: Gio.Icon, context: StyleContext): Gio.Icon;
+}
+export class OffscreenWindow extends Window {
+    constructor(config?: properties);
+    get_pixbuf(): GdkPixbuf.Pixbuf | null;
+    get_surface(): cairo.Surface | null;
+}
+export class Overlay extends Bin {
+    constructor(config?: properties);
+    add_overlay(widget: Widget): void;
+    get_overlay_pass_through(widget: Widget): boolean;
+    reorder_overlay(child: Widget, index_: number): void;
+    set_overlay_pass_through(widget: Widget, pass_through: boolean): void;
+    vfunc_get_child_position(widget: Widget, allocation: Allocation): boolean;
+}
+export class PadController extends EventController {
+    constructor(config?: properties);
+    action_group: Gio.ActionGroup;
+    pad: Gdk.Device;
+    set_action(type: PadActionType, index: number, mode: number, label: string, action_name: string): void;
+    set_action_entries(entries: PadActionEntry[], n_entries: number): void;
+}
+export class PageSetup extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_file(file_name: string): PageSetup;
+    static new_from_gvariant(variant: GLib.Variant): PageSetup;
+    static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PageSetup;
+    copy(): PageSetup;
+    get_bottom_margin(unit: Unit): number;
+    get_left_margin(unit: Unit): number;
+    get_orientation(): PageOrientation;
+    get_page_height(unit: Unit): number;
+    get_page_width(unit: Unit): number;
+    get_paper_height(unit: Unit): number;
+    get_paper_size(): PaperSize;
+    get_paper_width(unit: Unit): number;
+    get_right_margin(unit: Unit): number;
+    get_top_margin(unit: Unit): number;
+    load_file(file_name: string): boolean;
+    load_key_file(key_file: GLib.KeyFile, group_name: string | null): boolean;
+    set_bottom_margin(margin: number, unit: Unit): void;
+    set_left_margin(margin: number, unit: Unit): void;
+    set_orientation(orientation: PageOrientation): void;
+    set_paper_size(size: PaperSize): void;
+    set_paper_size_and_default_margins(size: PaperSize): void;
+    set_right_margin(margin: number, unit: Unit): void;
+    set_top_margin(margin: number, unit: Unit): void;
+    to_file(file_name: string): boolean;
+    to_gvariant(): GLib.Variant;
+    to_key_file(key_file: GLib.KeyFile, group_name: string | null): void;
+}
+export class Paned extends Container {
+    constructor(config?: properties);
+    readonly max_position: number;
+    readonly min_position: number;
+    position: number;
+    position_set: boolean;
+    wide_handle: boolean;
+    add1(child: Widget): void;
+    add2(child: Widget): void;
+    get_child1(): Widget | null;
+    get_child2(): Widget | null;
+    get_handle_window(): Gdk.Window;
+    get_position(): number;
+    get_wide_handle(): boolean;
+    pack1(child: Widget, resize: boolean, shrink: boolean): void;
+    pack2(child: Widget, resize: boolean, shrink: boolean): void;
+    set_position(position: number): void;
+    set_wide_handle(wide: boolean): void;
+    vfunc_accept_position(): boolean;
+    vfunc_cancel_position(): boolean;
+    vfunc_cycle_child_focus(reverse: boolean): boolean;
+    vfunc_cycle_handle_focus(reverse: boolean): boolean;
+    vfunc_move_handle(scroll: ScrollType): boolean;
+    vfunc_toggle_handle_focus(): boolean;
+}
+export class PanedAccessible  {
+    constructor(config?: properties);
+    readonly priv: PanedAccessiblePrivate;
+}
+export class PlacesSidebar extends ScrolledWindow {
+    constructor(config?: properties);
+    local_only: boolean;
+    location: Gio.File;
+    open_flags: PlacesOpenFlags;
+    populate_all: boolean;
+    show_connect_to_server: boolean;
+    show_desktop: boolean;
+    show_enter_location: boolean;
+    show_other_locations: boolean;
+    show_recent: boolean;
+    show_starred_location: boolean;
+    show_trash: boolean;
+    add_shortcut(location: Gio.File): void;
+    get_local_only(): boolean;
+    get_location(): Gio.File | null;
+    get_nth_bookmark(n: number): Gio.File | null;
+    get_open_flags(): PlacesOpenFlags;
+    get_show_connect_to_server(): boolean;
+    get_show_desktop(): boolean;
+    get_show_enter_location(): boolean;
+    get_show_other_locations(): boolean;
+    get_show_recent(): boolean;
+    get_show_starred_location(): boolean;
+    get_show_trash(): boolean;
+    list_shortcuts(): string[];
+    remove_shortcut(location: Gio.File): void;
+    set_drop_targets_visible(visible: boolean, context: Gdk.DragContext): void;
+    set_local_only(local_only: boolean): void;
+    set_location(location: Gio.File | null): void;
+    set_open_flags(flags: PlacesOpenFlags): void;
+    set_show_connect_to_server(show_connect_to_server: boolean): void;
+    set_show_desktop(show_desktop: boolean): void;
+    set_show_enter_location(show_enter_location: boolean): void;
+    set_show_other_locations(show_other_locations: boolean): void;
+    set_show_recent(show_recent: boolean): void;
+    set_show_starred_location(show_starred_location: boolean): void;
+    set_show_trash(show_trash: boolean): void;
+}
+export class Plug extends Window {
+    constructor(config?: properties);
+    readonly socket_window: Gdk.Window;static new_for_display(display: Gdk.Display, socket_id: xlib.Window): Widget;
+    construct(socket_id: xlib.Window): void;
+    construct_for_display(display: Gdk.Display, socket_id: xlib.Window): void;
+    get_embedded(): boolean;
+    get_id(): xlib.Window;
+    get_socket_window(): Gdk.Window | null;
+    vfunc_embedded(): void;
+}
+export class Popover extends Bin {
+    constructor(config?: properties);
+    constrain_to: PopoverConstraint;
+    modal: boolean;
+    pointing_to: Gdk.Rectangle;
+    position: PositionType;
+    relative_to: Widget;
+    transitions_enabled: boolean;static new_from_model(relative_to: Widget | null, model: Gio.MenuModel): Widget;
+    bind_model(model: Gio.MenuModel | null, action_namespace: string | null): void;
+    get_constrain_to(): PopoverConstraint;
+    get_default_widget(): Widget | null;
+    get_modal(): boolean;
+    get_pointing_to(): [boolean, Gdk.Rectangle];
+    get_position(): PositionType;
+    get_relative_to(): Widget;
+    get_transitions_enabled(): boolean;
+    popdown(): void;
+    popup(): void;
+    set_constrain_to(constraint: PopoverConstraint): void;
+    set_default_widget(widget: Widget | null): void;
+    set_modal(modal: boolean): void;
+    set_pointing_to(rect: Gdk.Rectangle): void;
+    set_position(position: PositionType): void;
+    set_relative_to(relative_to: Widget | null): void;
+    set_transitions_enabled(transitions_enabled: boolean): void;
+    vfunc_closed(): void;
+}
+export class PopoverAccessible  {
+    constructor(config?: properties);
+}
+export class PopoverMenu extends Popover {
+    constructor(config?: properties);
+    visible_submenu: string;
+    open_submenu(name: string): void;
+}
+export class PrintContext  {
+    constructor(config?: properties);
+    create_pango_context(): Pango.Context;
+    create_pango_layout(): Pango.Layout;
+    get_cairo_context(): cairo.Context;
+    get_dpi_x(): number;
+    get_dpi_y(): number;
+    get_hard_margins(): [boolean, number,number,number,number];
+    get_height(): number;
+    get_page_setup(): PageSetup;
+    get_pango_fontmap(): Pango.FontMap;
+    get_width(): number;
+    set_cairo_context(cr: cairo.Context, dpi_x: number, dpi_y: number): void;
+}
+export class PrintOperation extends GObject.Object {
+    constructor(config?: properties);
+    allow_async: boolean;
+    current_page: number;
+    custom_tab_label: string;
+    default_page_setup: PageSetup;
+    embed_page_setup: boolean;
+    export_filename: string;
+    has_selection: boolean;
+    job_name: string;
+    n_pages: number;
+    readonly n_pages_to_print: number;
+    print_settings: PrintSettings;
+    show_progress: boolean;
+    readonly status: PrintStatus;
+    readonly status_string: string;
+    support_selection: boolean;
+    track_print_status: boolean;
+    unit: Unit;
+    use_full_page: boolean;
+    cancel(): void;
+    draw_page_finish(): void;
+    get_default_page_setup(): PageSetup;
+    get_embed_page_setup(): boolean;
+    get_error(): void;
+    get_has_selection(): boolean;
+    get_n_pages_to_print(): number;
+    get_print_settings(): PrintSettings;
+    get_status(): PrintStatus;
+    get_status_string(): string;
+    get_support_selection(): boolean;
+    is_finished(): boolean;
+    run(action: PrintOperationAction, parent: Window | null): PrintOperationResult;
+    set_allow_async(allow_async: boolean): void;
+    set_current_page(current_page: number): void;
+    set_custom_tab_label(label: string | null): void;
+    set_default_page_setup(default_page_setup: PageSetup | null): void;
+    set_defer_drawing(): void;
+    set_embed_page_setup(embed: boolean): void;
+    set_export_filename(filename: string): void;
+    set_has_selection(has_selection: boolean): void;
+    set_job_name(job_name: string): void;
+    set_n_pages(n_pages: number): void;
+    set_print_settings(print_settings: PrintSettings | null): void;
+    set_show_progress(show_progress: boolean): void;
+    set_support_selection(support_selection: boolean): void;
+    set_track_print_status(track_status: boolean): void;
+    set_unit(unit: Unit): void;
+    set_use_full_page(full_page: boolean): void;
+    vfunc_begin_print(context: PrintContext): void;
+    vfunc_custom_widget_apply(widget: Widget): void;
+    vfunc_done(result: PrintOperationResult): void;
+    vfunc_draw_page(context: PrintContext, page_nr: number): void;
+    vfunc_end_print(context: PrintContext): void;
+    vfunc_paginate(context: PrintContext): boolean;
+    vfunc_preview(preview: PrintOperationPreview, context: PrintContext, parent: Window): boolean;
+    vfunc_request_page_setup(context: PrintContext, page_nr: number, setup: PageSetup): void;
+    vfunc_status_changed(): void;
+    vfunc_update_custom_widget(widget: Widget, setup: PageSetup, settings: PrintSettings): void;
+}
+export class PrintSettings extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_file(file_name: string): PrintSettings;
+    static new_from_gvariant(variant: GLib.Variant): PrintSettings;
+    static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PrintSettings;
+    copy(): PrintSettings;
+    foreach(func: PrintSettingsFunc, user_data: object | null): void;
+    get(key: string): string;
+    get_bool(key: string): boolean;
+    get_collate(): boolean;
+    get_default_source(): string;
+    get_dither(): string;
+    get_double(key: string): number;
+    get_double_with_default(key: string, def: number): number;
+    get_duplex(): PrintDuplex;
+    get_finishings(): string;
+    get_int(key: string): number;
+    get_int_with_default(key: string, def: number): number;
+    get_length(key: string, unit: Unit): number;
+    get_media_type(): string;
+    get_n_copies(): number;
+    get_number_up(): number;
+    get_number_up_layout(): NumberUpLayout;
+    get_orientation(): PageOrientation;
+    get_output_bin(): string;
+    get_page_ranges(): [PageRange[], number];
+    get_page_set(): PageSet;
+    get_paper_height(unit: Unit): number;
+    get_paper_size(): PaperSize;
+    get_paper_width(unit: Unit): number;
+    get_print_pages(): PrintPages;
+    get_printer(): string;
+    get_printer_lpi(): number;
+    get_quality(): PrintQuality;
+    get_resolution(): number;
+    get_resolution_x(): number;
+    get_resolution_y(): number;
+    get_reverse(): boolean;
+    get_scale(): number;
+    get_use_color(): boolean;
+    has_key(key: string): boolean;
+    load_file(file_name: string): boolean;
+    load_key_file(key_file: GLib.KeyFile, group_name: string | null): boolean;
+    set(key: string, value: string | null): void;
+    set_bool(key: string, value: boolean): void;
+    set_collate(collate: boolean): void;
+    set_default_source(default_source: string): void;
+    set_dither(dither: string): void;
+    set_double(key: string, value: number): void;
+    set_duplex(duplex: PrintDuplex): void;
+    set_finishings(finishings: string): void;
+    set_int(key: string, value: number): void;
+    set_length(key: string, value: number, unit: Unit): void;
+    set_media_type(media_type: string): void;
+    set_n_copies(num_copies: number): void;
+    set_number_up(number_up: number): void;
+    set_number_up_layout(number_up_layout: NumberUpLayout): void;
+    set_orientation(orientation: PageOrientation): void;
+    set_output_bin(output_bin: string): void;
+    set_page_ranges(page_ranges: PageRange[], num_ranges: number): void;
+    set_page_set(page_set: PageSet): void;
+    set_paper_height(height: number, unit: Unit): void;
+    set_paper_size(paper_size: PaperSize): void;
+    set_paper_width(width: number, unit: Unit): void;
+    set_print_pages(pages: PrintPages): void;
+    set_printer(printer: string): void;
+    set_printer_lpi(lpi: number): void;
+    set_quality(quality: PrintQuality): void;
+    set_resolution(resolution: number): void;
+    set_resolution_xy(resolution_x: number, resolution_y: number): void;
+    set_reverse(reverse: boolean): void;
+    set_scale(scale: number): void;
+    set_use_color(use_color: boolean): void;
+    to_file(file_name: string): boolean;
+    to_gvariant(): GLib.Variant;
+    to_key_file(key_file: GLib.KeyFile, group_name: string | null): void;
+    unset(key: string): void;
+}
+export class ProgressBar extends Widget {
+    constructor(config?: properties);
+    ellipsize: Pango.EllipsizeMode;
+    fraction: number;
+    inverted: boolean;
+    pulse_step: number;
+    show_text: boolean;
+    text: string;
+    get_ellipsize(): Pango.EllipsizeMode;
+    get_fraction(): number;
+    get_inverted(): boolean;
+    get_pulse_step(): number;
+    get_show_text(): boolean;
+    get_text(): string | null;
+    pulse(): void;
+    set_ellipsize(mode: Pango.EllipsizeMode): void;
+    set_fraction(fraction: number): void;
+    set_inverted(inverted: boolean): void;
+    set_pulse_step(fraction: number): void;
+    set_show_text(show_text: boolean): void;
+    set_text(text: string | null): void;
+}
+export class ProgressBarAccessible  {
+    constructor(config?: properties);
+    readonly priv: ProgressBarAccessiblePrivate;
+}
+export class RadioAction extends ToggleAction {
+    constructor(config?: properties);
+    current_value: number;
+    group: RadioAction;
+    value: number;
+    get_current_value(): number;
+    get_group(): string[];
+    join_group(group_source: RadioAction | null): void;
+    set_current_value(current_value: number): void;
+    set_group(group: string[]): void;
+    vfunc_changed(current: RadioAction): void;
+}
+export class RadioButton extends CheckButton {
+    constructor(config?: properties);
+    group: RadioButton;static new_from_widget(radio_group_member: RadioButton | null): Widget;
+    static new_with_label(group: string[], label: string): Widget;
+    static new_with_label(...args: never[]): Widget;
+    static new_with_label_from_widget(radio_group_member: RadioButton | null, label: string): Widget;
+    static new_with_mnemonic(group: string[], label: string): Widget;
+    static new_with_mnemonic(...args: never[]): Widget;
+    static new_with_mnemonic_from_widget(radio_group_member: RadioButton | null, label: string): Widget;
+    get_group(): string[];
+    join_group(group_source: RadioButton | null): void;
+    set_group(group: string[]): void;
+    vfunc_group_changed(): void;
+}
+export class RadioButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: RadioButtonAccessiblePrivate;
+}
+export class RadioMenuItem extends CheckMenuItem {
+    constructor(config?: properties);
+    group: RadioMenuItem;static new_from_widget(group: RadioMenuItem | null): Widget;
+    static new_with_label(group: string[], label: string): Widget;
+    static new_with_label(...args: never[]): Widget;
+    static new_with_label_from_widget(group: RadioMenuItem | null, label: string | null): Widget;
+    static new_with_mnemonic(group: string[], label: string): Widget;
+    static new_with_mnemonic(...args: never[]): Widget;
+    static new_with_mnemonic_from_widget(group: RadioMenuItem | null, label: string | null): Widget;
+    get_group(): string[];
+    join_group(group_source: RadioMenuItem | null): void;
+    set_group(group: string[]): void;
+    vfunc_group_changed(): void;
+}
+export class RadioMenuItemAccessible  {
+    constructor(config?: properties);
+    readonly priv: RadioMenuItemAccessiblePrivate;
+}
+export class RadioToolButton extends ToggleToolButton {
+    constructor(config?: properties);
+    group: RadioToolButton;static new_from_stock(group: string[], stock_id: string): ToolItem;
+    static new_from_stock(...args: never[]): ToolItem;
+    static new_from_widget(group: RadioToolButton | null): ToolItem;
+    static new_with_stock_from_widget(group: RadioToolButton | null, stock_id: string): ToolItem;
+    get_group(): string[];
+    set_group(group: string[]): void;
+}
+export class Range  {
+    constructor(config?: properties);
+    adjustment: Adjustment;
+    fill_level: number;
+    inverted: boolean;
+    lower_stepper_sensitivity: SensitivityType;
+    restrict_to_fill_level: boolean;
+    round_digits: number;
+    show_fill_level: boolean;
+    upper_stepper_sensitivity: SensitivityType;
+    readonly widget: Widget;
+    readonly priv: RangePrivate;
+    get_adjustment(): Adjustment;
+    get_fill_level(): number;
+    get_flippable(): boolean;
+    get_inverted(): boolean;
+    get_lower_stepper_sensitivity(): SensitivityType;
+    get_min_slider_size(): number;
+    get_range_rect(): [Gdk.Rectangle];
+    get_restrict_to_fill_level(): boolean;
+    get_round_digits(): number;
+    get_show_fill_level(): boolean;
+    get_slider_range(): [number | null,number | null];
+    get_slider_size_fixed(): boolean;
+    get_upper_stepper_sensitivity(): SensitivityType;
+    get_value(): number;
+    set_adjustment(adjustment: Adjustment): void;
+    set_fill_level(fill_level: number): void;
+    set_flippable(flippable: boolean): void;
+    set_increments(step: number, page: number): void;
+    set_inverted(setting: boolean): void;
+    set_lower_stepper_sensitivity(sensitivity: SensitivityType): void;
+    set_min_slider_size(min_size: number): void;
+    set_range(min: number, max: number): void;
+    set_restrict_to_fill_level(restrict_to_fill_level: boolean): void;
+    set_round_digits(round_digits: number): void;
+    set_show_fill_level(show_fill_level: boolean): void;
+    set_slider_size_fixed(size_fixed: boolean): void;
+    set_upper_stepper_sensitivity(sensitivity: SensitivityType): void;
+    set_value(value: number): void;
+}
+export class RangeAccessible  {
+    constructor(config?: properties);
+    readonly priv: RangeAccessiblePrivate;
+}
+export class RcStyle extends GObject.Object {
+    constructor(config?: properties);
+    copy(): RcStyle;
+    vfunc_merge(src: RcStyle): void;
+    vfunc_parse(settings: Settings, scanner: GLib.Scanner): number;
+}
+export class RecentAction extends Action {
+    constructor(config?: properties);
+    show_numbers: boolean;static new_for_manager(name: string, label: string | null, tooltip: string | null, stock_id: string | null, manager: RecentManager | null): Action;
+    get_show_numbers(): boolean;
+    set_show_numbers(show_numbers: boolean): void;
+}
+export class RecentChooserDialog extends Dialog {
+    constructor(config?: properties);
+    static new_for_manager(title: string | null, parent: Window | null, manager: RecentManager, first_button_text: string | null, ___: any): Widget;
+}
+export class RecentChooserMenu extends Menu {
+    constructor(config?: properties);
+    show_numbers: boolean;static new_for_manager(manager: RecentManager): Widget;
+    get_show_numbers(): boolean;
+    set_show_numbers(show_numbers: boolean): void;
+}
+export class RecentChooserWidget extends Box {
+    constructor(config?: properties);
+    static new_for_manager(manager: RecentManager): Widget;
+}
+export class RecentFilter extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    add_age(days: number): void;
+    add_application(application: string): void;
+    add_custom(needed: RecentFilterFlags, func: RecentFilterFunc, data: object | null, data_destroy: GLib.DestroyNotify): void;
+    add_group(group: string): void;
+    add_mime_type(mime_type: string): void;
+    add_pattern(pattern: string): void;
+    add_pixbuf_formats(): void;
+    filter(filter_info: RecentFilterInfo): boolean;
+    get_name(): string | null;
+    get_needed(): RecentFilterFlags;
+    set_name(name: string): void;
+}
+export class RecentManager extends GObject.Object {
+    constructor(config?: properties);
+    filename: string;
+    readonly size: number;
+    add_full(uri: string, recent_data: RecentData): boolean;
+    add_item(uri: string): boolean;
+    get_items(): GLib.List;
+    has_item(uri: string): boolean;
+    lookup_item(uri: string): RecentInfo | null;
+    move_item(uri: string, new_uri: string | null): boolean;
+    purge_items(): number;
+    remove_item(uri: string): boolean;
+    vfunc_changed(): void;
+    static get_default(): RecentManager;
+}
+export class RendererCellAccessible extends CellAccessible {
+    constructor(config?: properties);
+    renderer: CellRenderer;
+}
+export class Revealer extends Bin {
+    constructor(config?: properties);
+    readonly child_revealed: boolean;
+    reveal_child: boolean;
+    transition_duration: number;
+    transition_type: RevealerTransitionType;
+    get_child_revealed(): boolean;
+    get_reveal_child(): boolean;
+    get_transition_duration(): number;
+    get_transition_type(): RevealerTransitionType;
+    set_reveal_child(reveal_child: boolean): void;
+    set_transition_duration(duration: number): void;
+    set_transition_type(transition: RevealerTransitionType): void;
+}
+export class Scale extends Range {
+    constructor(config?: properties);
+    digits: number;
+    has_origin: boolean;
+    value_pos: PositionType;static new_with_range(orientation: Orientation, min: number, max: number, step: number): Widget;
+    add_mark(value: number, position: PositionType, markup: string | null): void;
+    clear_marks(): void;
+    get_digits(): number;
+    get_draw_value(): boolean;
+    get_has_origin(): boolean;
+    get_layout(): Pango.Layout | null;
+    get_layout_offsets(): [number | null,number | null];
+    get_value_pos(): PositionType;
+    set_digits(digits: number): void;
+    set_draw_value(draw_value: boolean): void;
+    set_has_origin(has_origin: boolean): void;
+    set_value_pos(pos: PositionType): void;
+    vfunc_draw_value(): void;
+    vfunc_format_value(value: number): string;
+    vfunc_get_layout_offsets(): [number | null,number | null];
+}
+export class ScaleAccessible  {
+    constructor(config?: properties);
+    readonly priv: ScaleAccessiblePrivate;
+}
+export class ScaleButton extends Button {
+    constructor(config?: properties);
+    adjustment: Adjustment;
+    icons: string[];
+    size: IconSize;
+    value: number;
+    get_adjustment(): Adjustment;
+    get_minus_button(): Button;
+    get_plus_button(): Button;
+    get_popup(): Widget;
+    get_value(): number;
+    set_adjustment(adjustment: Adjustment): void;
+    set_icons(icons: string[]): void;
+    set_value(value: number): void;
+    vfunc_value_changed(value: number): void;
+}
+export class ScaleButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: ScaleButtonAccessiblePrivate;
+}
+export class Scrollbar extends Range {
+    constructor(config?: properties);
+}
+export class ScrolledWindow extends Bin {
+    constructor(config?: properties);
+    hadjustment: Adjustment;
+    hscrollbar_policy: PolicyType;
+    kinetic_scrolling: boolean;
+    max_content_height: number;
+    max_content_width: number;
+    min_content_height: number;
+    min_content_width: number;
+    overlay_scrolling: boolean;
+    propagate_natural_height: boolean;
+    propagate_natural_width: boolean;
+    shadow_type: ShadowType;
+    vadjustment: Adjustment;
+    vscrollbar_policy: PolicyType;
+    window_placement: CornerType;
+    window_placement_set: boolean;
+    add_with_viewport(child: Widget): void;
+    get_capture_button_press(): boolean;
+    get_hadjustment(): Adjustment;
+    get_hscrollbar(): Widget;
+    get_kinetic_scrolling(): boolean;
+    get_max_content_height(): number;
+    get_max_content_width(): number;
+    get_min_content_height(): number;
+    get_min_content_width(): number;
+    get_overlay_scrolling(): boolean;
+    get_placement(): CornerType;
+    get_policy(): [PolicyType | null,PolicyType | null];
+    get_propagate_natural_height(): boolean;
+    get_propagate_natural_width(): boolean;
+    get_shadow_type(): ShadowType;
+    get_vadjustment(): Adjustment;
+    get_vscrollbar(): Widget;
+    set_capture_button_press(capture_button_press: boolean): void;
+    set_hadjustment(hadjustment: Adjustment | null): void;
+    set_kinetic_scrolling(kinetic_scrolling: boolean): void;
+    set_max_content_height(height: number): void;
+    set_max_content_width(width: number): void;
+    set_min_content_height(height: number): void;
+    set_min_content_width(width: number): void;
+    set_overlay_scrolling(overlay_scrolling: boolean): void;
+    set_placement(window_placement: CornerType): void;
+    set_policy(hscrollbar_policy: PolicyType, vscrollbar_policy: PolicyType): void;
+    set_propagate_natural_height(propagate: boolean): void;
+    set_propagate_natural_width(propagate: boolean): void;
+    set_shadow_type(type: ShadowType): void;
+    set_vadjustment(vadjustment: Adjustment | null): void;
+    unset_placement(): void;
+    vfunc_move_focus_out(direction: DirectionType): void;
+    vfunc_scroll_child(scroll: ScrollType, horizontal: boolean): boolean;
+}
+export class ScrolledWindowAccessible  {
+    constructor(config?: properties);
+    readonly priv: ScrolledWindowAccessiblePrivate;
+}
+export class SearchBar extends Bin {
+    constructor(config?: properties);
+    search_mode_enabled: boolean;
+    show_close_button: boolean;
+    connect_entry(entry: Entry): void;
+    get_search_mode(): boolean;
+    get_show_close_button(): boolean;
+    handle_event(event: Gdk.Event): boolean;
+    set_search_mode(search_mode: boolean): void;
+    set_show_close_button(visible: boolean): void;
+}
+export class SearchEntry extends Entry {
+    constructor(config?: properties);
+    handle_event(event: Gdk.Event): boolean;
+    vfunc_next_match(): void;
+    vfunc_previous_match(): void;
+    vfunc_search_changed(): void;
+    vfunc_stop_search(): void;
+}
+export class Separator extends Widget {
+    constructor(config?: properties);
+}
+export class SeparatorMenuItem extends MenuItem {
+    constructor(config?: properties);
+}
+export class SeparatorToolItem extends ToolItem {
+    constructor(config?: properties);
+    get_draw(): boolean;
+    set_draw(draw: boolean): void;
+}
+export class Settings  {
+    constructor(config?: properties);
+    readonly color_hash: GLib.HashTable;
+    gtk_alternative_button_order: boolean;
+    gtk_alternative_sort_arrows: boolean;
+    gtk_application_prefer_dark_theme: boolean;
+    gtk_auto_mnemonics: boolean;
+    gtk_button_images: boolean;
+    gtk_can_change_accels: boolean;
+    gtk_color_palette: string;
+    gtk_color_scheme: string;
+    gtk_cursor_blink: boolean;
+    gtk_cursor_blink_time: number;
+    gtk_cursor_blink_timeout: number;
+    gtk_cursor_theme_name: string;
+    gtk_cursor_theme_size: number;
+    gtk_decoration_layout: string;
+    gtk_dialogs_use_header: boolean;
+    gtk_dnd_drag_threshold: number;
+    gtk_double_click_distance: number;
+    gtk_double_click_time: number;
+    gtk_enable_accels: boolean;
+    gtk_enable_animations: boolean;
+    gtk_enable_event_sounds: boolean;
+    gtk_enable_input_feedback_sounds: boolean;
+    gtk_enable_mnemonics: boolean;
+    gtk_enable_primary_paste: boolean;
+    gtk_enable_tooltips: boolean;
+    gtk_entry_password_hint_timeout: number;
+    gtk_entry_select_on_focus: boolean;
+    gtk_error_bell: boolean;
+    gtk_fallback_icon_theme: string;
+    gtk_file_chooser_backend: string;
+    gtk_font_name: string;
+    gtk_fontconfig_timestamp: number;
+    gtk_icon_sizes: string;
+    gtk_icon_theme_name: string;
+    gtk_im_module: string;
+    gtk_im_preedit_style: IMPreeditStyle;
+    gtk_im_status_style: IMStatusStyle;
+    gtk_key_theme_name: string;
+    gtk_keynav_cursor_only: boolean;
+    gtk_keynav_use_caret: boolean;
+    gtk_keynav_wrap_around: boolean;
+    gtk_label_select_on_focus: boolean;
+    gtk_long_press_time: number;
+    gtk_menu_bar_accel: string;
+    gtk_menu_bar_popup_delay: number;
+    gtk_menu_images: boolean;
+    gtk_menu_popdown_delay: number;
+    gtk_menu_popup_delay: number;
+    gtk_modules: string;
+    gtk_overlay_scrolling: boolean;
+    gtk_primary_button_warps_slider: boolean;
+    gtk_print_backends: string;
+    gtk_print_preview_command: string;
+    gtk_recent_files_enabled: boolean;
+    gtk_recent_files_limit: number;
+    gtk_recent_files_max_age: number;
+    gtk_scrolled_window_placement: CornerType;
+    gtk_shell_shows_app_menu: boolean;
+    gtk_shell_shows_desktop: boolean;
+    gtk_shell_shows_menubar: boolean;
+    gtk_show_input_method_menu: boolean;
+    gtk_show_unicode_menu: boolean;
+    gtk_sound_theme_name: string;
+    gtk_split_cursor: boolean;
+    gtk_theme_name: string;
+    gtk_timeout_expand: number;
+    gtk_timeout_initial: number;
+    gtk_timeout_repeat: number;
+    gtk_titlebar_double_click: string;
+    gtk_titlebar_middle_click: string;
+    gtk_titlebar_right_click: string;
+    gtk_toolbar_icon_size: IconSize;
+    gtk_toolbar_style: ToolbarStyle;
+    gtk_tooltip_browse_mode_timeout: number;
+    gtk_tooltip_browse_timeout: number;
+    gtk_tooltip_timeout: number;
+    gtk_touchscreen_mode: boolean;
+    gtk_visible_focus: PolicyType;
+    gtk_xft_antialias: number;
+    gtk_xft_dpi: number;
+    gtk_xft_hinting: number;
+    gtk_xft_hintstyle: string;
+    gtk_xft_rgba: string;
+    readonly priv: SettingsPrivate;
+    reset_property(name: string): void;
+    set_double_property(name: string, v_double: number, origin: string): void;
+    set_long_property(name: string, v_long: number, origin: string): void;
+    set_property_value(name: string, svalue: SettingsValue): void;
+    set_string_property(name: string, v_string: string, origin: string): void;
+    static get_default(): Settings | null;
+    static get_for_screen(screen: Gdk.Screen): Settings;
+    static install_property(pspec: GObject.ParamSpec): void;
+    static install_property_parser(pspec: GObject.ParamSpec, parser: RcPropertyParser): void;
+}
+export class ShortcutLabel extends Box {
+    constructor(config?: properties);
+    accelerator: string;
+    disabled_text: string;
+    get_accelerator(): string | null;
+    get_disabled_text(): string | null;
+    set_accelerator(accelerator: string): void;
+    set_disabled_text(disabled_text: string): void;
+}
+export class ShortcutsGroup  {
+    constructor(config?: properties);
+    accel_size_group: SizeGroup;
+    readonly height: number;
+    title: string;
+    title_size_group: SizeGroup;
+    view: string;
+}
+export class ShortcutsSection  {
+    constructor(config?: properties);
+    max_height: number;
+    section_name: string;
+    title: string;
+    view_name: string;
+}
+export class ShortcutsShortcut  {
+    constructor(config?: properties);
+    accel_size_group: SizeGroup;
+    accelerator: string;
+    action_name: string;
+    direction: TextDirection;
+    icon: Gio.Icon;
+    icon_set: boolean;
+    shortcut_type: ShortcutType;
+    subtitle: string;
+    subtitle_set: boolean;
+    title: string;
+    title_size_group: SizeGroup;
+}
+export class ShortcutsWindow  {
+    constructor(config?: properties);
+    section_name: string;
+    view_name: string;
+    readonly window: Window;
+}
+export class SizeGroup extends GObject.Object {
+    constructor(config?: properties);
+    ignore_hidden: boolean;
+    mode: SizeGroupMode;
+    add_widget(widget: Widget): void;
+    get_ignore_hidden(): boolean;
+    get_mode(): SizeGroupMode;
+    get_widgets(): string[];
+    remove_widget(widget: Widget): void;
+    set_ignore_hidden(ignore_hidden: boolean): void;
+    set_mode(mode: SizeGroupMode): void;
+}
+export class Socket extends Container {
+    constructor(config?: properties);
+    add_id(window: xlib.Window): void;
+    get_id(): xlib.Window;
+    get_plug_window(): Gdk.Window | null;
+    vfunc_plug_added(): void;
+    vfunc_plug_removed(): boolean;
+}
+export class SpinButton extends Entry {
+    constructor(config?: properties);
+    adjustment: Adjustment;
+    climb_rate: number;
+    digits: number;
+    numeric: boolean;
+    snap_to_ticks: boolean;
+    update_policy: SpinButtonUpdatePolicy;
+    value: number;
+    wrap: boolean;static new_with_range(min: number, max: number, step: number): Widget;
+    configure(adjustment: Adjustment | null, climb_rate: number, digits: number): void;
+    get_adjustment(): Adjustment;
+    get_digits(): number;
+    get_increments(): [number | null,number | null];
+    get_numeric(): boolean;
+    get_range(): [number | null,number | null];
+    get_snap_to_ticks(): boolean;
+    get_update_policy(): SpinButtonUpdatePolicy;
+    get_value(): number;
+    get_value_as_int(): number;
+    get_wrap(): boolean;
+    set_adjustment(adjustment: Adjustment): void;
+    set_digits(digits: number): void;
+    set_increments(step: number, page: number): void;
+    set_numeric(numeric: boolean): void;
+    set_range(min: number, max: number): void;
+    set_snap_to_ticks(snap_to_ticks: boolean): void;
+    set_update_policy(policy: SpinButtonUpdatePolicy): void;
+    set_value(value: number): void;
+    set_wrap(wrap: boolean): void;
+    spin(direction: SpinType, increment: number): void;
+    update(): void;
+    vfunc_change_value(scroll: ScrollType): void;
+    vfunc_input(new_value: number): number;
+    vfunc_output(): number;
+    vfunc_value_changed(): void;
+    vfunc_wrapped(): void;
+}
+export class SpinButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: SpinButtonAccessiblePrivate;
+}
+export class Spinner extends Widget {
+    constructor(config?: properties);
+    active: boolean;
+    start(): void;
+    stop(): void;
+}
+export class SpinnerAccessible  {
+    constructor(config?: properties);
+    readonly priv: SpinnerAccessiblePrivate;
+}
+export class Stack extends Container {
+    constructor(config?: properties);
+    hhomogeneous: boolean;
+    homogeneous: boolean;
+    interpolate_size: boolean;
+    transition_duration: number;
+    readonly transition_running: boolean;
+    transition_type: StackTransitionType;
+    vhomogeneous: boolean;
+    visible_child: Widget;
+    visible_child_name: string;
+    add_named(child: Widget, name: string): void;
+    add_titled(child: Widget, name: string, title: string): void;
+    get_child_by_name(name: string): Widget | null;
+    get_hhomogeneous(): boolean;
+    get_homogeneous(): boolean;
+    get_interpolate_size(): boolean;
+    get_transition_duration(): number;
+    get_transition_running(): boolean;
+    get_transition_type(): StackTransitionType;
+    get_vhomogeneous(): boolean;
+    get_visible_child(): Widget | null;
+    get_visible_child_name(): string | null;
+    set_hhomogeneous(hhomogeneous: boolean): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_interpolate_size(interpolate_size: boolean): void;
+    set_transition_duration(duration: number): void;
+    set_transition_type(transition: StackTransitionType): void;
+    set_vhomogeneous(vhomogeneous: boolean): void;
+    set_visible_child(child: Widget): void;
+    set_visible_child_full(name: string, transition: StackTransitionType): void;
+    set_visible_child_name(name: string): void;
+}
+export class StackAccessible  {
+    constructor(config?: properties);
+}
+export class StackSidebar extends Bin {
+    constructor(config?: properties);
+    stack: Stack;
+    get_stack(): Stack | null;
+    set_stack(stack: Stack): void;
+}
+export class StackSwitcher extends Box {
+    constructor(config?: properties);
+    icon_size: number;
+    stack: Stack;
+    get_stack(): Stack | null;
+    set_stack(stack: Stack | null): void;
+}
+export class StatusIcon extends GObject.Object {
+    constructor(config?: properties);
+    readonly embedded: boolean;
+    file: string;
+    gicon: Gio.Icon;
+    has_tooltip: boolean;
+    icon_name: string;
+    readonly orientation: Orientation;
+    pixbuf: GdkPixbuf.Pixbuf;
+    screen: Gdk.Screen;
+    readonly size: number;
+    stock: string;
+    readonly storage_type: ImageType;
+    title: string;
+    tooltip_markup: string;
+    tooltip_text: string;
+    visible: boolean;static new_from_file(filename: string): StatusIcon;
+    static new_from_gicon(icon: Gio.Icon): StatusIcon;
+    static new_from_icon_name(icon_name: string): StatusIcon;
+    static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): StatusIcon;
+    static new_from_stock(stock_id: string): StatusIcon;
+    get_geometry(): [boolean, Gdk.Screen | null,Gdk.Rectangle | null,Orientation | null];
+    get_gicon(): Gio.Icon | null;
+    get_has_tooltip(): boolean;
+    get_icon_name(): string | null;
+    get_pixbuf(): GdkPixbuf.Pixbuf | null;
+    get_screen(): Gdk.Screen;
+    get_size(): number;
+    get_stock(): string | null;
+    get_storage_type(): ImageType;
+    get_title(): string;
+    get_tooltip_markup(): string | null;
+    get_tooltip_text(): string | null;
+    get_visible(): boolean;
+    get_x11_window_id(): number;
+    is_embedded(): boolean;
+    set_from_file(filename: string): void;
+    set_from_gicon(icon: Gio.Icon): void;
+    set_from_icon_name(icon_name: string): void;
+    set_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): void;
+    set_from_stock(stock_id: string): void;
+    set_has_tooltip(has_tooltip: boolean): void;
+    set_name(name: string): void;
+    set_screen(screen: Gdk.Screen): void;
+    set_title(title: string): void;
+    set_tooltip_markup(markup: string | null): void;
+    set_tooltip_text(text: string): void;
+    set_visible(visible: boolean): void;
+    vfunc_activate(): void;
+    vfunc_button_press_event(event: Gdk.EventButton): boolean;
+    vfunc_button_release_event(event: Gdk.EventButton): boolean;
+    vfunc_popup_menu(button: number, activate_time: number): void;
+    vfunc_query_tooltip(x: number, y: number, keyboard_mode: boolean, tooltip: Tooltip): boolean;
+    vfunc_scroll_event(event: Gdk.EventScroll): boolean;
+    vfunc_size_changed(size: number): boolean;
+    static position_menu(menu: Menu, x: number, y: number, user_data: StatusIcon): [number,number,boolean];
+}
+export class Statusbar extends Box {
+    constructor(config?: properties);
+    get_context_id(context_description: string): number;
+    get_message_area(): Box;
+    pop(context_id: number): void;
+    push(context_id: number, text: string): number;
+    remove(context_id: number, message_id: number): void;
+    remove(...args: never[]): never;
+    remove_all(context_id: number): void;
+    vfunc_text_popped(context_id: number, text: string): void;
+    vfunc_text_pushed(context_id: number, text: string): void;
+}
+export class StatusbarAccessible  {
+    constructor(config?: properties);
+    readonly priv: StatusbarAccessiblePrivate;
+}
+export class Style extends GObject.Object {
+    constructor(config?: properties);
+    context: StyleContext;
+    apply_default_background(cr: cairo.Context, window: Gdk.Window, state_type: StateType, x: number, y: number, width: number, height: number): void;
+    copy(): Style;
+    detach(): void;
+    get_style_property(widget_type: GType, property_name: string): [GObject.Value];
+    has_context(): boolean;
+    lookup_color(color_name: string): [boolean, Gdk.Color];
+    lookup_icon_set(stock_id: string): IconSet;
+    render_icon(source: IconSource, direction: TextDirection, state: StateType, size: number, widget: Widget | null, detail: string | null): GdkPixbuf.Pixbuf;
+    set_background(window: Gdk.Window, state_type: StateType): void;
+    vfunc_copy(src: Style): void;
+    vfunc_draw_arrow(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, arrow_type: ArrowType, fill: boolean, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_box(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_box_gap(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, gap_side: PositionType, gap_x: number, gap_width: number): void;
+    vfunc_draw_check(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_diamond(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_expander(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, x: number, y: number, expander_style: ExpanderStyle): void;
+    vfunc_draw_extension(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, gap_side: PositionType): void;
+    vfunc_draw_flat_box(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_focus(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_handle(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, orientation: Orientation): void;
+    vfunc_draw_hline(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, x1: number, x2: number, y: number): void;
+    vfunc_draw_layout(cr: cairo.Context, state_type: StateType, use_text: boolean, widget: Widget, detail: string, x: number, y: number, layout: Pango.Layout): void;
+    vfunc_draw_option(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_resize_grip(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, edge: Gdk.WindowEdge, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_shadow(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_shadow_gap(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, gap_side: PositionType, gap_x: number, gap_width: number): void;
+    vfunc_draw_slider(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number, orientation: Orientation): void;
+    vfunc_draw_spinner(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, step: number, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_tab(cr: cairo.Context, state_type: StateType, shadow_type: ShadowType, widget: Widget, detail: string, x: number, y: number, width: number, height: number): void;
+    vfunc_draw_vline(cr: cairo.Context, state_type: StateType, widget: Widget, detail: string, y1_: number, y2_: number, x: number): void;
+    vfunc_init_from_rc(rc_style: RcStyle): void;
+    vfunc_realize(): void;
+    vfunc_render_icon(source: IconSource, direction: TextDirection, state: StateType, size: number, widget: Widget | null, detail: string | null): GdkPixbuf.Pixbuf;
+    vfunc_set_background(window: Gdk.Window, state_type: StateType): void;
+    vfunc_unrealize(): void;
+}
+export class StyleContext extends GObject.Object {
+    constructor(config?: properties);
+    direction: TextDirection;
+    paint_clock: Gdk.FrameClock;
+    screen: Gdk.Screen;
+    add_class(class_name: string): void;
+    add_provider(provider: StyleProvider, priority: number): void;
+    add_region(region_name: string, flags: RegionFlags): void;
+    cancel_animations(region_id: object | null): void;
+    get_background_color(state: StateFlags): [Gdk.RGBA];
+    get_border(state: StateFlags): [Border];
+    get_border_color(state: StateFlags): [Gdk.RGBA];
+    get_color(state: StateFlags): [Gdk.RGBA];
+    get_direction(): TextDirection;
+    get_font(state: StateFlags): Pango.FontDescription;
+    get_frame_clock(): Gdk.FrameClock | null;
+    get_junction_sides(): JunctionSides;
+    get_margin(state: StateFlags): [Border];
+    get_padding(state: StateFlags): [Border];
+    get_parent(): StyleContext | null;
+    get_path(): WidgetPath;
+    get_property(property: string, state: StateFlags): [GObject.Value];
+    get_property(...args: never[]): never;
+    get_scale(): number;
+    get_screen(): Gdk.Screen;
+    get_section(property: string): CssSection | null;
+    get_state(): StateFlags;
+    get_style_property(property_name: string, value: GObject.Value): void;
+    has_class(class_name: string): boolean;
+    has_region(region_name: string): [boolean, RegionFlags | null];
+    invalidate(): void;
+    list_classes(): GLib.List;
+    list_regions(): GLib.List;
+    lookup_color(color_name: string): [boolean, Gdk.RGBA];
+    lookup_icon_set(stock_id: string): IconSet | null;
+    notify_state_change(window: Gdk.Window, region_id: object | null, state: StateType, state_value: boolean): void;
+    pop_animatable_region(): void;
+    push_animatable_region(region_id: object | null): void;
+    remove_class(class_name: string): void;
+    remove_provider(provider: StyleProvider): void;
+    remove_region(region_name: string): void;
+    restore(): void;
+    save(): void;
+    scroll_animations(window: Gdk.Window, dx: number, dy: number): void;
+    set_background(window: Gdk.Window): void;
+    set_direction(direction: TextDirection): void;
+    set_frame_clock(frame_clock: Gdk.FrameClock): void;
+    set_junction_sides(sides: JunctionSides): void;
+    set_parent(parent: StyleContext | null): void;
+    set_path(path: WidgetPath): void;
+    set_scale(scale: number): void;
+    set_screen(screen: Gdk.Screen): void;
+    set_state(flags: StateFlags): void;
+    state_is_running(state: StateType): [boolean, number];
+    to_string(flags: StyleContextPrintFlags): string;
+    vfunc_changed(): void;
+    static add_provider_for_screen(screen: Gdk.Screen, provider: StyleProvider, priority: number): void;
+    static remove_provider_for_screen(screen: Gdk.Screen, provider: StyleProvider): void;
+    static reset_widgets(screen: Gdk.Screen): void;
+}
+export class StyleProperties extends GObject.Object {
+    constructor(config?: properties);
+    clear(): void;
+    get_property(property: string, state: StateFlags): [boolean, GObject.Value];
+    get_property(...args: never[]): never;
+    lookup_color(name: string): SymbolicColor;
+    map_color(name: string, color: SymbolicColor): void;
+    merge(props_to_merge: StyleProperties, replace: boolean): void;
+    set_property(property: string, state: StateFlags, value: GObject.Value): void;
+    set_property(...args: never[]): never;
+    unset_property(property: string, state: StateFlags): void;
+}
+export class Switch extends Widget {
+    constructor(config?: properties);
+    active: boolean;
+    state: boolean;
+    get_active(): boolean;
+    get_state(): boolean;
+    get_state(...args: never[]): never;
+    set_active(is_active: boolean): void;
+    set_state(state: boolean): void;
+    set_state(...args: never[]): never;
+    vfunc_activate(): void;
+    activate(...args: never[]): never;
+    vfunc_state_set(state: boolean): boolean;
+}
+export class SwitchAccessible  {
+    constructor(config?: properties);
+    readonly priv: SwitchAccessiblePrivate;
+}
+export class Table extends Container {
+    constructor(config?: properties);
+    column_spacing: number;
+    homogeneous: boolean;
+    n_columns: number;
+    n_rows: number;
+    row_spacing: number;
+    attach(child: Widget, left_attach: number, right_attach: number, top_attach: number, bottom_attach: number, xoptions: AttachOptions, yoptions: AttachOptions, xpadding: number, ypadding: number): void;
+    attach_defaults(widget: Widget, left_attach: number, right_attach: number, top_attach: number, bottom_attach: number): void;
+    get_col_spacing(column: number): number;
+    get_default_col_spacing(): number;
+    get_default_row_spacing(): number;
+    get_homogeneous(): boolean;
+    get_row_spacing(row: number): number;
+    get_size(): [number | null,number | null];
+    resize(rows: number, columns: number): void;
+    set_col_spacing(column: number, spacing: number): void;
+    set_col_spacings(spacing: number): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_row_spacing(row: number, spacing: number): void;
+    set_row_spacings(spacing: number): void;
+}
+export class TearoffMenuItem extends MenuItem {
+    constructor(config?: properties);
+}
+export class TextBuffer extends GObject.Object {
+    constructor(config?: properties);
+    readonly copy_target_list: TargetList;
+    readonly cursor_position: number;
+    readonly has_selection: boolean;
+    readonly paste_target_list: TargetList;
+    tag_table: TextTagTable;
+    text: string;
+    add_mark(mark: TextMark, where: TextIter): void;
+    add_selection_clipboard(clipboard: Clipboard): void;
+    apply_tag(tag: TextTag, start: TextIter, end: TextIter): void;
+    apply_tag_by_name(name: string, start: TextIter, end: TextIter): void;
+    backspace(iter: TextIter, interactive: boolean, default_editable: boolean): boolean;
+    begin_user_action(): void;
+    copy_clipboard(clipboard: Clipboard): void;
+    create_child_anchor(iter: TextIter): TextChildAnchor;
+    create_mark(mark_name: string | null, where: TextIter, left_gravity: boolean): TextMark;
+    cut_clipboard(clipboard: Clipboard, default_editable: boolean): void;
+    _delete(start: TextIter, end: TextIter): void;
+    delete_interactive(start_iter: TextIter, end_iter: TextIter, default_editable: boolean): boolean;
+    delete_mark(mark: TextMark): void;
+    delete_mark_by_name(name: string): void;
+    delete_selection(interactive: boolean, default_editable: boolean): boolean;
+    deserialize(content_buffer: TextBuffer, format: Gdk.Atom, iter: TextIter, data: number[], length: number): boolean;
+    deserialize_get_can_create_tags(format: Gdk.Atom): boolean;
+    deserialize_set_can_create_tags(format: Gdk.Atom, can_create_tags: boolean): void;
+    end_user_action(): void;
+    get_bounds(): [TextIter,TextIter];
+    get_char_count(): number;
+    get_copy_target_list(): TargetList;
+    get_deserialize_formats(): [Gdk.Atom[], number];
+    get_end_iter(): [TextIter];
+    get_has_selection(): boolean;
+    get_insert(): TextMark;
+    get_iter_at_child_anchor(anchor: TextChildAnchor): [TextIter];
+    get_iter_at_line(line_number: number): [TextIter];
+    get_iter_at_line_index(line_number: number, byte_index: number): [TextIter];
+    get_iter_at_line_offset(line_number: number, char_offset: number): [TextIter];
+    get_iter_at_mark(mark: TextMark): [TextIter];
+    get_iter_at_offset(char_offset: number): [TextIter];
+    get_line_count(): number;
+    get_mark(name: string): TextMark | null;
+    get_modified(): boolean;
+    get_paste_target_list(): TargetList;
+    get_selection_bound(): TextMark;
+    get_selection_bounds(): [boolean, TextIter,TextIter];
+    get_serialize_formats(): [Gdk.Atom[], number];
+    get_slice(start: TextIter, end: TextIter, include_hidden_chars: boolean): string;
+    get_start_iter(): [TextIter];
+    get_tag_table(): TextTagTable;
+    get_text(start: TextIter, end: TextIter, include_hidden_chars: boolean): string;
+    insert(iter: TextIter, text: string, len: number): void;
+    insert_at_cursor(text: string, len: number): void;
+    insert_child_anchor(iter: TextIter, anchor: TextChildAnchor): void;
+    insert_interactive(iter: TextIter, text: string, len: number, default_editable: boolean): boolean;
+    insert_interactive_at_cursor(text: string, len: number, default_editable: boolean): boolean;
+    insert_markup(iter: TextIter, markup: string, len: number): void;
+    insert_pixbuf(iter: TextIter, pixbuf: GdkPixbuf.Pixbuf): void;
+    insert_range(iter: TextIter, start: TextIter, end: TextIter): void;
+    insert_range_interactive(iter: TextIter, start: TextIter, end: TextIter, default_editable: boolean): boolean;
+    move_mark(mark: TextMark, where: TextIter): void;
+    move_mark_by_name(name: string, where: TextIter): void;
+    paste_clipboard(clipboard: Clipboard, override_location: TextIter | null, default_editable: boolean): void;
+    place_cursor(where: TextIter): void;
+    register_deserialize_format(mime_type: string, _function: TextBufferDeserializeFunc, user_data: object | null, user_data_destroy: GLib.DestroyNotify): Gdk.Atom;
+    register_deserialize_tagset(tagset_name: string | null): Gdk.Atom;
+    register_serialize_format(mime_type: string, _function: TextBufferSerializeFunc, user_data: object | null, user_data_destroy: GLib.DestroyNotify): Gdk.Atom;
+    register_serialize_tagset(tagset_name: string | null): Gdk.Atom;
+    remove_all_tags(start: TextIter, end: TextIter): void;
+    remove_selection_clipboard(clipboard: Clipboard): void;
+    remove_tag(tag: TextTag, start: TextIter, end: TextIter): void;
+    remove_tag_by_name(name: string, start: TextIter, end: TextIter): void;
+    select_range(ins: TextIter, bound: TextIter): void;
+    serialize(content_buffer: TextBuffer, format: Gdk.Atom, start: TextIter, end: TextIter): [number[], number];
+    set_modified(setting: boolean): void;
+    set_text(text: string, len: number): void;
+    unregister_deserialize_format(format: Gdk.Atom): void;
+    unregister_serialize_format(format: Gdk.Atom): void;
+    vfunc_apply_tag(tag: TextTag, start: TextIter, end: TextIter): void;
+    vfunc_begin_user_action(): void;
+    vfunc_changed(): void;
+    vfunc_delete_range(start: TextIter, end: TextIter): void;
+    vfunc_end_user_action(): void;
+    vfunc_insert_child_anchor(iter: TextIter, anchor: TextChildAnchor): void;
+    vfunc_insert_pixbuf(iter: TextIter, pixbuf: GdkPixbuf.Pixbuf): void;
+    vfunc_insert_text(pos: TextIter, new_text: string, new_text_length: number): void;
+    vfunc_mark_deleted(mark: TextMark): void;
+    vfunc_mark_set(location: TextIter, mark: TextMark): void;
+    vfunc_modified_changed(): void;
+    vfunc_paste_done(clipboard: Clipboard): void;
+    vfunc_remove_tag(tag: TextTag, start: TextIter, end: TextIter): void;
+}
+export class TextCellAccessible  {
+    constructor(config?: properties);
+    readonly priv: TextCellAccessiblePrivate;
+}
+export class TextChildAnchor extends GObject.Object {
+    constructor(config?: properties);
+    get_deleted(): boolean;
+    get_widgets(): GLib.List;
+}
+export class TextMark extends GObject.Object {
+    constructor(config?: properties);
+    left_gravity: boolean;
+    name: string;
+    get_buffer(): TextBuffer;
+    get_deleted(): boolean;
+    get_left_gravity(): boolean;
+    get_name(): string | null;
+    get_visible(): boolean;
+    set_visible(setting: boolean): void;
+}
+export class TextTag extends GObject.Object {
+    constructor(config?: properties);
+    accumulative_margin: boolean;
+    background: string;
+    background_full_height: boolean;
+    background_full_height_set: boolean;
+    background_gdk: Gdk.Color;
+    background_rgba: Gdk.RGBA;
+    background_set: boolean;
+    direction: TextDirection;
+    editable: boolean;
+    editable_set: boolean;
+    fallback: boolean;
+    fallback_set: boolean;
+    family: string;
+    family_set: boolean;
+    font: string;
+    font_desc: Pango.FontDescription;
+    font_features: string;
+    font_features_set: boolean;
+    foreground: string;
+    foreground_gdk: Gdk.Color;
+    foreground_rgba: Gdk.RGBA;
+    foreground_set: boolean;
+    indent: number;
+    indent_set: boolean;
+    invisible: boolean;
+    invisible_set: boolean;
+    justification: Justification;
+    justification_set: boolean;
+    language: string;
+    language_set: boolean;
+    left_margin: number;
+    left_margin_set: boolean;
+    letter_spacing: number;
+    letter_spacing_set: boolean;
+    name: string;
+    paragraph_background: string;
+    paragraph_background_gdk: Gdk.Color;
+    paragraph_background_rgba: Gdk.RGBA;
+    paragraph_background_set: boolean;
+    pixels_above_lines: number;
+    pixels_above_lines_set: boolean;
+    pixels_below_lines: number;
+    pixels_below_lines_set: boolean;
+    pixels_inside_wrap: number;
+    pixels_inside_wrap_set: boolean;
+    right_margin: number;
+    right_margin_set: boolean;
+    rise: number;
+    rise_set: boolean;
+    scale: number;
+    scale_set: boolean;
+    size: number;
+    size_points: number;
+    size_set: boolean;
+    stretch: Pango.Stretch;
+    stretch_set: boolean;
+    strikethrough: boolean;
+    strikethrough_rgba: Gdk.RGBA;
+    strikethrough_rgba_set: boolean;
+    strikethrough_set: boolean;
+    style: Pango.Style;
+    style_set: boolean;
+    tabs: Pango.TabArray;
+    tabs_set: boolean;
+    underline: Pango.Underline;
+    underline_rgba: Gdk.RGBA;
+    underline_rgba_set: boolean;
+    underline_set: boolean;
+    variant: Pango.Variant;
+    variant_set: boolean;
+    weight: number;
+    weight_set: boolean;
+    wrap_mode: WrapMode;
+    wrap_mode_set: boolean;
+    changed(size_changed: boolean): void;
+    event(event_object: GObject.Object, event: Gdk.Event, iter: TextIter): boolean;
+    get_priority(): number;
+    set_priority(priority: number): void;
+    vfunc_event(event_object: GObject.Object, event: Gdk.Event, iter: TextIter): boolean;
+}
+export class TextTagTable extends GObject.Object {
+    constructor(config?: properties);
+    add(tag: TextTag): boolean;
+    foreach(func: TextTagTableForeach, data: object | null): void;
+    get_size(): number;
+    lookup(name: string): TextTag | null;
+    remove(tag: TextTag): void;
+    vfunc_tag_added(tag: TextTag): void;
+    vfunc_tag_changed(tag: TextTag, size_changed: boolean): void;
+    vfunc_tag_removed(tag: TextTag): void;
+}
+export class TextView extends Container {
+    constructor(config?: properties);
+    accepts_tab: boolean;
+    bottom_margin: number;
+    buffer: TextBuffer;
+    cursor_visible: boolean;
+    editable: boolean;
+    im_module: string;
+    indent: number;
+    input_hints: InputHints;
+    input_purpose: InputPurpose;
+    justification: Justification;
+    left_margin: number;
+    monospace: boolean;
+    overwrite: boolean;
+    pixels_above_lines: number;
+    pixels_below_lines: number;
+    pixels_inside_wrap: number;
+    populate_all: boolean;
+    right_margin: number;
+    tabs: Pango.TabArray;
+    top_margin: number;
+    wrap_mode: WrapMode;static new_with_buffer(buffer: TextBuffer): Widget;
+    add_child_at_anchor(child: Widget, anchor: TextChildAnchor): void;
+    add_child_in_window(child: Widget, which_window: TextWindowType, xpos: number, ypos: number): void;
+    backward_display_line(iter: TextIter): boolean;
+    backward_display_line_start(iter: TextIter): boolean;
+    buffer_to_window_coords(win: TextWindowType, buffer_x: number, buffer_y: number): [number | null,number | null];
+    forward_display_line(iter: TextIter): boolean;
+    forward_display_line_end(iter: TextIter): boolean;
+    get_accepts_tab(): boolean;
+    get_border_window_size(type: TextWindowType): number;
+    get_bottom_margin(): number;
+    get_buffer(): TextBuffer;
+    get_cursor_locations(iter: TextIter | null): [Gdk.Rectangle | null,Gdk.Rectangle | null];
+    get_cursor_visible(): boolean;
+    get_default_attributes(): TextAttributes;
+    get_editable(): boolean;
+    get_hadjustment(): Adjustment;
+    get_indent(): number;
+    get_input_hints(): InputHints;
+    get_input_purpose(): InputPurpose;
+    get_iter_at_location(x: number, y: number): [boolean, TextIter];
+    get_iter_at_position(x: number, y: number): [boolean, TextIter,number | null];
+    get_iter_location(iter: TextIter): [Gdk.Rectangle];
+    get_justification(): Justification;
+    get_left_margin(): number;
+    get_line_at_y(y: number): [TextIter,number];
+    get_line_yrange(iter: TextIter): [number,number];
+    get_monospace(): boolean;
+    get_overwrite(): boolean;
+    get_pixels_above_lines(): number;
+    get_pixels_below_lines(): number;
+    get_pixels_inside_wrap(): number;
+    get_right_margin(): number;
+    get_tabs(): Pango.TabArray | null;
+    get_top_margin(): number;
+    get_vadjustment(): Adjustment;
+    get_visible_rect(): [Gdk.Rectangle];
+    get_window(win: TextWindowType): Gdk.Window | null;
+    get_window_type(window: Gdk.Window): TextWindowType;
+    get_wrap_mode(): WrapMode;
+    im_context_filter_keypress(event: Gdk.EventKey): boolean;
+    move_child(child: Widget, xpos: number, ypos: number): void;
+    move_mark_onscreen(mark: TextMark): boolean;
+    move_visually(iter: TextIter, count: number): boolean;
+    place_cursor_onscreen(): boolean;
+    reset_cursor_blink(): void;
+    reset_im_context(): void;
+    scroll_mark_onscreen(mark: TextMark): void;
+    scroll_to_iter(iter: TextIter, within_margin: number, use_align: boolean, xalign: number, yalign: number): boolean;
+    scroll_to_mark(mark: TextMark, within_margin: number, use_align: boolean, xalign: number, yalign: number): void;
+    set_accepts_tab(accepts_tab: boolean): void;
+    set_border_window_size(type: TextWindowType, size: number): void;
+    set_bottom_margin(bottom_margin: number): void;
+    set_buffer(buffer: TextBuffer | null): void;
+    set_cursor_visible(setting: boolean): void;
+    set_editable(setting: boolean): void;
+    set_indent(indent: number): void;
+    set_input_hints(hints: InputHints): void;
+    set_input_purpose(purpose: InputPurpose): void;
+    set_justification(justification: Justification): void;
+    set_left_margin(left_margin: number): void;
+    set_monospace(monospace: boolean): void;
+    set_overwrite(overwrite: boolean): void;
+    set_pixels_above_lines(pixels_above_lines: number): void;
+    set_pixels_below_lines(pixels_below_lines: number): void;
+    set_pixels_inside_wrap(pixels_inside_wrap: number): void;
+    set_right_margin(right_margin: number): void;
+    set_tabs(tabs: Pango.TabArray): void;
+    set_top_margin(top_margin: number): void;
+    set_wrap_mode(wrap_mode: WrapMode): void;
+    starts_display_line(iter: TextIter): boolean;
+    window_to_buffer_coords(win: TextWindowType, window_x: number, window_y: number): [number | null,number | null];
+    vfunc_backspace(): void;
+    vfunc_copy_clipboard(): void;
+    vfunc_cut_clipboard(): void;
+    vfunc_delete_from_cursor(type: DeleteType, count: number): void;
+    vfunc_draw_layer(layer: TextViewLayer, cr: cairo.Context): void;
+    vfunc_extend_selection(granularity: TextExtendSelection, location: TextIter, start: TextIter, end: TextIter): boolean;
+    vfunc_insert_at_cursor(str: string): void;
+    vfunc_insert_emoji(): void;
+    vfunc_move_cursor(step: MovementStep, count: number, extend_selection: boolean): void;
+    vfunc_paste_clipboard(): void;
+    vfunc_populate_popup(popup: Widget): void;
+    vfunc_set_anchor(): void;
+    vfunc_toggle_overwrite(): void;
+}
+export class TextViewAccessible  {
+    constructor(config?: properties);
+    readonly priv: TextViewAccessiblePrivate;
+}
+export class ThemingEngine  {
+    constructor(config?: properties);
+    name: string;
+    readonly parent_object: GObject.Object;
+    readonly priv: ThemingEnginePrivate;
+    get_background_color(state: StateFlags): [Gdk.RGBA];
+    get_border(state: StateFlags): [Border];
+    get_border_color(state: StateFlags): [Gdk.RGBA];
+    get_color(state: StateFlags): [Gdk.RGBA];
+    get_direction(): TextDirection;
+    get_font(state: StateFlags): Pango.FontDescription;
+    get_junction_sides(): JunctionSides;
+    get_margin(state: StateFlags): [Border];
+    get_padding(state: StateFlags): [Border];
+    get_path(): WidgetPath;
+    get_property(property: string, state: StateFlags): [GObject.Value];
+    get_screen(): Gdk.Screen | null;
+    get_state(): StateFlags;
+    get_style_property(property_name: string): [GObject.Value];
+    has_class(style_class: string): boolean;
+    has_region(style_region: string): [boolean, RegionFlags | null];
+    lookup_color(color_name: string): [boolean, Gdk.RGBA];
+    state_is_running(state: StateType): [boolean, number];
+    static load(name: string): ThemingEngine | null;
+}
+export class ToggleAction extends Action {
+    constructor(config?: properties);
+    active: boolean;
+    draw_as_radio: boolean;
+    get_active(): boolean;
+    get_draw_as_radio(): boolean;
+    set_active(is_active: boolean): void;
+    set_draw_as_radio(draw_as_radio: boolean): void;
+    toggled(): void;
+    vfunc_toggled(): void;
+}
+export class ToggleButton extends Button {
+    constructor(config?: properties);
+    active: boolean;
+    draw_indicator: boolean;
+    inconsistent: boolean;static new_with_label(label: string): Widget;
+    static new_with_mnemonic(label: string): Widget;
+    get_active(): boolean;
+    get_inconsistent(): boolean;
+    get_mode(): boolean;
+    set_active(is_active: boolean): void;
+    set_inconsistent(setting: boolean): void;
+    set_mode(draw_indicator: boolean): void;
+    toggled(): void;
+    vfunc_toggled(): void;
+}
+export class ToggleButtonAccessible  {
+    constructor(config?: properties);
+    readonly priv: ToggleButtonAccessiblePrivate;
+}
+export class ToggleToolButton extends ToolButton {
+    constructor(config?: properties);
+    active: boolean;static new_from_stock(stock_id: string): ToolItem;
+    get_active(): boolean;
+    set_active(is_active: boolean): void;
+    vfunc_toggled(): void;
+}
+export class ToolButton extends ToolItem {
+    constructor(config?: properties);
+    icon_name: string;
+    icon_widget: Widget;
+    label: string;
+    label_widget: Widget;
+    stock_id: string;
+    use_underline: boolean;static new_from_stock(stock_id: string): ToolItem;
+    get_icon_name(): string | null;
+    get_icon_widget(): Widget | null;
+    get_label(): string | null;
+    get_label_widget(): Widget | null;
+    get_stock_id(): string;
+    get_use_underline(): boolean;
+    set_icon_name(icon_name: string | null): void;
+    set_icon_widget(icon_widget: Widget | null): void;
+    set_label(label: string | null): void;
+    set_label_widget(label_widget: Widget | null): void;
+    set_stock_id(stock_id: string | null): void;
+    set_use_underline(use_underline: boolean): void;
+    vfunc_clicked(): void;
+}
+export class ToolItem extends Bin {
+    constructor(config?: properties);
+    is_important: boolean;
+    visible_horizontal: boolean;
+    visible_vertical: boolean;
+    get_ellipsize_mode(): Pango.EllipsizeMode;
+    get_expand(): boolean;
+    get_homogeneous(): boolean;
+    get_icon_size(): number;
+    get_is_important(): boolean;
+    get_orientation(): Orientation;
+    get_proxy_menu_item(menu_item_id: string): Widget | null;
+    get_relief_style(): ReliefStyle;
+    get_text_alignment(): number;
+    get_text_orientation(): Orientation;
+    get_text_size_group(): SizeGroup;
+    get_toolbar_style(): ToolbarStyle;
+    get_use_drag_window(): boolean;
+    get_visible_horizontal(): boolean;
+    get_visible_vertical(): boolean;
+    rebuild_menu(): void;
+    retrieve_proxy_menu_item(): Widget;
+    set_expand(expand: boolean): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_is_important(is_important: boolean): void;
+    set_proxy_menu_item(menu_item_id: string, menu_item: Widget | null): void;
+    set_tooltip_markup(markup: string): void;
+    set_tooltip_text(text: string): void;
+    set_use_drag_window(use_drag_window: boolean): void;
+    set_visible_horizontal(visible_horizontal: boolean): void;
+    set_visible_vertical(visible_vertical: boolean): void;
+    toolbar_reconfigured(): void;
+    vfunc_create_menu_proxy(): boolean;
+    vfunc_toolbar_reconfigured(): void;
+}
+export class ToolItemGroup extends Container {
+    constructor(config?: properties);
+    collapsed: boolean;
+    ellipsize: Pango.EllipsizeMode;
+    header_relief: ReliefStyle;
+    label: string;
+    label_widget: Widget;
+    get_collapsed(): boolean;
+    get_drop_item(x: number, y: number): ToolItem;
+    get_ellipsize(): Pango.EllipsizeMode;
+    get_header_relief(): ReliefStyle;
+    get_item_position(item: ToolItem): number;
+    get_label(): string;
+    get_label_widget(): Widget;
+    get_n_items(): number;
+    get_nth_item(index: number): ToolItem;
+    insert(item: ToolItem, position: number): void;
+    set_collapsed(collapsed: boolean): void;
+    set_ellipsize(ellipsize: Pango.EllipsizeMode): void;
+    set_header_relief(style: ReliefStyle): void;
+    set_item_position(item: ToolItem, position: number): void;
+    set_label(label: string): void;
+    set_label_widget(label_widget: Widget): void;
+}
+export class ToolPalette extends Container {
+    constructor(config?: properties);
+    icon_size: IconSize;
+    icon_size_set: boolean;
+    toolbar_style: ToolbarStyle;
+    add_drag_dest(widget: Widget, flags: DestDefaults, targets: ToolPaletteDragTargets, actions: Gdk.DragAction): void;
+    get_drag_item(selection: SelectionData): Widget;
+    get_drop_group(x: number, y: number): ToolItemGroup | null;
+    get_drop_item(x: number, y: number): ToolItem | null;
+    get_exclusive(group: ToolItemGroup): boolean;
+    get_expand(group: ToolItemGroup): boolean;
+    get_group_position(group: ToolItemGroup): number;
+    get_hadjustment(): Adjustment;
+    get_icon_size(): number;
+    get_style(): ToolbarStyle;
+    get_vadjustment(): Adjustment;
+    set_drag_source(targets: ToolPaletteDragTargets): void;
+    set_exclusive(group: ToolItemGroup, exclusive: boolean): void;
+    set_expand(group: ToolItemGroup, expand: boolean): void;
+    set_group_position(group: ToolItemGroup, position: number): void;
+    set_icon_size(icon_size: number): void;
+    set_style(style: ToolbarStyle): void;
+    unset_icon_size(): void;
+    unset_style(): void;
+    static get_drag_target_group(): TargetEntry;
+    static get_drag_target_item(): TargetEntry;
+}
+export class Toolbar extends Container {
+    constructor(config?: properties);
+    icon_size: IconSize;
+    icon_size_set: boolean;
+    show_arrow: boolean;
+    toolbar_style: ToolbarStyle;
+    get_drop_index(x: number, y: number): number;
+    get_icon_size(): IconSize;
+    get_item_index(item: ToolItem): number;
+    get_n_items(): number;
+    get_nth_item(n: number): ToolItem | null;
+    get_relief_style(): ReliefStyle;
+    get_show_arrow(): boolean;
+    get_style(): ToolbarStyle;
+    insert(item: ToolItem, pos: number): void;
+    set_drop_highlight_item(tool_item: ToolItem | null, index_: number): void;
+    set_icon_size(icon_size: IconSize): void;
+    set_show_arrow(show_arrow: boolean): void;
+    set_style(style: ToolbarStyle): void;
+    unset_icon_size(): void;
+    unset_style(): void;
+    vfunc_orientation_changed(orientation: Orientation): void;
+    vfunc_popup_context_menu(x: number, y: number, button_number: number): boolean;
+    vfunc_style_changed(style: ToolbarStyle): void;
+}
+export class Tooltip  {
+    constructor(config?: properties);
+    set_custom(custom_widget: Widget | null): void;
+    set_icon(pixbuf: GdkPixbuf.Pixbuf | null): void;
+    set_icon_from_gicon(gicon: Gio.Icon | null, size: number): void;
+    set_icon_from_icon_name(icon_name: string | null, size: number): void;
+    set_icon_from_stock(stock_id: string | null, size: number): void;
+    set_markup(markup: string | null): void;
+    set_text(text: string | null): void;
+    set_tip_area(rect: Gdk.Rectangle): void;
+    static trigger_tooltip_query(display: Gdk.Display): void;
+}
+export class ToplevelAccessible  {
+    constructor(config?: properties);
+    readonly priv: ToplevelAccessiblePrivate;
+    get_children(): GLib.List;
+}
+export class TreeModelFilter  {
+    constructor(config?: properties);
+    child_model: TreeModel;
+    virtual_root: TreePath;
+    readonly priv: TreeModelFilterPrivate;
+    clear_cache(): void;
+    convert_child_iter_to_iter(child_iter: TreeIter): [boolean, TreeIter];
+    convert_child_path_to_path(child_path: TreePath): TreePath | null;
+    convert_iter_to_child_iter(filter_iter: TreeIter): [TreeIter];
+    convert_path_to_child_path(filter_path: TreePath): TreePath | null;
+    get_model(): TreeModel;
+    refilter(): void;
+    set_modify_func(n_columns: number, types: GType, func: TreeModelFilterModifyFunc, data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_visible_column(column: number): void;
+    set_visible_func(func: TreeModelFilterVisibleFunc, data: object | null, destroy: GLib.DestroyNotify | null): void;
+}
+export class TreeModelSort  {
+    constructor(config?: properties);
+    model: TreeModel;
+    readonly priv: TreeModelSortPrivate;
+    clear_cache(): void;
+    convert_child_iter_to_iter(child_iter: TreeIter): [boolean, TreeIter];
+    convert_child_path_to_path(child_path: TreePath): TreePath | null;
+    convert_iter_to_child_iter(sorted_iter: TreeIter): [TreeIter];
+    convert_path_to_child_path(sorted_path: TreePath): TreePath | null;
+    get_model(): TreeModel;
+    iter_is_valid(iter: TreeIter): boolean;
+    reset_default_sort_func(): void;
+}
+export class TreeSelection  {
+    constructor(config?: properties);
+    mode: SelectionMode;
+    readonly priv: TreeSelectionPrivate;
+    count_selected_rows(): number;
+    get_mode(): SelectionMode;
+    get_selected(): [boolean, TreeModel | null,TreeIter | null];
+    get_selected_rows(): [GLib.List, TreeModel | null];
+    get_tree_view(): TreeView;
+    iter_is_selected(iter: TreeIter): boolean;
+    path_is_selected(path: TreePath): boolean;
+    select_all(): void;
+    select_iter(iter: TreeIter): void;
+    select_path(path: TreePath): void;
+    select_range(start_path: TreePath, end_path: TreePath): void;
+    selected_foreach(func: TreeSelectionForeachFunc, data: object | null): void;
+    set_mode(type: SelectionMode): void;
+    set_select_function(func: TreeSelectionFunc | null, data: object | null, destroy: GLib.DestroyNotify): void;
+    unselect_all(): void;
+    unselect_iter(iter: TreeIter): void;
+    unselect_path(path: TreePath): void;
+    unselect_range(start_path: TreePath, end_path: TreePath): void;
+}
+export class TreeStore extends GObject.Object {
+    constructor(config?: properties);
+    static newv(n_columns: number, types: GType): TreeStore;
+    static newv(...args: never[]): TreeStore;
+    append(parent: TreeIter | null): [TreeIter];
+    clear(): void;
+    insert(parent: TreeIter | null, position: number): [TreeIter];
+    insert_after(parent: TreeIter | null, sibling: TreeIter | null): [TreeIter];
+    insert_before(parent: TreeIter | null, sibling: TreeIter | null): [TreeIter];
+    insert_with_valuesv(parent: TreeIter | null, position: number, columns: number[], values: GObject.Value[], n_values: number): [TreeIter | null];
+    is_ancestor(iter: TreeIter, descendant: TreeIter): boolean;
+    iter_depth(iter: TreeIter): number;
+    iter_is_valid(iter: TreeIter): boolean;
+    move_after(iter: TreeIter, position: TreeIter | null): void;
+    move_before(iter: TreeIter, position: TreeIter | null): void;
+    prepend(parent: TreeIter | null): [TreeIter];
+    remove(iter: TreeIter): boolean;
+    set_column_types(n_columns: number, types: GType): void;
+    set_value(iter: TreeIter, column: number, value: GObject.Value): void;
+    set_valuesv(iter: TreeIter, columns: number[], values: GObject.Value[], n_values: number): void;
+    swap(a: TreeIter, b: TreeIter): void;
+}
+export class TreeView extends Container {
+    constructor(config?: properties);
+    activate_on_single_click: boolean;
+    enable_grid_lines: TreeViewGridLines;
+    enable_search: boolean;
+    enable_tree_lines: boolean;
+    expander_column: TreeViewColumn;
+    fixed_height_mode: boolean;
+    headers_clickable: boolean;
+    headers_visible: boolean;
+    hover_expand: boolean;
+    hover_selection: boolean;
+    level_indentation: number;
+    model: TreeModel;
+    reorderable: boolean;
+    rubber_banding: boolean;
+    rules_hint: boolean;
+    search_column: number;
+    show_expanders: boolean;
+    tooltip_column: number;static new_with_model(model: TreeModel): Widget;
+    append_column(column: TreeViewColumn): number;
+    collapse_all(): void;
+    collapse_row(path: TreePath): boolean;
+    columns_autosize(): void;
+    convert_bin_window_to_tree_coords(bx: number, by: number): [number,number];
+    convert_bin_window_to_widget_coords(bx: number, by: number): [number,number];
+    convert_tree_to_bin_window_coords(tx: number, ty: number): [number,number];
+    convert_tree_to_widget_coords(tx: number, ty: number): [number,number];
+    convert_widget_to_bin_window_coords(wx: number, wy: number): [number,number];
+    convert_widget_to_tree_coords(wx: number, wy: number): [number,number];
+    create_row_drag_icon(path: TreePath): cairo.Surface;
+    enable_model_drag_dest(targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
+    enable_model_drag_source(start_button_mask: Gdk.ModifierType, targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
+    expand_all(): void;
+    expand_row(path: TreePath, open_all: boolean): boolean;
+    expand_to_path(path: TreePath): void;
+    get_activate_on_single_click(): boolean;
+    get_background_area(path: TreePath | null, column: TreeViewColumn | null): [Gdk.Rectangle];
+    get_bin_window(): Gdk.Window | null;
+    get_cell_area(path: TreePath | null, column: TreeViewColumn | null): [Gdk.Rectangle];
+    get_column(n: number): TreeViewColumn | null;
+    get_columns(): GLib.List;
+    get_cursor(): [TreePath | null,TreeViewColumn | null];
+    get_dest_row_at_pos(drag_x: number, drag_y: number): [boolean, TreePath | null,TreeViewDropPosition | null];
+    get_drag_dest_row(): [TreePath | null,TreeViewDropPosition | null];
+    get_enable_search(): boolean;
+    get_enable_tree_lines(): boolean;
+    get_expander_column(): TreeViewColumn;
+    get_fixed_height_mode(): boolean;
+    get_grid_lines(): TreeViewGridLines;
+    get_hadjustment(): Adjustment;
+    get_headers_clickable(): boolean;
+    get_headers_visible(): boolean;
+    get_hover_expand(): boolean;
+    get_hover_selection(): boolean;
+    get_level_indentation(): number;
+    get_model(): TreeModel | null;
+    get_n_columns(): number;
+    get_path_at_pos(x: number, y: number): [boolean, TreePath | null,TreeViewColumn | null,number | null,number | null];
+    get_reorderable(): boolean;
+    get_rubber_banding(): boolean;
+    get_rules_hint(): boolean;
+    get_search_column(): number;
+    get_search_entry(): Entry;
+    get_selection(): TreeSelection;
+    get_show_expanders(): boolean;
+    get_tooltip_column(): number;
+    get_tooltip_context(x: number, y: number, keyboard_tip: boolean): [boolean, number,number,TreeModel | null,TreePath | null,TreeIter | null];
+    get_vadjustment(): Adjustment;
+    get_visible_range(): [boolean, TreePath | null,TreePath | null];
+    get_visible_rect(): [Gdk.Rectangle];
+    insert_column(column: TreeViewColumn, position: number): number;
+    insert_column_with_data_func(position: number, title: string, cell: CellRenderer, func: TreeCellDataFunc, data: object | null, dnotify: GLib.DestroyNotify): number;
+    is_blank_at_pos(x: number, y: number): [boolean, TreePath | null,TreeViewColumn | null,number | null,number | null];
+    is_rubber_banding_active(): boolean;
+    map_expanded_rows(func: TreeViewMappingFunc, data: object | null): void;
+    move_column_after(column: TreeViewColumn, base_column: TreeViewColumn | null): void;
+    remove_column(column: TreeViewColumn): number;
+    row_activated(path: TreePath, column: TreeViewColumn): void;
+    row_expanded(path: TreePath): boolean;
+    scroll_to_cell(path: TreePath | null, column: TreeViewColumn | null, use_align: boolean, row_align: number, col_align: number): void;
+    scroll_to_point(tree_x: number, tree_y: number): void;
+    set_activate_on_single_click(single: boolean): void;
+    set_column_drag_function(func: TreeViewColumnDropFunc | null, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_cursor(path: TreePath, focus_column: TreeViewColumn | null, start_editing: boolean): void;
+    set_cursor_on_cell(path: TreePath, focus_column: TreeViewColumn | null, focus_cell: CellRenderer | null, start_editing: boolean): void;
+    set_destroy_count_func(func: TreeDestroyCountFunc | null, data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_drag_dest_row(path: TreePath | null, pos: TreeViewDropPosition): void;
+    set_enable_search(enable_search: boolean): void;
+    set_enable_tree_lines(enabled: boolean): void;
+    set_expander_column(column: TreeViewColumn | null): void;
+    set_fixed_height_mode(enable: boolean): void;
+    set_grid_lines(grid_lines: TreeViewGridLines): void;
+    set_hadjustment(adjustment: Adjustment | null): void;
+    set_headers_clickable(setting: boolean): void;
+    set_headers_visible(headers_visible: boolean): void;
+    set_hover_expand(expand: boolean): void;
+    set_hover_selection(hover: boolean): void;
+    set_level_indentation(indentation: number): void;
+    set_model(model: TreeModel | null): void;
+    set_reorderable(reorderable: boolean): void;
+    set_row_separator_func(func: TreeViewRowSeparatorFunc | null, data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_rubber_banding(enable: boolean): void;
+    set_rules_hint(setting: boolean): void;
+    set_search_column(column: number): void;
+    set_search_entry(entry: Entry | null): void;
+    set_search_equal_func(search_equal_func: TreeViewSearchEqualFunc, search_user_data: object | null, search_destroy: GLib.DestroyNotify | null): void;
+    set_search_position_func(func: TreeViewSearchPositionFunc | null, data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_show_expanders(enabled: boolean): void;
+    set_tooltip_cell(tooltip: Tooltip, path: TreePath | null, column: TreeViewColumn | null, cell: CellRenderer | null): void;
+    set_tooltip_column(column: number): void;
+    set_tooltip_row(tooltip: Tooltip, path: TreePath): void;
+    set_vadjustment(adjustment: Adjustment | null): void;
+    unset_rows_drag_dest(): void;
+    unset_rows_drag_source(): void;
+    vfunc_columns_changed(): void;
+    vfunc_cursor_changed(): void;
+    vfunc_expand_collapse_cursor_row(logical: boolean, expand: boolean, open_all: boolean): boolean;
+    vfunc_move_cursor(step: MovementStep, count: number): boolean;
+    vfunc_row_activated(path: TreePath, column: TreeViewColumn): void;
+    vfunc_row_collapsed(iter: TreeIter, path: TreePath): void;
+    vfunc_row_expanded(iter: TreeIter, path: TreePath): void;
+    vfunc_select_all(): boolean;
+    vfunc_select_cursor_parent(): boolean;
+    vfunc_select_cursor_row(start_editing: boolean): boolean;
+    vfunc_start_interactive_search(): boolean;
+    vfunc_test_collapse_row(iter: TreeIter, path: TreePath): boolean;
+    vfunc_test_expand_row(iter: TreeIter, path: TreePath): boolean;
+    vfunc_toggle_cursor_row(): boolean;
+    vfunc_unselect_all(): boolean;
+}
+export class TreeViewAccessible  {
+    constructor(config?: properties);
+    readonly priv: TreeViewAccessiblePrivate;
+}
+export class TreeViewColumn extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    alignment: number;
+    cell_area: CellArea;
+    clickable: boolean;
+    expand: boolean;
+    fixed_width: number;
+    max_width: number;
+    min_width: number;
+    reorderable: boolean;
+    resizable: boolean;
+    sizing: TreeViewColumnSizing;
+    sort_column_id: number;
+    sort_indicator: boolean;
+    sort_order: SortType;
+    spacing: number;
+    title: string;
+    visible: boolean;
+    widget: Widget;
+    readonly width: number;
+    readonly x_offset: number;static new_with_area(area: CellArea): TreeViewColumn;
+    static new_with_attributes(title: string, cell: CellRenderer, ___: any): TreeViewColumn;
+    add_attribute(cell_renderer: CellRenderer, attribute: string, column: number): void;
+    cell_get_position(cell_renderer: CellRenderer): [boolean, number | null,number | null];
+    cell_get_size(cell_area: Gdk.Rectangle | null): [number | null,number | null,number | null,number | null];
+    cell_is_visible(): boolean;
+    cell_set_cell_data(tree_model: TreeModel, iter: TreeIter, is_expander: boolean, is_expanded: boolean): void;
+    clear(): void;
+    clear_attributes(cell_renderer: CellRenderer): void;
+    clicked(): void;
+    focus_cell(cell: CellRenderer): void;
+    get_alignment(): number;
+    get_button(): Widget;
+    get_clickable(): boolean;
+    get_expand(): boolean;
+    get_fixed_width(): number;
+    get_max_width(): number;
+    get_min_width(): number;
+    get_reorderable(): boolean;
+    get_resizable(): boolean;
+    get_sizing(): TreeViewColumnSizing;
+    get_sort_column_id(): number;
+    get_sort_indicator(): boolean;
+    get_sort_order(): SortType;
+    get_spacing(): number;
+    get_title(): string;
+    get_tree_view(): Widget | null;
+    get_visible(): boolean;
+    get_widget(): Widget | null;
+    get_width(): number;
+    get_x_offset(): number;
+    pack_end(cell: CellRenderer, expand: boolean): void;
+    pack_start(cell: CellRenderer, expand: boolean): void;
+    queue_resize(): void;
+    set_alignment(xalign: number): void;
+    set_cell_data_func(cell_renderer: CellRenderer, func: TreeCellDataFunc | null, func_data: object | null, destroy: GLib.DestroyNotify): void;
+    set_clickable(clickable: boolean): void;
+    set_expand(expand: boolean): void;
+    set_fixed_width(fixed_width: number): void;
+    set_max_width(max_width: number): void;
+    set_min_width(min_width: number): void;
+    set_reorderable(reorderable: boolean): void;
+    set_resizable(resizable: boolean): void;
+    set_sizing(type: TreeViewColumnSizing): void;
+    set_sort_column_id(sort_column_id: number): void;
+    set_sort_indicator(setting: boolean): void;
+    set_sort_order(order: SortType): void;
+    set_spacing(spacing: number): void;
+    set_title(title: string): void;
+    set_visible(visible: boolean): void;
+    set_widget(widget: Widget | null): void;
+    vfunc_clicked(): void;
+}
+export class UIManager extends GObject.Object {
+    constructor(config?: properties);
+    add_tearoffs: boolean;
+    readonly ui: string;
+    add_ui(merge_id: number, path: string, name: string, action: string | null, type: UIManagerItemType, top: boolean): void;
+    add_ui_from_file(filename: string): number;
+    add_ui_from_resource(resource_path: string): number;
+    add_ui_from_string(buffer: string, length: number): number;
+    ensure_update(): void;
+    get_accel_group(): AccelGroup;
+    get_action(path: string): Action;
+    get_action_groups(): GLib.List;
+    get_add_tearoffs(): boolean;
+    get_toplevels(types: UIManagerItemType): string[];
+    get_ui(): string;
+    get_widget(path: string): Widget;
+    insert_action_group(action_group: ActionGroup, pos: number): void;
+    new_merge_id(): number;
+    remove_action_group(action_group: ActionGroup): void;
+    remove_ui(merge_id: number): void;
+    set_add_tearoffs(add_tearoffs: boolean): void;
+    vfunc_actions_changed(): void;
+    vfunc_add_widget(widget: Widget): void;
+    vfunc_connect_proxy(action: Action, proxy: Widget): void;
+    vfunc_disconnect_proxy(action: Action, proxy: Widget): void;
+    vfunc_get_action(path: string): Action;
+    vfunc_get_widget(path: string): Widget;
+    vfunc_post_activate(action: Action): void;
+    vfunc_pre_activate(action: Action): void;
+}
+export class VBox extends Box {
+    constructor(config?: properties);
+}
+export class VButtonBox extends ButtonBox {
+    constructor(config?: properties);
+}
+export class VPaned extends Paned {
+    constructor(config?: properties);
+}
+export class VScale extends Scale {
+    constructor(config?: properties);
+    static new_with_range(min: number, max: number, step: number): Widget;
+    static new_with_range(...args: never[]): Widget;
+}
+export class VScrollbar extends Scrollbar {
+    constructor(config?: properties);
+}
+export class VSeparator extends Separator {
+    constructor(config?: properties);
+}
+export class Viewport extends Bin {
+    constructor(config?: properties);
+    shadow_type: ShadowType;
+    get_bin_window(): Gdk.Window;
+    get_hadjustment(): Adjustment;
+    get_shadow_type(): ShadowType;
+    get_vadjustment(): Adjustment;
+    get_view_window(): Gdk.Window;
+    set_hadjustment(adjustment: Adjustment | null): void;
+    set_shadow_type(type: ShadowType): void;
+    set_vadjustment(adjustment: Adjustment | null): void;
+}
+export class VolumeButton extends ScaleButton {
+    constructor(config?: properties);
+    use_symbolic: boolean;
+}
+export class Widget extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    app_paintable: boolean;
+    can_default: boolean;
+    can_focus: boolean;
+    readonly composite_child: boolean;
+    double_buffered: boolean;
+    events: Gdk.EventMask;
+    expand: boolean;
+    focus_on_click: boolean;
+    halign: Align;
+    has_tooltip: boolean;
+    height_request: number;
+    hexpand: boolean;
+    hexpand_set: boolean;
+    margin: number;
+    margin_bottom: number;
+    margin_end: number;
+    margin_left: number;
+    margin_right: number;
+    margin_start: number;
+    margin_top: number;
+    name: string;
+    no_show_all: boolean;
+    opacity: number;
+    receives_default: boolean;
+    readonly scale_factor: number;
+    sensitive: boolean;
+    style: Style;
+    tooltip_markup: string;
+    tooltip_text: string;
+    valign: Align;
+    vexpand: boolean;
+    vexpand_set: boolean;
+    visible: boolean;
+    width_request: number;
+    readonly window: Gdk.Window;
+    activate(): boolean;
+    add_accelerator(accel_signal: string, accel_group: AccelGroup, accel_key: number, accel_mods: Gdk.ModifierType, accel_flags: AccelFlags): void;
+    add_device_events(device: Gdk.Device, events: Gdk.EventMask): void;
+    add_events(events: number): void;
+    add_mnemonic_label(label: Widget): void;
+    add_tick_callback(callback: TickCallback, user_data: object | null, notify: GLib.DestroyNotify): number;
+    can_activate_accel(signal_id: number): boolean;
+    child_focus(direction: DirectionType): boolean;
+    child_notify(child_property: string): void;
+    class_path(): [number | null,string | null,string | null];
+    compute_expand(orientation: Orientation): boolean;
+    create_pango_context(): Pango.Context;
+    create_pango_layout(text: string | null): Pango.Layout;
+    destroy(): void;
+    destroyed(widget_pointer: Widget): [Widget];
+    device_is_shadowed(device: Gdk.Device): boolean;
+    drag_begin(targets: TargetList, actions: Gdk.DragAction, button: number, event: Gdk.Event | null): Gdk.DragContext;
+    drag_begin_with_coordinates(targets: TargetList, actions: Gdk.DragAction, button: number, event: Gdk.Event | null, x: number, y: number): Gdk.DragContext;
+    drag_check_threshold(start_x: number, start_y: number, current_x: number, current_y: number): boolean;
+    drag_dest_add_image_targets(): void;
+    drag_dest_add_text_targets(): void;
+    drag_dest_add_uri_targets(): void;
+    drag_dest_find_target(context: Gdk.DragContext, target_list: TargetList | null): Gdk.Atom;
+    drag_dest_get_target_list(): TargetList | null;
+    drag_dest_get_track_motion(): boolean;
+    drag_dest_set(flags: DestDefaults, targets: TargetEntry[] | null, n_targets: number, actions: Gdk.DragAction): void;
+    drag_dest_set_proxy(proxy_window: Gdk.Window, protocol: Gdk.DragProtocol, use_coordinates: boolean): void;
+    drag_dest_set_target_list(target_list: TargetList | null): void;
+    drag_dest_set_track_motion(track_motion: boolean): void;
+    drag_dest_unset(): void;
+    drag_get_data(context: Gdk.DragContext, target: Gdk.Atom, time_: number): void;
+    drag_highlight(): void;
+    drag_source_add_image_targets(): void;
+    drag_source_add_text_targets(): void;
+    drag_source_add_uri_targets(): void;
+    drag_source_get_target_list(): TargetList | null;
+    drag_source_set(start_button_mask: Gdk.ModifierType, targets: TargetEntry[] | null, n_targets: number, actions: Gdk.DragAction): void;
+    drag_source_set_icon_gicon(icon: Gio.Icon): void;
+    drag_source_set_icon_name(icon_name: string): void;
+    drag_source_set_icon_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
+    drag_source_set_icon_stock(stock_id: string): void;
+    drag_source_set_target_list(target_list: TargetList | null): void;
+    drag_source_unset(): void;
+    drag_unhighlight(): void;
+    draw(cr: cairo.Context): void;
+    ensure_style(): void;
+    error_bell(): void;
+    event(event: Gdk.Event): boolean;
+    freeze_child_notify(): void;
+    get_accessible(): Atk.Object;
+    get_action_group(prefix: string): Gio.ActionGroup | null;
+    get_allocated_baseline(): number;
+    get_allocated_height(): number;
+    get_allocated_size(): [Allocation,number | null];
+    get_allocated_width(): number;
+    get_allocation(): [Allocation];
+    get_ancestor(widget_type: GType): Widget | null;
+    get_app_paintable(): boolean;
+    get_can_default(): boolean;
+    get_can_focus(): boolean;
+    get_child_requisition(): [Requisition];
+    get_child_visible(): boolean;
+    get_clip(): [Allocation];
+    get_clipboard(selection: Gdk.Atom): Clipboard;
+    get_composite_name(): string;
+    get_device_enabled(device: Gdk.Device): boolean;
+    get_device_events(device: Gdk.Device): Gdk.EventMask;
+    get_direction(): TextDirection;
+    get_display(): Gdk.Display;
+    get_double_buffered(): boolean;
+    get_events(): number;
+    get_focus_on_click(): boolean;
+    get_font_map(): Pango.FontMap | null;
+    get_font_options(): cairo.FontOptions | null;
+    get_frame_clock(): Gdk.FrameClock | null;
+    get_halign(): Align;
+    get_has_tooltip(): boolean;
+    get_has_window(): boolean;
+    get_hexpand(): boolean;
+    get_hexpand_set(): boolean;
+    get_mapped(): boolean;
+    get_margin_bottom(): number;
+    get_margin_end(): number;
+    get_margin_left(): number;
+    get_margin_right(): number;
+    get_margin_start(): number;
+    get_margin_top(): number;
+    get_modifier_mask(intent: Gdk.ModifierIntent): Gdk.ModifierType;
+    get_modifier_style(): RcStyle;
+    get_name(): string;
+    get_no_show_all(): boolean;
+    get_opacity(): number;
+    get_pango_context(): Pango.Context;
+    get_parent(): Widget | null;
+    get_parent_window(): Gdk.Window | null;
+    get_path(): WidgetPath;
+    get_pointer(): [number | null,number | null];
+    get_preferred_height(): [number | null,number | null];
+    get_preferred_height_and_baseline_for_width(width: number): [number | null,number | null,number | null,number | null];
+    get_preferred_height_for_width(width: number): [number | null,number | null];
+    get_preferred_size(): [Requisition | null,Requisition | null];
+    get_preferred_width(): [number | null,number | null];
+    get_preferred_width_for_height(height: number): [number | null,number | null];
+    get_realized(): boolean;
+    get_receives_default(): boolean;
+    get_request_mode(): SizeRequestMode;
+    get_requisition(): [Requisition];
+    get_root_window(): Gdk.Window;
+    get_scale_factor(): number;
+    get_screen(): Gdk.Screen;
+    get_sensitive(): boolean;
+    get_settings(): Settings;
+    get_size_request(): [number | null,number | null];
+    get_state(): StateType;
+    get_state_flags(): StateFlags;
+    get_style(): Style;
+    get_style_context(): StyleContext;
+    get_support_multidevice(): boolean;
+    get_template_child(widget_type: GType, name: string): GObject.Object;
+    get_tooltip_markup(): string | null;
+    get_tooltip_text(): string | null;
+    get_tooltip_window(): Window;
+    get_toplevel(): Widget;
+    get_valign(): Align;
+    get_valign_with_baseline(): Align;
+    get_vexpand(): boolean;
+    get_vexpand_set(): boolean;
+    get_visible(): boolean;
+    get_visual(): Gdk.Visual;
+    get_window(): Gdk.Window | null;
+    grab_add(): void;
+    grab_default(): void;
+    grab_focus(): void;
+    grab_remove(): void;
+    has_default(): boolean;
+    has_focus(): boolean;
+    has_grab(): boolean;
+    has_rc_style(): boolean;
+    has_screen(): boolean;
+    has_visible_focus(): boolean;
+    hide(): void;
+    hide_on_delete(): boolean;
+    in_destruction(): boolean;
+    init_template(): void;
+    input_shape_combine_region(region: cairo.Region | null): void;
+    insert_action_group(name: string, group: Gio.ActionGroup | null): void;
+    intersect(area: Gdk.Rectangle): [boolean, Gdk.Rectangle | null];
+    is_ancestor(ancestor: Widget): boolean;
+    is_composited(): boolean;
+    is_drawable(): boolean;
+    is_focus(): boolean;
+    is_sensitive(): boolean;
+    is_toplevel(): boolean;
+    is_visible(): boolean;
+    keynav_failed(direction: DirectionType): boolean;
+    list_accel_closures(): GLib.List;
+    list_action_prefixes(): string[];
+    list_mnemonic_labels(): GLib.List;
+    map(): void;
+    mnemonic_activate(group_cycling: boolean): boolean;
+    modify_base(state: StateType, color: Gdk.Color | null): void;
+    modify_bg(state: StateType, color: Gdk.Color | null): void;
+    modify_cursor(primary: Gdk.Color | null, secondary: Gdk.Color | null): void;
+    modify_fg(state: StateType, color: Gdk.Color | null): void;
+    modify_font(font_desc: Pango.FontDescription | null): void;
+    modify_style(style: RcStyle): void;
+    modify_text(state: StateType, color: Gdk.Color | null): void;
+    override_background_color(state: StateFlags, color: Gdk.RGBA | null): void;
+    override_color(state: StateFlags, color: Gdk.RGBA | null): void;
+    override_cursor(cursor: Gdk.RGBA | null, secondary_cursor: Gdk.RGBA | null): void;
+    override_font(font_desc: Pango.FontDescription | null): void;
+    override_symbolic_color(name: string, color: Gdk.RGBA | null): void;
+    path(): [number | null,string | null,string | null];
+    queue_allocate(): void;
+    queue_compute_expand(): void;
+    queue_draw(): void;
+    queue_draw_area(x: number, y: number, width: number, height: number): void;
+    queue_draw_region(region: cairo.Region): void;
+    queue_resize(): void;
+    queue_resize_no_redraw(): void;
+    realize(): void;
+    region_intersect(region: cairo.Region): cairo.Region;
+    register_window(window: Gdk.Window): void;
+    remove_accelerator(accel_group: AccelGroup, accel_key: number, accel_mods: Gdk.ModifierType): boolean;
+    remove_mnemonic_label(label: Widget): void;
+    remove_tick_callback(id: number): void;
+    render_icon(stock_id: string, size: number, detail: string | null): GdkPixbuf.Pixbuf | null;
+    render_icon_pixbuf(stock_id: string, size: number): GdkPixbuf.Pixbuf | null;
+    reparent(new_parent: Widget): void;
+    reset_rc_styles(): void;
+    reset_style(): void;
+    send_expose(event: Gdk.Event): number;
+    send_focus_change(event: Gdk.Event): boolean;
+    set_accel_path(accel_path: string | null, accel_group: AccelGroup | null): void;
+    set_allocation(allocation: Allocation): void;
+    set_app_paintable(app_paintable: boolean): void;
+    set_can_default(can_default: boolean): void;
+    set_can_focus(can_focus: boolean): void;
+    set_child_visible(is_visible: boolean): void;
+    set_clip(clip: Allocation): void;
+    set_composite_name(name: string): void;
+    set_device_enabled(device: Gdk.Device, enabled: boolean): void;
+    set_device_events(device: Gdk.Device, events: Gdk.EventMask): void;
+    set_direction(dir: TextDirection): void;
+    set_double_buffered(double_buffered: boolean): void;
+    set_events(events: number): void;
+    set_focus_on_click(focus_on_click: boolean): void;
+    set_font_map(font_map: Pango.FontMap | null): void;
+    set_font_options(options: cairo.FontOptions | null): void;
+    set_halign(align: Align): void;
+    set_has_tooltip(has_tooltip: boolean): void;
+    set_has_window(has_window: boolean): void;
+    set_hexpand(expand: boolean): void;
+    set_hexpand_set(set: boolean): void;
+    set_mapped(mapped: boolean): void;
+    set_margin_bottom(margin: number): void;
+    set_margin_end(margin: number): void;
+    set_margin_left(margin: number): void;
+    set_margin_right(margin: number): void;
+    set_margin_start(margin: number): void;
+    set_margin_top(margin: number): void;
+    set_name(name: string): void;
+    set_no_show_all(no_show_all: boolean): void;
+    set_opacity(opacity: number): void;
+    set_parent(parent: Widget): void;
+    set_parent_window(parent_window: Gdk.Window): void;
+    set_realized(realized: boolean): void;
+    set_receives_default(receives_default: boolean): void;
+    set_redraw_on_allocate(redraw_on_allocate: boolean): void;
+    set_sensitive(sensitive: boolean): void;
+    set_size_request(width: number, height: number): void;
+    set_state(state: StateType): void;
+    set_state_flags(flags: StateFlags, clear: boolean): void;
+    set_style(style: Style | null): void;
+    set_support_multidevice(support_multidevice: boolean): void;
+    set_tooltip_markup(markup: string | null): void;
+    set_tooltip_text(text: string | null): void;
+    set_tooltip_window(custom_window: Window | null): void;
+    set_valign(align: Align): void;
+    set_vexpand(expand: boolean): void;
+    set_vexpand_set(set: boolean): void;
+    set_visible(visible: boolean): void;
+    set_visual(visual: Gdk.Visual | null): void;
+    set_window(window: Gdk.Window): void;
+    shape_combine_region(region: cairo.Region | null): void;
+    show(): void;
+    show_all(): void;
+    show_now(): void;
+    size_allocate(allocation: Allocation): void;
+    size_allocate_with_baseline(allocation: Allocation, baseline: number): void;
+    size_request(): [Requisition];
+    style_attach(): void;
+    style_get_property(property_name: string, value: GObject.Value): void;
+    thaw_child_notify(): void;
+    translate_coordinates(dest_widget: Widget, src_x: number, src_y: number): [boolean, number | null,number | null];
+    trigger_tooltip_query(): void;
+    unmap(): void;
+    unparent(): void;
+    unrealize(): void;
+    unregister_window(window: Gdk.Window): void;
+    unset_state_flags(flags: StateFlags): void;
+    vfunc_adjust_baseline_allocation(baseline: number): void;
+    vfunc_adjust_baseline_request(minimum_baseline: number, natural_baseline: number): void;
+    vfunc_adjust_size_allocation(orientation: Orientation, minimum_size: number, natural_size: number, allocated_pos: number, allocated_size: number): void;
+    vfunc_adjust_size_request(orientation: Orientation, minimum_size: number, natural_size: number): void;
+    vfunc_button_press_event(event: Gdk.EventButton): boolean;
+    vfunc_button_release_event(event: Gdk.EventButton): boolean;
+    vfunc_can_activate_accel(signal_id: number): boolean;
+    vfunc_child_notify(child_property: GObject.ParamSpec): void;
+    vfunc_composited_changed(): void;
+    vfunc_compute_expand(hexpand_p: boolean, vexpand_p: boolean): void;
+    vfunc_configure_event(event: Gdk.EventConfigure): boolean;
+    vfunc_damage_event(event: Gdk.EventExpose): boolean;
+    vfunc_delete_event(event: Gdk.EventAny): boolean;
+    vfunc_destroy(): void;
+    vfunc_destroy_event(event: Gdk.EventAny): boolean;
+    vfunc_direction_changed(previous_direction: TextDirection): void;
+    vfunc_dispatch_child_properties_changed(n_pspecs: number, pspecs: GObject.ParamSpec): void;
+    vfunc_drag_begin(context: Gdk.DragContext): void;
+    vfunc_drag_data_delete(context: Gdk.DragContext): void;
+    vfunc_drag_data_get(context: Gdk.DragContext, selection_data: SelectionData, info: number, time_: number): void;
+    vfunc_drag_data_received(context: Gdk.DragContext, x: number, y: number, selection_data: SelectionData, info: number, time_: number): void;
+    vfunc_drag_drop(context: Gdk.DragContext, x: number, y: number, time_: number): boolean;
+    vfunc_drag_end(context: Gdk.DragContext): void;
+    vfunc_drag_failed(context: Gdk.DragContext, result: DragResult): boolean;
+    vfunc_drag_leave(context: Gdk.DragContext, time_: number): void;
+    vfunc_drag_motion(context: Gdk.DragContext, x: number, y: number, time_: number): boolean;
+    vfunc_draw(cr: cairo.Context): boolean;
+    vfunc_enter_notify_event(event: Gdk.EventCrossing): boolean;
+    vfunc_event(event: Gdk.Event): boolean;
+    vfunc_focus(direction: DirectionType): boolean;
+    vfunc_focus_in_event(event: Gdk.EventFocus): boolean;
+    vfunc_focus_out_event(event: Gdk.EventFocus): boolean;
+    vfunc_get_accessible(): Atk.Object;
+    vfunc_get_preferred_height(): [number | null,number | null];
+    vfunc_get_preferred_height_and_baseline_for_width(width: number): [number | null,number | null,number | null,number | null];
+    vfunc_get_preferred_height_for_width(width: number): [number | null,number | null];
+    vfunc_get_preferred_width(): [number | null,number | null];
+    vfunc_get_preferred_width_for_height(height: number): [number | null,number | null];
+    vfunc_get_request_mode(): SizeRequestMode;
+    vfunc_grab_broken_event(event: Gdk.EventGrabBroken): boolean;
+    vfunc_grab_focus(): void;
+    vfunc_grab_notify(was_grabbed: boolean): void;
+    vfunc_hide(): void;
+    vfunc_hierarchy_changed(previous_toplevel: Widget): void;
+    vfunc_key_press_event(event: Gdk.EventKey): boolean;
+    vfunc_key_release_event(event: Gdk.EventKey): boolean;
+    vfunc_keynav_failed(direction: DirectionType): boolean;
+    vfunc_leave_notify_event(event: Gdk.EventCrossing): boolean;
+    vfunc_map(): void;
+    vfunc_map_event(event: Gdk.EventAny): boolean;
+    vfunc_mnemonic_activate(group_cycling: boolean): boolean;
+    vfunc_motion_notify_event(event: Gdk.EventMotion): boolean;
+    vfunc_move_focus(direction: DirectionType): void;
+    vfunc_parent_set(previous_parent: Widget): void;
+    vfunc_popup_menu(): boolean;
+    vfunc_property_notify_event(event: Gdk.EventProperty): boolean;
+    vfunc_proximity_in_event(event: Gdk.EventProximity): boolean;
+    vfunc_proximity_out_event(event: Gdk.EventProximity): boolean;
+    vfunc_query_tooltip(x: number, y: number, keyboard_tooltip: boolean, tooltip: Tooltip): boolean;
+    vfunc_queue_draw_region(region: cairo.Region): void;
+    vfunc_realize(): void;
+    vfunc_screen_changed(previous_screen: Gdk.Screen): void;
+    vfunc_scroll_event(event: Gdk.EventScroll): boolean;
+    vfunc_selection_clear_event(event: Gdk.EventSelection): boolean;
+    vfunc_selection_get(selection_data: SelectionData, info: number, time_: number): void;
+    vfunc_selection_notify_event(event: Gdk.EventSelection): boolean;
+    vfunc_selection_received(selection_data: SelectionData, time_: number): void;
+    vfunc_selection_request_event(event: Gdk.EventSelection): boolean;
+    vfunc_show(): void;
+    vfunc_show_all(): void;
+    vfunc_show_help(help_type: WidgetHelpType): boolean;
+    vfunc_size_allocate(allocation: Allocation): void;
+    vfunc_state_changed(previous_state: StateType): void;
+    vfunc_state_flags_changed(previous_state_flags: StateFlags): void;
+    vfunc_style_set(previous_style: Style): void;
+    vfunc_style_updated(): void;
+    vfunc_touch_event(event: Gdk.EventTouch): boolean;
+    vfunc_unmap(): void;
+    vfunc_unmap_event(event: Gdk.EventAny): boolean;
+    vfunc_unrealize(): void;
+    vfunc_visibility_notify_event(event: Gdk.EventVisibility): boolean;
+    vfunc_window_state_event(event: Gdk.EventWindowState): boolean;
+    static get_default_direction(): TextDirection;
+    static get_default_style(): Style;
+    static pop_composite_child(): void;
+    static push_composite_child(): void;
+    static set_default_direction(dir: TextDirection): void;
+}
+export class WidgetAccessible  {
+    constructor(config?: properties);
+    readonly priv: WidgetAccessiblePrivate;
+}
+export class Window extends Bin {
+    constructor(config?: properties);
+    accept_focus: boolean;
+    application: Application;
+    attached_to: Widget;
+    decorated: boolean;
+    default_height: number;
+    default_width: number;
+    deletable: boolean;
+    destroy_with_parent: boolean;
+    focus_on_map: boolean;
+    focus_visible: boolean;
+    gravity: Gdk.Gravity;
+    has_resize_grip: boolean;
+    hide_titlebar_when_maximized: boolean;
+    icon: GdkPixbuf.Pixbuf;
+    icon_name: string;
+    mnemonics_visible: boolean;
+    modal: boolean;
+    resizable: boolean;
+    readonly resize_grip_visible: boolean;
+    role: string;
+    screen: Gdk.Screen;
+    skip_pager_hint: boolean;
+    skip_taskbar_hint: boolean;
+    startup_id: string;
+    title: string;
+    transient_for: Window;
+    type: WindowType;
+    type_hint: Gdk.WindowTypeHint;
+    urgency_hint: boolean;
+    window_position: WindowPosition;
+    activate_default(): boolean;
+    activate_focus(): boolean;
+    activate_key(event: Gdk.EventKey): boolean;
+    add_accel_group(accel_group: AccelGroup): void;
+    add_mnemonic(keyval: number, target: Widget): void;
+    begin_move_drag(button: number, root_x: number, root_y: number, timestamp: number): void;
+    begin_resize_drag(edge: Gdk.WindowEdge, button: number, root_x: number, root_y: number, timestamp: number): void;
+    close(): void;
+    deiconify(): void;
+    fullscreen(): void;
+    fullscreen_on_monitor(screen: Gdk.Screen, monitor: number): void;
+    get_accept_focus(): boolean;
+    get_application(): Application | null;
+    get_attached_to(): Widget | null;
+    get_decorated(): boolean;
+    get_default_size(): [number | null,number | null];
+    get_default_widget(): Widget | null;
+    get_deletable(): boolean;
+    get_destroy_with_parent(): boolean;
+    get_focus(): Widget | null;
+    get_focus_on_map(): boolean;
+    get_focus_visible(): boolean;
+    get_gravity(): Gdk.Gravity;
+    get_group(): WindowGroup;
+    get_has_resize_grip(): boolean;
+    get_hide_titlebar_when_maximized(): boolean;
+    get_icon(): GdkPixbuf.Pixbuf | null;
+    get_icon_list(): GLib.List;
+    get_icon_name(): string | null;
+    get_mnemonic_modifier(): Gdk.ModifierType;
+    get_mnemonics_visible(): boolean;
+    get_modal(): boolean;
+    get_opacity(): number;
+    get_position(): [number | null,number | null];
+    get_resizable(): boolean;
+    get_resize_grip_area(): [boolean, Gdk.Rectangle];
+    get_role(): string | null;
+    get_screen(): Gdk.Screen;
+    get_size(): [number | null,number | null];
+    get_skip_pager_hint(): boolean;
+    get_skip_taskbar_hint(): boolean;
+    get_title(): string | null;
+    get_titlebar(): Widget | null;
+    get_transient_for(): Window | null;
+    get_type_hint(): Gdk.WindowTypeHint;
+    get_urgency_hint(): boolean;
+    get_window_type(): WindowType;
+    has_group(): boolean;
+    has_toplevel_focus(): boolean;
+    iconify(): void;
+    is_active(): boolean;
+    is_maximized(): boolean;
+    maximize(): void;
+    mnemonic_activate(keyval: number, modifier: Gdk.ModifierType): boolean;
+    move(x: number, y: number): void;
+    parse_geometry(geometry: string): boolean;
+    present(): void;
+    present_with_time(timestamp: number): void;
+    propagate_key_event(event: Gdk.EventKey): boolean;
+    remove_accel_group(accel_group: AccelGroup): void;
+    remove_mnemonic(keyval: number, target: Widget): void;
+    reshow_with_initial_size(): void;
+    resize(width: number, height: number): void;
+    resize_grip_is_visible(): boolean;
+    resize_to_geometry(width: number, height: number): void;
+    set_accept_focus(setting: boolean): void;
+    set_application(application: Application | null): void;
+    set_attached_to(attach_widget: Widget | null): void;
+    set_decorated(setting: boolean): void;
+    set_default(default_widget: Widget | null): void;
+    set_default_geometry(width: number, height: number): void;
+    set_default_size(width: number, height: number): void;
+    set_deletable(setting: boolean): void;
+    set_destroy_with_parent(setting: boolean): void;
+    set_focus(focus: Widget | null): void;
+    set_focus_on_map(setting: boolean): void;
+    set_focus_visible(setting: boolean): void;
+    set_geometry_hints(geometry_widget: Widget | null, geometry: Gdk.Geometry | null, geom_mask: Gdk.WindowHints): void;
+    set_gravity(gravity: Gdk.Gravity): void;
+    set_has_resize_grip(value: boolean): void;
+    set_has_user_ref_count(setting: boolean): void;
+    set_hide_titlebar_when_maximized(setting: boolean): void;
+    set_icon(icon: GdkPixbuf.Pixbuf | null): void;
+    set_icon_from_file(filename: string): boolean;
+    set_icon_list(list: GLib.List): void;
+    set_icon_name(name: string | null): void;
+    set_keep_above(setting: boolean): void;
+    set_keep_below(setting: boolean): void;
+    set_mnemonic_modifier(modifier: Gdk.ModifierType): void;
+    set_mnemonics_visible(setting: boolean): void;
+    set_modal(modal: boolean): void;
+    set_opacity(opacity: number): void;
+    set_position(position: WindowPosition): void;
+    set_resizable(resizable: boolean): void;
+    set_role(role: string): void;
+    set_screen(screen: Gdk.Screen): void;
+    set_skip_pager_hint(setting: boolean): void;
+    set_skip_taskbar_hint(setting: boolean): void;
+    set_startup_id(startup_id: string): void;
+    set_title(title: string): void;
+    set_titlebar(titlebar: Widget | null): void;
+    set_transient_for(parent: Window | null): void;
+    set_type_hint(hint: Gdk.WindowTypeHint): void;
+    set_urgency_hint(setting: boolean): void;
+    set_wmclass(wmclass_name: string, wmclass_class: string): void;
+    stick(): void;
+    unfullscreen(): void;
+    unmaximize(): void;
+    unstick(): void;
+    vfunc_activate_default(): void;
+    vfunc_activate_focus(): void;
+    vfunc_enable_debugging(toggle: boolean): boolean;
+    vfunc_keys_changed(): void;
+    vfunc_set_focus(focus: Widget | null): void;
+    static get_default_icon_list(): GLib.List;
+    static get_default_icon_name(): string;
+    static list_toplevels(): GLib.List;
+    static set_auto_startup_notification(setting: boolean): void;
+    static set_default_icon(icon: GdkPixbuf.Pixbuf): void;
+    static set_default_icon_from_file(filename: string): boolean;
+    static set_default_icon_list(list: GLib.List): void;
+    static set_default_icon_name(name: string): void;
+    static set_interactive_debugging(enable: boolean): void;
+}
+export class WindowAccessible  {
+    constructor(config?: properties);
+    readonly priv: WindowAccessiblePrivate;
+}
+export class WindowGroup extends GObject.Object {
+    constructor(config?: properties);
+    add_window(window: Window): void;
+    get_current_device_grab(device: Gdk.Device): Widget | null;
+    get_current_grab(): Widget;
+    list_windows(): GLib.List;
+    remove_window(window: Window): void;
+}
+export class AboutDialogPrivate  {
+    constructor(config?: properties);
+}
+export class AccelGroupEntry  {
+    constructor(config?: properties);
+    key: AccelKey;
+    closure: GObject.Closure;
+    accel_path_quark: GLib.Quark;
+}
+export class AccelGroupPrivate  {
+    constructor(config?: properties);
+}
+export class AccelKey  {
+    constructor(config?: properties);
+    accel_key: number;
+    accel_mods: Gdk.ModifierType;
+    accel_flags: number;
+}
+export class AccelLabelPrivate  {
+    constructor(config?: properties);
+}
+export class AccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ActionBarPrivate  {
+    constructor(config?: properties);
+}
+export class ActionEntry  {
+    constructor(config?: properties);
+    name: string;
+    stock_id: string;
+    label: string;
+    accelerator: string;
+    tooltip: string;
+    callback: GObject.Callback;
+}
+export class ActionGroupPrivate  {
+    constructor(config?: properties);
+}
+export class ActionPrivate  {
+    constructor(config?: properties);
+}
+export class AdjustmentPrivate  {
+    constructor(config?: properties);
+}
+export class AlignmentPrivate  {
+    constructor(config?: properties);
+}
+export class AppChooserButtonPrivate  {
+    constructor(config?: properties);
+}
+export class AppChooserDialogPrivate  {
+    constructor(config?: properties);
+}
+export class AppChooserWidgetPrivate  {
+    constructor(config?: properties);
+}
+export class ApplicationPrivate  {
+    constructor(config?: properties);
+}
+export class ApplicationWindowPrivate  {
+    constructor(config?: properties);
+}
+export class ArrowAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ArrowPrivate  {
+    constructor(config?: properties);
+}
+export class AspectFramePrivate  {
+    constructor(config?: properties);
+}
+export class AssistantPrivate  {
+    constructor(config?: properties);
+}
+export class BinPrivate  {
+    constructor(config?: properties);
+}
+export class BindingArg  {
+    constructor(config?: properties);
+    arg_type: GType;
+}
+export class BindingEntry  {
+    constructor(config?: properties);
+    keyval: number;
+    modifiers: Gdk.ModifierType;
+    binding_set: BindingSet;
+    destroyed: number;
+    in_emission: number;
+    marks_unbound: number;
+    set_next: BindingEntry;
+    hash_next: BindingEntry;
+    signals: BindingSignal;
+    static add_signal_from_string(binding_set: BindingSet, signal_desc: string): GLib.TokenType;
+    static add_signall(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType, signal_name: string, binding_args: string[]): void;
+    static remove(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType): void;
+    static skip(binding_set: BindingSet, keyval: number, modifiers: Gdk.ModifierType): void;
+}
+export class BindingSet  {
+    constructor(config?: properties);
+    set_name: string;
+    priority: number;
+    widget_path_pspecs: string[];
+    widget_class_pspecs: string[];
+    class_branch_pspecs: string[];
+    entries: BindingEntry;
+    current: BindingEntry;
+    parsed: number;
+    activate(keyval: number, modifiers: Gdk.ModifierType, object: GObject.Object): boolean;
+    add_path(path_type: PathType, path_pattern: string, priority: PathPriorityType): void;
+    static find(set_name: string): BindingSet | null;
+}
+export class BindingSignal  {
+    constructor(config?: properties);
+    next: BindingSignal;
+    signal_name: string;
+    n_args: number;
+    args: BindingArg[];
+}
+export class BooleanCellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class Border  {
+    constructor(config?: properties);
+    copy(): Border;
+    free(): void;
+}
+export class BoxPrivate  {
+    constructor(config?: properties);
+}
+export class BuilderPrivate  {
+    constructor(config?: properties);
+}
+export class ButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ButtonBoxPrivate  {
+    constructor(config?: properties);
+}
+export class ButtonPrivate  {
+    constructor(config?: properties);
+}
+export class CalendarPrivate  {
+    constructor(config?: properties);
+}
+export class CellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class CellAreaBoxPrivate  {
+    constructor(config?: properties);
+}
+export class CellAreaContextPrivate  {
+    constructor(config?: properties);
+}
+export class CellAreaPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererAccelPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererClassPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererComboPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererPixbufPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererProgressPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererSpinPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererSpinnerPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererTextPrivate  {
+    constructor(config?: properties);
+}
+export class CellRendererTogglePrivate  {
+    constructor(config?: properties);
+}
+export class CellViewPrivate  {
+    constructor(config?: properties);
+}
+export class CheckMenuItemAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class CheckMenuItemPrivate  {
+    constructor(config?: properties);
+}
+export class ColorButtonPrivate  {
+    constructor(config?: properties);
+}
+export class ColorChooserDialogPrivate  {
+    constructor(config?: properties);
+}
+export class ColorChooserWidgetPrivate  {
+    constructor(config?: properties);
+}
+export class ColorSelectionDialogPrivate  {
+    constructor(config?: properties);
+}
+export class ColorSelectionPrivate  {
+    constructor(config?: properties);
+}
+export class ComboBoxAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ComboBoxPrivate  {
+    constructor(config?: properties);
+}
+export class ComboBoxTextPrivate  {
+    constructor(config?: properties);
+}
+export class ContainerAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ContainerCellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ContainerPrivate  {
+    constructor(config?: properties);
+}
+export class CssProviderPrivate  {
+    constructor(config?: properties);
+}
+export class CssSection  {
+    constructor(config?: properties);
+    get_end_line(): number;
+    get_end_position(): number;
+    get_file(): Gio.File;
+    get_parent(): CssSection | null;
+    get_section_type(): CssSectionType;
+    get_start_line(): number;
+    get_start_position(): number;
+    ref(): CssSection;
+    unref(): void;
+}
+export class DialogPrivate  {
+    constructor(config?: properties);
+}
+export class EntryAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class EntryBufferPrivate  {
+    constructor(config?: properties);
+}
+export class EntryCompletionPrivate  {
+    constructor(config?: properties);
+}
+export class EntryPrivate  {
+    constructor(config?: properties);
+}
+export class EventBoxPrivate  {
+    constructor(config?: properties);
+}
+export class ExpanderAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ExpanderPrivate  {
+    constructor(config?: properties);
+}
+export class FileChooserButtonPrivate  {
+    constructor(config?: properties);
+}
+export class FileChooserDialogPrivate  {
+    constructor(config?: properties);
+}
+export class FileChooserWidgetPrivate  {
+    constructor(config?: properties);
+}
+export class FileFilterInfo  {
+    constructor(config?: properties);
+    contains: FileFilterFlags;
+    filename: string;
+    uri: string;
+    display_name: string;
+    mime_type: string;
+}
+export class FixedChild  {
+    constructor(config?: properties);
+    widget: Widget;
+    x: number;
+    y: number;
+}
+export class FixedPrivate  {
+    constructor(config?: properties);
+}
+export class FlowBoxAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class FontButtonPrivate  {
+    constructor(config?: properties);
+}
+export class FontChooserDialogPrivate  {
+    constructor(config?: properties);
+}
+export class FontChooserWidgetPrivate  {
+    constructor(config?: properties);
+}
+export class FontSelectionDialogPrivate  {
+    constructor(config?: properties);
+}
+export class FontSelectionPrivate  {
+    constructor(config?: properties);
+}
+export class FrameAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class FramePrivate  {
+    constructor(config?: properties);
+}
+export class Gradient  {
+    constructor(config?: properties);
+    static new_linear(x0: number, y0: number, x1: number, y1: number): Gradient;
+    static new_radial(x0: number, y0: number, radius0: number, x1: number, y1: number, radius1: number): Gradient;
+    add_color_stop(offset: number, color: SymbolicColor): void;
+    ref(): Gradient;
+    resolve(props: StyleProperties): [boolean, cairo.Pattern];
+    resolve_for_context(context: StyleContext): cairo.Pattern;
+    to_string(): string;
+    unref(): void;
+}
+export class GridPrivate  {
+    constructor(config?: properties);
+}
+export class HSVPrivate  {
+    constructor(config?: properties);
+}
+export class HandleBoxPrivate  {
+    constructor(config?: properties);
+}
+export class HeaderBarAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class HeaderBarPrivate  {
+    constructor(config?: properties);
+}
+export class IMContextInfo  {
+    constructor(config?: properties);
+    context_id: string;
+    context_name: string;
+    domain: string;
+    domain_dirname: string;
+    default_locales: string;
+}
+export class IMContextSimplePrivate  {
+    constructor(config?: properties);
+}
+export class IMMulticontextPrivate  {
+    constructor(config?: properties);
+}
+export class IconFactoryPrivate  {
+    constructor(config?: properties);
+}
+export class IconSet  {
+    constructor(config?: properties);
+    static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): IconSet;
+    add_source(source: IconSource): void;
+    copy(): IconSet;
+    get_sizes(): [number[],number];
+    ref(): IconSet;
+    render_icon(style: Style | null, direction: TextDirection, state: StateType, size: number, widget: Widget | null, detail: string | null): GdkPixbuf.Pixbuf;
+    render_icon_pixbuf(context: StyleContext, size: number): GdkPixbuf.Pixbuf;
+    render_icon_surface(context: StyleContext, size: number, scale: number, for_window: Gdk.Window | null): cairo.Surface;
+    unref(): void;
+}
+export class IconSource  {
+    constructor(config?: properties);
+    copy(): IconSource;
+    free(): void;
+    get_direction(): TextDirection;
+    get_direction_wildcarded(): boolean;
+    get_filename(): string;
+    get_icon_name(): string;
+    get_pixbuf(): GdkPixbuf.Pixbuf;
+    get_size(): number;
+    get_size_wildcarded(): boolean;
+    get_state(): StateType;
+    get_state_wildcarded(): boolean;
+    set_direction(direction: TextDirection): void;
+    set_direction_wildcarded(setting: boolean): void;
+    set_filename(filename: string): void;
+    set_icon_name(icon_name: string | null): void;
+    set_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
+    set_size(size: number): void;
+    set_size_wildcarded(setting: boolean): void;
+    set_state(state: StateType): void;
+    set_state_wildcarded(setting: boolean): void;
+}
+export class IconThemePrivate  {
+    constructor(config?: properties);
+}
+export class IconViewAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class IconViewPrivate  {
+    constructor(config?: properties);
+}
+export class ImageAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ImageCellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ImageMenuItemPrivate  {
+    constructor(config?: properties);
+}
+export class ImagePrivate  {
+    constructor(config?: properties);
+}
+export class InfoBarPrivate  {
+    constructor(config?: properties);
+}
+export class InvisiblePrivate  {
+    constructor(config?: properties);
+}
+export class LabelAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class LabelPrivate  {
+    constructor(config?: properties);
+}
+export class LabelSelectionInfo  {
+    constructor(config?: properties);
+}
+export class LayoutPrivate  {
+    constructor(config?: properties);
+}
+export class LevelBarAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class LevelBarPrivate  {
+    constructor(config?: properties);
+}
+export class LinkButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class LinkButtonPrivate  {
+    constructor(config?: properties);
+}
+export class ListBoxAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ListStorePrivate  {
+    constructor(config?: properties);
+}
+export class LockButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class LockButtonPrivate  {
+    constructor(config?: properties);
+}
+export class MenuAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class MenuBarPrivate  {
+    constructor(config?: properties);
+}
+export class MenuButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class MenuButtonPrivate  {
+    constructor(config?: properties);
+}
+export class MenuItemAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class MenuItemPrivate  {
+    constructor(config?: properties);
+}
+export class MenuPrivate  {
+    constructor(config?: properties);
+}
+export class MenuShellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class MenuShellPrivate  {
+    constructor(config?: properties);
+}
+export class MenuToolButtonPrivate  {
+    constructor(config?: properties);
+}
+export class MessageDialogPrivate  {
+    constructor(config?: properties);
+}
+export class MiscPrivate  {
+    constructor(config?: properties);
+}
+export class MountOperationPrivate  {
+    constructor(config?: properties);
+}
+export class NotebookAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class NotebookPageAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class NotebookPrivate  {
+    constructor(config?: properties);
+}
+export class NumerableIconPrivate  {
+    constructor(config?: properties);
+}
+export class OverlayPrivate  {
+    constructor(config?: properties);
+}
+export class PadActionEntry  {
+    constructor(config?: properties);
+    type: PadActionType;
+    index: number;
+    mode: number;
+    label: string;
+    action_name: string;
+}
+export class PageRange  {
+    constructor(config?: properties);
+    start: number;
+    end: number;
+}
+export class PanedAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class PanedPrivate  {
+    constructor(config?: properties);
+}
+export class PaperSize  {
+    constructor(config?: properties);
+    static new_custom(name: string, display_name: string, width: number, height: number, unit: Unit): PaperSize;
+    static new_from_gvariant(variant: GLib.Variant): PaperSize;
+    static new_from_ipp(ipp_name: string, width: number, height: number): PaperSize;
+    static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PaperSize;
+    static new_from_ppd(ppd_name: string, ppd_display_name: string, width: number, height: number): PaperSize;
+    copy(): PaperSize;
+    free(): void;
+    get_default_bottom_margin(unit: Unit): number;
+    get_default_left_margin(unit: Unit): number;
+    get_default_right_margin(unit: Unit): number;
+    get_default_top_margin(unit: Unit): number;
+    get_display_name(): string;
+    get_height(unit: Unit): number;
+    get_name(): string;
+    get_ppd_name(): string;
+    get_width(unit: Unit): number;
+    is_custom(): boolean;
+    is_equal(size2: PaperSize): boolean;
+    is_ipp(): boolean;
+    set_size(width: number, height: number, unit: Unit): void;
+    to_gvariant(): GLib.Variant;
+    to_key_file(key_file: GLib.KeyFile, group_name: string): void;
+    static get_default(): string;
+    static get_paper_sizes(include_custom: boolean): GLib.List;
+}
+export class PlugPrivate  {
+    constructor(config?: properties);
+}
+export class PopoverPrivate  {
+    constructor(config?: properties);
+}
+export class PrintOperationPrivate  {
+    constructor(config?: properties);
+}
+export class ProgressBarAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ProgressBarPrivate  {
+    constructor(config?: properties);
+}
+export class RadioActionEntry  {
+    constructor(config?: properties);
+    name: string;
+    stock_id: string;
+    label: string;
+    accelerator: string;
+    tooltip: string;
+    value: number;
+}
+export class RadioActionPrivate  {
+    constructor(config?: properties);
+}
+export class RadioButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class RadioButtonPrivate  {
+    constructor(config?: properties);
+}
+export class RadioMenuItemAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class RadioMenuItemPrivate  {
+    constructor(config?: properties);
+}
+export class RangeAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class RangePrivate  {
+    constructor(config?: properties);
+}
+export class RcContext  {
+    constructor(config?: properties);
+}
+export class RcProperty  {
+    constructor(config?: properties);
+    type_name: GLib.Quark;
+    property_name: GLib.Quark;
+    origin: string;
+    value: GObject.Value;
+    static parse_border(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
+    static parse_color(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
+    static parse_enum(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
+    static parse_flags(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
+    static parse_requisition(pspec: GObject.ParamSpec, gstring: GLib.String, property_value: GObject.Value): boolean;
+}
+export class RecentActionPrivate  {
+    constructor(config?: properties);
+}
+export class RecentChooserDialogPrivate  {
+    constructor(config?: properties);
+}
+export class RecentChooserMenuPrivate  {
+    constructor(config?: properties);
+}
+export class RecentChooserWidgetPrivate  {
+    constructor(config?: properties);
+}
+export class RecentData  {
+    constructor(config?: properties);
+    display_name: string;
+    description: string;
+    mime_type: string;
+    app_name: string;
+    app_exec: string;
+    groups: string[];
+    is_private: boolean;
+}
+export class RecentFilterInfo  {
+    constructor(config?: properties);
+    contains: RecentFilterFlags;
+    uri: string;
+    display_name: string;
+    mime_type: string;
+    applications: string[];
+    groups: string[];
+    age: number;
+}
+export class RecentInfo  {
+    constructor(config?: properties);
+    create_app_info(app_name: string | null): Gio.AppInfo | null;
+    exists(): boolean;
+    get_added(): number;
+    get_age(): number;
+    get_application_info(app_name: string): [boolean, string,number,number];
+    get_applications(): [string[], number | null];
+    get_description(): string;
+    get_display_name(): string;
+    get_gicon(): Gio.Icon | null;
+    get_groups(): [string[], number | null];
+    get_icon(size: number): GdkPixbuf.Pixbuf | null;
+    get_mime_type(): string;
+    get_modified(): number;
+    get_private_hint(): boolean;
+    get_short_name(): string;
+    get_uri(): string;
+    get_uri_display(): string | null;
+    get_visited(): number;
+    has_application(app_name: string): boolean;
+    has_group(group_name: string): boolean;
+    is_local(): boolean;
+    last_application(): string;
+    match(info_b: RecentInfo): boolean;
+    ref(): RecentInfo;
+    unref(): void;
+}
+export class RecentManagerPrivate  {
+    constructor(config?: properties);
+}
+export class RendererCellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class RequestedSize  {
+    constructor(config?: properties);
+    data: object;
+    minimum_size: number;
+    natural_size: number;
+}
+export class Requisition  {
+    constructor(config?: properties);
+    copy(): Requisition;
+    free(): void;
+}
+export class ScaleAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ScaleButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ScaleButtonPrivate  {
+    constructor(config?: properties);
+}
+export class ScalePrivate  {
+    constructor(config?: properties);
+}
+export class ScrolledWindowAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ScrolledWindowPrivate  {
+    constructor(config?: properties);
+}
+export class SelectionData  {
+    constructor(config?: properties);
+    copy(): SelectionData;
+    free(): void;
+    get_data_type(): Gdk.Atom;
+    get_data_with_length(): [number[], number];
+    get_display(): Gdk.Display;
+    get_format(): number;
+    get_length(): number;
+    get_pixbuf(): GdkPixbuf.Pixbuf | null;
+    get_selection(): Gdk.Atom;
+    get_target(): Gdk.Atom;
+    get_targets(): [boolean, Gdk.Atom[],number];
+    get_text(): string | null;
+    get_uris(): string[];
+    set(type: Gdk.Atom, format: number, data: number[], length: number): void;
+    set_pixbuf(pixbuf: GdkPixbuf.Pixbuf): boolean;
+    set_text(str: string, len: number): boolean;
+    set_uris(uris: string[]): boolean;
+    targets_include_image(writable: boolean): boolean;
+    targets_include_rich_text(buffer: TextBuffer): boolean;
+    targets_include_text(): boolean;
+    targets_include_uri(): boolean;
+}
+export class SeparatorPrivate  {
+    constructor(config?: properties);
+}
+export class SeparatorToolItemPrivate  {
+    constructor(config?: properties);
+}
+export class SettingsPrivate  {
+    constructor(config?: properties);
+}
+export class SettingsValue  {
+    constructor(config?: properties);
+    origin: string;
+    value: GObject.Value;
+}
+export class SizeGroupPrivate  {
+    constructor(config?: properties);
+}
+export class SocketPrivate  {
+    constructor(config?: properties);
+}
+export class SpinButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class SpinButtonPrivate  {
+    constructor(config?: properties);
+}
+export class SpinnerAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class SpinnerPrivate  {
+    constructor(config?: properties);
+}
+export class StackSidebarPrivate  {
+    constructor(config?: properties);
+}
+export class StatusIconPrivate  {
+    constructor(config?: properties);
+}
+export class StatusbarAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class StatusbarPrivate  {
+    constructor(config?: properties);
+}
+export class StockItem  {
+    constructor(config?: properties);
+    stock_id: string;
+    label: string;
+    modifier: Gdk.ModifierType;
+    keyval: number;
+    translation_domain: string;
+    free(): void;
+}
+export class StyleContextPrivate  {
+    constructor(config?: properties);
+}
+export class StylePropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class SwitchAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class SwitchPrivate  {
+    constructor(config?: properties);
+}
+export class SymbolicColor  {
+    constructor(config?: properties);
+    static new_alpha(color: SymbolicColor, factor: number): SymbolicColor;
+    static new_literal(color: Gdk.RGBA): SymbolicColor;
+    static new_mix(color1: SymbolicColor, color2: SymbolicColor, factor: number): SymbolicColor;
+    static new_name(name: string): SymbolicColor;
+    static new_shade(color: SymbolicColor, factor: number): SymbolicColor;
+    static new_win32(theme_class: string, id: number): SymbolicColor;
+    ref(): SymbolicColor;
+    resolve(props: StyleProperties | null): [boolean, Gdk.RGBA];
+    to_string(): string;
+    unref(): void;
+}
+export class TableChild  {
+    constructor(config?: properties);
+    widget: Widget;
+    left_attach: number;
+    right_attach: number;
+    top_attach: number;
+    bottom_attach: number;
+    xpadding: number;
+    ypadding: number;
+    xexpand: number;
+    yexpand: number;
+    xshrink: number;
+    yshrink: number;
+    xfill: number;
+    yfill: number;
+}
+export class TablePrivate  {
+    constructor(config?: properties);
+}
+export class TableRowCol  {
+    constructor(config?: properties);
+    requisition: number;
+    allocation: number;
+    spacing: number;
+    need_expand: number;
+    need_shrink: number;
+    expand: number;
+    shrink: number;
+    empty: number;
+}
+export class TargetEntry  {
+    constructor(config?: properties);
+    copy(): TargetEntry;
+    free(): void;
+}
+export class TargetList  {
+    constructor(config?: properties);
+    add(target: Gdk.Atom, flags: number, info: number): void;
+    add_image_targets(info: number, writable: boolean): void;
+    add_rich_text_targets(info: number, deserializable: boolean, buffer: TextBuffer): void;
+    add_table(targets: TargetEntry[], ntargets: number): void;
+    add_text_targets(info: number): void;
+    add_uri_targets(info: number): void;
+    find(target: Gdk.Atom): [boolean, number | null];
+    ref(): TargetList;
+    remove(target: Gdk.Atom): void;
+    unref(): void;
+}
+export class TargetPair  {
+    constructor(config?: properties);
+    target: Gdk.Atom;
+    flags: number;
+    info: number;
+}
+export class TearoffMenuItemPrivate  {
+    constructor(config?: properties);
+}
+export class TextAppearance  {
+    constructor(config?: properties);
+    bg_color: Gdk.Color;
+    fg_color: Gdk.Color;
+    rise: number;
+    underline: number;
+    strikethrough: number;
+    draw_bg: number;
+    inside_selection: number;
+    is_text: number;
+}
+export class TextAttributes  {
+    constructor(config?: properties);
+    copy(): TextAttributes;
+    copy_values(dest: TextAttributes): void;
+    ref(): TextAttributes;
+    unref(): void;
+}
+export class TextBTree  {
+    constructor(config?: properties);
+}
+export class TextBufferPrivate  {
+    constructor(config?: properties);
+}
+export class TextCellAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class TextIter  {
+    constructor(config?: properties);
+    readonly dummy1: object;
+    readonly dummy2: object;
+    readonly dummy3: number;
+    readonly dummy4: number;
+    readonly dummy5: number;
+    readonly dummy6: number;
+    readonly dummy7: number;
+    readonly dummy8: number;
+    readonly dummy9: object;
+    readonly dummy10: object;
+    readonly dummy11: number;
+    readonly dummy12: number;
+    readonly dummy13: number;
+    readonly dummy14: object;
+    assign(other: TextIter): void;
+    backward_char(): boolean;
+    backward_chars(count: number): boolean;
+    backward_cursor_position(): boolean;
+    backward_cursor_positions(count: number): boolean;
+    backward_find_char(pred: TextCharPredicate, user_data: object | null, limit: TextIter | null): boolean;
+    backward_line(): boolean;
+    backward_lines(count: number): boolean;
+    backward_search(str: string, flags: TextSearchFlags, limit: TextIter | null): [boolean, TextIter | null,TextIter | null];
+    backward_sentence_start(): boolean;
+    backward_sentence_starts(count: number): boolean;
+    backward_to_tag_toggle(tag: TextTag | null): boolean;
+    backward_visible_cursor_position(): boolean;
+    backward_visible_cursor_positions(count: number): boolean;
+    backward_visible_line(): boolean;
+    backward_visible_lines(count: number): boolean;
+    backward_visible_word_start(): boolean;
+    backward_visible_word_starts(count: number): boolean;
+    backward_word_start(): boolean;
+    backward_word_starts(count: number): boolean;
+    begins_tag(tag: TextTag | null): boolean;
+    can_insert(default_editability: boolean): boolean;
+    compare(rhs: TextIter): number;
+    copy(): TextIter;
+    editable(default_setting: boolean): boolean;
+    ends_line(): boolean;
+    ends_sentence(): boolean;
+    ends_tag(tag: TextTag | null): boolean;
+    ends_word(): boolean;
+    equal(rhs: TextIter): boolean;
+    forward_char(): boolean;
+    forward_chars(count: number): boolean;
+    forward_cursor_position(): boolean;
+    forward_cursor_positions(count: number): boolean;
+    forward_find_char(pred: TextCharPredicate, user_data: object | null, limit: TextIter | null): boolean;
+    forward_line(): boolean;
+    forward_lines(count: number): boolean;
+    forward_search(str: string, flags: TextSearchFlags, limit: TextIter | null): [boolean, TextIter | null,TextIter | null];
+    forward_sentence_end(): boolean;
+    forward_sentence_ends(count: number): boolean;
+    forward_to_end(): void;
+    forward_to_line_end(): boolean;
+    forward_to_tag_toggle(tag: TextTag | null): boolean;
+    forward_visible_cursor_position(): boolean;
+    forward_visible_cursor_positions(count: number): boolean;
+    forward_visible_line(): boolean;
+    forward_visible_lines(count: number): boolean;
+    forward_visible_word_end(): boolean;
+    forward_visible_word_ends(count: number): boolean;
+    forward_word_end(): boolean;
+    forward_word_ends(count: number): boolean;
+    free(): void;
+    get_attributes(): [boolean, TextAttributes];
+    get_buffer(): TextBuffer;
+    get_bytes_in_line(): number;
+    get_char(): number;
+    get_chars_in_line(): number;
+    get_child_anchor(): TextChildAnchor;
+    get_language(): Pango.Language;
+    get_line(): number;
+    get_line_index(): number;
+    get_line_offset(): number;
+    get_marks(): string[];
+    get_offset(): number;
+    get_pixbuf(): GdkPixbuf.Pixbuf;
+    get_slice(end: TextIter): string;
+    get_tags(): string[];
+    get_text(end: TextIter): string;
+    get_toggled_tags(toggled_on: boolean): string[];
+    get_visible_line_index(): number;
+    get_visible_line_offset(): number;
+    get_visible_slice(end: TextIter): string;
+    get_visible_text(end: TextIter): string;
+    has_tag(tag: TextTag): boolean;
+    in_range(start: TextIter, end: TextIter): boolean;
+    inside_sentence(): boolean;
+    inside_word(): boolean;
+    is_cursor_position(): boolean;
+    is_end(): boolean;
+    is_start(): boolean;
+    order(second: TextIter): void;
+    set_line(line_number: number): void;
+    set_line_index(byte_on_line: number): void;
+    set_line_offset(char_on_line: number): void;
+    set_offset(char_offset: number): void;
+    set_visible_line_index(byte_on_line: number): void;
+    set_visible_line_offset(char_on_line: number): void;
+    starts_line(): boolean;
+    starts_sentence(): boolean;
+    starts_tag(tag: TextTag | null): boolean;
+    starts_word(): boolean;
+    toggles_tag(tag: TextTag | null): boolean;
+}
+export class TextTagPrivate  {
+    constructor(config?: properties);
+}
+export class TextTagTablePrivate  {
+    constructor(config?: properties);
+}
+export class TextViewAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class TextViewPrivate  {
+    constructor(config?: properties);
+}
+export class ThemeEngine  {
+    constructor(config?: properties);
+}
+export class ThemingEnginePrivate  {
+    constructor(config?: properties);
+}
+export class ToggleActionEntry  {
+    constructor(config?: properties);
+    name: string;
+    stock_id: string;
+    label: string;
+    accelerator: string;
+    tooltip: string;
+    callback: GObject.Callback;
+    is_active: boolean;
+}
+export class ToggleActionPrivate  {
+    constructor(config?: properties);
+}
+export class ToggleButtonAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class ToggleButtonPrivate  {
+    constructor(config?: properties);
+}
+export class ToggleToolButtonPrivate  {
+    constructor(config?: properties);
+}
+export class ToolButtonPrivate  {
+    constructor(config?: properties);
+}
+export class ToolItemGroupPrivate  {
+    constructor(config?: properties);
+}
+export class ToolItemPrivate  {
+    constructor(config?: properties);
+}
+export class ToolPalettePrivate  {
+    constructor(config?: properties);
+}
+export class ToolbarPrivate  {
+    constructor(config?: properties);
+}
+export class ToplevelAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class TreeIter  {
+    constructor(config?: properties);
+    stamp: number;
+    user_data: object;
+    user_data2: object;
+    user_data3: object;
+    copy(): TreeIter;
+    free(): void;
+}
+export class TreeModelFilterPrivate  {
+    constructor(config?: properties);
+}
+export class TreeModelSortPrivate  {
+    constructor(config?: properties);
+}
+export class TreePath  {
+    constructor(config?: properties);
+    static new_first(): TreePath;
+    static new_from_indices(first_index: number, ___: any): TreePath;
+    static new_from_indicesv(indices: number[], length: number): TreePath;
+    static new_from_string(path: string): TreePath;
+    append_index(index_: number): void;
+    compare(b: TreePath): number;
+    copy(): TreePath;
+    down(): void;
+    free(): void;
+    get_depth(): number;
+    get_indices_with_depth(): [number[], number | null];
+    is_ancestor(descendant: TreePath): boolean;
+    is_descendant(ancestor: TreePath): boolean;
+    next(): void;
+    prepend_index(index_: number): void;
+    prev(): boolean;
+    to_string(): string;
+    up(): boolean;
+}
+export class TreeRowReference  {
+    constructor(config?: properties);
+    static new_proxy(proxy: GObject.Object, model: TreeModel, path: TreePath): TreeRowReference;
+    copy(): TreeRowReference;
+    free(): void;
+    get_model(): TreeModel;
+    get_path(): TreePath | null;
+    valid(): boolean;
+    static deleted(proxy: GObject.Object, path: TreePath): void;
+    static inserted(proxy: GObject.Object, path: TreePath): void;
+}
+export class TreeSelectionPrivate  {
+    constructor(config?: properties);
+}
+export class TreeStorePrivate  {
+    constructor(config?: properties);
+}
+export class TreeViewAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class TreeViewColumnPrivate  {
+    constructor(config?: properties);
+}
+export class TreeViewPrivate  {
+    constructor(config?: properties);
+}
+export class UIManagerPrivate  {
+    constructor(config?: properties);
+}
+export class ViewportPrivate  {
+    constructor(config?: properties);
+}
+export class WidgetAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class WidgetClassPrivate  {
+    constructor(config?: properties);
+}
+export class WidgetPath  {
+    constructor(config?: properties);
+    append_for_widget(widget: Widget): number;
+    append_type(type: GType): number;
+    append_with_siblings(siblings: WidgetPath, sibling_index: number): number;
+    copy(): WidgetPath;
+    free(): void;
+    get_object_type(): GType;
+    has_parent(type: GType): boolean;
+    is_type(type: GType): boolean;
+    iter_add_class(pos: number, name: string): void;
+    iter_add_region(pos: number, name: string, flags: RegionFlags): void;
+    iter_clear_classes(pos: number): void;
+    iter_clear_regions(pos: number): void;
+    iter_get_name(pos: number): string | null;
+    iter_get_object_name(pos: number): string | null;
+    iter_get_object_type(pos: number): GType;
+    iter_get_sibling_index(pos: number): number;
+    iter_get_siblings(pos: number): WidgetPath;
+    iter_get_state(pos: number): StateFlags;
+    iter_has_class(pos: number, name: string): boolean;
+    iter_has_name(pos: number, name: string): boolean;
+    iter_has_qclass(pos: number, qname: GLib.Quark): boolean;
+    iter_has_qname(pos: number, qname: GLib.Quark): boolean;
+    iter_has_qregion(pos: number, qname: GLib.Quark): [boolean, RegionFlags];
+    iter_has_region(pos: number, name: string): [boolean, RegionFlags];
+    iter_list_classes(pos: number): string[];
+    iter_list_regions(pos: number): string[];
+    iter_remove_class(pos: number, name: string): void;
+    iter_remove_region(pos: number, name: string): void;
+    iter_set_name(pos: number, name: string): void;
+    iter_set_object_name(pos: number, name: string | null): void;
+    iter_set_object_type(pos: number, type: GType): void;
+    iter_set_state(pos: number, state: StateFlags): void;
+    length(): number;
+    prepend_type(type: GType): void;
+    ref(): WidgetPath;
+    to_string(): string;
+    unref(): void;
+}
+export class WidgetPrivate  {
+    constructor(config?: properties);
+}
+export class WindowAccessiblePrivate  {
+    constructor(config?: properties);
+}
+export class WindowGeometryInfo  {
+    constructor(config?: properties);
+}
+export class WindowGroupPrivate  {
+    constructor(config?: properties);
+}
+export class WindowPrivate  {
+    constructor(config?: properties);
 }
 export interface Actionable  {
-action_name: string;
-action_target: GLib.Variant;
-get_action_name(): string | null;
-get_action_target_value(): GLib.Variant;
-set_action_name(action_name: string | null): void;
-set_action_target(format_string: string, ___: unknown[]): void;
-set_action_target_value(target_value: GLib.Variant | null): void;
-set_detailed_action_name(detailed_action_name: string): void;
+    action_name: string;
+    action_target: GLib.Variant;
+    get_action_name(): string | null;
+    get_action_target_value(): GLib.Variant;
+    set_action_name(action_name: string | null): void;
+    set_action_target_value(target_value: GLib.Variant | null): void;
+    set_detailed_action_name(detailed_action_name: string): void;
 }
 export interface Activatable  {
-related_action: Action;
-use_action_appearance: boolean;
-do_set_related_action(action: Action): void;
-get_related_action(): Action;
-get_use_action_appearance(): boolean;
-set_related_action(action: Action): void;
-set_use_action_appearance(use_appearance: boolean): void;
-sync_action_properties(action: Action | null): void;
+    related_action: Action;
+    use_action_appearance: boolean;
+    do_set_related_action(action: Action): void;
+    get_related_action(): Action;
+    get_use_action_appearance(): boolean;
+    set_related_action(action: Action): void;
+    set_use_action_appearance(use_appearance: boolean): void;
+    sync_action_properties(action: Action | null): void;
 }
 export interface AppChooser  {
-content_type: string;
-get_app_info(): Gio.AppInfo | null;
-get_content_type(): string;
-refresh(): void;
+    content_type: string;
+    get_app_info(): Gio.AppInfo | null;
+    get_content_type(): string;
+    refresh(): void;
 }
 export interface Buildable  {
-add_child(builder: Builder, child: GObject.Object, type: string | null): void;
-construct_child(builder: Builder, name: string): GObject.Object;
-custom_finished(builder: Builder, child: GObject.Object | null, tagname: string, data: object | null): void;
-custom_tag_end(builder: Builder, child: GObject.Object | null, tagname: string, data: object | null): void;
-custom_tag_start(builder: Builder, child: GObject.Object | null, tagname: string): [boolean, GLib.MarkupParser,object | null];
-get_internal_child(builder: Builder, childname: string): GObject.Object;
-get_name(): string;
-parser_finished(builder: Builder): void;
-set_buildable_property(builder: Builder, name: string, value: GObject.Value): void;
-set_name(name: string): void;
+    add_child(builder: Builder, child: GObject.Object, type: string | null): void;
+    construct_child(builder: Builder, name: string): GObject.Object;
+    custom_finished(builder: Builder, child: GObject.Object | null, tagname: string, data: object | null): void;
+    custom_tag_end(builder: Builder, child: GObject.Object | null, tagname: string, data: object | null): void;
+    custom_tag_start(builder: Builder, child: GObject.Object | null, tagname: string): [boolean, GLib.MarkupParser,object | null];
+    get_internal_child(builder: Builder, childname: string): GObject.Object;
+    get_name(): string;
+    parser_finished(builder: Builder): void;
+    set_buildable_property(builder: Builder, name: string, value: GObject.Value): void;
+    set_name(name: string): void;
 }
 export interface CellAccessibleParent  {
-activate(cell: CellAccessible): void;
-edit(cell: CellAccessible): void;
-expand_collapse(cell: CellAccessible): void;
-get_cell_area(cell: CellAccessible): [Gdk.Rectangle];
-get_cell_extents(cell: CellAccessible, coord_type: Atk.CoordType): [number,number,number,number];
-get_cell_position(cell: CellAccessible): [number,number];
-get_child_index(cell: CellAccessible): number;
-get_column_header_cells(cell: CellAccessible): Atk.Object[];
-get_renderer_state(cell: CellAccessible): CellRendererState;
-get_row_header_cells(cell: CellAccessible): Atk.Object[];
-grab_focus(cell: CellAccessible): boolean;
-update_relationset(cell: CellAccessible, relationset: Atk.RelationSet): void;
+    activate(cell: CellAccessible): void;
+    edit(cell: CellAccessible): void;
+    expand_collapse(cell: CellAccessible): void;
+    get_cell_area(cell: CellAccessible): [Gdk.Rectangle];
+    get_cell_extents(cell: CellAccessible, coord_type: Atk.CoordType): [number,number,number,number];
+    get_cell_position(cell: CellAccessible): [number,number];
+    get_child_index(cell: CellAccessible): number;
+    get_column_header_cells(cell: CellAccessible): Atk.Object[];
+    get_renderer_state(cell: CellAccessible): CellRendererState;
+    get_row_header_cells(cell: CellAccessible): Atk.Object[];
+    grab_focus(cell: CellAccessible): boolean;
+    update_relationset(cell: CellAccessible, relationset: Atk.RelationSet): void;
 }
 export interface CellEditable  {
-editing_canceled: boolean;
-editing_done(): void;
-remove_widget(): void;
-start_editing(event: Gdk.Event | null): void;
+    editing_canceled: boolean;
+    editing_done(): void;
+    remove_widget(): void;
+    start_editing(event: Gdk.Event | null): void;
 }
 export interface CellLayout  {
-add_attribute(cell: CellRenderer, attribute: string, column: number): void;
-clear(): void;
-clear_attributes(cell: CellRenderer): void;
-get_area(): CellArea | null;
-get_cells(): GLib.List;
-pack_end(cell: CellRenderer, expand: boolean): void;
-pack_start(cell: CellRenderer, expand: boolean): void;
-reorder(cell: CellRenderer, position: number): void;
-set_attributes(cell: CellRenderer, ___: unknown[]): void;
-set_cell_data_func(cell: CellRenderer, func: CellLayoutDataFunc | null, func_data: object | null, destroy: GLib.DestroyNotify): void;
+    add_attribute(cell: CellRenderer, attribute: string, column: number): void;
+    clear(): void;
+    clear_attributes(cell: CellRenderer): void;
+    get_area(): CellArea | null;
+    get_cells(): GLib.List;
+    pack_end(cell: CellRenderer, expand: boolean): void;
+    pack_start(cell: CellRenderer, expand: boolean): void;
+    reorder(cell: CellRenderer, position: number): void;
+    set_cell_data_func(cell: CellRenderer, func: CellLayoutDataFunc | null, func_data: object | null, destroy: GLib.DestroyNotify): void;
 }
 export interface ColorChooser  {
-rgba: Gdk.RGBA;
-use_alpha: boolean;
-add_palette(orientation: Orientation, colors_per_line: number, n_colors: number, colors: Gdk.RGBA[] | null): void;
-get_rgba(): [Gdk.RGBA];
-get_use_alpha(): boolean;
-set_rgba(color: Gdk.RGBA): void;
-set_use_alpha(use_alpha: boolean): void;
+    rgba: Gdk.RGBA;
+    use_alpha: boolean;
+    add_palette(orientation: Orientation, colors_per_line: number, n_colors: number, colors: Gdk.RGBA[] | null): void;
+    get_rgba(): [Gdk.RGBA];
+    get_use_alpha(): boolean;
+    set_rgba(color: Gdk.RGBA): void;
+    set_use_alpha(use_alpha: boolean): void;
 }
 export interface Editable  {
-copy_clipboard(): void;
-cut_clipboard(): void;
-delete_selection(): void;
-delete_text(start_pos: number, end_pos: number): void;
-get_chars(start_pos: number, end_pos: number): string;
-get_editable(): boolean;
-get_position(): number;
-get_selection_bounds(): [boolean, number | null,number | null];
-insert_text(new_text: string, new_text_length: number, position: number): [number];
-paste_clipboard(): void;
-select_region(start_pos: number, end_pos: number): void;
-set_editable(is_editable: boolean): void;
-set_position(position: number): void;
+    copy_clipboard(): void;
+    cut_clipboard(): void;
+    delete_selection(): void;
+    delete_text(start_pos: number, end_pos: number): void;
+    get_chars(start_pos: number, end_pos: number): string;
+    get_editable(): boolean;
+    get_position(): number;
+    get_selection_bounds(): [boolean, number | null,number | null];
+    insert_text(new_text: string, new_text_length: number, position: number): [number];
+    paste_clipboard(): void;
+    select_region(start_pos: number, end_pos: number): void;
+    set_editable(is_editable: boolean): void;
+    set_position(position: number): void;
 }
 export interface FileChooser  {
-action: FileChooserAction;
-create_folders: boolean;
-do_overwrite_confirmation: boolean;
-extra_widget: Widget;
-filter: FileFilter;
-local_only: boolean;
-preview_widget: Widget;
-preview_widget_active: boolean;
-select_multiple: boolean;
-show_hidden: boolean;
-use_preview_label: boolean;
-add_choice(id: string, label: string, options: string[] | null, option_labels: string[] | null): void;
-add_filter(filter: FileFilter): void;
-add_shortcut_folder(folder: unknown): boolean;
-add_shortcut_folder_uri(uri: string): boolean;
-get_action(): FileChooserAction;
-get_choice(id: string): string;
-get_create_folders(): boolean;
-get_current_folder(): unknown | null;
-get_current_folder_file(): Gio.File;
-get_current_folder_uri(): string | null;
-get_current_name(): string;
-get_do_overwrite_confirmation(): boolean;
-get_extra_widget(): Widget | null;
-get_file(): Gio.File;
-get_filename(): unknown | null;
-get_filenames(): string[];
-get_files(): string[];
-get_filter(): FileFilter | null;
-get_local_only(): boolean;
-get_preview_file(): Gio.File | null;
-get_preview_filename(): unknown | null;
-get_preview_uri(): string | null;
-get_preview_widget(): Widget | null;
-get_preview_widget_active(): boolean;
-get_select_multiple(): boolean;
-get_show_hidden(): boolean;
-get_uri(): string | null;
-get_uris(): string[];
-get_use_preview_label(): boolean;
-list_filters(): string[];
-list_shortcut_folder_uris(): string[];
-list_shortcut_folders(): string[];
-remove_choice(id: string): void;
-remove_filter(filter: FileFilter): void;
-remove_shortcut_folder(folder: unknown): boolean;
-remove_shortcut_folder_uri(uri: string): boolean;
-select_all(): void;
-select_file(file: Gio.File): boolean;
-select_filename(filename: unknown): boolean;
-select_uri(uri: string): boolean;
-set_action(action: FileChooserAction): void;
-set_choice(id: string, option: string): void;
-set_create_folders(create_folders: boolean): void;
-set_current_folder(filename: unknown): boolean;
-set_current_folder_file(file: Gio.File): boolean;
-set_current_folder_uri(uri: string): boolean;
-set_current_name(name: unknown): void;
-set_do_overwrite_confirmation(do_overwrite_confirmation: boolean): void;
-set_extra_widget(extra_widget: Widget): void;
-set_file(file: Gio.File): boolean;
-set_filename(filename: unknown): boolean;
-set_filter(filter: FileFilter): void;
-set_local_only(local_only: boolean): void;
-set_preview_widget(preview_widget: Widget): void;
-set_preview_widget_active(active: boolean): void;
-set_select_multiple(select_multiple: boolean): void;
-set_show_hidden(show_hidden: boolean): void;
-set_uri(uri: string): boolean;
-set_use_preview_label(use_label: boolean): void;
-unselect_all(): void;
-unselect_file(file: Gio.File): void;
-unselect_filename(filename: unknown): void;
-unselect_uri(uri: string): void;
+    action: FileChooserAction;
+    create_folders: boolean;
+    do_overwrite_confirmation: boolean;
+    extra_widget: Widget;
+    filter: FileFilter;
+    local_only: boolean;
+    preview_widget: Widget;
+    preview_widget_active: boolean;
+    select_multiple: boolean;
+    show_hidden: boolean;
+    use_preview_label: boolean;
+    add_choice(id: string, label: string, options: string[] | null, option_labels: string[] | null): void;
+    add_filter(filter: FileFilter): void;
+    add_shortcut_folder(folder: string): boolean;
+    add_shortcut_folder_uri(uri: string): boolean;
+    get_action(): FileChooserAction;
+    get_choice(id: string): string;
+    get_create_folders(): boolean;
+    get_current_folder(): string | null;
+    get_current_folder_file(): Gio.File;
+    get_current_folder_uri(): string | null;
+    get_current_name(): string;
+    get_do_overwrite_confirmation(): boolean;
+    get_extra_widget(): Widget | null;
+    get_file(): Gio.File;
+    get_filename(): string | null;
+    get_filenames(): string[];
+    get_files(): string[];
+    get_filter(): FileFilter | null;
+    get_local_only(): boolean;
+    get_preview_file(): Gio.File | null;
+    get_preview_filename(): string | null;
+    get_preview_uri(): string | null;
+    get_preview_widget(): Widget | null;
+    get_preview_widget_active(): boolean;
+    get_select_multiple(): boolean;
+    get_show_hidden(): boolean;
+    get_uri(): string | null;
+    get_uris(): string[];
+    get_use_preview_label(): boolean;
+    list_filters(): string[];
+    list_shortcut_folder_uris(): string[];
+    list_shortcut_folders(): string[];
+    remove_choice(id: string): void;
+    remove_filter(filter: FileFilter): void;
+    remove_shortcut_folder(folder: string): boolean;
+    remove_shortcut_folder_uri(uri: string): boolean;
+    select_all(): void;
+    select_file(file: Gio.File): boolean;
+    select_filename(filename: string): boolean;
+    select_uri(uri: string): boolean;
+    set_action(action: FileChooserAction): void;
+    set_choice(id: string, option: string): void;
+    set_create_folders(create_folders: boolean): void;
+    set_current_folder(filename: string): boolean;
+    set_current_folder_file(file: Gio.File): boolean;
+    set_current_folder_uri(uri: string): boolean;
+    set_current_name(name: string): void;
+    set_do_overwrite_confirmation(do_overwrite_confirmation: boolean): void;
+    set_extra_widget(extra_widget: Widget): void;
+    set_file(file: Gio.File): boolean;
+    set_filename(filename: string): boolean;
+    set_filter(filter: FileFilter): void;
+    set_local_only(local_only: boolean): void;
+    set_preview_widget(preview_widget: Widget): void;
+    set_preview_widget_active(active: boolean): void;
+    set_select_multiple(select_multiple: boolean): void;
+    set_show_hidden(show_hidden: boolean): void;
+    set_uri(uri: string): boolean;
+    set_use_preview_label(use_label: boolean): void;
+    unselect_all(): void;
+    unselect_file(file: Gio.File): void;
+    unselect_filename(filename: string): void;
+    unselect_uri(uri: string): void;
 }
 export interface FontChooser  {
-font: string;
-font_desc: Pango.FontDescription;
-readonly font_features: string;
-language: string;
-level: FontChooserLevel;
-preview_text: string;
-show_preview_entry: boolean;
-get_font(): string | null;
-get_font_desc(): Pango.FontDescription | null;
-get_font_face(): Pango.FontFace | null;
-get_font_family(): Pango.FontFamily | null;
-get_font_features(): string;
-get_font_map(): Pango.FontMap | null;
-get_font_size(): number;
-get_language(): string;
-get_level(): FontChooserLevel;
-get_preview_text(): string;
-get_show_preview_entry(): boolean;
-set_filter_func(filter: FontFilterFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
-set_font(fontname: string): void;
-set_font_desc(font_desc: Pango.FontDescription): void;
-set_font_map(fontmap: Pango.FontMap | null): void;
-set_language(language: string): void;
-set_level(level: FontChooserLevel): void;
-set_preview_text(text: string): void;
-set_show_preview_entry(show_preview_entry: boolean): void;
+    font: string;
+    font_desc: Pango.FontDescription;
+    readonly font_features: string;
+    language: string;
+    level: FontChooserLevel;
+    preview_text: string;
+    show_preview_entry: boolean;
+    get_font(): string | null;
+    get_font_desc(): Pango.FontDescription | null;
+    get_font_face(): Pango.FontFace | null;
+    get_font_family(): Pango.FontFamily | null;
+    get_font_features(): string;
+    get_font_map(): Pango.FontMap | null;
+    get_font_size(): number;
+    get_language(): string;
+    get_level(): FontChooserLevel;
+    get_preview_text(): string;
+    get_show_preview_entry(): boolean;
+    set_filter_func(filter: FontFilterFunc | null, user_data: object | null, destroy: GLib.DestroyNotify): void;
+    set_font(fontname: string): void;
+    set_font_desc(font_desc: Pango.FontDescription): void;
+    set_font_map(fontmap: Pango.FontMap | null): void;
+    set_language(language: string): void;
+    set_level(level: FontChooserLevel): void;
+    set_preview_text(text: string): void;
+    set_show_preview_entry(show_preview_entry: boolean): void;
 }
 export interface Orientable  {
-orientation: Orientation;
-get_orientation(): Orientation;
-set_orientation(orientation: Orientation): void;
+    orientation: Orientation;
+    get_orientation(): Orientation;
+    set_orientation(orientation: Orientation): void;
 }
 export interface PrintOperationPreview  {
-end_preview(): void;
-is_selected(page_nr: number): boolean;
-render_page(page_nr: number): void;
+    end_preview(): void;
+    is_selected(page_nr: number): boolean;
+    render_page(page_nr: number): void;
 }
 export interface RecentChooser  {
-filter: RecentFilter;
-limit: number;
-local_only: boolean;
-recent_manager: RecentManager;
-select_multiple: boolean;
-show_icons: boolean;
-show_not_found: boolean;
-show_private: boolean;
-show_tips: boolean;
-sort_type: RecentSortType;
-add_filter(filter: RecentFilter): void;
-get_current_item(): RecentInfo;
-get_current_uri(): string;
-get_filter(): RecentFilter;
-get_items(): GLib.List;
-get_limit(): number;
-get_local_only(): boolean;
-get_select_multiple(): boolean;
-get_show_icons(): boolean;
-get_show_not_found(): boolean;
-get_show_private(): boolean;
-get_show_tips(): boolean;
-get_sort_type(): RecentSortType;
-get_uris(): [string[], number | null];
-list_filters(): string[];
-remove_filter(filter: RecentFilter): void;
-select_all(): void;
-select_uri(uri: string): boolean;
-set_current_uri(uri: string): boolean;
-set_filter(filter: RecentFilter | null): void;
-set_limit(limit: number): void;
-set_local_only(local_only: boolean): void;
-set_select_multiple(select_multiple: boolean): void;
-set_show_icons(show_icons: boolean): void;
-set_show_not_found(show_not_found: boolean): void;
-set_show_private(show_private: boolean): void;
-set_show_tips(show_tips: boolean): void;
-set_sort_func(sort_func: RecentSortFunc, sort_data: object | null, data_destroy: GLib.DestroyNotify | null): void;
-set_sort_type(sort_type: RecentSortType): void;
-unselect_all(): void;
-unselect_uri(uri: string): void;
+    filter: RecentFilter;
+    limit: number;
+    local_only: boolean;
+    recent_manager: RecentManager;
+    select_multiple: boolean;
+    show_icons: boolean;
+    show_not_found: boolean;
+    show_private: boolean;
+    show_tips: boolean;
+    sort_type: RecentSortType;
+    add_filter(filter: RecentFilter): void;
+    get_current_item(): RecentInfo;
+    get_current_uri(): string;
+    get_filter(): RecentFilter;
+    get_items(): GLib.List;
+    get_limit(): number;
+    get_local_only(): boolean;
+    get_select_multiple(): boolean;
+    get_show_icons(): boolean;
+    get_show_not_found(): boolean;
+    get_show_private(): boolean;
+    get_show_tips(): boolean;
+    get_sort_type(): RecentSortType;
+    get_uris(): [string[], number | null];
+    list_filters(): string[];
+    remove_filter(filter: RecentFilter): void;
+    select_all(): void;
+    select_uri(uri: string): boolean;
+    set_current_uri(uri: string): boolean;
+    set_filter(filter: RecentFilter | null): void;
+    set_limit(limit: number): void;
+    set_local_only(local_only: boolean): void;
+    set_select_multiple(select_multiple: boolean): void;
+    set_show_icons(show_icons: boolean): void;
+    set_show_not_found(show_not_found: boolean): void;
+    set_show_private(show_private: boolean): void;
+    set_show_tips(show_tips: boolean): void;
+    set_sort_func(sort_func: RecentSortFunc, sort_data: object | null, data_destroy: GLib.DestroyNotify | null): void;
+    set_sort_type(sort_type: RecentSortType): void;
+    unselect_all(): void;
+    unselect_uri(uri: string): void;
 }
 export interface Scrollable  {
-hadjustment: Adjustment;
-hscroll_policy: ScrollablePolicy;
-vadjustment: Adjustment;
-vscroll_policy: ScrollablePolicy;
-get_border(): [boolean, Border];
-get_hadjustment(): Adjustment;
-get_hscroll_policy(): ScrollablePolicy;
-get_vadjustment(): Adjustment;
-get_vscroll_policy(): ScrollablePolicy;
-set_hadjustment(hadjustment: Adjustment | null): void;
-set_hscroll_policy(policy: ScrollablePolicy): void;
-set_vadjustment(vadjustment: Adjustment | null): void;
-set_vscroll_policy(policy: ScrollablePolicy): void;
+    hadjustment: Adjustment;
+    hscroll_policy: ScrollablePolicy;
+    vadjustment: Adjustment;
+    vscroll_policy: ScrollablePolicy;
+    get_border(): [boolean, Border];
+    get_hadjustment(): Adjustment;
+    get_hscroll_policy(): ScrollablePolicy;
+    get_vadjustment(): Adjustment;
+    get_vscroll_policy(): ScrollablePolicy;
+    set_hadjustment(hadjustment: Adjustment | null): void;
+    set_hscroll_policy(policy: ScrollablePolicy): void;
+    set_vadjustment(vadjustment: Adjustment | null): void;
+    set_vscroll_policy(policy: ScrollablePolicy): void;
 }
 export interface StyleProvider  {
-get_icon_factory(path: WidgetPath): IconFactory | null;
-get_style(path: WidgetPath): StyleProperties | null;
-get_style_property(path: WidgetPath, state: StateFlags, pspec: GObject.ParamSpec): [boolean, GObject.Value];
+    get_icon_factory(path: WidgetPath): IconFactory | null;
+    get_style(path: WidgetPath): StyleProperties | null;
+    get_style_property(path: WidgetPath, state: StateFlags, pspec: GObject.ParamSpec): [boolean, GObject.Value];
 }
 export interface ToolShell  {
-get_ellipsize_mode(): Pango.EllipsizeMode;
-get_icon_size(): number;
-get_orientation(): Orientation;
-get_relief_style(): ReliefStyle;
-get_style(): ToolbarStyle;
-get_text_alignment(): number;
-get_text_orientation(): Orientation;
-get_text_size_group(): SizeGroup;
-rebuild_menu(): void;
+    get_ellipsize_mode(): Pango.EllipsizeMode;
+    get_icon_size(): number;
+    get_orientation(): Orientation;
+    get_relief_style(): ReliefStyle;
+    get_style(): ToolbarStyle;
+    get_text_alignment(): number;
+    get_text_orientation(): Orientation;
+    get_text_size_group(): SizeGroup;
+    rebuild_menu(): void;
 }
 export interface TreeDragDest  {
-drag_data_received(dest: TreePath, selection_data: SelectionData): boolean;
-row_drop_possible(dest_path: TreePath, selection_data: SelectionData): boolean;
+    drag_data_received(dest: TreePath, selection_data: SelectionData): boolean;
+    row_drop_possible(dest_path: TreePath, selection_data: SelectionData): boolean;
 }
 export interface TreeDragSource  {
-drag_data_delete(path: TreePath): boolean;
-drag_data_get(path: TreePath, selection_data: SelectionData): boolean;
-row_draggable(path: TreePath): boolean;
+    drag_data_delete(path: TreePath): boolean;
+    drag_data_get(path: TreePath, selection_data: SelectionData): boolean;
+    row_draggable(path: TreePath): boolean;
 }
 export interface TreeModel  {
-filter_new(root: TreePath | null): TreeModel;
-foreach(func: TreeModelForeachFunc, user_data: object | null): void;
-get(iter: TreeIter, ___: unknown[]): void;
-get_column_type(index_: number): unknown;
-get_flags(): TreeModelFlags;
-get_iter(path: TreePath): [boolean, TreeIter];
-get_iter_first(): [boolean, TreeIter];
-get_iter_from_string(path_string: string): [boolean, TreeIter];
-get_n_columns(): number;
-get_path(iter: TreeIter): TreePath;
-get_string_from_iter(iter: TreeIter): string;
-get_valist(iter: TreeIter, var_args: any): void;
-get_value(iter: TreeIter, column: number): [GObject.Value];
-iter_children(parent: TreeIter | null): [boolean, TreeIter];
-iter_has_child(iter: TreeIter): boolean;
-iter_n_children(iter: TreeIter | null): number;
-iter_next(iter: TreeIter): boolean;
-iter_nth_child(parent: TreeIter | null, n: number): [boolean, TreeIter];
-iter_parent(child: TreeIter): [boolean, TreeIter];
-iter_previous(iter: TreeIter): boolean;
-ref_node(iter: TreeIter): void;
-row_changed(path: TreePath, iter: TreeIter): void;
-row_deleted(path: TreePath): void;
-row_has_child_toggled(path: TreePath, iter: TreeIter): void;
-row_inserted(path: TreePath, iter: TreeIter): void;
-rows_reordered(path: TreePath, iter: TreeIter, new_order: number): void;
-rows_reordered_with_length(path: TreePath, iter: TreeIter | null, new_order: number[], length: number): void;
-sort_new_with_model(): TreeModel;
-unref_node(iter: TreeIter): void;
+    filter_new(root: TreePath | null): TreeModel;
+    foreach(func: TreeModelForeachFunc, user_data: object | null): void;
+    get_column_type(index_: number): GType;
+    get_flags(): TreeModelFlags;
+    get_iter(path: TreePath): [boolean, TreeIter];
+    get_iter_first(): [boolean, TreeIter];
+    get_iter_from_string(path_string: string): [boolean, TreeIter];
+    get_n_columns(): number;
+    get_path(iter: TreeIter): TreePath;
+    get_string_from_iter(iter: TreeIter): string;
+    get_value(iter: TreeIter, column: number): [GObject.Value];
+    iter_children(parent: TreeIter | null): [boolean, TreeIter];
+    iter_has_child(iter: TreeIter): boolean;
+    iter_n_children(iter: TreeIter | null): number;
+    iter_next(iter: TreeIter): boolean;
+    iter_nth_child(parent: TreeIter | null, n: number): [boolean, TreeIter];
+    iter_parent(child: TreeIter): [boolean, TreeIter];
+    iter_previous(iter: TreeIter): boolean;
+    ref_node(iter: TreeIter): void;
+    row_changed(path: TreePath, iter: TreeIter): void;
+    row_deleted(path: TreePath): void;
+    row_has_child_toggled(path: TreePath, iter: TreeIter): void;
+    row_inserted(path: TreePath, iter: TreeIter): void;
+    rows_reordered_with_length(path: TreePath, iter: TreeIter | null, new_order: number[], length: number): void;
+    sort_new_with_model(): TreeModel;
+    unref_node(iter: TreeIter): void;
 }
 export interface TreeSortable  {
-get_sort_column_id(): [boolean, number,SortType];
-has_default_sort_func(): boolean;
-set_default_sort_func(sort_func: TreeIterCompareFunc, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
-set_sort_column_id(sort_column_id: number, order: SortType): void;
-set_sort_func(sort_column_id: number, sort_func: TreeIterCompareFunc, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
-sort_column_changed(): void;
+    get_sort_column_id(): [boolean, number,SortType];
+    has_default_sort_func(): boolean;
+    set_default_sort_func(sort_func: TreeIterCompareFunc, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
+    set_sort_column_id(sort_column_id: number, order: SortType): void;
+    set_sort_func(sort_column_id: number, sort_func: TreeIterCompareFunc, user_data: object | null, destroy: GLib.DestroyNotify | null): void;
+    sort_column_changed(): void;
 }

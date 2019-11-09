@@ -11,6 +11,7 @@ import * as GstPbutils from "gstpbutils";
  * gstpbutils.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type AudioVisualizerShaderFunc = (scope: AudioVisualizer, s: GstVideo.VideoFrame, d: GstVideo.VideoFrame) => void;
 export type InstallPluginsResultFunc = (result: InstallPluginsReturn, user_data: object | null) => void;
 export const ENCODING_CATEGORY_CAPTURE: string;
@@ -527,170 +528,164 @@ export enum DiscovererSerializeFlags {
     MISC = 4,
     ALL = 7,
 }
-export class AudioVisualizer  {constructor(config?: properties);
-shade_amount: number;
-shader: AudioVisualizerShader;
-readonly req_spf: number;
-readonly vinfo: GstVideo.VideoInfo;
-readonly ainfo: GstAudio.AudioInfo;
-readonly priv: AudioVisualizerPrivate;
+export class AudioVisualizer  {
+    constructor(config?: properties);
+    shade_amount: number;
+    shader: AudioVisualizerShader;
+    readonly req_spf: number;
+    readonly vinfo: GstVideo.VideoInfo;
+    readonly ainfo: GstAudio.AudioInfo;
+    readonly priv: AudioVisualizerPrivate;
 }
-export class Discoverer extends GObject.Object {constructor(config?: properties);
-timeout: number;
-use_cache: boolean;
-discover_uri(uri: string): DiscovererInfo;
-discover_uri_async(uri: string): boolean;
-start(): void;
-stop(): void;
-vfunc_discovered(info: DiscovererInfo, err: GLib.Error): void;
-vfunc_finished(): void;
-vfunc_source_setup(source: Gst.Element): void;
-vfunc_starting(): void;
+export class Discoverer extends GObject.Object {
+    constructor(config?: properties);
+    timeout: number;
+    use_cache: boolean;
+    discover_uri(uri: string): DiscovererInfo;
+    discover_uri_async(uri: string): boolean;
+    start(): void;
+    stop(): void;
+    vfunc_discovered(info: DiscovererInfo, err: GLib.Error): void;
+    vfunc_finished(): void;
+    vfunc_source_setup(source: Gst.Element): void;
+    vfunc_starting(): void;
 }
-export class DiscovererAudioInfo  {constructor(config?: properties);
-get_bitrate(): number;
-get_channel_mask(): number;
-get_channels(): number;
-get_depth(): number;
-get_language(): string;
-get_max_bitrate(): number;
-get_sample_rate(): number;
+export class DiscovererAudioInfo  {
+    constructor(config?: properties);
+    get_bitrate(): number;
+    get_channel_mask(): number;
+    get_channels(): number;
+    get_depth(): number;
+    get_language(): string;
+    get_max_bitrate(): number;
+    get_sample_rate(): number;
 }
-export class DiscovererContainerInfo  {constructor(config?: properties);
-get_streams(): GLib.List;
+export class DiscovererContainerInfo  {
+    constructor(config?: properties);
+    get_streams(): GLib.List;
 }
-export class DiscovererInfo  {constructor(config?: properties);
-copy(): DiscovererInfo;
-get_audio_streams(): GLib.List;
-get_container_streams(): GLib.List;
-get_duration(): Gst.ClockTime;
-get_live(): boolean;
-get_misc(): Gst.Structure;
-get_missing_elements_installer_details(): string[];
-get_result(): DiscovererResult;
-get_seekable(): boolean;
-get_stream_info(): DiscovererStreamInfo;
-get_stream_list(): GLib.List;
-get_streams(streamtype: unknown): GLib.List;
-get_subtitle_streams(): GLib.List;
-get_tags(): Gst.TagList;
-get_toc(): Gst.Toc;
-get_uri(): string;
-get_video_streams(): GLib.List;
-to_variant(flags: DiscovererSerializeFlags): GLib.Variant;
-static from_variant(variant: GLib.Variant): DiscovererInfo;
+export class DiscovererInfo  {
+    constructor(config?: properties);
+    copy(): DiscovererInfo;
+    get_audio_streams(): GLib.List;
+    get_container_streams(): GLib.List;
+    get_duration(): Gst.ClockTime;
+    get_live(): boolean;
+    get_misc(): Gst.Structure;
+    get_missing_elements_installer_details(): string[];
+    get_result(): DiscovererResult;
+    get_seekable(): boolean;
+    get_stream_info(): DiscovererStreamInfo;
+    get_stream_list(): GLib.List;
+    get_streams(streamtype: GType): GLib.List;
+    get_subtitle_streams(): GLib.List;
+    get_tags(): Gst.TagList;
+    get_toc(): Gst.Toc;
+    get_uri(): string;
+    get_video_streams(): GLib.List;
+    to_variant(flags: DiscovererSerializeFlags): GLib.Variant;
+    static from_variant(variant: GLib.Variant): DiscovererInfo;
 }
-export class DiscovererStreamInfo  {constructor(config?: properties);
-get_caps(): Gst.Caps;
-get_misc(): Gst.Structure;
-get_next(): DiscovererStreamInfo;
-get_previous(): DiscovererStreamInfo;
-get_stream_id(): string;
-get_stream_type_nick(): string;
-get_tags(): Gst.TagList;
-get_toc(): Gst.Toc;
-static list_free(infos: GLib.List): void;
+export class DiscovererStreamInfo  {
+    constructor(config?: properties);
+    get_caps(): Gst.Caps;
+    get_misc(): Gst.Structure;
+    get_next(): DiscovererStreamInfo;
+    get_previous(): DiscovererStreamInfo;
+    get_stream_id(): string;
+    get_stream_type_nick(): string;
+    get_tags(): Gst.TagList;
+    get_toc(): Gst.Toc;
+    static list_free(infos: GLib.List): void;
 }
-export class DiscovererSubtitleInfo  {constructor(config?: properties);
-get_language(): string;
+export class DiscovererSubtitleInfo  {
+    constructor(config?: properties);
+    get_language(): string;
 }
-export class DiscovererVideoInfo  {constructor(config?: properties);
-get_bitrate(): number;
-get_depth(): number;
-get_framerate_denom(): number;
-get_framerate_num(): number;
-get_height(): number;
-get_max_bitrate(): number;
-get_par_denom(): number;
-get_par_num(): number;
-get_width(): number;
-is_image(): boolean;
-is_interlaced(): boolean;
+export class DiscovererVideoInfo  {
+    constructor(config?: properties);
+    get_bitrate(): number;
+    get_depth(): number;
+    get_framerate_denom(): number;
+    get_framerate_num(): number;
+    get_height(): number;
+    get_max_bitrate(): number;
+    get_par_denom(): number;
+    get_par_num(): number;
+    get_width(): number;
+    is_image(): boolean;
+    is_interlaced(): boolean;
 }
-export class EncodingAudioProfile extends EncodingProfile {constructor(config?: properties);
+export class EncodingAudioProfile extends EncodingProfile {
+    constructor(config?: properties);
 }
-export class EncodingContainerProfile extends EncodingProfile {constructor(config?: properties);
-add_profile(profile: EncodingProfile): boolean;
-contains_profile(profile: EncodingProfile): boolean;
-get_profiles(): GLib.List;
+export class EncodingContainerProfile extends EncodingProfile {
+    constructor(config?: properties);
+    add_profile(profile: EncodingProfile): boolean;
+    contains_profile(profile: EncodingProfile): boolean;
+    get_profiles(): GLib.List;
 }
-export class EncodingProfile  {constructor(config?: properties);
-restriction_caps: Gst.Caps;
-copy(): EncodingProfile;
-get_allow_dynamic_output(): boolean;
-get_description(): string;
-get_file_extension(): string;
-get_format(): Gst.Caps;
-get_input_caps(): Gst.Caps;
-get_name(): string;
-get_presence(): number;
-get_preset(): string;
-get_preset_name(): string;
-get_restriction(): Gst.Caps;
-get_type_nick(): string;
-is_enabled(): boolean;
-is_equal(b: EncodingProfile): boolean;
-set_allow_dynamic_output(allow_dynamic_output: boolean): void;
-set_description(description: string | null): void;
-set_enabled(enabled: boolean): void;
-set_format(format: Gst.Caps): void;
-set_name(name: string | null): void;
-set_presence(presence: number): void;
-set_preset(preset: string | null): void;
-set_preset_name(preset_name: string | null): void;
-set_restriction(restriction: Gst.Caps | null): void;
-static find(targetname: string, profilename: string | null, category: string | null): EncodingProfile;
-static from_discoverer(info: DiscovererInfo): EncodingProfile;
+export class EncodingProfile  {
+    constructor(config?: properties);
+    restriction_caps: Gst.Caps;
+    copy(): EncodingProfile;
+    get_allow_dynamic_output(): boolean;
+    get_description(): string;
+    get_file_extension(): string;
+    get_format(): Gst.Caps;
+    get_input_caps(): Gst.Caps;
+    get_name(): string;
+    get_presence(): number;
+    get_preset(): string;
+    get_preset_name(): string;
+    get_restriction(): Gst.Caps;
+    get_type_nick(): string;
+    is_enabled(): boolean;
+    is_equal(b: EncodingProfile): boolean;
+    set_allow_dynamic_output(allow_dynamic_output: boolean): void;
+    set_description(description: string | null): void;
+    set_enabled(enabled: boolean): void;
+    set_format(format: Gst.Caps): void;
+    set_name(name: string | null): void;
+    set_presence(presence: number): void;
+    set_preset(preset: string | null): void;
+    set_preset_name(preset_name: string | null): void;
+    set_restriction(restriction: Gst.Caps | null): void;
+    static find(targetname: string, profilename: string | null, category: string | null): EncodingProfile;
+    static from_discoverer(info: DiscovererInfo): EncodingProfile;
 }
-export class EncodingTarget extends GObject.Object {constructor(config?: properties);
-add_profile(profile: EncodingProfile): boolean;
-get_category(): string;
-get_description(): string;
-get_name(): string;
-get_profile(name: string): EncodingProfile;
-get_profiles(): GLib.List;
-save(): boolean;
-save_to_file(filepath: unknown): boolean;
-static load(name: string, category: string | null): EncodingTarget;
-static load_from_file(filepath: unknown): EncodingTarget;
+export class EncodingTarget extends GObject.Object {
+    constructor(config?: properties);
+    add_profile(profile: EncodingProfile): boolean;
+    get_category(): string;
+    get_description(): string;
+    get_name(): string;
+    get_profile(name: string): EncodingProfile;
+    get_profiles(): GLib.List;
+    save(): boolean;
+    save_to_file(filepath: string): boolean;
+    static load(name: string, category: string | null): EncodingTarget;
+    static load_from_file(filepath: string): EncodingTarget;
 }
-export class EncodingVideoProfile extends EncodingProfile {constructor(config?: properties);
-get_pass(): number;
-get_variableframerate(): boolean;
-set_pass(pass: number): void;
-set_variableframerate(variableframerate: boolean): void;
+export class EncodingVideoProfile extends EncodingProfile {
+    constructor(config?: properties);
+    get_pass(): number;
+    get_variableframerate(): boolean;
+    set_pass(pass: number): void;
+    set_variableframerate(variableframerate: boolean): void;
 }
-export class AudioVisualizerClass  {constructor(config?: properties);
-readonly parent_class: Gst.ElementClass;
-readonly setup: unknown;
-readonly render: unknown;
-readonly decide_allocation: unknown;
+export class AudioVisualizerPrivate  {
+    constructor(config?: properties);
 }
-export class AudioVisualizerPrivate  {constructor(config?: properties);
+export class DiscovererPrivate  {
+    constructor(config?: properties);
 }
-export class DiscovererClass  {constructor(config?: properties);
-readonly parentclass: GObject.ObjectClass;
-readonly finished: unknown;
-readonly starting: unknown;
-readonly discovered: unknown;
-readonly source_setup: unknown;
-readonly _reserved: object[];
-}
-export class DiscovererPrivate  {constructor(config?: properties);
-}
-export class EncodingAudioProfileClass  {constructor(config?: properties);
-}
-export class EncodingContainerProfileClass  {constructor(config?: properties);
-}
-export class EncodingProfileClass  {constructor(config?: properties);
-}
-export class EncodingVideoProfileClass  {constructor(config?: properties);
-}
-export class InstallPluginsContext  {constructor(config?: properties);
-copy(): InstallPluginsContext;
-free(): void;
-set_confirm_search(confirm_search: boolean): void;
-set_desktop_id(desktop_id: string): void;
-set_startup_notification_id(startup_id: string): void;
-set_xid(xid: number): void;
+export class InstallPluginsContext  {
+    constructor(config?: properties);
+    copy(): InstallPluginsContext;
+    free(): void;
+    set_confirm_search(confirm_search: boolean): void;
+    set_desktop_id(desktop_id: string): void;
+    set_startup_notification_id(startup_id: string): void;
+    set_xid(xid: number): void;
 }

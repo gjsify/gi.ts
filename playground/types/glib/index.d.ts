@@ -6,6 +6,7 @@ import * as GLib from "glib";
  * glib.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ChildWatchFunc = (pid: Pid, status: number, user_data: object | null) => void;
 export type ClearHandleFunc = (handle_id: number) => void;
 export type CompareDataFunc = (a: object | null, b: object | null, user_data: object | null) => number;
@@ -192,7 +193,7 @@ export const WIN32_MSG_HANDLE: number;
  * more exactly should use the Win32 API.
  * See your C library manual for more details about access().
  */
-export function access(filename: unknown, mode: number): number;
+export function access(filename: string, mode: number): number;
 /**
  * Determines the numeric value of a character as a decimal digit.
  * Differs from g_unichar_digit_value() because it takes a char, so
@@ -402,21 +403,11 @@ export function assertion_message(domain: string, file: string, line: number, fu
 /**
  * 
  */
-export function assertion_message_cmpnum(domain: string, file: string, line: number, func: string, expr: string, arg1: unknown, cmp: string, arg2: unknown, numtype: number): void;
-/**
- * 
- */
 export function assertion_message_cmpstr(domain: string, file: string, line: number, func: string, expr: string, arg1: string, cmp: string, arg2: string): void;
 /**
  * 
  */
 export function assertion_message_error(domain: string, file: string, line: number, func: string, expr: string, error: Error, error_domain: Quark, error_code: number): void;
-/**
- * Internal function used to print messages from the public g_assert() an
- * d
- * g_assert_not_reached() macros.
- */
-export function assertion_message_expr(domain: string | null, file: string, line: number, func: string, expr: string | null): void;
 /**
  * Specifies a function to be called at normal program termination.
  * Since GLib 2.8.2, on Windows g_atexit() actually is a preprocessor
@@ -646,20 +637,6 @@ export function base64_decode(text: string): [number[], number];
  */
 export function base64_decode_inplace(text: number[], out_len: number): [number, number[],number];
 /**
- * Incrementally decode a sequence of binary data from its Base-64 string
- * ified
- * representation. By calling this function multiple times you can conver
- * t
- * data in chunks to avoid having to have the full encoded data in memory
- * .
- * The output buffer must be large enough to fit all the data that will
- * be written to it. Since base64 encodes 3 bytes in 4 chars you need
- * at least: (@len / 4) * 3 + 3 bytes (+ 3 may be needed in case of non-z
- * ero
- * state).
- */
-export function base64_decode_step(_in: number[], len: number, state: number, save: number): [number, number[],number,number];
-/**
  * Encode a sequence of binary data into its Base-64 stringified
  * representation.
  */
@@ -702,7 +679,7 @@ export function base64_encode_step(_in: number[], len: number, break_lines: bool
  * components. It returns a pointer into the given file name
  * string.
  */
-export function basename(file_name: unknown): unknown;
+export function basename(file_name: string): string;
 /**
  * Sets the indicated @lock_bit in @address.  If the bit is already
  * set, this call will block until g_bit_unlock() unsets the
@@ -762,61 +739,17 @@ export function bit_unlock(address: number, lock_bit: number): void;
  */
 export function bookmark_file_error_quark(): Quark;
 /**
- * Creates a filename from a series of elements using the correct
- * separator for filenames.
- * On Unix, this function behaves identically to `g_build_path
- * (G_DIR_SEPARATOR_S, first_element, ....)`.
- * On Windows, it takes into account that either the backslash
- * (`\` or slash (`/`) can be used as separator in filenames, but
- * otherwise behaves as on UNIX. When file pathname separators need
- * to be inserted, the one that last previously occurred in the
- * parameters (reading from left to right) is used.
- * No attempt is made to force the resulting filename to be an absolute
- * path. If the first element is a relative path, the result will
- * be a relative path.
- */
-export function build_filename(first_element: unknown, ___: unknown[]): unknown;
-/**
- * Behaves exactly like g_build_filename(), but takes the path elements
- * as a va_list. This function is mainly meant for language bindings.
- */
-export function build_filename_valist(first_element: unknown, args: any): unknown;
-/**
  * Behaves exactly like g_build_filename(), but takes the path elements
  * as a string array, instead of varargs. This function is mainly
  * meant for language bindings.
  */
-export function build_filenamev(args: unknown[]): unknown;
-/**
- * Creates a path from a series of elements using @separator as the
- * separator between elements. At the boundary between two elements,
- * any trailing occurrences of separator in the first element, or
- * leading occurrences of separator in the second element are removed
- * and exactly one copy of the separator is inserted.
- * Empty elements are ignored.
- * The number of leading copies of the separator on the result is
- * the same as the number of leading copies of the separator on
- * the first non-empty element.
- * The number of trailing copies of the separator on the result is
- * the same as the number of trailing copies of the separator on
- * the last non-empty element. (Determination of the number of
- * trailing copies is done without stripping leading copies, so
- * if the separator is `ABA`, then `ABABA` has 1 trailing copy.)
- * However, if there is only a single non-empty element, and there
- * are no characters in that element not part of the leading or
- * trailing separators, then the result is exactly the original value
- * of that element.
- * Other than for determination of the number of leading and trailing
- * copies of the separator, elements consisting only of copies
- * of the separator are ignored.
- */
-export function build_path(separator: unknown, first_element: unknown, ___: unknown[]): unknown;
+export function build_filenamev(args: string[]): string;
 /**
  * Behaves exactly like g_build_path(), but takes the path elements
  * as a string array, instead of varargs. This function is mainly
  * meant for language bindings.
  */
-export function build_pathv(separator: string, args: unknown[]): unknown;
+export function build_pathv(separator: string, args: string[]): string;
 /**
  * Frees the memory allocated by the #GByteArray. If @free_segment is
  * %TRUE it frees the actual byte data. If the reference count of
@@ -869,13 +802,13 @@ export function byte_array_unref(array: number[]): void;
  * exist.
  * No file system I/O is done.
  */
-export function canonicalize_filename(filename: unknown, relative_to: unknown | null): unknown;
+export function canonicalize_filename(filename: string, relative_to: string | null): string;
 /**
  * A wrapper for the POSIX chdir() function. The function changes the
  * current directory of the process to @path.
  * See your C library manual for more details about chdir().
  */
-export function chdir(path: unknown): number;
+export function chdir(path: string): number;
 /**
  * Checks that the GLib library in use is compatible with the
  * given version. Generally you would pass in the constants
@@ -896,25 +829,6 @@ export function check_version(required_major: number, required_minor: number, re
  * Gets the length in bytes of digests of type @checksum_type
  */
 export function checksum_type_get_length(checksum_type: ChecksumType): number;
-/**
- * Sets a function to be called when the child indicated by @pid
- * exits, at a default priority, #G_PRIORITY_DEFAULT.
- * If you obtain @pid from g_spawn_async() or g_spawn_async_with_pipes()
- * you will need to pass #G_SPAWN_DO_NOT_REAP_CHILD as flag to
- * the spawn function for the child watching to work.
- * Note that on platforms where #GPid must be explicitly closed
- * (see g_spawn_close_pid()) @pid must not be closed while the
- * source is still active. Typically, you will want to call
- * g_spawn_close_pid() in the callback function for the source.
- * GLib supports only a single callback per process id.
- * On POSIX platforms, the same restrictions mentioned for
- * g_child_watch_source_new() apply to this function.
- * This internally creates a main loop source using
- * g_child_watch_source_new() and attaches it to the main loop context
- * using g_source_attach(). You can do these steps manually if you
- * need greater control.
- */
-export function child_watch_add(pid: Pid, _function: ChildWatchFunc, data: object | null): number;
 /**
  * Sets a function to be called when the child indicated by @pid
  * exits, at the priority @priority.
@@ -970,35 +884,6 @@ export function child_watch_source_new(pid: Pid): Source;
  * calls g_error_free() on *@err and sets *@err to %NULL.
  */
 export function clear_error(): void;
-/**
- * Clears a numeric handler, such as a #GSource ID.
- * @tag_ptr must be a valid pointer to the variable holding the handler.
- * If the ID is zero then this function does nothing.
- * Otherwise, clear_func() is called with the ID as a parameter, and the 
- * tag is
- * set to zero.
- * A macro is also included that allows this function to be used without
- * pointer casts.
- */
-export function clear_handle_id(tag_ptr: number, clear_func: ClearHandleFunc): void;
-/**
- * Clears a reference to a variable.
- * @pp must not be %NULL.
- * If the reference is %NULL then this function does nothing.
- * Otherwise, the variable is destroyed using @destroy and the
- * pointer is set to %NULL.
- * A macro is also included that allows this function to be used without
- * pointer casts. This will mask any warnings about incompatible function
- *  types
- * or calling conventions, so you must ensure that your @destroy function
- *  is
- * compatible with being called as `GDestroyNotify` using the standard ca
- * lling
- * convention for the platform that GLib was compiled for; otherwise the 
- * program
- * will experience undefined behaviour.
- */
-export function clear_pointer(pp: object, destroy: DestroyNotify): void;
 /**
  * This wraps the close() call; in case of error, %errno will be
  * preserved, but the error will also be stored as a #GError in @error.
@@ -1085,36 +970,6 @@ export function convert_error_quark(): Quark;
  */
 export function convert_with_fallback(str: number[], len: number, to_codeset: string, from_codeset: string, fallback: string): [number[], number | null,number | null];
 /**
- * Converts a string from one character set to another.
- * Note that you should use g_iconv() for streaming conversions.
- * Despite the fact that @bytes_read can return information about partial
- * characters, the g_convert_... functions are not generally suitable
- * for streaming. If the underlying converter maintains internal state,
- * then this won't be preserved across successive calls to g_convert(),
- * g_convert_with_iconv() or g_convert_with_fallback(). (An example of
- * this is the GNU C converter for CP1255 which does not emit a base
- * character until it knows that the next character is not a mark that
- * could combine with the base character.)
- * Characters which are valid in the input character set, but which have 
- * no
- * representation in the output character set will result in a
- * %G_CONVERT_ERROR_ILLEGAL_SEQUENCE error. This is in contrast to the ic
- * onv()
- * specification, which leaves this behaviour implementation defined. Not
- * e that
- * this is the same error code as is returned for an invalid byte sequenc
- * e in
- * the input character set. To get defined behaviour for conversion of
- * unrepresentable characters, use g_convert_with_fallback().
- */
-export function convert_with_iconv(str: number[], len: number, converter: IConv): [number[], number | null,number | null];
-/**
- * Frees all the data elements of the datalist.
- * The data elements' destroy functions are called
- * if they have been set.
- */
-export function datalist_clear(datalist: Data): void;
-/**
  * Calls the given function for each data element of the datalist. The
  * function is called with each data element's #GQuark id and data,
  * together with the given @user_data parameter. Note that this
@@ -1137,53 +992,9 @@ export function datalist_get_data(datalist: Data, key: string): object | null;
  */
 export function datalist_get_flags(datalist: Data): number;
 /**
- * This is a variant of g_datalist_id_get_data() which
- * returns a 'duplicate' of the value. @dup_func defines the
- * meaning of 'duplicate' in this context, it could e.g.
- * take a reference on a ref-counted object.
- * If the @key_id is not set in the datalist then @dup_func
- * will be called with a %NULL argument.
- * Note that @dup_func is called while the datalist is locked, so it
- * is not allowed to read or modify the datalist.
- * This function can be useful to avoid races when multiple
- * threads are using the same datalist and the same key.
- */
-export function datalist_id_dup_data(datalist: Data, key_id: Quark, dup_func: DuplicateFunc | null, user_data: object | null): object | null;
-/**
  * Retrieves the data element corresponding to @key_id.
  */
 export function datalist_id_get_data(datalist: Data, key_id: Quark): object | null;
-/**
- * Removes an element, without calling its destroy notification
- * function.
- */
-export function datalist_id_remove_no_notify(datalist: Data, key_id: Quark): object | null;
-/**
- * Compares the member that is associated with @key_id in
- * @datalist to @oldval, and if they are the same, replace
- * @oldval with @newval.
- * This is like a typical atomic compare-and-exchange
- * operation, for a member of @datalist.
- * If the previous value was replaced then ownership of the
- * old value (@oldval) is passed to the caller, including
- * the registered destroy notify for it (passed out in @old_destroy).
- * Its up to the caller to free this as he wishes, which may
- * or may not include using @old_destroy as sometimes replacement
- * should not destroy the object in the normal way.
- */
-export function datalist_id_replace_data(datalist: Data, key_id: Quark, oldval: object | null, newval: object | null, destroy: DestroyNotify | null): [boolean, DestroyNotify | null];
-/**
- * Sets the data corresponding to the given #GQuark id, and the
- * function to be called when the element is removed from the datalist.
- * Any previous data with the same key is removed, and its destroy
- * function is called.
- */
-export function datalist_id_set_data_full(datalist: Data, key_id: Quark, data: object | null, destroy_func: DestroyNotify | null): void;
-/**
- * Resets the datalist to %NULL. It does not free any memory or call
- * any destroy functions.
- */
-export function datalist_init(datalist: Data): void;
 /**
  * Turns on flag values for a data list. This function is used
  * to keep a small number of boolean flags in an object with
@@ -1216,18 +1027,6 @@ export function dataset_foreach(dataset_location: object, func: DataForeachFunc,
  * Gets the data element corresponding to a #GQuark.
  */
 export function dataset_id_get_data(dataset_location: object, key_id: Quark): object | null;
-/**
- * Removes an element, without calling its destroy notification
- * function.
- */
-export function dataset_id_remove_no_notify(dataset_location: object, key_id: Quark): object | null;
-/**
- * Sets the data element associated with the given #GQuark id, and also
- * the function to call when the data element is destroyed. Any
- * previous data with the same key is removed, and its destroy function
- * is called.
- */
-export function dataset_id_set_data_full(dataset_location: object, key_id: Quark, data: object | null, destroy_func: DestroyNotify): void;
 /**
  * Returns the number of days in a month, taking leap
  * years into account.
@@ -1372,7 +1171,7 @@ export function dgettext(domain: string | null, msgid: string): string;
  * Note that in contrast to g_mkdtemp() (and mkdtemp()) @tmpl is not
  * modified, and might thus be a read-only literal string.
  */
-export function dir_make_tmp(tmpl: unknown | null): unknown;
+export function dir_make_tmp(tmpl: string | null): string;
 /**
  * Compares two #gpointer arguments and returns %TRUE if they are equal.
  * It can be passed to g_hash_table_new() as the @key_equal_func
@@ -1443,17 +1242,17 @@ export function dpgettext2(domain: string | null, context: string, msgid: string
  * Returns the value of the environment variable @variable in the
  * provided list @envp.
  */
-export function environ_getenv(envp: unknown[] | null, variable: unknown): unknown;
+export function environ_getenv(envp: string[] | null, variable: string): string;
 /**
  * Sets the environment variable @variable in the provided list
  * @envp to @value.
  */
-export function environ_setenv(envp: unknown[] | null, variable: unknown, value: unknown, overwrite: boolean): unknown[];
+export function environ_setenv(envp: string[] | null, variable: string, value: string, overwrite: boolean): string[];
 /**
  * Removes the environment variable @variable from the provided
  * environment @envp.
  */
-export function environ_unsetenv(envp: unknown[] | null, variable: unknown): unknown[];
+export function environ_unsetenv(envp: string[] | null, variable: string): string[];
 /**
  * Gets a #GFileError constant based on the passed-in @err_no.
  * For example, if you pass in `EEXIST` this function returns
@@ -1484,7 +1283,7 @@ export function file_error_quark(): Quark;
  * codes are those in the #GFileError enumeration. In the error case,
  * @contents is set to %NULL and @length is set to zero.
  */
-export function file_get_contents(filename: unknown): [boolean, number[],number | null];
+export function file_get_contents(filename: string): [boolean, number[],number | null];
 /**
  * Opens a file for writing in the preferred directory for temporary
  * files (as returned by g_get_tmp_dir()).
@@ -1500,13 +1299,13 @@ export function file_get_contents(filename: unknown): [boolean, number[],number 
  * when not needed any longer. The returned name is in the GLib file
  * name encoding.
  */
-export function file_open_tmp(tmpl: unknown | null): [number, unknown];
+export function file_open_tmp(tmpl: string | null): [number, string];
 /**
  * Reads the contents of the symbolic link @filename like the POSIX
  * readlink() function.  The returned string is in the encoding used
  * for filenames. Use g_filename_to_utf8() to convert it to UTF-8.
  */
-export function file_read_link(filename: unknown): unknown;
+export function file_read_link(filename: string): string;
 /**
  * Writes all of @contents to a file named @filename, with good error che
  * cking.
@@ -1550,7 +1349,7 @@ export function file_read_link(filename: unknown): unknown;
  * up
  * to 7 characters to @filename.
  */
-export function file_set_contents(filename: unknown, contents: number[], length: number): boolean;
+export function file_set_contents(filename: string, contents: number[], length: number): boolean;
 /**
  * Returns %TRUE if any of the tests in the bitfield @test are
  * %TRUE. For example, `(G_FILE_TEST_EXISTS | G_FILE_TEST_IS_DIR)`
@@ -1589,7 +1388,7 @@ export function file_set_contents(filename: unknown, contents: number[], length:
  * its name indicates that it is executable, checking for well-known
  * extensions and those listed in the `PATHEXT` environment variable.
  */
-export function file_test(filename: unknown, test: FileTest): boolean;
+export function file_test(filename: string, test: FileTest): boolean;
 /**
  * Returns the display basename for the particular filename, guaranteed
  * to be valid UTF-8. The display name might not be identical to the file
@@ -1612,7 +1411,7 @@ export function file_test(filename: unknown, test: FileTest): boolean;
  * the
  * whole path, as it allows translation.
  */
-export function filename_display_basename(filename: unknown): string;
+export function filename_display_basename(filename: string): string;
 /**
  * Converts a filename into a valid UTF-8 string. The conversion is
  * not necessarily reversible, so you should keep the original around
@@ -1632,12 +1431,12 @@ export function filename_display_basename(filename: unknown): string;
  * g_filename_display_basename(), since that allows location-based
  * translation of filenames.
  */
-export function filename_display_name(filename: unknown): string;
+export function filename_display_name(filename: string): string;
 /**
  * Converts an escaped ASCII-encoded URI to a local filename in the
  * encoding used for filenames.
  */
-export function filename_from_uri(uri: string): [unknown, string | null];
+export function filename_from_uri(uri: string): [string, string | null];
 /**
  * Converts a string from UTF-8 to the encoding GLib uses for
  * filenames. Note that on Windows GLib uses UTF-8 for filenames;
@@ -1652,13 +1451,13 @@ export function filename_from_uri(uri: string): [unknown, string | null];
  * r
  * %G_CONVERT_ERROR_EMBEDDED_NUL is set and the function returns %NULL.
  */
-export function filename_from_utf8(utf8string: string, len: number): [unknown, number | null,number | null];
+export function filename_from_utf8(utf8string: string, len: number): [string, number | null,number | null];
 /**
  * Converts an absolute filename to an escaped ASCII-encoded URI, with th
  * e path
  * component following Section 3.3. of RFC 2396.
  */
-export function filename_to_uri(filename: unknown, hostname: string | null): string;
+export function filename_to_uri(filename: string, hostname: string | null): string;
 /**
  * Converts a string which is in the encoding used by GLib for
  * filenames into a UTF-8 string. Note that on Windows GLib uses UTF-8
@@ -1674,7 +1473,7 @@ export function filename_to_uri(filename: unknown, hostname: string | null): str
  * function returns %NULL. Use g_convert() to produce output that
  * may contain embedded nul characters.
  */
-export function filename_to_utf8(opsysstring: unknown, len: number): [string, number | null,number | null];
+export function filename_to_utf8(opsysstring: string, len: number): [string, number | null,number | null];
 /**
  * Locates the first executable named @program in the user's path, in the
  * same way that execvp() would locate it. Returns an allocated string
@@ -1693,7 +1492,7 @@ export function filename_to_utf8(opsysstring: unknown, len: number): [string, nu
  * the program is found, the return value contains the full name
  * including the type suffix.
  */
-export function find_program_in_path(program: unknown): unknown;
+export function find_program_in_path(program: string): string;
 /**
  * Formats a size (for example the size of a file) into a human readable
  * string.  Sizes are rounded to the nearest size prefix (kB, MB, GB)
@@ -1725,13 +1524,6 @@ export function format_size_for_display(size: number): string;
  * that modify the output. See #GFormatSizeFlags.
  */
 export function format_size_full(size: number, flags: FormatSizeFlags): string;
-/**
- * An implementation of the standard fprintf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- */
-export function fprintf(file: object, format: string, ___: unknown[]): number;
 /**
  * Frees the memory pointed to by @mem.
  * If @mem is %NULL it simply returns, so there is no need to check @mem
@@ -1783,7 +1575,7 @@ export function get_codeset(): string;
  * the current directory.  This can make a difference in the case that
  * the current directory is the target of a symbolic link.
  */
-export function get_current_dir(): unknown;
+export function get_current_dir(): string;
 /**
  * Equivalent to the UNIX gettimeofday() function, but portable.
  * You may find g_get_real_time() to be more convenient.
@@ -1798,7 +1590,7 @@ export function get_current_time(result: TimeVal): void;
  * The return value is freshly allocated and it should be freed with
  * g_strfreev() when it is no longer needed.
  */
-export function get_environ(): unknown[];
+export function get_environ(): string[];
 /**
  * Determines the preferred character sets used for filenames.
  * The first character set from the @charsets is the filename encoding, t
@@ -1843,7 +1635,7 @@ export function get_filename_charsets(): [boolean, string[]];
  * should either directly check the `HOME` environment variable yourself
  * or unset it before calling any functions in GLib.
  */
-export function get_home_dir(): unknown;
+export function get_home_dir(): string;
 /**
  * Return a name for the machine.
  * The returned name is not necessarily a fully-qualified domain name,
@@ -1934,7 +1726,7 @@ export function get_prgname(): string;
  * real user name cannot be determined, the string "Unknown" is
  * returned.
  */
-export function get_real_name(): unknown;
+export function get_real_name(): string;
 /**
  * Queries the system wall-clock time.
  * This call is functionally equivalent to g_get_current_time() except
@@ -1968,7 +1760,7 @@ export function get_real_time(): number;
  * ilable
  * to anyone using the computer.
  */
-export function get_system_config_dirs(): unknown[];
+export function get_system_config_dirs(): string[];
 /**
  * Returns an ordered list of base directories in which to access
  * system-wide application data.
@@ -1999,7 +1791,7 @@ export function get_system_config_dirs(): unknown[];
  * Note that on Windows the returned list can vary depending on where
  * this function is called.
  */
-export function get_system_data_dirs(): unknown[];
+export function get_system_data_dirs(): string[];
 /**
  * Gets the directory to use for temporary files.
  * On UNIX, this is taken from the `TMPDIR` environment variable.
@@ -2013,7 +1805,7 @@ export function get_system_data_dirs(): unknown[];
  * it is always UTF-8. The return value is never %NULL or the empty
  * string.
  */
-export function get_tmp_dir(): unknown;
+export function get_tmp_dir(): string;
 /**
  * Returns a base directory in which to store non-essential, cached
  * data specific to particular user.
@@ -2034,7 +1826,7 @@ export function get_tmp_dir(): unknown;
  * oft.com/en-us/library/windows/desktop/bb762494%28v=vs.85%29.aspx#csidl
  * _internet_cache).
  */
-export function get_user_cache_dir(): unknown;
+export function get_user_cache_dir(): string;
 /**
  * Returns a base directory in which to store user-specific application
  * configuration information such as user preferences and settings.
@@ -2054,7 +1846,7 @@ export function get_user_cache_dir(): unknown;
  * Note that in this case on Windows it will be  the same
  * as what g_get_user_data_dir() returns.
  */
-export function get_user_config_dir(): unknown;
+export function get_user_config_dir(): string;
 /**
  * Returns a base directory in which to access application data such
  * as icons that is customized for a particular user.
@@ -2074,14 +1866,14 @@ export function get_user_config_dir(): unknown;
  * Note that in this case on Windows it will be the same
  * as what g_get_user_config_dir() returns.
  */
-export function get_user_data_dir(): unknown;
+export function get_user_data_dir(): string;
 /**
  * Gets the user name of the current user. The encoding of the returned
  * string is system-defined. On UNIX, it might be the preferred file name
  * encoding, or something else, and there is no guarantee that it is even
  * consistent on a machine. On Windows, it is always UTF-8.
  */
-export function get_user_name(): unknown;
+export function get_user_name(): string;
 /**
  * Returns a directory that is unique to the current user on the local
  * system.
@@ -2094,7 +1886,7 @@ export function get_user_name(): unknown;
  * In the case that this variable is not set, we return the value of
  * g_get_user_cache_dir(), after verifying that it exists.
  */
-export function get_user_runtime_dir(): unknown;
+export function get_user_runtime_dir(): string;
 /**
  * Returns the full path of a special directory using its logical id.
  * On UNIX this is done using the XDG special user directories.
@@ -2106,7 +1898,7 @@ export function get_user_runtime_dir(): unknown;
  * b
  * will not reflect any change once the special directories are loaded.
  */
-export function get_user_special_dir(directory: UserDirectory): unknown;
+export function get_user_special_dir(directory: UserDirectory): string;
 /**
  * Returns the value of an environment variable.
  * On UNIX, the name and value are byte strings which might or might not
@@ -2115,7 +1907,7 @@ export function get_user_special_dir(directory: UserDirectory): unknown;
  * On Windows, in case the environment variable's value contains
  * references to other environment variables, they are expanded.
  */
-export function getenv(variable: unknown): unknown;
+export function getenv(variable: string): string;
 /**
  * This is a convenience function for using a #GHashTable as a set.  It
  * is equivalent to calling g_hash_table_replace() with @key as both the
@@ -2310,50 +2102,6 @@ export function hostname_to_ascii(hostname: string): string;
  */
 export function hostname_to_unicode(hostname: string): string;
 /**
- * Same as the standard UNIX routine iconv(), but
- * may be implemented via libiconv on UNIX flavors that lack
- * a native implementation.
- * GLib provides g_convert() and g_locale_to_utf8() which are likely
- * more convenient than the raw iconv wrappers.
- * Note that the behaviour of iconv() for characters which are valid in t
- * he
- * input character set, but which have no representation in the output ch
- * aracter
- * set, is implementation defined. This function may return success (with
- *  a
- * positive number of non-reversible conversions as replacement character
- * s were
- * used), or it may return -1 and set an error such as %EILSEQ, in such a
- * situation.
- */
-export function iconv(converter: IConv, inbuf: string, inbytes_left: number, outbuf: string, outbytes_left: number): number;
-/**
- * Same as the standard UNIX routine iconv_open(), but
- * may be implemented via libiconv on UNIX flavors that lack
- * a native implementation.
- * GLib provides g_convert() and g_locale_to_utf8() which are likely
- * more convenient than the raw iconv wrappers.
- */
-export function iconv_open(to_codeset: string, from_codeset: string): IConv;
-/**
- * Adds a function to be called whenever there are no higher priority
- * events pending to the default main loop. The function is given the
- * default idle priority, #G_PRIORITY_DEFAULT_IDLE.  If the function
- * returns %FALSE it is automatically removed from the list of event
- * sources and will not be called again.
- * See [memory management of sources][mainloop-memory-management] for det
- * ails
- * on how to handle the return value and memory management of @data.
- * This internally creates a main loop source using g_idle_source_new()
- * and attaches it to the global #GMainContext using g_source_attach(), s
- * o
- * the callback will be invoked in whichever thread is running that main
- * context. You can do these steps manually if you need greater control o
- * r to
- * use a custom main context.
- */
-export function idle_add(_function: SourceFunc, data: object | null): number;
-/**
  * Adds a function to be called whenever there are no higher priority
  * events pending.  If the function returns %FALSE it is automatically
  * removed from the list of event sources and will not be called again.
@@ -2434,11 +2182,6 @@ export function intern_static_string(string: string | null): string;
 export function intern_string(string: string | null): string;
 /**
  * Adds the #GIOChannel into the default main loop context
- * with the default priority.
- */
-export function io_add_watch(channel: IOChannel, condition: IOCondition, func: IOFunc, user_data: object | null): number;
-/**
- * Adds the #GIOChannel into the default main loop context
  * with the given priority.
  * This internally creates a main loop source using g_io_create_watch()
  * and attaches it to the main loop context with g_source_attach().
@@ -2480,7 +2223,7 @@ export function key_file_error_quark(): Quark;
  * use cases for environment variables in GLib-using programs you want
  * the UTF-8 encoding that this function and g_getenv() provide.
  */
-export function listenv(): unknown[];
+export function listenv(): string[];
 /**
  * Converts a string from UTF-8 to the encoding used for strings by
  * the C runtime (usually the same as that used by the operating
@@ -2510,21 +2253,6 @@ export function locale_from_utf8(utf8string: string, len: number): [number[], nu
  * may contain embedded nul characters.
  */
 export function locale_to_utf8(opsysstring: number[], len: number): [string, number | null,number | null];
-/**
- * Logs an error or debugging message.
- * If the log level has been set as fatal, G_BREAKPOINT() is called
- * to terminate the program. See the documentation for G_BREAKPOINT() for
- * details of the debugging options this provides.
- * If g_log_default_handler() is used as the log handler function, a new-
- * line
- * character will automatically be appended to @..., and need not be ente
- * red
- * manually.
- * If [structured logging is enabled][using-structured-logging] this will
- * output via the structured log writer function (see g_log_set_writer_fu
- * nc()).
- */
-export function log(log_domain: string | null, log_level: LogLevelFlags, format: string, ___: unknown[]): void;
 /**
  * The default log handler set up by GLib; g_log_set_default_handler()
  * allows to install an alternate default log handler.
@@ -2577,15 +2305,6 @@ export function log_remove_handler(log_domain: string, handler_id: number): void
  */
 export function log_set_always_fatal(fatal_mask: LogLevelFlags): LogLevelFlags;
 /**
- * Installs a default log handler which is used if no
- * log handler has been set for the particular log domain
- * and log level combination. By default, GLib uses
- * g_log_default_handler() as default log handler.
- * This has no effect if structured logging is enabled; see
- * [Using Structured Logging][using-structured-logging].
- */
-export function log_set_default_handler(log_func: LogFunc, user_data: object | null): LogFunc;
-/**
  * Sets the log levels which are fatal in the given domain.
  * %G_LOG_LEVEL_ERROR is always fatal.
  * This has no effect on structured log messages (using g_log_structured(
@@ -2601,34 +2320,6 @@ export function log_set_default_handler(log_func: LogFunc, user_data: object | n
  * %G_LOG_LEVEL_DEBUG as fatal except inside of test programs.
  */
 export function log_set_fatal_mask(log_domain: string, fatal_mask: LogLevelFlags): LogLevelFlags;
-/**
- * Sets the log handler for a domain and a set of log levels.
- * To handle fatal and recursive messages the @log_levels parameter
- * must be combined with the #G_LOG_FLAG_FATAL and #G_LOG_FLAG_RECURSION
- * bit flags.
- * Note that since the #G_LOG_LEVEL_ERROR log level is always fatal, if
- * you want to set a handler for this log level you must combine it with
- * #G_LOG_FLAG_FATAL.
- * This has no effect if structured logging is enabled; see
- * [Using Structured Logging][using-structured-logging].
- * Here is an example for adding a log handler for all warning messages
- * in the default domain:
- * |[<!-- language="C" -->
- * g_log_set_handler (NULL, G_LOG_LEVEL_WARNING | G_LOG_FLAG_FATAL
- *                    | G_LOG_FLAG_RECURSION, my_log_handler, NULL);
- * ]|
- * This example adds a log handler for all critical messages from GTK+:
- * |[<!-- language="C" -->
- * g_log_set_handler ("Gtk", G_LOG_LEVEL_CRITICAL | G_LOG_FLAG_FATAL
- *                    | G_LOG_FLAG_RECURSION, my_log_handler, NULL);
- * ]|
- * This example adds a log handler for all messages from GLib:
- * |[<!-- language="C" -->
- * g_log_set_handler ("GLib", G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL
- *                    | G_LOG_FLAG_RECURSION, my_log_handler, NULL);
- * ]|
- */
-export function log_set_handler(log_domain: string | null, log_levels: LogLevelFlags, log_func: LogFunc, user_data: object | null): number;
 /**
  * Like g_log_set_handler(), but takes a destroy notify for the @user_dat
  * a.
@@ -2653,111 +2344,6 @@ export function log_set_handler_full(log_domain: string | null, log_levels: LogL
 export function log_set_writer_func(func: LogWriterFunc | null, user_data: object | null, user_data_free: DestroyNotify): void;
 /**
  * Log a message with structured data. The message will be passed through
- *  to
- * the log writer set by the application using g_log_set_writer_func(). I
- * f the
- * message is fatal (i.e. its log level is %G_LOG_LEVEL_ERROR), the progr
- * am will
- * be aborted by calling G_BREAKPOINT() at the end of this function. If t
- * he log writer returns
- * %G_LOG_WRITER_UNHANDLED (failure), no other fallback writers will be t
- * ried.
- * See the documentation for #GLogWriterFunc for information on chaining
- * writers.
- * The structured data is provided as key–value pairs, where keys are UTF
- * -8
- * strings, and values are arbitrary pointers — typically pointing to UTF
- * -8
- * strings, but that is not a requirement. To pass binary (non-nul-termin
- * ated)
- * structured data, use g_log_structured_array(). The keys for structured
- *  data
- * should follow the [systemd journal
- * fields](https://www.freedesktop.org/software/systemd/man/systemd.journ
- * al-fields.html)
- * specification. It is suggested that custom keys are namespaced accordi
- * ng to
- * the code which sets them. For example, custom keys from GLib all have 
- * a
- * `GLIB_` prefix.
- * The @log_domain will be converted into a `GLIB_DOMAIN` field. @log_lev
- * el will
- * be converted into a
- * [`PRIORITY`](https://www.freedesktop.org/software/systemd/man/systemd.
- * journal-fields.html#PRIORITY=)
- * field. The format string will have its placeholders substituted for th
- * e provided
- * values and be converted into a
- * [`MESSAGE`](https://www.freedesktop.org/software/systemd/man/systemd.j
- * ournal-fields.html#MESSAGE=)
- * field.
- * Other fields you may commonly want to pass into this function:
- *  * [`MESSAGE_ID`](https://www.freedesktop.org/software/systemd/man/sys
- * temd.journal-fields.html#MESSAGE_ID=)
- *  * [`CODE_FILE`](https://www.freedesktop.org/software/systemd/man/syst
- * emd.journal-fields.html#CODE_FILE=)
- *  * [`CODE_LINE`](https://www.freedesktop.org/software/systemd/man/syst
- * emd.journal-fields.html#CODE_LINE=)
- *  * [`CODE_FUNC`](https://www.freedesktop.org/software/systemd/man/syst
- * emd.journal-fields.html#CODE_FUNC=)
- *  * [`ERRNO`](https://www.freedesktop.org/software/systemd/man/systemd.
- * journal-fields.html#ERRNO=)
- * Note that `CODE_FILE`, `CODE_LINE` and `CODE_FUNC` are automatically s
- * et by
- * the logging macros, G_DEBUG_HERE(), g_message(), g_warning(), g_critic
- * al(),
- * g_error(), etc, if the symbols `G_LOG_USE_STRUCTURED` is defined befor
- * e including
- * glib.h.
- * For example:
- * |[<!-- language="C" -->
- * g_log_structured (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG,
- *                   "MESSAGE_ID", "06d4df59e6c24647bfe69d2c27ef0b4e",
- *                   "MY_APPLICATION_CUSTOM_FIELD", "some debug string",
- *                   "MESSAGE", "This is a debug message about pointer %p
- *  and integer %u.",
- *                   some_pointer, some_integer);
- * ]|
- * Note that each `MESSAGE_ID` must be [uniquely and randomly
- * generated](https://www.freedesktop.org/software/systemd/man/systemd.jo
- * urnal-fields.html#MESSAGE_ID=).
- * If adding a `MESSAGE_ID`, consider shipping a [message
- * catalog](https://www.freedesktop.org/wiki/Software/systemd/catalog/) w
- * ith
- * your software.
- * To pass a user data pointer to the log writer function which is specif
- * ic to
- * this logging call, you must use g_log_structured_array() and pass the 
- * pointer
- * as a field with #GLogField.length set to zero, otherwise it will be
- * interpreted as a string.
- * For example:
- * |[<!-- language="C" -->
- * const GLogField fields[] = {
- *   { "MESSAGE", "This is a debug message.", -1 },
- *   { "MESSAGE_ID", "fcfb2e1e65c3494386b74878f1abf893", -1 },
- *   { "MY_APPLICATION_CUSTOM_FIELD", "some debug string", -1 },
- *   { "MY_APPLICATION_STATE", state_object, 0 },
- * };
- * g_log_structured_array (G_LOG_LEVEL_DEBUG, fields, G_N_ELEMENTS (field
- * s));
- * ]|
- * Note also that, even if no other structured fields are specified, ther
- * e
- * must always be a `MESSAGE` key before the format string. The `MESSAGE`
- * -format
- * pair has to be the last of the key-value pairs, and `MESSAGE` is the o
- * nly
- * field for which printf()-style formatting is supported.
- * The default writer function for `stdout` and `stderr` will automatical
- * ly
- * append a new-line character after the message, so you should not add o
- * ne
- * manually to the format string.
- */
-export function log_structured(log_domain: string, log_level: LogLevelFlags, ___: unknown[]): void;
-/**
- * Log a message with structured data. The message will be passed through
  *  to the
  * log writer set by the application using g_log_set_writer_func(). If th
  * e
@@ -2770,10 +2356,6 @@ export function log_structured(log_domain: string, log_level: LogLevelFlags, ___
  * `PRIORITY` field).
  */
 export function log_structured_array(log_level: LogLevelFlags, fields: LogField[], n_fields: number): void;
-/**
- * 
- */
-export function log_structured_standard(log_domain: string, log_level: LogLevelFlags, file: string, line: string, func: string, message_format: string, ___: unknown[]): void;
 /**
  * Log a message with structured data, accepting the data within a #GVari
  * ant. This
@@ -2884,21 +2466,6 @@ export function log_writer_standard_streams(log_level: LogLevelFlags, fields: Lo
  * messages.
  */
 export function log_writer_supports_color(output_fd: number): boolean;
-/**
- * Logs an error or debugging message.
- * If the log level has been set as fatal, G_BREAKPOINT() is called
- * to terminate the program. See the documentation for G_BREAKPOINT() for
- * details of the debugging options this provides.
- * If g_log_default_handler() is used as the log handler function, a new-
- * line
- * character will automatically be appended to @..., and need not be ente
- * red
- * manually.
- * If [structured logging is enabled][using-structured-logging] this will
- * output via the structured log writer function (see g_log_set_writer_fu
- * nc()).
- */
-export function logv(log_domain: string | null, log_level: LogLevelFlags, format: string, args: any): void;
 /**
  * Returns the global default main context. This is the main context
  * used for main loop functions when a main loop is not explicitly
@@ -3047,37 +2614,6 @@ export function malloc0_n(n_blocks: number, n_block_bytes: number): object | nul
  */
 export function malloc_n(n_blocks: number, n_block_bytes: number): object | null;
 /**
- * Collects the attributes of the element from the data passed to the
- * #GMarkupParser start_element function, dealing with common error
- * conditions and supporting boolean values.
- * This utility function is not required to write a parser but can save
- * a lot of typing.
- * The @element_name, @attribute_names, @attribute_values and @error
- * parameters passed to the start_element callback should be passed
- * unmodified to this function.
- * Following these arguments is a list of "supported" attributes to colle
- * ct.
- * It is an error to specify multiple attributes with the same name. If a
- * ny
- * attribute not in the list appears in the @attribute_names array then a
- * n
- * unknown attribute error will result.
- * The #GMarkupCollectType field allows specifying the type of collection
- * to perform and if a given attribute must appear or is optional.
- * The attribute name is simply the name of the attribute to collect.
- * The pointer should be of the appropriate type (see the descriptions
- * under #GMarkupCollectType) and may be %NULL in case a particular
- * attribute is to be allowed but ignored.
- * This function deals with issuing errors for missing attributes
- * (of type %G_MARKUP_ERROR_MISSING_ATTRIBUTE), unknown attributes
- * (of type %G_MARKUP_ERROR_UNKNOWN_ATTRIBUTE) and duplicate
- * attributes (of type %G_MARKUP_ERROR_INVALID_CONTENT) as well
- * as parse errors for boolean-valued attributes (again of type
- * %G_MARKUP_ERROR_INVALID_CONTENT). In all of these cases %FALSE
- * will be returned and @error will be set as appropriate.
- */
-export function markup_collect_attributes(element_name: string, attribute_names: string, attribute_values: string, error: Error, first_type: MarkupCollectType, first_attr: string, ___: unknown[]): boolean;
-/**
  * 
  */
 export function markup_error_quark(): Quark;
@@ -3096,31 +2632,6 @@ export function markup_error_quark(): Quark;
  * valid XML 1.1 and will be accepted by the GMarkup parser.
  */
 export function markup_escape_text(text: string, length: number): string;
-/**
- * Formats arguments according to @format, escaping
- * all string and character arguments in the fashion
- * of g_markup_escape_text(). This is useful when you
- * want to insert literal strings into XML-style markup
- * output, without having to worry that the strings
- * might themselves contain markup.
- * |[<!-- language="C" -->
- * const char *store = "Fortnum & Mason";
- * const char *item = "Tea";
- * char *output;
- * output = g_markup_printf_escaped ("<purchase>"
- *                                   "<store>%s</store>"
- *                                   "<item>%s</item>"
- *                                   "</purchase>",
- *                                   store, item);
- * ]|
- */
-export function markup_printf_escaped(format: string, ___: unknown[]): string;
-/**
- * Formats the data in @args according to @format, escaping
- * all string and character arguments in the fashion
- * of g_markup_escape_text(). See g_markup_printf_escaped().
- */
-export function markup_vprintf_escaped(format: string, args: any): string;
 /**
  * Checks whether the allocator used by g_malloc() is the system's
  * malloc implementation. If it returns %TRUE memory allocated with
@@ -3154,64 +2665,7 @@ export function memdup(mem: object | null, byte_size: number): object | null;
  * Create a directory if it doesn't already exist. Create intermediate
  * parent directories as needed, too.
  */
-export function mkdir_with_parents(pathname: unknown, mode: number): number;
-/**
- * Creates a temporary directory. See the mkdtemp() documentation
- * on most UNIX-like systems.
- * The parameter is a string that should follow the rules for
- * mkdtemp() templates, i.e. contain the string "XXXXXX".
- * g_mkdtemp() is slightly more flexible than mkdtemp() in that the
- * sequence does not have to occur at the very end of the template.
- * The X string will be modified to form the name of a directory that
- * didn't exist.
- * The string should be in the GLib file name encoding. Most importantly,
- * on Windows it should be in UTF-8.
- * If you are going to be creating a temporary directory inside the
- * directory returned by g_get_tmp_dir(), you might want to use
- * g_dir_make_tmp() instead.
- */
-export function mkdtemp(tmpl: unknown): unknown | null;
-/**
- * Creates a temporary directory. See the mkdtemp() documentation
- * on most UNIX-like systems.
- * The parameter is a string that should follow the rules for
- * mkdtemp() templates, i.e. contain the string "XXXXXX".
- * g_mkdtemp_full() is slightly more flexible than mkdtemp() in that the
- * sequence does not have to occur at the very end of the template
- * and you can pass a @mode. The X string will be modified to form
- * the name of a directory that didn't exist. The string should be
- * in the GLib file name encoding. Most importantly, on Windows it
- * should be in UTF-8.
- * If you are going to be creating a temporary directory inside the
- * directory returned by g_get_tmp_dir(), you might want to use
- * g_dir_make_tmp() instead.
- */
-export function mkdtemp_full(tmpl: unknown, mode: number): unknown | null;
-/**
- * Opens a temporary file. See the mkstemp() documentation
- * on most UNIX-like systems.
- * The parameter is a string that should follow the rules for
- * mkstemp() templates, i.e. contain the string "XXXXXX".
- * g_mkstemp() is slightly more flexible than mkstemp() in that the
- * sequence does not have to occur at the very end of the template.
- * The X string will be modified to form the name of a file that
- * didn't exist. The string should be in the GLib file name encoding.
- * Most importantly, on Windows it should be in UTF-8.
- */
-export function mkstemp(tmpl: unknown): number;
-/**
- * Opens a temporary file. See the mkstemp() documentation
- * on most UNIX-like systems.
- * The parameter is a string that should follow the rules for
- * mkstemp() templates, i.e. contain the string "XXXXXX".
- * g_mkstemp_full() is slightly more flexible than mkstemp()
- * in that the sequence does not have to occur at the very end of the
- * template and you can pass a @mode and additional @flags. The X
- * string will be modified to form the name of a file that didn't exist.
- * The string should be in the GLib file name encoding. Most importantly,
- * on Windows it should be in UTF-8.
- */
-export function mkstemp_full(tmpl: unknown, flags: number, mode: number): number;
+export function mkdir_with_parents(pathname: string, mode: number): number;
 /**
  * Set the pointer at the specified location to %NULL.
  */
@@ -3329,7 +2783,7 @@ export function parse_debug_string(string: string | null, keys: DebugKey[], nkey
  * separators (and on Windows, possibly a drive letter), a single
  * separator is returned. If @file_name is empty, it gets ".".
  */
-export function path_get_basename(file_name: unknown): unknown;
+export function path_get_basename(file_name: string): string;
 /**
  * Gets the directory components of a file name. For example, the directo
  * ry
@@ -3339,7 +2793,7 @@ export function path_get_basename(file_name: unknown): unknown;
  * If the file name has no directory components "." is returned.
  * The returned string should be freed when no longer needed.
  */
-export function path_get_dirname(file_name: unknown): unknown;
+export function path_get_dirname(file_name: string): string;
 /**
  * Returns %TRUE if the given @file_name is an absolute file name.
  * Note that this is a somewhat vague concept on Windows.
@@ -3362,13 +2816,13 @@ export function path_get_dirname(file_name: unknown): unknown;
  * either. Such paths should be avoided, or need to be handled using
  * Windows-specific code.
  */
-export function path_is_absolute(file_name: unknown): boolean;
+export function path_is_absolute(file_name: string): boolean;
 /**
  * Returns a pointer into @file_name after the root component,
  * i.e. after the "/" in UNIX or "C:\" under Windows. If @file_name
  * is not an absolute path it returns %NULL.
  */
-export function path_skip_root(file_name: unknown): unknown | null;
+export function path_skip_root(file_name: string): string | null;
 /**
  * Matches a string against a compiled pattern. Passing the correct
  * length of the string given is mandatory. The reversed string can be
@@ -3440,59 +2894,6 @@ export function pointer_bit_unlock(address: object, lock_bit: number): void;
  */
 export function poll(fds: PollFD, nfds: number, timeout: number): number;
 /**
- * Formats a string according to @format and prefix it to an existing
- * error message. If @err is %NULL (ie: no error variable) then do
- * nothing.
- * If *@err is %NULL (ie: an error variable is present but there is no
- * error condition) then also do nothing.
- */
-export function prefix_error(err: Error | null, format: string, ___: unknown[]): [Error | null];
-/**
- * Outputs a formatted message via the print handler.
- * The default print handler simply outputs the message to stdout, withou
- * t
- * appending a trailing new-line character. Typically, @format should end
- *  with
- * its own new-line character.
- * g_print() should not be used from within libraries for debugging
- * messages, since it may be redirected by applications to special
- * purpose message windows or even files. Instead, libraries should
- * use g_log(), g_log_structured(), or the convenience macros g_message()
- * ,
- * g_warning() and g_error().
- */
-export function print(format: string, ___: unknown[]): void;
-/**
- * Outputs a formatted message via the error message handler.
- * The default handler simply outputs the message to stderr, without appe
- * nding
- * a trailing new-line character. Typically, @format should end with its 
- * own
- * new-line character.
- * g_printerr() should not be used from within libraries.
- * Instead g_log() or g_log_structured() should be used, or the convenien
- * ce
- * macros g_message(), g_warning() and g_error().
- */
-export function printerr(format: string, ___: unknown[]): void;
-/**
- * An implementation of the standard printf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * As with the standard printf(), this does not automatically append a tr
- * ailing
- * new-line character to the message, so typically @format should end wit
- * h its
- * own new-line character.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- */
-export function printf(format: string, ___: unknown[]): number;
-/**
- * Calculates the maximum space needed to store the output
- * of the sprintf() function.
- */
-export function printf_string_upper_bound(format: string, args: any): number;
-/**
  * If @dest is %NULL, free @src; otherwise, moves @src into *@dest.
  * The error variable @dest points to must be %NULL.
  * @src must be non-%NULL.
@@ -3501,48 +2902,6 @@ export function printf_string_upper_bound(format: string, args: any): number;
  * after calling this function on it.
  */
 export function propagate_error(src: Error): [Error | null];
-/**
- * If @dest is %NULL, free @src; otherwise, moves @src into *@dest.
- * *@dest must be %NULL. After the move, add a prefix as with
- * g_prefix_error().
- */
-export function propagate_prefixed_error(dest: Error, src: Error, format: string, ___: unknown[]): void;
-/**
- * Checks whether @needle exists in @haystack. If the element is found, %
- * TRUE is
- * returned and the element’s index is returned in @index_ (if non-%NULL)
- * .
- * Otherwise, %FALSE is returned and @index_ is undefined. If @needle exi
- * sts
- * multiple times in @haystack, the index of the first instance is return
- * ed.
- * This does pointer comparisons only. If you want to use more complex eq
- * uality
- * checks, such as string comparisons, use g_ptr_array_find_with_equal_fu
- * nc().
- */
-export function ptr_array_find(haystack: object[], needle: object | null): [boolean, number | null];
-/**
- * Checks whether @needle exists in @haystack, using the given @equal_fun
- * c.
- * If the element is found, %TRUE is returned and the element’s index is
- * returned in @index_ (if non-%NULL). Otherwise, %FALSE is returned and 
- * @index_
- * is undefined. If @needle exists multiple times in @haystack, the index
- *  of
- * the first instance is returned.
- * @equal_func is called with the element from the array as its first par
- * ameter,
- * and @needle as its second parameter. If @equal_func is %NULL, pointer
- * equality is used.
- */
-export function ptr_array_find_with_equal_func(haystack: object[], needle: object | null, equal_func: EqualFunc | null): [boolean, number | null];
-/**
- * This is just like the standard C qsort() function, but
- * the comparison routine accepts a user data argument.
- * This is guaranteed to be a stable sort since version 2.32.
- */
-export function qsort_with_data(pbase: object, total_elems: number, size: number, compare_func: CompareDataFunc, user_data: object | null): void;
 /**
  * Gets the #GQuark identifying the given (static) string. If the
  * string does not currently have an associated #GQuark, a new #GQuark
@@ -3791,18 +3150,12 @@ export function regex_split_simple(pattern: string, string: string, compile_opti
  */
 export function reload_user_special_dirs_cache(): void;
 /**
- * Internal function used to print messages from the public g_return_if_f
- * ail()
- * and g_return_val_if_fail() macros.
- */
-export function return_if_fail_warning(log_domain: string | null, pretty_function: string, expression: string | null): void;
-/**
  * A wrapper for the POSIX rmdir() function. The rmdir() function
  * deletes a directory from the filesystem.
  * See your C library manual for more details about how rmdir() works
  * on your system.
  */
-export function rmdir(filename: unknown): number;
+export function rmdir(filename: string): number;
 /**
  * Returns the data that @iter points to.
  */
@@ -3878,11 +3231,6 @@ export function set_application_name(application_name: string): void;
 /**
  * Does nothing if @err is %NULL; if @err is non-%NULL, then *@err
  * must be %NULL. A new #GError is created and assigned to *@err.
- */
-export function set_error(domain: Quark, code: number, format: string, ___: unknown[]): [Error | null];
-/**
- * Does nothing if @err is %NULL; if @err is non-%NULL, then *@err
- * must be %NULL. A new #GError is created and assigned to *@err.
  * Unlike g_set_error(), @message is not a printf()-style format string.
  * Use this function if @message contains text you don't have control ove
  * r,
@@ -3902,24 +3250,6 @@ export function set_error_literal(domain: Quark, code: number, message: string):
  */
 export function set_prgname(prgname: string): void;
 /**
- * Sets the print handler.
- * Any messages passed to g_print() will be output via
- * the new handler. The default handler simply outputs
- * the message to stdout. By providing your own handler
- * you can redirect the output, to a GTK+ widget or a
- * log file for example.
- */
-export function set_print_handler(func: PrintFunc): PrintFunc;
-/**
- * Sets the handler for printing error messages.
- * Any messages passed to g_printerr() will be output via
- * the new handler. The default handler simply outputs the
- * message to stderr. By providing your own handler you can
- * redirect the output, to a GTK+ widget or a log file for
- * example.
- */
-export function set_printerr_handler(func: PrintFunc): PrintFunc;
-/**
  * Sets an environment variable. On UNIX, both the variable's name and
  * value can be arbitrary byte strings, except that the variable's name
  * cannot contain '='. On Windows, they should be in UTF-8.
@@ -3937,7 +3267,7 @@ export function set_printerr_handler(func: PrintFunc): PrintFunc;
  * g_environ_setenv() and g_environ_unsetenv(), and then pass that
  * array directly to execvpe(), g_spawn_async(), or the like.
  */
-export function setenv(variable: unknown, value: unknown, overwrite: boolean): boolean;
+export function setenv(variable: string, value: string, overwrite: boolean): boolean;
 /**
  * 
  */
@@ -3953,7 +3283,7 @@ export function shell_error_quark(): Quark;
  * literally. Possible errors are those from the #G_SHELL_ERROR
  * domain. Free the returned vector with g_strfreev().
  */
-export function shell_parse_argv(command_line: unknown): [boolean, number | null,unknown[] | null];
+export function shell_parse_argv(command_line: string): [boolean, number | null,string[] | null];
 /**
  * Quotes a string so that the shell (/bin/sh) will interpret the
  * quoted string to mean @unquoted_string. If you pass a filename to
@@ -3962,7 +3292,7 @@ export function shell_parse_argv(command_line: unknown): [boolean, number | null
  * quoting style used is undefined (single or double quotes may be
  * used).
  */
-export function shell_quote(unquoted_string: unknown): unknown;
+export function shell_quote(unquoted_string: string): string;
 /**
  * Unquotes a string as the shell (/bin/sh) would. Only handles
  * quotes; if a string contains file globs, arithmetic operators,
@@ -3985,7 +3315,7 @@ export function shell_quote(unquoted_string: unknown): unknown;
  * be escaped with backslash. Otherwise double quotes preserve things
  * literally.
  */
-export function shell_unquote(quoted_string: unknown): unknown;
+export function shell_unquote(quoted_string: string): string;
 /**
  * Allocates a block of memory from the slice allocator.
  * The block address handed out can be expected to be aligned
@@ -4045,26 +3375,6 @@ export function slice_get_config_state(ckey: SliceConfig, address: number, n_val
  * 
  */
 export function slice_set_config(ckey: SliceConfig, value: number): void;
-/**
- * A safer form of the standard sprintf() function. The output is guarant
- * eed
- * to not exceed @n characters (including the terminating nul character),
- *  so
- * it is easy to ensure that a buffer overflow cannot occur.
- * See also g_strdup_printf().
- * In versions of GLib prior to 1.2.3, this function may return -1 if the
- * output was truncated, and the truncated string may not be nul-terminat
- * ed.
- * In versions prior to 1.3.12, this function returns the length of the o
- * utput
- * string.
- * The return value of g_snprintf() conforms to the snprintf()
- * function as standardized in ISO C99. Note that this is different from
- * traditional snprintf(), which returns the length of the output string.
- * The format string may contain positional parameters, as specified in
- * the Single Unix Specification.
- */
-export function snprintf(string: string, n: number, format: string, ___: unknown[]): number;
 /**
  * Removes the source with the given ID from the default main context. Yo
  * u must
@@ -4138,7 +3448,7 @@ export function spaced_primes_closest(num: number): number;
  * s
  * are different concepts on Windows.
  */
-export function spawn_async(working_directory: unknown | null, argv: unknown[], envp: unknown[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null): [boolean, Pid | null];
+export function spawn_async(working_directory: string | null, argv: string[], envp: string[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null): [boolean, Pid | null];
 /**
  * Identical to g_spawn_async_with_pipes() but instead of
  * creating pipes for the stdin/stdout/stderr, you can pass existing
@@ -4161,7 +3471,7 @@ export function spawn_async(working_directory: unknown | null, argv: unknown[], 
  * ass
  * a single fd for both stdout and stderr).
  */
-export function spawn_async_with_fds(working_directory: unknown | null, argv: string[], envp: string[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null, stdin_fd: number, stdout_fd: number, stderr_fd: number): [boolean, Pid | null];
+export function spawn_async_with_fds(working_directory: string | null, argv: string[], envp: string[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null, stdin_fd: number, stdout_fd: number, stderr_fd: number): [boolean, Pid | null];
 /**
  * Executes a child program asynchronously (your program will not
  * block waiting for the child to exit). The child program is
@@ -4339,7 +3649,7 @@ export function spawn_async_with_fds(working_directory: unknown | null, argv: st
  * windows on the right screen, you may want to use #GdkAppLaunchContext,
  * #GAppLaunchContext, or set the %DISPLAY environment variable.
  */
-export function spawn_async_with_pipes(working_directory: unknown | null, argv: unknown[], envp: unknown[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null): [boolean, Pid | null,number | null,number | null,number | null];
+export function spawn_async_with_pipes(working_directory: string | null, argv: string[], envp: string[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null): [boolean, Pid | null,number | null,number | null,number | null];
 /**
  * Set @error if @exit_status indicates the child exited abnormally
  * (e.g. with a nonzero exit code, or via a fatal signal).
@@ -4393,7 +3703,7 @@ export function spawn_close_pid(pid: Pid): void;
  * errors are those from g_shell_parse_argv() and g_spawn_async().
  * The same concerns on Windows apply as for g_spawn_command_line_sync().
  */
-export function spawn_command_line_async(command_line: unknown): boolean;
+export function spawn_command_line_async(command_line: string): boolean;
 /**
  * A simple version of g_spawn_sync() with little-used parameters
  * removed, taking a command line instead of an argument vector.  See
@@ -4418,7 +3728,7 @@ export function spawn_command_line_async(command_line: unknown): boolean;
  * separator. You need to enclose such paths with single quotes, like
  * "'c:\\program files\\app\\app.exe' 'e:\\folder\\argument.txt'".
  */
-export function spawn_command_line_sync(command_line: unknown): [boolean, number[] | null,number[] | null,number | null];
+export function spawn_command_line_sync(command_line: string): [boolean, number[] | null,number[] | null,number | null];
 /**
  * 
  */
@@ -4447,17 +3757,7 @@ export function spawn_exit_error_quark(): Quark;
  * function for full details on the other parameters and details on
  * how these functions work on Windows.
  */
-export function spawn_sync(working_directory: unknown | null, argv: unknown[], envp: unknown[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null): [boolean, number[] | null,number[] | null,number | null];
-/**
- * An implementation of the standard sprintf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * Note that it is usually better to use g_snprintf(), to avoid the
- * risk of buffer overflow.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- * See also g_strdup_printf().
- */
-export function sprintf(string: string, format: string, ___: unknown[]): number;
+export function spawn_sync(working_directory: string | null, argv: string[], envp: string[] | null, flags: SpawnFlags, child_setup: SpawnChildSetupFunc | null, user_data: object | null): [boolean, number[] | null,number[] | null,number | null];
 /**
  * Copies a nul-terminated string into the dest buffer, include the
  * trailing nul, and return a pointer to the trailing nul byte.
@@ -4603,17 +3903,6 @@ export function strcmp0(str1: string | null, str2: string | null): number;
  */
 export function strcompress(source: string): string;
 /**
- * Concatenates all of the given strings into one long string. The
- * returned string should be freed with g_free() when no longer needed.
- * The variable argument list must end with %NULL. If you forget the %NUL
- * L,
- * g_strconcat() will start appending random memory junk to your string.
- * Note that this function is usually not the right function to use to
- * assemble a translated message from pieces, since proper translation
- * often requires the pieces to be reordered.
- */
-export function strconcat(string1: string, ___: unknown[]): string;
-/**
  * Converts any delimiter characters in @string to @new_delimiter.
  * Any characters in @string which are found in @delimiters are
  * changed to the @new_delimiter character. Modifies @string in place,
@@ -4634,29 +3923,6 @@ export function strdown(string: string): string;
  * when no longer needed.
  */
 export function strdup(str: string | null): string;
-/**
- * Similar to the standard C sprintf() function but safer, since it
- * calculates the maximum space required and allocates memory to hold
- * the result. The returned string should be freed with g_free() when no
- * longer needed.
- */
-export function strdup_printf(format: string, ___: unknown[]): string;
-/**
- * Similar to the standard C vsprintf() function but safer, since it
- * calculates the maximum space required and allocates memory to hold
- * the result. The returned string should be freed with g_free() when
- * no longer needed.
- * See also g_vasprintf(), which offers the same functionality, but
- * additionally returns the length of the allocated string.
- */
-export function strdup_vprintf(format: string, args: any): string;
-/**
- * Copies %NULL-terminated array of strings. The copy is a deep copy;
- * the new array should be freed by first freeing each string, then
- * the array itself. g_strfreev() does this for you. If called
- * on a %NULL value, g_strdupv() simply returns %NULL.
- */
-export function strdupv(str_array: string | null): string[] | null;
 /**
  * Returns a string corresponding to the given error code, e.g. "no
  * such process". Unlike strerror(), this always returns a string in
@@ -4717,12 +3983,6 @@ export function string_sized_new(dfl_size: number): String;
  * An auxiliary function for gettext() support (see Q_()).
  */
 export function strip_context(msgid: string, msgval: string): string;
-/**
- * Joins a number of strings together to form one long string, with the
- * optional @separator inserted between each of them. The returned string
- * should be freed with g_free().
- */
-export function strjoin(separator: string | null, ___: unknown[]): string;
 /**
  * Joins a number of strings together to form one long string, with the
  * optional @separator inserted between each of them. The returned string
@@ -4818,52 +4078,6 @@ export function strrstr_len(haystack: string, haystack_len: number, needle: stri
  */
 export function strsignal(signum: number): string;
 /**
- * Splits a string into a maximum of @max_tokens pieces, using the given
- * @delimiter. If @max_tokens is reached, the remainder of @string is
- * appended to the last token.
- * As an example, the result of g_strsplit (":a:bc::d:", ":", -1) is a
- * %NULL-terminated vector containing the six strings "", "a", "bc", "", 
- * "d"
- * and "".
- * As a special case, the result of splitting the empty string "" is an e
- * mpty
- * vector, not a vector containing a single string. The reason for this
- * special case is that being able to represent a empty vector is typical
- * ly
- * more useful than consistent handling of empty elements. If you do need
- * to represent empty elements, you'll need to check for the empty string
- * before calling g_strsplit().
- */
-export function strsplit(string: string, delimiter: string, max_tokens: number): string[];
-/**
- * Splits @string into a number of tokens not containing any of the chara
- * cters
- * in @delimiter. A token is the (possibly empty) longest string that doe
- * s not
- * contain any of the characters in @delimiters. If @max_tokens is reache
- * d, the
- * remainder is appended to the last token.
- * For example the result of g_strsplit_set ("abc:def/ghi", ":/", -1) is 
- * a
- * %NULL-terminated vector containing the three strings "abc", "def",
- * and "ghi".
- * The result of g_strsplit_set (":def/ghi:", ":/", -1) is a %NULL-termin
- * ated
- * vector containing the four strings "", "def", "ghi", and "".
- * As a special case, the result of splitting the empty string "" is an e
- * mpty
- * vector, not a vector containing a single string. The reason for this
- * special case is that being able to represent a empty vector is typical
- * ly
- * more useful than consistent handling of empty elements. If you do need
- * to represent empty elements, you'll need to check for the empty string
- * before calling g_strsplit_set().
- * Note that this function works on bytes not characters, so it can't be 
- * used
- * to delimit UTF-8 strings for anything but ASCII characters.
- */
-export function strsplit_set(string: string, delimiters: string, max_tokens: number): string[];
-/**
  * Searches the string @haystack for the first occurrence
  * of the string @needle, limiting the length of the search
  * to @haystack_len.
@@ -4909,7 +4123,7 @@ export function strv_equal(strv1: string, strv2: string): boolean;
 /**
  * 
  */
-export function strv_get_type(): unknown;
+export function strv_get_type(): GType;
 /**
  * Returns the length of the given %NULL-terminated
  * string array @str_array. @str_array must not be %NULL.
@@ -4954,10 +4168,6 @@ export function test_add_func(testpath: string, test_func: TestFunc): void;
 /**
  * 
  */
-export function test_add_vtable(testpath: string, data_size: number, test_data: object | null, data_setup: TestFixtureFunc, data_test: TestFixtureFunc, data_teardown: TestFixtureFunc): void;
-/**
- * 
- */
 export function test_assert_expected_messages_internal(domain: string, file: string, line: number, func: string): void;
 /**
  * This function adds a message to test reports that
@@ -4979,48 +4189,6 @@ export function test_bug(bug_uri_snippet: string): void;
  * '\%s' within @uri_pattern if that is present.
  */
 export function test_bug_base(uri_pattern: string): void;
-/**
- * Creates the pathname to a data file that is required for a test.
- * This function is conceptually similar to g_build_filename() except
- * that the first argument has been replaced with a #GTestFileType
- * argument.
- * The data file should either have been distributed with the module
- * containing the test (%G_TEST_DIST) or built as part of the build
- * system of that module (%G_TEST_BUILT).
- * In order for this function to work in srcdir != builddir situations,
- * the G_TEST_SRCDIR and G_TEST_BUILDDIR environment variables need to
- * have been defined.  As of 2.38, this is done by the glib.mk
- * included in GLib.  Please ensure that your copy is up to date before
- * using this function.
- * In case neither variable is set, this function will fall back to
- * using the dirname portion of argv[0], possibly removing ".libs".
- * This allows for casual running of tests directly from the commandline
- * in the srcdir == builddir case and should also support running of
- * installed tests, assuming the data files have been installed in the
- * same relative path as the test binary.
- */
-export function test_build_filename(file_type: TestFileType, first_path: string, ___: unknown[]): string;
-/**
- * Create a new #GTestCase, named @test_name, this API is fairly
- * low level, calling g_test_add() or g_test_add_func() is preferable.
- * When this test is executed, a fixture structure of size @data_size
- * will be automatically allocated and filled with zeros. Then @data_setu
- * p is
- * called to initialize the fixture. After fixture setup, the actual test
- * function @data_test is called. Once the test run completes, the
- * fixture structure is torn down by calling @data_teardown and
- * after that the memory is automatically released by the test framework.
- * Splitting up a test run into fixture setup, test function and
- * fixture teardown is most useful if the same fixture is used for
- * multiple tests. In this cases, g_test_create_case() will be
- * called with the same fixture, but varying @test_name and
- * @data_test arguments.
- */
-export function test_create_case(test_name: string, data_size: number, test_data: object | null, data_setup: TestFixtureFunc, data_test: TestFixtureFunc, data_teardown: TestFixtureFunc): TestCase;
-/**
- * Create a new test suite with the name @suite_name.
- */
-export function test_create_suite(suite_name: string): TestSuite;
 /**
  * Indicates that a message with the given @log_domain and @log_level,
  * with text matching @pattern, is expected to be logged. When this
@@ -5082,24 +4250,7 @@ export function test_failed(): boolean;
  * This is approximately the same as calling g_test_build_filename("."),
  * but you don't need to free the return value.
  */
-export function test_get_dir(file_type: TestFileType): unknown;
-/**
- * Gets the pathname to a data file that is required for a test.
- * This is the same as g_test_build_filename() with two differences.
- * The first difference is that must only use this function from within
- * a testcase function.  The second difference is that you need not free
- * the return value -- it will be automatically freed when the testcase
- * finishes running.
- * It is safe to use this function from a thread inside of a testcase
- * but you must ensure that all such uses occur before the main testcase
- * function returns (ie: it is best to ensure that all threads have been
- * joined).
- */
-export function test_get_filename(file_type: TestFileType, first_path: string, ___: unknown[]): string;
-/**
- * Get the toplevel test suite for the test path API.
- */
-export function test_get_root(): TestSuite;
+export function test_get_dir(file_type: TestFileType): string;
 /**
  * Indicates that a test failed because of some incomplete
  * functionality. This function can be called multiple times
@@ -5112,98 +4263,9 @@ export function test_get_root(): TestSuite;
  */
 export function test_incomplete(msg: string | null): void;
 /**
- * Initialize the GLib testing framework, e.g. by seeding the
- * test random number generator, the name for g_get_prgname()
- * and parsing test related command line args.
- * So far, the following arguments are understood:
- * - `-l`: List test cases available in a test executable.
- * - `--seed=SEED`: Provide a random seed to reproduce test
- *   runs using random numbers.
- * - `--verbose`: Run tests verbosely.
- * - `-q`, `--quiet`: Run tests quietly.
- * - `-p PATH`: Execute all tests matching the given path.
- * - `-s PATH`: Skip all tests matching the given path.
- *   This can also be used to force a test to run that would otherwise
- *   be skipped (ie, a test whose name contains "/subprocess").
- * - `-m {perf|slow|thorough|quick|undefined|no-undefined}`: Execute test
- * s according to these test modes:
- *   `perf`: Performance tests, may take long and report results (off by 
- * default).
- *   `slow`, `thorough`: Slow and thorough tests, may take quite long and
- *  maximize coverage
- *   (off by default).
- *   `quick`: Quick tests, should run really quickly and give good covera
- * ge (the default).
- *   `undefined`: Tests for undefined behaviour, may provoke programming 
- * errors
- *   under g_test_trap_subprocess() or g_test_expect_message() to check
- *   that appropriate assertions or warnings are given (the default).
- *   `no-undefined`: Avoid tests for undefined behaviour
- * - `--debug-log`: Debug test logging output.
- * Options which can be passed to @... are:
- *  - `"no_g_set_prgname"`: Causes g_test_init() to not call g_set_prgnam
- * e().
- *  - %G_TEST_OPTION_ISOLATE_DIRS: Creates a unique temporary directory f
- * or each
- *    unit test and uses g_set_user_dirs() to set XDG directories to poin
- * t into
- *    that temporary directory for the duration of the unit test. See the
- *    documentation for %G_TEST_OPTION_ISOLATE_DIRS.
- * Since 2.58, if tests are compiled with `G_DISABLE_ASSERT` defined,
- * g_test_init() will print an error and exit. This is to prevent no-op t
- * ests
- * from being executed, as g_assert() is commonly (erroneously) used in u
- * nit
- * tests, and is a no-op when compiled with `G_DISABLE_ASSERT`. Ensure yo
- * ur
- * tests are compiled without `G_DISABLE_ASSERT` defined.
- */
-export function test_init(argc: number, argv: string, ___: unknown[]): void;
-/**
- * Installs a non-error fatal log handler which can be
- * used to decide whether log messages which are counted
- * as fatal abort the program.
- * The use case here is that you are running a test case
- * that depends on particular libraries or circumstances
- * and cannot prevent certain known critical or warning
- * messages. So you install a handler that compares the
- * domain and message to precisely not abort in such a case.
- * Note that the handler is reset at the beginning of
- * any test case, so you have to set it inside each test
- * function which needs the special behavior.
- * This handler has no effect on g_error messages.
- * This handler also has no effect on structured log messages (using
- * g_log_structured() or g_log_structured_array()). To change the fatal
- * behaviour for specific log messages, programs must install a custom lo
- * g
- * writer function using g_log_set_writer_func().See
- * [Using Structured Logging][using-structured-logging].
- */
-export function test_log_set_fatal_handler(log_func: TestLogFatalFunc, user_data: object | null): void;
-/**
  * 
  */
 export function test_log_type_name(log_type: TestLogType): string;
-/**
- * Report the result of a performance or measurement test.
- * The test should generally strive to maximize the reported
- * quantities (larger values are better than smaller ones),
- * this and @maximized_quantity can determine sorting
- * order for test result reports.
- */
-export function test_maximized_result(maximized_quantity: number, format: string, ___: unknown[]): void;
-/**
- * Add a message to the test report.
- */
-export function test_message(format: string, ___: unknown[]): void;
-/**
- * Report the result of a performance or measurement test.
- * The test should generally strive to minimize the reported
- * quantities (smaller values are better than larger ones),
- * this and @minimized_quantity can determine sorting
- * order for test result reports.
- */
-export function test_minimized_result(minimized_quantity: number, format: string, ___: unknown[]): void;
 /**
  * This function enqueus a callback @destroy_func to be executed
  * during the next test case teardown phase. This is most useful
@@ -5509,38 +4571,6 @@ export function thread_yield(): void;
  */
 export function time_val_from_iso8601(iso_date: string): [boolean, TimeVal];
 /**
- * Sets a function to be called at regular intervals, with the default
- * priority, #G_PRIORITY_DEFAULT.  The function is called repeatedly
- * until it returns %FALSE, at which point the timeout is automatically
- * destroyed and the function will not be called again.  The first call
- * to the function will be at the end of the first @interval.
- * Note that timeout functions may be delayed, due to the processing of o
- * ther
- * event sources. Thus they should not be relied on for precise timing.
- * After each call to the timeout function, the time of the next
- * timeout is recalculated based on the current time and the given interv
- * al
- * (it does not try to 'catch up' time lost in delays).
- * See [memory management of sources][mainloop-memory-management] for det
- * ails
- * on how to handle the return value and memory management of @data.
- * If you want to have a timer in the "seconds" range and do not care
- * about the exact time of the first call of the timer, use the
- * g_timeout_add_seconds() function; this function allows for more
- * optimizations and more efficient system power usage.
- * This internally creates a main loop source using g_timeout_source_new(
- * )
- * and attaches it to the global #GMainContext using g_source_attach(), s
- * o
- * the callback will be invoked in whichever thread is running that main
- * context. You can do these steps manually if you need greater control o
- * r to
- * use a custom main context.
- * The interval given is in terms of monotonic time, not wall clock
- * time.  See g_get_monotonic_time().
- */
-export function timeout_add(interval: number, _function: SourceFunc, data: object | null): number;
-/**
  * Sets a function to be called at regular intervals, with the given
  * priority.  The function is called repeatedly until it returns
  * %FALSE, at which point the timeout is automatically destroyed and
@@ -5569,27 +4599,6 @@ export function timeout_add(interval: number, _function: SourceFunc, data: objec
  * See g_get_monotonic_time().
  */
 export function timeout_add_full(priority: number, interval: number, _function: SourceFunc, data: object | null, notify: DestroyNotify | null): number;
-/**
- * Sets a function to be called at regular intervals with the default
- * priority, #G_PRIORITY_DEFAULT. The function is called repeatedly until
- * it returns %FALSE, at which point the timeout is automatically destroy
- * ed
- * and the function will not be called again.
- * This internally creates a main loop source using
- * g_timeout_source_new_seconds() and attaches it to the main loop contex
- * t
- * using g_source_attach(). You can do these steps manually if you need
- * greater control. Also see g_timeout_add_seconds_full().
- * Note that the first call of the timer may not be precise for timeouts
- * of one second. If you need finer precision and have such a timeout,
- * you may want to use g_timeout_add() instead.
- * See [memory management of sources][mainloop-memory-management] for det
- * ails
- * on how to handle the return value and memory management of @data.
- * The interval given is in terms of monotonic time, not wall clock
- * time.  See g_get_monotonic_time().
- */
-export function timeout_add_seconds(interval: number, _function: SourceFunc, data: object | null): number;
 /**
  * Sets a function to be called at regular intervals, with @priority.
  * The function is called repeatedly until it returns %FALSE, at which
@@ -6019,19 +5028,6 @@ export function unix_error_quark(): Quark;
 /**
  * Sets a function to be called when the IO condition, as specified by
  * @condition becomes true for @fd.
- * @function will be called when the specified IO condition becomes
- * %TRUE.  The function is expected to clear whatever event caused the
- * IO condition to become true and return %TRUE in order to be notified
- * when it happens again.  If @function returns %FALSE then the watch
- * will be cancelled.
- * The return value of this function can be passed to g_source_remove()
- * to cancel the watch at any time that it exists.
- * The source will never close the fd -- you must do it yourself.
- */
-export function unix_fd_add(fd: number, condition: IOCondition, _function: UnixFDSourceFunc, user_data: object | null): number;
-/**
- * Sets a function to be called when the IO condition, as specified by
- * @condition becomes true for @fd.
  * This is the same as g_unix_fd_add(), except that it allows you to
  * specify a non-default priority and a provide a #GDestroyNotify for
  * @user_data.
@@ -6059,12 +5055,6 @@ export function unix_open_pipe(fds: number, flags: number): boolean;
  * on some older ones may use %O_NDELAY.
  */
 export function unix_set_fd_nonblocking(fd: number, nonblock: boolean): boolean;
-/**
- * A convenience function for g_unix_signal_source_new(), which
- * attaches to the default #GMainContext.  You can remove the watch
- * using g_source_remove().
- */
-export function unix_signal_add(signum: number, handler: SourceFunc, user_data: object | null): number;
 /**
  * A convenience function for g_unix_signal_source_new(), which
  * attaches to the default #GMainContext.  You can remove the watch
@@ -6103,7 +5093,7 @@ export function unix_signal_source_new(signum: number): Source;
  * that on Windows, it is in general not possible to delete files that
  * are open to some process, or mapped into memory.
  */
-export function unlink(filename: unknown): number;
+export function unlink(filename: string): number;
 /**
  * Removes an environment variable from the environment.
  * Note that on some systems, when variables are overwritten, the
@@ -6121,7 +5111,7 @@ export function unlink(filename: unknown): number;
  * g_environ_setenv() and g_environ_unsetenv(), and then pass that
  * array directly to execvpe(), g_spawn_async(), or the like.
  */
-export function unsetenv(variable: unknown): void;
+export function unsetenv(variable: string): void;
 /**
  * Escapes a string for use in a URI.
  * Normally all characters that are not "unreserved" (i.e. ASCII alphanum
@@ -6478,7 +5468,7 @@ export function uuid_string_random(): string;
 /**
  * 
  */
-export function variant_get_gtype(): unknown;
+export function variant_get_gtype(): GType;
 /**
  * Determines if a given string is a valid D-Bus object path.  You
  * should ensure that a string is a valid D-Bus object path before
@@ -6583,64 +5573,6 @@ export function variant_type_string_is_valid(type_string: string): boolean;
  * see g_variant_type_string_is_valid().
  */
 export function variant_type_string_scan(string: string, limit: string | null): [boolean, string | null];
-/**
- * An implementation of the GNU vasprintf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * This function is similar to g_vsprintf(), except that it allocates a
- * string to hold the output, instead of putting the output in a buffer
- * you allocate in advance.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- */
-export function vasprintf(string: string, format: string, args: any): number;
-/**
- * An implementation of the standard fprintf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- */
-export function vfprintf(file: object, format: string, args: any): number;
-/**
- * An implementation of the standard vprintf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- */
-export function vprintf(format: string, args: any): number;
-/**
- * A safer form of the standard vsprintf() function. The output is guaran
- * teed
- * to not exceed @n characters (including the terminating nul character),
- *  so
- * it is easy to ensure that a buffer overflow cannot occur.
- * See also g_strdup_vprintf().
- * In versions of GLib prior to 1.2.3, this function may return -1 if the
- * output was truncated, and the truncated string may not be nul-terminat
- * ed.
- * In versions prior to 1.3.12, this function returns the length of the o
- * utput
- * string.
- * The return value of g_vsnprintf() conforms to the vsnprintf() function
- * as standardized in ISO C99. Note that this is different from tradition
- * al
- * vsnprintf(), which returns the length of the output string.
- * The format string may contain positional parameters, as specified in
- * the Single Unix Specification.
- */
-export function vsnprintf(string: string, n: number, format: string, args: any): number;
-/**
- * An implementation of the standard vsprintf() function which supports
- * positional parameters, as specified in the Single Unix Specification.
- * `glib/gprintf.h` must be explicitly included in order to use this func
- * tion.
- */
-export function vsprintf(string: string, format: string, args: any): number;
-/**
- * Internal function used to print messages from the public g_warn_if_rea
- * ched()
- * and g_warn_if_fail() macros.
- */
-export function warn_message(domain: string | null, file: string, line: number, func: string, warnexpr: string | null): void;
 export enum BookmarkFileError {
     INVALID_URI = 0,
     INVALID_VALUE = 1,
@@ -7425,1371 +6357,1157 @@ export enum TraverseFlags {
     LEAFS = 1,
     NON_LEAFS = 2,
 }
-export class Array  {constructor(config?: properties);
-data: string;
-len: number;
-static append_vals(array: object[], data: object, len: number): object[];
-static free(array: object[], free_segment: boolean): string;
-static get_element_size(array: object[]): number;
-static insert_vals(array: object[], index_: number, data: object | null, len: number): object[];
-static _new(zero_terminated: boolean, clear_: boolean, element_size: number): object[];
-static prepend_vals(array: object[], data: object | null, len: number): object[];
-static ref(array: object[]): object[];
-static remove_index(array: object[], index_: number): object[];
-static remove_index_fast(array: object[], index_: number): object[];
-static remove_range(array: object[], index_: number, length: number): object[];
-static set_clear_func(array: object[], clear_func: DestroyNotify): void;
-static set_size(array: object[], length: number): object[];
-static sized_new(zero_terminated: boolean, clear_: boolean, element_size: number, reserved_size: number): object[];
-static sort(array: object[], compare_func: CompareFunc): void;
-static sort_with_data(array: object[], compare_func: CompareDataFunc, user_data: object | null): void;
-static unref(array: object[]): void;
-}
-export class AsyncQueue  {constructor(config?: properties);
-length(): number;
-length_unlocked(): number;
-lock(): void;
-pop(): object | null;
-pop_unlocked(): object | null;
-push(data: object | null): void;
-push_front(item: object | null): void;
-push_front_unlocked(item: object | null): void;
-push_sorted(data: object | null, func: CompareDataFunc, user_data: object | null): void;
-push_sorted_unlocked(data: object | null, func: CompareDataFunc, user_data: object | null): void;
-push_unlocked(data: object | null): void;
-ref(): AsyncQueue;
-ref_unlocked(): void;
-remove(item: object | null): boolean;
-remove_unlocked(item: object | null): boolean;
-sort(func: CompareDataFunc, user_data: object | null): void;
-sort_unlocked(func: CompareDataFunc, user_data: object | null): void;
-timed_pop(end_time: TimeVal): object | null;
-timed_pop_unlocked(end_time: TimeVal): object | null;
-timeout_pop(timeout: number): object | null;
-timeout_pop_unlocked(timeout: number): object | null;
-try_pop(): object | null;
-try_pop_unlocked(): object | null;
-unlock(): void;
-unref(): void;
-unref_and_unlock(): void;
-static _new(): AsyncQueue;
-static new_full(item_free_func: DestroyNotify): AsyncQueue;
-}
-export class BookmarkFile  {constructor(config?: properties);
-add_application(uri: string, name: string | null, exec: string | null): void;
-add_group(uri: string, group: string): void;
-free(): void;
-get_added(uri: string): number;
-get_app_info(uri: string, name: string): [boolean, string | null,number | null,number | null];
-get_applications(uri: string): [string[], number | null];
-get_description(uri: string): string;
-get_groups(uri: string): [string[], number | null];
-get_icon(uri: string): [boolean, string | null,string | null];
-get_is_private(uri: string): boolean;
-get_mime_type(uri: string): string;
-get_modified(uri: string): number;
-get_size(): number;
-get_title(uri: string | null): string;
-get_uris(): [string[], number | null];
-get_visited(uri: string): number;
-has_application(uri: string, name: string): boolean;
-has_group(uri: string, group: string): boolean;
-has_item(uri: string): boolean;
-load_from_data(data: number[], length: number): boolean;
-load_from_data_dirs(file: unknown): [boolean, unknown | null];
-load_from_file(filename: unknown): boolean;
-move_item(old_uri: string, new_uri: string | null): boolean;
-remove_application(uri: string, name: string): boolean;
-remove_group(uri: string, group: string): boolean;
-remove_item(uri: string): boolean;
-set_added(uri: string, added: number): void;
-set_app_info(uri: string, name: string, exec: string, count: number, stamp: number): boolean;
-set_description(uri: string | null, description: string): void;
-set_groups(uri: string, groups: string[] | null, length: number): void;
-set_icon(uri: string, href: string | null, mime_type: string): void;
-set_is_private(uri: string, is_private: boolean): void;
-set_mime_type(uri: string, mime_type: string): void;
-set_modified(uri: string, modified: number): void;
-set_title(uri: string | null, title: string): void;
-set_visited(uri: string, visited: number): void;
-to_data(): [number[], number | null];
-to_file(filename: unknown): boolean;
-static error_quark(): Quark;
-static _new(): BookmarkFile;
-}
-export class ByteArray  {constructor(config?: properties);
-data: number;
-len: number;
-static append(array: number[], data: number, len: number): number[];
-static free(array: number[], free_segment: boolean): number;
-static free_to_bytes(array: number[]): Bytes;
-static _new(): number[];
-static new_take(data: number[], len: number): number[];
-static prepend(array: number[], data: number, len: number): number[];
-static ref(array: number[]): number[];
-static remove_index(array: number[], index_: number): number[];
-static remove_index_fast(array: number[], index_: number): number[];
-static remove_range(array: number[], index_: number, length: number): number[];
-static set_size(array: number[], length: number): number[];
-static sized_new(reserved_size: number): number[];
-static sort(array: number[], compare_func: CompareFunc): void;
-static sort_with_data(array: number[], compare_func: CompareDataFunc, user_data: object | null): void;
-static unref(array: number[]): void;
-}
-export class Bytes  {constructor(config?: properties);
-static new_static(data: number[] | null, size: number): Bytes;
-static new_take(data: number[] | null, size: number): Bytes;
-static new_with_free_func(data: number[] | null, size: number, free_func: DestroyNotify, user_data: object | null): Bytes;
-compare(bytes2: Bytes): number;
-equal(bytes2: Bytes): boolean;
-get_data(): [number[] | null, number | null];
-get_size(): number;
-hash(): number;
-new_from_bytes(offset: number, length: number): Bytes;
-ref(): Bytes;
-unref(): void;
-unref_to_array(): number[];
-unref_to_data(): [number[], number];
-}
-export class Checksum  {constructor(config?: properties);
-copy(): Checksum;
-free(): void;
-get_digest(buffer: number[], digest_len: number): [number];
-get_string(): string;
-reset(): void;
-update(data: number[], length: number): void;
-static type_get_length(checksum_type: ChecksumType): number;
-}
-export class Cond  {constructor(config?: properties);
-readonly p: object;
-readonly i: number[];
-broadcast(): void;
-clear(): void;
-init(): void;
-signal(): void;
-wait(mutex: Mutex): void;
-wait_until(mutex: Mutex, end_time: number): boolean;
-}
-export class Data  {constructor(config?: properties);
-}
-export class Date  {constructor(config?: properties);
-static new_dmy(day: DateDay, month: DateMonth, year: DateYear): Date;
-static new_julian(julian_day: number): Date;
-add_days(n_days: number): void;
-add_months(n_months: number): void;
-add_years(n_years: number): void;
-clamp(min_date: Date, max_date: Date): void;
-clear(n_dates: number): void;
-compare(rhs: Date): number;
-copy(): Date;
-days_between(date2: Date): number;
-free(): void;
-get_day(): DateDay;
-get_day_of_year(): number;
-get_iso8601_week_of_year(): number;
-get_julian(): number;
-get_monday_week_of_year(): number;
-get_month(): DateMonth;
-get_sunday_week_of_year(): number;
-get_weekday(): DateWeekday;
-get_year(): DateYear;
-is_first_of_month(): boolean;
-is_last_of_month(): boolean;
-order(date2: Date): void;
-set_day(day: DateDay): void;
-set_dmy(day: DateDay, month: DateMonth, y: DateYear): void;
-set_julian(julian_date: number): void;
-set_month(month: DateMonth): void;
-set_parse(str: string): void;
-set_time(time_: Time): void;
-set_time_t(timet: number): void;
-set_time_val(timeval: TimeVal): void;
-set_year(year: DateYear): void;
-subtract_days(n_days: number): void;
-subtract_months(n_months: number): void;
-subtract_years(n_years: number): void;
-to_struct_tm(tm: object): void;
-valid(): boolean;
-static get_days_in_month(month: DateMonth, year: DateYear): number;
-static get_monday_weeks_in_year(year: DateYear): number;
-static get_sunday_weeks_in_year(year: DateYear): number;
-static is_leap_year(year: DateYear): boolean;
-static strftime(s: string, slen: number, format: string, date: Date): number;
-static valid_day(day: DateDay): boolean;
-static valid_dmy(day: DateDay, month: DateMonth, year: DateYear): boolean;
-static valid_julian(julian_date: number): boolean;
-static valid_month(month: DateMonth): boolean;
-static valid_weekday(weekday: DateWeekday): boolean;
-static valid_year(year: DateYear): boolean;
-}
-export class DateTime  {constructor(config?: properties);
-static new_from_iso8601(text: string, default_tz: TimeZone | null): DateTime | null;
-static new_from_timeval_local(tv: TimeVal): DateTime;
-static new_from_timeval_utc(tv: TimeVal): DateTime;
-static new_from_unix_local(t: number): DateTime;
-static new_from_unix_utc(t: number): DateTime;
-static new_local(year: number, month: number, day: number, hour: number, minute: number, seconds: number): DateTime;
-static new_now(tz: TimeZone): DateTime;
-static new_now_local(): DateTime;
-static new_now_utc(): DateTime;
-static new_utc(year: number, month: number, day: number, hour: number, minute: number, seconds: number): DateTime;
-add(timespan: TimeSpan): DateTime;
-add_days(days: number): DateTime;
-add_full(years: number, months: number, days: number, hours: number, minutes: number, seconds: number): DateTime;
-add_hours(hours: number): DateTime;
-add_minutes(minutes: number): DateTime;
-add_months(months: number): DateTime;
-add_seconds(seconds: number): DateTime;
-add_weeks(weeks: number): DateTime;
-add_years(years: number): DateTime;
-difference(begin: DateTime): TimeSpan;
-format(format: string): string;
-get_day_of_month(): number;
-get_day_of_week(): number;
-get_day_of_year(): number;
-get_hour(): number;
-get_microsecond(): number;
-get_minute(): number;
-get_month(): number;
-get_second(): number;
-get_seconds(): number;
-get_timezone(): TimeZone;
-get_timezone_abbreviation(): string;
-get_utc_offset(): TimeSpan;
-get_week_numbering_year(): number;
-get_week_of_year(): number;
-get_year(): number;
-get_ymd(): [number | null,number | null,number | null];
-is_daylight_savings(): boolean;
-ref(): DateTime;
-to_local(): DateTime;
-to_timeval(tv: TimeVal): boolean;
-to_timezone(tz: TimeZone): DateTime;
-to_unix(): number;
-to_utc(): DateTime;
-unref(): void;
-static compare(dt1: object, dt2: object): number;
-static equal(dt1: object, dt2: object): boolean;
-static hash(datetime: object): number;
-}
-export class DebugKey  {constructor(config?: properties);
-key: string;
-value: number;
-}
-export class Dir  {constructor(config?: properties);
-close(): void;
-read_name(): unknown;
-rewind(): void;
-static make_tmp(tmpl: unknown | null): unknown;
-static open(path: string, flags: number): Dir;
-}
-export class Error  {constructor(config?: properties);
-static new_literal(domain: Quark, code: number, message: string): Error;
-static new_valist(domain: Quark, code: number, format: string, args: any): Error;
-copy(): Error;
-free(): void;
-matches(domain: Quark, code: number): boolean;
-}
-export class HashTable  {constructor(config?: properties);
-static add(hash_table: HashTable, key: object | null): boolean;
-static contains(hash_table: HashTable, key: object | null): boolean;
-static destroy(hash_table: HashTable): void;
-static find(hash_table: HashTable, predicate: HRFunc, user_data: object | null): object | null;
-static foreach(hash_table: HashTable, func: HFunc, user_data: object | null): void;
-static foreach_remove(hash_table: HashTable, func: HRFunc, user_data: object | null): number;
-static foreach_steal(hash_table: HashTable, func: HRFunc, user_data: object | null): number;
-static get_keys(hash_table: HashTable): List;
-static get_keys_as_array(hash_table: HashTable): [object[], number];
-static get_values(hash_table: HashTable): List;
-static insert(hash_table: HashTable, key: object | null, value: object | null): boolean;
-static lookup(hash_table: HashTable, key: object | null): object | null;
-static lookup_extended(hash_table: HashTable, lookup_key: object | null): [boolean, object | null,object | null];
-static _new(hash_func: HashFunc, key_equal_func: EqualFunc): HashTable;
-static new_full(hash_func: HashFunc, key_equal_func: EqualFunc, key_destroy_func: DestroyNotify | null, value_destroy_func: DestroyNotify | null): HashTable;
-static ref(hash_table: HashTable): HashTable;
-static remove(hash_table: HashTable, key: object | null): boolean;
-static remove_all(hash_table: HashTable): void;
-static replace(hash_table: HashTable, key: object | null, value: object | null): boolean;
-static size(hash_table: HashTable): number;
-static steal(hash_table: HashTable, key: object | null): boolean;
-static steal_all(hash_table: HashTable): void;
-static steal_extended(hash_table: HashTable, lookup_key: object | null): [boolean, object | null,object | null];
-static unref(hash_table: HashTable): void;
-}
-export class HashTableIter  {constructor(config?: properties);
-readonly dummy1: object;
-readonly dummy2: object;
-readonly dummy3: object;
-readonly dummy4: number;
-readonly dummy5: boolean;
-readonly dummy6: object;
-get_hash_table(): HashTable;
-init(hash_table: HashTable): void;
-next(): [boolean, object | null,object | null];
-remove(): void;
-replace(value: object | null): void;
-steal(): void;
-}
-export class Hmac  {constructor(config?: properties);
-copy(): Hmac;
-get_digest(buffer: number[], digest_len: number): [number];
-get_string(): string;
-ref(): Hmac;
-unref(): void;
-update(data: number[], length: number): void;
-static _new(digest_type: ChecksumType, key: number[], key_len: number): Hmac;
-}
-export class Hook  {constructor(config?: properties);
-data: object;
-next: Hook;
-prev: Hook;
-ref_count: number;
-hook_id: number;
-flags: number;
-func: object;
-compare_ids(sibling: Hook): number;
-static alloc(hook_list: HookList): Hook;
-static destroy(hook_list: HookList, hook_id: number): boolean;
-static destroy_link(hook_list: HookList, hook: Hook): void;
-static find(hook_list: HookList, need_valids: boolean, func: HookFindFunc, data: object | null): Hook;
-static find_data(hook_list: HookList, need_valids: boolean, data: object | null): Hook;
-static find_func(hook_list: HookList, need_valids: boolean, func: object | null): Hook;
-static find_func_data(hook_list: HookList, need_valids: boolean, func: object, data: object | null): Hook;
-static first_valid(hook_list: HookList, may_be_in_call: boolean): Hook;
-static free(hook_list: HookList, hook: Hook): void;
-static get(hook_list: HookList, hook_id: number): Hook;
-static insert_before(hook_list: HookList, sibling: Hook | null, hook: Hook): void;
-static insert_sorted(hook_list: HookList, hook: Hook, func: HookCompareFunc): void;
-static next_valid(hook_list: HookList, hook: Hook, may_be_in_call: boolean): Hook;
-static prepend(hook_list: HookList, hook: Hook): void;
-static ref(hook_list: HookList, hook: Hook): Hook;
-static unref(hook_list: HookList, hook: Hook): void;
-}
-export class HookList  {constructor(config?: properties);
-seq_id: number;
-hook_size: number;
-is_setup: number;
-hooks: Hook;
-dummy3: object;
-finalize_hook: HookFinalizeFunc;
-dummy: object[];
-clear(): void;
-init(hook_size: number): void;
-invoke(may_recurse: boolean): void;
-invoke_check(may_recurse: boolean): void;
-marshal(may_recurse: boolean, marshaller: HookMarshaller, marshal_data: object | null): void;
-marshal_check(may_recurse: boolean, marshaller: HookCheckMarshaller, marshal_data: object | null): void;
-}
-export class IConv  {constructor(config?: properties);
-close(): number;
-static open(to_codeset: string, from_codeset: string): IConv;
-}
-export class IOChannel  {constructor(config?: properties);
-static new_file(filename: unknown, mode: string): IOChannel;
-static unix_new(fd: number): IOChannel;
-close(): void;
-flush(): IOStatus;
-get_buffer_condition(): IOCondition;
-get_buffer_size(): number;
-get_buffered(): boolean;
-get_close_on_unref(): boolean;
-get_encoding(): string;
-get_flags(): IOFlags;
-get_line_term(length: number): string;
-init(): void;
-read(buf: string, count: number, bytes_read: number): IOError;
-read_chars(count: number): [IOStatus, number[],number | null];
-read_line(): [IOStatus, string,number | null,number | null];
-read_line_string(buffer: String, terminator_pos: number | null): IOStatus;
-read_to_end(): [IOStatus, number[],number];
-read_unichar(): [IOStatus, number];
-ref(): IOChannel;
-seek(offset: number, type: SeekType): IOError;
-seek_position(offset: number, type: SeekType): IOStatus;
-set_buffer_size(size: number): void;
-set_buffered(buffered: boolean): void;
-set_close_on_unref(do_close: boolean): void;
-set_encoding(encoding: string | null): IOStatus;
-set_flags(flags: IOFlags): IOStatus;
-set_line_term(line_term: string | null, length: number): void;
-shutdown(flush: boolean): IOStatus;
-unix_get_fd(): number;
-unref(): void;
-write(buf: string, count: number, bytes_written: number): IOError;
-write_chars(buf: number[], count: number): [IOStatus, number];
-write_unichar(thechar: number): IOStatus;
-static error_from_errno(en: number): IOChannelError;
-static error_quark(): Quark;
-}
-export class IOFuncs  {constructor(config?: properties);
-readonly io_read: unknown;
-readonly io_write: unknown;
-readonly io_seek: unknown;
-readonly io_close: unknown;
-readonly io_create_watch: unknown;
-readonly io_free: unknown;
-readonly io_set_flags: unknown;
-readonly io_get_flags: unknown;
-}
-export class KeyFile  {constructor(config?: properties);
-free(): void;
-get_boolean(group_name: string, key: string): boolean;
-get_boolean_list(group_name: string, key: string): [boolean[], number];
-get_comment(group_name: string | null, key: string): string;
-get_double(group_name: string, key: string): number;
-get_double_list(group_name: string, key: string): [number[], number];
-get_groups(): [string[], number | null];
-get_int64(group_name: string, key: string): number;
-get_integer(group_name: string, key: string): number;
-get_integer_list(group_name: string, key: string): [number[], number];
-get_keys(group_name: string): [string[], number | null];
-get_locale_for_key(group_name: string, key: string, locale: string | null): string | null;
-get_locale_string(group_name: string, key: string, locale: string | null): string;
-get_locale_string_list(group_name: string, key: string, locale: string | null): [string[], number | null];
-get_start_group(): string;
-get_string(group_name: string, key: string): string;
-get_string_list(group_name: string, key: string): [string[], number | null];
-get_uint64(group_name: string, key: string): number;
-get_value(group_name: string, key: string): string;
-has_group(group_name: string): boolean;
-has_key(group_name: string, key: string): boolean;
-load_from_bytes(bytes: Bytes, flags: KeyFileFlags): boolean;
-load_from_data(data: string, length: number, flags: KeyFileFlags): boolean;
-load_from_data_dirs(file: unknown, flags: KeyFileFlags): [boolean, unknown | null];
-load_from_dirs(file: unknown, search_dirs: unknown[], flags: KeyFileFlags): [boolean, unknown | null];
-load_from_file(file: unknown, flags: KeyFileFlags): boolean;
-ref(): KeyFile;
-remove_comment(group_name: string | null, key: string | null): boolean;
-remove_group(group_name: string): boolean;
-remove_key(group_name: string, key: string): boolean;
-save_to_file(filename: string): boolean;
-set_boolean(group_name: string, key: string, value: boolean): void;
-set_boolean_list(group_name: string, key: string, list: boolean[], length: number): void;
-set_comment(group_name: string | null, key: string | null, comment: string): boolean;
-set_double(group_name: string, key: string, value: number): void;
-set_double_list(group_name: string, key: string, list: number[], length: number): void;
-set_int64(group_name: string, key: string, value: number): void;
-set_integer(group_name: string, key: string, value: number): void;
-set_integer_list(group_name: string, key: string, list: number[], length: number): void;
-set_list_separator(separator: number): void;
-set_locale_string(group_name: string, key: string, locale: string, string: string): void;
-set_locale_string_list(group_name: string, key: string, locale: string, list: string[], length: number): void;
-set_string(group_name: string, key: string, string: string): void;
-set_string_list(group_name: string, key: string, list: string[], length: number): void;
-set_uint64(group_name: string, key: string, value: number): void;
-set_value(group_name: string, key: string, value: string): void;
-to_data(): [string, number | null];
-unref(): void;
-static error_quark(): Quark;
-}
-export class List  {constructor(config?: properties);
-data: object;
-next: List;
-prev: List;
-static alloc(): List;
-static append(list: List, data: object | null): List;
-static concat(list1: List, list2: List): List;
-static copy(list: List): List;
-static copy_deep(list: List, func: CopyFunc, user_data: object | null): List;
-static delete_link(list: List, link_: List): List;
-static find(list: List, data: object | null): List;
-static find_custom(list: List, data: object | null, func: CompareFunc): List;
-static first(list: List): List;
-static foreach(list: List, func: Func, user_data: object | null): void;
-static free(list: List): void;
-static free_1(list: List): void;
-static free_full(list: List, free_func: DestroyNotify): void;
-static index(list: List, data: object | null): number;
-static insert(list: List, data: object | null, position: number): List;
-static insert_before(list: List, sibling: List, data: object | null): List;
-static insert_sorted(list: List, data: object | null, func: CompareFunc): List;
-static insert_sorted_with_data(list: List, data: object | null, func: CompareDataFunc, user_data: object | null): List;
-static last(list: List): List;
-static length(list: List): number;
-static nth(list: List, n: number): List;
-static nth_data(list: List, n: number): object | null;
-static nth_prev(list: List, n: number): List;
-static position(list: List, llink: List): number;
-static prepend(list: List, data: object | null): List;
-static remove(list: List, data: object | null): List;
-static remove_all(list: List, data: object | null): List;
-static remove_link(list: List, llink: List): List;
-static reverse(list: List): List;
-static sort(list: List, compare_func: CompareFunc): List;
-static sort_with_data(list: List, compare_func: CompareDataFunc, user_data: object | null): List;
-}
-export class LogField  {constructor(config?: properties);
-key: string;
-value: object;
-length: number;
-}
-export class MainContext  {constructor(config?: properties);
-acquire(): boolean;
-add_poll(fd: PollFD, priority: number): void;
-check(max_priority: number, fds: PollFD[], n_fds: number): boolean;
-dispatch(): void;
-find_source_by_funcs_user_data(funcs: SourceFuncs, user_data: object | null): Source;
-find_source_by_id(source_id: number): Source;
-find_source_by_user_data(user_data: object | null): Source;
-get_poll_func(): PollFunc;
-invoke(_function: SourceFunc, data: object | null): void;
-invoke_full(priority: number, _function: SourceFunc, data: object | null, notify: DestroyNotify | null): void;
-is_owner(): boolean;
-iteration(may_block: boolean): boolean;
-pending(): boolean;
-pop_thread_default(): void;
-prepare(priority: number): boolean;
-push_thread_default(): void;
-query(max_priority: number, n_fds: number): [number, number,PollFD[]];
-ref(): MainContext;
-release(): void;
-remove_poll(fd: PollFD): void;
-set_poll_func(func: PollFunc): void;
-unref(): void;
-wait(cond: Cond, mutex: Mutex): boolean;
-wakeup(): void;
-static _default(): MainContext;
-static get_thread_default(): MainContext;
-static ref_thread_default(): MainContext;
-}
-export class MainLoop  {constructor(config?: properties);
-get_context(): MainContext;
-is_running(): boolean;
-quit(): void;
-ref(): MainLoop;
-run(): void;
-unref(): void;
-}
-export class MappedFile  {constructor(config?: properties);
-static new_from_fd(fd: number, writable: boolean): MappedFile;
-free(): void;
-get_bytes(): Bytes;
-get_contents(): string;
-get_length(): number;
-ref(): MappedFile;
-unref(): void;
-}
-export class MarkupParseContext  {constructor(config?: properties);
-end_parse(): boolean;
-free(): void;
-get_element(): string;
-get_element_stack(): string[];
-get_position(line_number: number | null, char_number: number | null): void;
-get_user_data(): object | null;
-parse(text: string, text_len: number): boolean;
-pop(): object | null;
-push(parser: MarkupParser, user_data: object | null): void;
-ref(): MarkupParseContext;
-unref(): void;
-}
-export class MarkupParser  {constructor(config?: properties);
-readonly start_element: unknown;
-readonly end_element: unknown;
-readonly text: unknown;
-readonly passthrough: unknown;
-readonly error: unknown;
-}
-export class MatchInfo  {constructor(config?: properties);
-expand_references(string_to_expand: string): string | null;
-fetch(match_num: number): string | null;
-fetch_all(): string[];
-fetch_named(name: string): string | null;
-fetch_named_pos(name: string): [boolean, number | null,number | null];
-fetch_pos(match_num: number): [boolean, number | null,number | null];
-free(): void;
-get_match_count(): number;
-get_regex(): Regex;
-get_string(): string;
-is_partial_match(): boolean;
-matches(): boolean;
-next(): boolean;
-ref(): MatchInfo;
-unref(): void;
-}
-export class MemVTable  {constructor(config?: properties);
-readonly malloc: unknown;
-readonly realloc: unknown;
-readonly free: unknown;
-readonly calloc: unknown;
-readonly try_malloc: unknown;
-readonly try_realloc: unknown;
-}
-export class Node  {constructor(config?: properties);
-data: object;
-next: Node;
-prev: Node;
-children: Node;
-child_index(data: object | null): number;
-child_position(child: Node): number;
-children_foreach(flags: TraverseFlags, func: NodeForeachFunc, data: object | null): void;
-copy(): Node;
-copy_deep(copy_func: CopyFunc, data: object | null): Node;
-depth(): number;
-destroy(): void;
-find(order: TraverseType, flags: TraverseFlags, data: object | null): Node;
-find_child(flags: TraverseFlags, data: object | null): Node;
-first_sibling(): Node;
-get_root(): Node;
-insert(position: number, node: Node): Node;
-insert_after(sibling: Node, node: Node): Node;
-insert_before(sibling: Node, node: Node): Node;
-is_ancestor(descendant: Node): boolean;
-last_child(): Node;
-last_sibling(): Node;
-max_height(): number;
-n_children(): number;
-n_nodes(flags: TraverseFlags): number;
-nth_child(n: number): Node;
-prepend(node: Node): Node;
-reverse_children(): void;
-traverse(order: TraverseType, flags: TraverseFlags, max_depth: number, func: NodeTraverseFunc, data: object | null): void;
-unlink(): void;
-static _new(data: object | null): Node;
-}
-export class Once  {constructor(config?: properties);
-status: OnceStatus;
-retval: object;
-impl(func: ThreadFunc, arg: object | null): object | null;
-static init_enter(location: object): boolean;
-static init_leave(location: object, result: number): void;
-}
-export class OptionContext  {constructor(config?: properties);
-add_group(group: OptionGroup): void;
-add_main_entries(entries: OptionEntry, translation_domain: string | null): void;
-free(): void;
-get_description(): string;
-get_help(main_help: boolean, group: OptionGroup | null): string;
-get_help_enabled(): boolean;
-get_ignore_unknown_options(): boolean;
-get_main_group(): OptionGroup;
-get_strict_posix(): boolean;
-get_summary(): string;
-parse(argc: number | null, argv: string[] | null): [boolean, number,string[]];
-parse_strv(_arguments: string[]): [boolean, string[]];
-set_description(description: string | null): void;
-set_help_enabled(help_enabled: boolean): void;
-set_ignore_unknown_options(ignore_unknown: boolean): void;
-set_main_group(group: OptionGroup): void;
-set_strict_posix(strict_posix: boolean): void;
-set_summary(summary: string | null): void;
-set_translate_func(func: TranslateFunc | null, data: object | null, destroy_notify: DestroyNotify | null): void;
-set_translation_domain(domain: string): void;
-static _new(parameter_string: string | null): OptionContext;
-}
-export class OptionEntry  {constructor(config?: properties);
-long_name: string;
-short_name: number;
-flags: number;
-arg: OptionArg;
-arg_data: object;
-description: string;
-arg_description: string;
-}
-export class OptionGroup  {constructor(config?: properties);
-add_entries(entries: OptionEntry): void;
-free(): void;
-ref(): OptionGroup;
-set_error_hook(error_func: OptionErrorFunc): void;
-set_parse_hooks(pre_parse_func: OptionParseFunc | null, post_parse_func: OptionParseFunc | null): void;
-set_translate_func(func: TranslateFunc | null, data: object | null, destroy_notify: DestroyNotify | null): void;
-set_translation_domain(domain: string): void;
-unref(): void;
-}
-export class PatternSpec  {constructor(config?: properties);
-equal(pspec2: PatternSpec): boolean;
-free(): void;
-static _new(pattern: string): PatternSpec;
-}
-export class PollFD  {constructor(config?: properties);
-fd: number;
-events: number;
-revents: number;
-}
-export class Private  {constructor(config?: properties);
-readonly p: object;
-readonly notify: DestroyNotify;
-readonly future: object[];
-get(): object | null;
-replace(value: object | null): void;
-set(value: object | null): void;
-}
-export class PtrArray  {constructor(config?: properties);
-pdata: object;
-len: number;
-static add(array: object[], data: object | null): void;
-static find(haystack: object[], needle: object | null): [boolean, number | null];
-static find_with_equal_func(haystack: object[], needle: object | null, equal_func: EqualFunc | null): [boolean, number | null];
-static foreach(array: object[], func: Func, user_data: object | null): void;
-static free(array: object[], free_seg: boolean): object | null;
-static insert(array: object[], index_: number, data: object | null): void;
-static _new(): object[];
-static new_full(reserved_size: number, element_free_func: DestroyNotify | null): object[];
-static new_with_free_func(element_free_func: DestroyNotify | null): object[];
-static ref(array: object[]): object[];
-static remove(array: object[], data: object | null): boolean;
-static remove_fast(array: object[], data: object | null): boolean;
-static remove_index(array: object[], index_: number): object | null;
-static remove_index_fast(array: object[], index_: number): object | null;
-static remove_range(array: object[], index_: number, length: number): object[];
-static set_free_func(array: object[], element_free_func: DestroyNotify | null): void;
-static set_size(array: object[], length: number): void;
-static sized_new(reserved_size: number): object[];
-static sort(array: object[], compare_func: CompareFunc): void;
-static sort_with_data(array: object[], compare_func: CompareDataFunc, user_data: object | null): void;
-static steal_index(array: object[], index_: number): object | null;
-static steal_index_fast(array: object[], index_: number): object | null;
-static unref(array: object[]): void;
-}
-export class Queue  {constructor(config?: properties);
-head: List;
-tail: List;
-length: number;
-clear(): void;
-clear_full(free_func: DestroyNotify | null): void;
-copy(): Queue;
-delete_link(link_: List): void;
-find(data: object | null): List;
-find_custom(data: object | null, func: CompareFunc): List;
-foreach(func: Func, user_data: object | null): void;
-free(): void;
-free_full(free_func: DestroyNotify): void;
-get_length(): number;
-index(data: object | null): number;
-init(): void;
-insert_after(sibling: List | null, data: object | null): void;
-insert_before(sibling: List | null, data: object | null): void;
-insert_sorted(data: object | null, func: CompareDataFunc, user_data: object | null): void;
-is_empty(): boolean;
-link_index(link_: List): number;
-peek_head(): object | null;
-peek_head_link(): List;
-peek_nth(n: number): object | null;
-peek_nth_link(n: number): List;
-peek_tail(): object | null;
-peek_tail_link(): List;
-pop_head(): object | null;
-pop_head_link(): List;
-pop_nth(n: number): object | null;
-pop_nth_link(n: number): List;
-pop_tail(): object | null;
-pop_tail_link(): List;
-push_head(data: object | null): void;
-push_head_link(link_: List): void;
-push_nth(data: object | null, n: number): void;
-push_nth_link(n: number, link_: List): void;
-push_tail(data: object | null): void;
-push_tail_link(link_: List): void;
-remove(data: object | null): boolean;
-remove_all(data: object | null): number;
-reverse(): void;
-sort(compare_func: CompareDataFunc, user_data: object | null): void;
-unlink(link_: List): void;
-static _new(): Queue;
-}
-export class RWLock  {constructor(config?: properties);
-readonly p: object;
-readonly i: number[];
-clear(): void;
-init(): void;
-reader_lock(): void;
-reader_trylock(): boolean;
-reader_unlock(): void;
-writer_lock(): void;
-writer_trylock(): boolean;
-writer_unlock(): void;
-}
-export class Rand  {constructor(config?: properties);
-copy(): Rand;
-_double(): number;
-double_range(begin: number, end: number): number;
-free(): void;
-_int(): number;
-int_range(begin: number, end: number): number;
-set_seed(seed: number): void;
-set_seed_array(seed: number, seed_length: number): void;
-static _new(): Rand;
-static new_with_seed(seed: number): Rand;
-static new_with_seed_array(seed: number, seed_length: number): Rand;
-}
-export class RecMutex  {constructor(config?: properties);
-readonly p: object;
-readonly i: number[];
-clear(): void;
-init(): void;
-lock(): void;
-trylock(): boolean;
-unlock(): void;
-}
-export class Regex  {constructor(config?: properties);
-get_capture_count(): number;
-get_compile_flags(): RegexCompileFlags;
-get_has_cr_or_lf(): boolean;
-get_match_flags(): RegexMatchFlags;
-get_max_backref(): number;
-get_max_lookbehind(): number;
-get_pattern(): string;
-get_string_number(name: string): number;
-match(string: string, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
-match_all(string: string, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
-match_all_full(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
-match_full(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
-ref(): Regex;
-replace(string: string[], string_len: number, start_position: number, replacement: string, match_options: RegexMatchFlags): string;
-replace_eval(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags, _eval: RegexEvalCallback, user_data: object | null): string;
-replace_literal(string: string[], string_len: number, start_position: number, replacement: string, match_options: RegexMatchFlags): string;
-split(string: string, match_options: RegexMatchFlags): string[];
-split_full(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags, max_tokens: number): string[];
-unref(): void;
-static check_replacement(replacement: string): [boolean, boolean | null];
-static error_quark(): Quark;
-static escape_nul(string: string, length: number): string;
-static escape_string(string: string[], length: number): string;
-static match_simple(pattern: string, string: string, compile_options: RegexCompileFlags, match_options: RegexMatchFlags): boolean;
-static split_simple(pattern: string, string: string, compile_options: RegexCompileFlags, match_options: RegexMatchFlags): string[];
-}
-export class SList  {constructor(config?: properties);
-data: object;
-next: string[];
-static alloc(): string[];
-static append(list: string[], data: object | null): string[];
-static concat(list1: string[], list2: string[]): string[];
-static copy(list: string[]): string[];
-static copy_deep(list: string[], func: CopyFunc, user_data: object | null): string[];
-static delete_link(list: string[], link_: string[]): string[];
-static find(list: string[], data: object | null): string[];
-static find_custom(list: string[], data: object | null, func: CompareFunc): string[];
-static foreach(list: string[], func: Func, user_data: object | null): void;
-static free(list: string[]): void;
-static free_1(list: string[]): void;
-static free_full(list: string[], free_func: DestroyNotify): void;
-static index(list: string[], data: object | null): number;
-static insert(list: string[], data: object | null, position: number): string[];
-static insert_before(slist: string[], sibling: string[], data: object | null): string[];
-static insert_sorted(list: string[], data: object | null, func: CompareFunc): string[];
-static insert_sorted_with_data(list: string[], data: object | null, func: CompareDataFunc, user_data: object | null): string[];
-static last(list: string[]): string[];
-static length(list: string[]): number;
-static nth(list: string[], n: number): string[];
-static nth_data(list: string[], n: number): object | null;
-static position(list: string[], llink: string[]): number;
-static prepend(list: string[], data: object | null): string[];
-static remove(list: string[], data: object | null): string[];
-static remove_all(list: string[], data: object | null): string[];
-static remove_link(list: string[], link_: string[]): string[];
-static reverse(list: string[]): string[];
-static sort(list: string[], compare_func: CompareFunc): string[];
-static sort_with_data(list: string[], compare_func: CompareDataFunc, user_data: object | null): string[];
-}
-export class Scanner  {constructor(config?: properties);
-user_data: object;
-max_parse_errors: number;
-parse_errors: number;
-input_name: string;
-qdata: Data;
-config: ScannerConfig;
-token: TokenType;
-value: TokenValue;
-line: number;
-position: number;
-next_token: TokenType;
-next_value: TokenValue;
-next_line: number;
-next_position: number;
-readonly symbol_table: HashTable;
-readonly input_fd: number;
-readonly text: string;
-readonly text_end: string;
-readonly buffer: string;
-readonly scope_id: number;
-msg_handler: ScannerMsgFunc;
-cur_line(): number;
-cur_position(): number;
-cur_token(): TokenType;
-cur_value(): TokenValue;
-destroy(): void;
-eof(): boolean;
-error(format: string, ___: unknown[]): void;
-get_next_token(): TokenType;
-input_file(input_fd: number): void;
-input_text(text: string, text_len: number): void;
-lookup_symbol(symbol: string): object | null;
-peek_next_token(): TokenType;
-scope_add_symbol(scope_id: number, symbol: string, value: object | null): void;
-scope_foreach_symbol(scope_id: number, func: HFunc, user_data: object | null): void;
-scope_lookup_symbol(scope_id: number, symbol: string): object | null;
-scope_remove_symbol(scope_id: number, symbol: string): void;
-set_scope(scope_id: number): number;
-sync_file_offset(): void;
-unexp_token(expected_token: TokenType, identifier_spec: string, symbol_spec: string, symbol_name: string, message: string, is_error: number): void;
-warn(format: string, ___: unknown[]): void;
-static _new(config_templ: ScannerConfig): Scanner;
-}
-export class ScannerConfig  {constructor(config?: properties);
-cset_skip_characters: string;
-cset_identifier_first: string;
-cset_identifier_nth: string;
-cpair_comment_single: string;
-case_sensitive: number;
-skip_comment_multi: number;
-skip_comment_single: number;
-scan_comment_multi: number;
-scan_identifier: number;
-scan_identifier_1char: number;
-scan_identifier_NULL: number;
-scan_symbols: number;
-scan_binary: number;
-scan_octal: number;
-scan_float: number;
-scan_hex: number;
-scan_hex_dollar: number;
-scan_string_sq: number;
-scan_string_dq: number;
-numbers_2_int: number;
-int_2_float: number;
-identifier_2_string: number;
-char_2_token: number;
-symbol_2_token: number;
-scope_0_fallback: number;
-store_int64: number;
-readonly padding_dummy: number;
-}
-export class Sequence  {constructor(config?: properties);
-append(data: object | null): SequenceIter;
-foreach(func: Func, user_data: object | null): void;
-free(): void;
-get_begin_iter(): SequenceIter;
-get_end_iter(): SequenceIter;
-get_iter_at_pos(pos: number): SequenceIter;
-get_length(): number;
-insert_sorted(data: object | null, cmp_func: CompareDataFunc, cmp_data: object | null): SequenceIter;
-insert_sorted_iter(data: object | null, iter_cmp: SequenceIterCompareFunc, cmp_data: object | null): SequenceIter;
-is_empty(): boolean;
-lookup(data: object | null, cmp_func: CompareDataFunc, cmp_data: object | null): SequenceIter | null;
-lookup_iter(data: object | null, iter_cmp: SequenceIterCompareFunc, cmp_data: object | null): SequenceIter | null;
-prepend(data: object | null): SequenceIter;
-search(data: object | null, cmp_func: CompareDataFunc, cmp_data: object | null): SequenceIter;
-search_iter(data: object | null, iter_cmp: SequenceIterCompareFunc, cmp_data: object | null): SequenceIter;
-sort(cmp_func: CompareDataFunc, cmp_data: object | null): void;
-sort_iter(cmp_func: SequenceIterCompareFunc, cmp_data: object | null): void;
-static foreach_range(begin: SequenceIter, end: SequenceIter, func: Func, user_data: object | null): void;
-static get(iter: SequenceIter): object | null;
-static insert_before(iter: SequenceIter, data: object | null): SequenceIter;
-static move(src: SequenceIter, dest: SequenceIter): void;
-static move_range(dest: SequenceIter, begin: SequenceIter, end: SequenceIter): void;
-static _new(data_destroy: DestroyNotify | null): Sequence;
-static range_get_midpoint(begin: SequenceIter, end: SequenceIter): SequenceIter;
-static remove(iter: SequenceIter): void;
-static remove_range(begin: SequenceIter, end: SequenceIter): void;
-static set(iter: SequenceIter, data: object | null): void;
-static sort_changed(iter: SequenceIter, cmp_func: CompareDataFunc, cmp_data: object | null): void;
-static sort_changed_iter(iter: SequenceIter, iter_cmp: SequenceIterCompareFunc, cmp_data: object | null): void;
-static swap(a: SequenceIter, b: SequenceIter): void;
-}
-export class SequenceIter  {constructor(config?: properties);
-compare(b: SequenceIter): number;
-get_position(): number;
-get_sequence(): Sequence;
-is_begin(): boolean;
-is_end(): boolean;
-move(delta: number): SequenceIter;
-next(): SequenceIter;
-prev(): SequenceIter;
-}
-export class Source  {constructor(config?: properties);
-add_child_source(child_source: Source): void;
-add_poll(fd: PollFD): void;
-add_unix_fd(fd: number, events: IOCondition): object;
-attach(context: MainContext | null): number;
-destroy(): void;
-get_can_recurse(): boolean;
-get_context(): MainContext | null;
-get_current_time(timeval: TimeVal): void;
-get_id(): number;
-get_name(): string;
-get_priority(): number;
-get_ready_time(): number;
-get_time(): number;
-is_destroyed(): boolean;
-modify_unix_fd(tag: object, new_events: IOCondition): void;
-query_unix_fd(tag: object): IOCondition;
-ref(): Source;
-remove_child_source(child_source: Source): void;
-remove_poll(fd: PollFD): void;
-remove_unix_fd(tag: object): void;
-set_callback(func: SourceFunc, data: object | null, notify: DestroyNotify | null): void;
-set_callback_indirect(callback_data: object | null, callback_funcs: SourceCallbackFuncs): void;
-set_can_recurse(can_recurse: boolean): void;
-set_funcs(funcs: SourceFuncs): void;
-set_name(name: string): void;
-set_priority(priority: number): void;
-set_ready_time(ready_time: number): void;
-unref(): void;
-static remove(tag: number): boolean;
-static remove_by_funcs_user_data(funcs: SourceFuncs, user_data: object | null): boolean;
-static remove_by_user_data(user_data: object | null): boolean;
-static set_name_by_id(tag: number, name: string): void;
-}
-export class SourceCallbackFuncs  {constructor(config?: properties);
-readonly ref: unknown;
-readonly unref: unknown;
-readonly get: unknown;
-}
-export class SourceFuncs  {constructor(config?: properties);
-readonly prepare: unknown;
-readonly check: unknown;
-readonly dispatch: unknown;
-readonly finalize: unknown;
-readonly closure_callback: SourceFunc;
-readonly closure_marshal: SourceDummyMarshal;
-}
-export class SourcePrivate  {constructor(config?: properties);
-}
-export class StatBuf  {constructor(config?: properties);
-}
-export class String  {constructor(config?: properties);
-str: string;
-len: number;
-allocated_len: number;
-append(val: string): String;
-append_c(c: number): String;
-append_len(val: string, len: number): String;
-append_printf(format: string, ___: unknown[]): void;
-append_unichar(wc: number): String;
-append_uri_escaped(unescaped: string, reserved_chars_allowed: string, allow_utf8: boolean): String;
-append_vprintf(format: string, args: any): void;
-ascii_down(): String;
-ascii_up(): String;
-assign(rval: string): String;
-down(): String;
-equal(v2: String): boolean;
-erase(pos: number, len: number): String;
-free(free_segment: boolean): string | null;
-free_to_bytes(): Bytes;
-hash(): number;
-insert(pos: number, val: string): String;
-insert_c(pos: number, c: number): String;
-insert_len(pos: number, val: string, len: number): String;
-insert_unichar(pos: number, wc: number): String;
-overwrite(pos: number, val: string): String;
-overwrite_len(pos: number, val: string, len: number): String;
-prepend(val: string): String;
-prepend_c(c: number): String;
-prepend_len(val: string, len: number): String;
-prepend_unichar(wc: number): String;
-printf(format: string, ___: unknown[]): void;
-set_size(len: number): String;
-truncate(len: number): String;
-up(): String;
-vprintf(format: string, args: any): void;
-}
-export class StringChunk  {constructor(config?: properties);
-clear(): void;
-free(): void;
-insert(string: string): string;
-insert_const(string: string): string;
-insert_len(string: string, len: number): string;
-static _new(size: number): StringChunk;
-}
-export class TestCase  {constructor(config?: properties);
-}
-export class TestConfig  {constructor(config?: properties);
-test_initialized: boolean;
-test_quick: boolean;
-test_perf: boolean;
-test_verbose: boolean;
-test_quiet: boolean;
-test_undefined: boolean;
-}
-export class TestLogBuffer  {constructor(config?: properties);
-readonly data: String;
-readonly msgs: string[];
-free(): void;
-pop(): TestLogMsg;
-push(n_bytes: number, bytes: number): void;
-static _new(): TestLogBuffer;
-}
-export class TestLogMsg  {constructor(config?: properties);
-log_type: TestLogType;
-n_strings: number;
-strings: string;
-n_nums: number;
-nums: unknown;
-free(): void;
-}
-export class TestSuite  {constructor(config?: properties);
-add(test_case: TestCase): void;
-add_suite(nestedsuite: TestSuite): void;
-}
-export class Thread  {constructor(config?: properties);
-static try_new(name: string | null, func: ThreadFunc, data: object | null): Thread;
-join(): object | null;
-ref(): Thread;
-unref(): void;
-static error_quark(): Quark;
-static exit(retval: object | null): void;
-static self(): Thread;
-static _yield(): void;
-}
-export class ThreadPool  {constructor(config?: properties);
-func: Func;
-user_data: object;
-exclusive: boolean;
-free(immediate: boolean, wait_: boolean): void;
-get_max_threads(): number;
-get_num_threads(): number;
-move_to_front(data: object | null): boolean;
-push(data: object | null): boolean;
-set_max_threads(max_threads: number): boolean;
-set_sort_function(func: CompareDataFunc, user_data: object | null): void;
-unprocessed(): number;
-static get_max_idle_time(): number;
-static get_max_unused_threads(): number;
-static get_num_unused_threads(): number;
-static _new(func: Func, user_data: object | null, max_threads: number, exclusive: boolean): ThreadPool;
-static set_max_idle_time(interval: number): void;
-static set_max_unused_threads(max_threads: number): void;
-static stop_unused_threads(): void;
-}
-export class TimeVal  {constructor(config?: properties);
-tv_sec: number;
-tv_usec: number;
-add(microseconds: number): void;
-to_iso8601(): string | null;
-static from_iso8601(iso_date: string): [boolean, TimeVal];
-}
-export class TimeZone  {constructor(config?: properties);
-static new_local(): TimeZone;
-static new_offset(seconds: number): TimeZone;
-static new_utc(): TimeZone;
-adjust_time(type: TimeType, time_: number): number;
-find_interval(type: TimeType, time_: number): number;
-get_abbreviation(interval: number): string;
-get_identifier(): string;
-get_offset(interval: number): number;
-is_dst(interval: number): boolean;
-ref(): TimeZone;
-unref(): void;
-}
-export class Timer  {constructor(config?: properties);
-_continue(): void;
-destroy(): void;
-elapsed(microseconds: number): number;
-reset(): void;
-start(): void;
-stop(): void;
-static _new(): Timer;
-}
-export class TrashStack  {constructor(config?: properties);
-next: TrashStack;
-static height(stack_p: TrashStack): number;
-static peek(stack_p: TrashStack): object | null;
-static pop(stack_p: TrashStack): object | null;
-static push(stack_p: TrashStack, data_p: object): void;
-}
-export class Tree  {constructor(config?: properties);
-destroy(): void;
-foreach(func: TraverseFunc, user_data: object | null): void;
-height(): number;
-insert(key: object | null, value: object | null): void;
-lookup(key: object | null): object | null;
-lookup_extended(lookup_key: object | null, orig_key: object | null, value: object | null): boolean;
-nnodes(): number;
-ref(): Tree;
-remove(key: object | null): boolean;
-replace(key: object | null, value: object | null): void;
-search(search_func: CompareFunc, user_data: object | null): object | null;
-steal(key: object | null): boolean;
-traverse(traverse_func: TraverseFunc, traverse_type: TraverseType, user_data: object | null): void;
-unref(): void;
-static _new(key_compare_func: CompareFunc): Tree;
-static new_full(key_compare_func: CompareDataFunc, key_compare_data: object | null, key_destroy_func: DestroyNotify, value_destroy_func: DestroyNotify): Tree;
-static new_with_data(key_compare_func: CompareDataFunc, key_compare_data: object | null): Tree;
-}
-export class Variant  {constructor(config?: properties);
-static new_array(child_type: VariantType | null, children: Variant[] | null, n_children: number): Variant;
-static new_boolean(value: boolean): Variant;
-static new_byte(value: number): Variant;
-static new_bytestring(string: number[]): Variant;
-static new_bytestring_array(strv: string[], length: number): Variant;
-static new_dict_entry(key: Variant, value: Variant): Variant;
-static new_double(value: number): Variant;
-static new_fixed_array(element_type: VariantType, elements: object | null, n_elements: number, element_size: number): Variant;
-static new_from_bytes(type: VariantType, bytes: Bytes, trusted: boolean): Variant;
-static new_from_data(type: VariantType, data: number[], size: number, trusted: boolean, notify: DestroyNotify, user_data: object | null): Variant;
-static new_handle(value: number): Variant;
-static new_int16(value: number): Variant;
-static new_int32(value: number): Variant;
-static new_int64(value: number): Variant;
-static new_maybe(child_type: VariantType | null, child: Variant | null): Variant;
-static new_object_path(object_path: string): Variant;
-static new_objv(strv: string[], length: number): Variant;
-static new_parsed(format: string, ___: unknown[]): Variant;
-static new_parsed_va(format: string, app: any): Variant;
-static new_printf(format_string: string, ___: unknown[]): Variant;
-static new_signature(signature: string): Variant;
-static new_string(string: string): Variant;
-static new_strv(strv: string[], length: number): Variant;
-static new_take_string(string: string): Variant;
-static new_tuple(children: Variant[], n_children: number): Variant;
-static new_uint16(value: number): Variant;
-static new_uint32(value: number): Variant;
-static new_uint64(value: number): Variant;
-static new_va(format_string: string, endptr: string | null, app: any): Variant;
-static new_variant(value: Variant): Variant;
-byteswap(): Variant;
-check_format_string(format_string: string, copy_only: boolean): boolean;
-classify(): VariantClass;
-compare(two: Variant): number;
-dup_bytestring(): [number[], number | null];
-dup_bytestring_array(): [string[], number | null];
-dup_objv(): [string[], number | null];
-dup_string(): [string, number];
-dup_strv(): [string[], number | null];
-equal(two: Variant): boolean;
-get(format_string: string, ___: unknown[]): void;
-get_boolean(): boolean;
-get_byte(): number;
-get_bytestring(): number[];
-get_bytestring_array(): [string[], number | null];
-get_child(index_: number, format_string: string, ___: unknown[]): void;
-get_child_value(index_: number): Variant;
-get_data(): object | null;
-get_data_as_bytes(): Bytes;
-get_double(): number;
-get_fixed_array(element_size: number): [object[], number];
-get_handle(): number;
-get_int16(): number;
-get_int32(): number;
-get_int64(): number;
-get_maybe(): Variant | null;
-get_normal_form(): Variant;
-get_objv(): [string[], number | null];
-get_size(): number;
-get_string(): [string, number | null];
-get_strv(): [string[], number | null];
-get_type(): VariantType;
-get_type_string(): string;
-get_uint16(): number;
-get_uint32(): number;
-get_uint64(): number;
-get_va(format_string: string, endptr: string | null, app: any): void;
-get_variant(): Variant;
-hash(): number;
-is_container(): boolean;
-is_floating(): boolean;
-is_normal_form(): boolean;
-is_of_type(type: VariantType): boolean;
-iter_new(): VariantIter;
-lookup(key: string, format_string: string, ___: unknown[]): boolean;
-lookup_value(key: string, expected_type: VariantType | null): Variant;
-n_children(): number;
-print(type_annotate: boolean): string;
-print_string(string: String | null, type_annotate: boolean): String;
-ref(): Variant;
-ref_sink(): Variant;
-store(data: object): void;
-take_ref(): Variant;
-unref(): void;
-static is_object_path(string: string): boolean;
-static is_signature(string: string): boolean;
-static parse(type: VariantType | null, text: string, limit: string | null, endptr: string | null): Variant;
-static parse_error_print_context(error: Error, source_str: string): string;
-static parse_error_quark(): Quark;
-static parser_get_error_quark(): Quark;
-}
-export class VariantBuilder  {constructor(config?: properties);
-add(format_string: string, ___: unknown[]): void;
-add_parsed(format: string, ___: unknown[]): void;
-add_value(value: Variant): void;
-clear(): void;
-close(): void;
-end(): Variant;
-init(type: VariantType): void;
-open(type: VariantType): void;
-ref(): VariantBuilder;
-unref(): void;
-}
-export class VariantDict  {constructor(config?: properties);
-clear(): void;
-contains(key: string): boolean;
-end(): Variant;
-init(from_asv: Variant | null): void;
-insert(key: string, format_string: string, ___: unknown[]): void;
-insert_value(key: string, value: Variant): void;
-lookup(key: string, format_string: string, ___: unknown[]): boolean;
-lookup_value(key: string, expected_type: VariantType | null): Variant;
-ref(): VariantDict;
-remove(key: string): boolean;
-unref(): void;
-}
-export class VariantIter  {constructor(config?: properties);
-readonly x: number[];
-copy(): VariantIter;
-free(): void;
-init(value: Variant): number;
-loop(format_string: string, ___: unknown[]): boolean;
-n_children(): number;
-next(format_string: string, ___: unknown[]): boolean;
-next_value(): Variant | null;
-}
-export class VariantType  {constructor(config?: properties);
-static new_array(element: VariantType): VariantType;
-static new_dict_entry(key: VariantType, value: VariantType): VariantType;
-static new_maybe(element: VariantType): VariantType;
-static new_tuple(items: VariantType[], length: number): VariantType;
-copy(): VariantType;
-dup_string(): string;
-element(): VariantType;
-equal(type2: VariantType): boolean;
-first(): VariantType;
-free(): void;
-get_string_length(): number;
-hash(): number;
-is_array(): boolean;
-is_basic(): boolean;
-is_container(): boolean;
-is_definite(): boolean;
-is_dict_entry(): boolean;
-is_maybe(): boolean;
-is_subtype_of(supertype: VariantType): boolean;
-is_tuple(): boolean;
-is_variant(): boolean;
-key(): VariantType;
-n_items(): number;
-next(): VariantType;
-peek_string(): string;
-value(): VariantType;
-static checked_(arg0: string): VariantType;
-static string_get_depth_(type_string: string): number;
-static string_is_valid(type_string: string): boolean;
-static string_scan(string: string, limit: string | null): [boolean, string | null];
-}
-export class DoubleIEEE754  {constructor(config?: properties);
-v_double: number;
-}
-export class FloatIEEE754  {constructor(config?: properties);
-v_float: number;
-}
-export class Mutex  {constructor(config?: properties);
-readonly p: object;
-readonly i: number[];
-clear(): void;
-init(): void;
-lock(): void;
-trylock(): boolean;
-unlock(): void;
-}
-export class TokenValue  {constructor(config?: properties);
-v_symbol: object;
-v_identifier: string;
-v_binary: number;
-v_octal: number;
-v_int: number;
-v_int64: number;
-v_float: number;
-v_hex: number;
-v_string: string;
-v_comment: string;
-v_char: number;
-v_error: number;
+export class Array  {
+    constructor(config?: properties);
+    data: string;
+    len: number;
+}
+export class AsyncQueue  {
+    constructor(config?: properties);
+    length(): number;
+    length_unlocked(): number;
+    lock(): void;
+    pop(): object | null;
+    pop_unlocked(): object | null;
+    push(data: object | null): void;
+    push_front(item: object | null): void;
+    push_front_unlocked(item: object | null): void;
+    push_unlocked(data: object | null): void;
+    ref_unlocked(): void;
+    remove(item: object | null): boolean;
+    remove_unlocked(item: object | null): boolean;
+    timed_pop(end_time: TimeVal): object | null;
+    timed_pop_unlocked(end_time: TimeVal): object | null;
+    timeout_pop(timeout: number): object | null;
+    timeout_pop_unlocked(timeout: number): object | null;
+    try_pop(): object | null;
+    try_pop_unlocked(): object | null;
+    unlock(): void;
+    unref(): void;
+    unref_and_unlock(): void;
+}
+export class BookmarkFile  {
+    constructor(config?: properties);
+    add_application(uri: string, name: string | null, exec: string | null): void;
+    add_group(uri: string, group: string): void;
+    free(): void;
+    get_added(uri: string): number;
+    get_app_info(uri: string, name: string): [boolean, string | null,number | null,number | null];
+    get_applications(uri: string): [string[], number | null];
+    get_description(uri: string): string;
+    get_groups(uri: string): [string[], number | null];
+    get_icon(uri: string): [boolean, string | null,string | null];
+    get_is_private(uri: string): boolean;
+    get_mime_type(uri: string): string;
+    get_modified(uri: string): number;
+    get_size(): number;
+    get_title(uri: string | null): string;
+    get_uris(): [string[], number | null];
+    get_visited(uri: string): number;
+    has_application(uri: string, name: string): boolean;
+    has_group(uri: string, group: string): boolean;
+    has_item(uri: string): boolean;
+    load_from_data(data: number[], length: number): boolean;
+    load_from_data_dirs(file: string): [boolean, string | null];
+    load_from_file(filename: string): boolean;
+    move_item(old_uri: string, new_uri: string | null): boolean;
+    remove_application(uri: string, name: string): boolean;
+    remove_group(uri: string, group: string): boolean;
+    remove_item(uri: string): boolean;
+    set_added(uri: string, added: number): void;
+    set_app_info(uri: string, name: string, exec: string, count: number, stamp: number): boolean;
+    set_description(uri: string | null, description: string): void;
+    set_groups(uri: string, groups: string[] | null, length: number): void;
+    set_icon(uri: string, href: string | null, mime_type: string): void;
+    set_is_private(uri: string, is_private: boolean): void;
+    set_mime_type(uri: string, mime_type: string): void;
+    set_modified(uri: string, modified: number): void;
+    set_title(uri: string | null, title: string): void;
+    set_visited(uri: string, visited: number): void;
+    to_data(): [number[], number | null];
+    to_file(filename: string): boolean;
+    static error_quark(): Quark;
+}
+export class ByteArray  {
+    constructor(config?: properties);
+    data: number;
+    len: number;
+    static free(array: number[], free_segment: boolean): number;
+    static free_to_bytes(array: number[]): Bytes;
+    static _new(): number[];
+    static new_take(data: number[], len: number): number[];
+    static unref(array: number[]): void;
+}
+export class Bytes  {
+    constructor(config?: properties);
+    static new_static(data: number[] | null, size: number): Bytes;
+    static new_take(data: number[] | null, size: number): Bytes;
+    static new_with_free_func(data: number[] | null, size: number, free_func: DestroyNotify, user_data: object | null): Bytes;
+    compare(bytes2: Bytes): number;
+    equal(bytes2: Bytes): boolean;
+    get_data(): [number[] | null, number | null];
+    get_size(): number;
+    hash(): number;
+    new_from_bytes(offset: number, length: number): Bytes;
+    ref(): Bytes;
+    unref(): void;
+    unref_to_array(): number[];
+    unref_to_data(): [number[], number];
+}
+export class Checksum  {
+    constructor(config?: properties);
+    copy(): Checksum;
+    free(): void;
+    get_string(): string;
+    reset(): void;
+    update(data: number[], length: number): void;
+    static type_get_length(checksum_type: ChecksumType): number;
+}
+export class Cond  {
+    constructor(config?: properties);
+    readonly p: object;
+    readonly i: number[];
+    broadcast(): void;
+    clear(): void;
+    init(): void;
+    signal(): void;
+    wait(mutex: Mutex): void;
+    wait_until(mutex: Mutex, end_time: number): boolean;
+}
+export class Data  {
+    constructor(config?: properties);
+}
+export class Date  {
+    constructor(config?: properties);
+    static new_dmy(day: DateDay, month: DateMonth, year: DateYear): Date;
+    static new_julian(julian_day: number): Date;
+    add_days(n_days: number): void;
+    add_months(n_months: number): void;
+    add_years(n_years: number): void;
+    clamp(min_date: Date, max_date: Date): void;
+    clear(n_dates: number): void;
+    compare(rhs: Date): number;
+    copy(): Date;
+    days_between(date2: Date): number;
+    free(): void;
+    get_day(): DateDay;
+    get_day_of_year(): number;
+    get_iso8601_week_of_year(): number;
+    get_julian(): number;
+    get_monday_week_of_year(): number;
+    get_month(): DateMonth;
+    get_sunday_week_of_year(): number;
+    get_weekday(): DateWeekday;
+    get_year(): DateYear;
+    is_first_of_month(): boolean;
+    is_last_of_month(): boolean;
+    order(date2: Date): void;
+    set_day(day: DateDay): void;
+    set_dmy(day: DateDay, month: DateMonth, y: DateYear): void;
+    set_julian(julian_date: number): void;
+    set_month(month: DateMonth): void;
+    set_parse(str: string): void;
+    set_time(time_: Time): void;
+    set_time_t(timet: number): void;
+    set_time_val(timeval: TimeVal): void;
+    set_year(year: DateYear): void;
+    subtract_days(n_days: number): void;
+    subtract_months(n_months: number): void;
+    subtract_years(n_years: number): void;
+    to_struct_tm(tm: object): void;
+    valid(): boolean;
+    static get_days_in_month(month: DateMonth, year: DateYear): number;
+    static get_monday_weeks_in_year(year: DateYear): number;
+    static get_sunday_weeks_in_year(year: DateYear): number;
+    static is_leap_year(year: DateYear): boolean;
+    static strftime(s: string, slen: number, format: string, date: Date): number;
+    static valid_day(day: DateDay): boolean;
+    static valid_dmy(day: DateDay, month: DateMonth, year: DateYear): boolean;
+    static valid_julian(julian_date: number): boolean;
+    static valid_month(month: DateMonth): boolean;
+    static valid_weekday(weekday: DateWeekday): boolean;
+    static valid_year(year: DateYear): boolean;
+}
+export class DateTime  {
+    constructor(config?: properties);
+    static new_from_iso8601(text: string, default_tz: TimeZone | null): DateTime | null;
+    static new_from_timeval_local(tv: TimeVal): DateTime;
+    static new_from_timeval_utc(tv: TimeVal): DateTime;
+    static new_from_unix_local(t: number): DateTime;
+    static new_from_unix_utc(t: number): DateTime;
+    static new_local(year: number, month: number, day: number, hour: number, minute: number, seconds: number): DateTime;
+    static new_now(tz: TimeZone): DateTime;
+    static new_now_local(): DateTime;
+    static new_now_utc(): DateTime;
+    static new_utc(year: number, month: number, day: number, hour: number, minute: number, seconds: number): DateTime;
+    add(timespan: TimeSpan): DateTime;
+    add_days(days: number): DateTime;
+    add_full(years: number, months: number, days: number, hours: number, minutes: number, seconds: number): DateTime;
+    add_hours(hours: number): DateTime;
+    add_minutes(minutes: number): DateTime;
+    add_months(months: number): DateTime;
+    add_seconds(seconds: number): DateTime;
+    add_weeks(weeks: number): DateTime;
+    add_years(years: number): DateTime;
+    difference(begin: DateTime): TimeSpan;
+    format(format: string): string;
+    get_day_of_month(): number;
+    get_day_of_week(): number;
+    get_day_of_year(): number;
+    get_hour(): number;
+    get_microsecond(): number;
+    get_minute(): number;
+    get_month(): number;
+    get_second(): number;
+    get_seconds(): number;
+    get_timezone(): TimeZone;
+    get_timezone_abbreviation(): string;
+    get_utc_offset(): TimeSpan;
+    get_week_numbering_year(): number;
+    get_week_of_year(): number;
+    get_year(): number;
+    get_ymd(): [number | null,number | null,number | null];
+    is_daylight_savings(): boolean;
+    ref(): DateTime;
+    to_local(): DateTime;
+    to_timeval(tv: TimeVal): boolean;
+    to_timezone(tz: TimeZone): DateTime;
+    to_unix(): number;
+    to_utc(): DateTime;
+    unref(): void;
+    static compare(dt1: object, dt2: object): number;
+    static equal(dt1: object, dt2: object): boolean;
+    static hash(datetime: object): number;
+}
+export class DebugKey  {
+    constructor(config?: properties);
+    key: string;
+    value: number;
+}
+export class Dir  {
+    constructor(config?: properties);
+    close(): void;
+    read_name(): string;
+    rewind(): void;
+    static make_tmp(tmpl: string | null): string;
+}
+export class Error  {
+    constructor(config?: properties);
+    static new_literal(domain: Quark, code: number, message: string): Error;
+    static new_valist(domain: Quark, code: number, format: string, args: any): Error;
+    copy(): Error;
+    free(): void;
+    matches(domain: Quark, code: number): boolean;
+}
+export class HashTable  {
+    constructor(config?: properties);
+    static add(hash_table: HashTable, key: object | null): boolean;
+    static contains(hash_table: HashTable, key: object | null): boolean;
+    static destroy(hash_table: HashTable): void;
+    static insert(hash_table: HashTable, key: object | null, value: object | null): boolean;
+    static lookup(hash_table: HashTable, key: object | null): object | null;
+    static lookup_extended(hash_table: HashTable, lookup_key: object | null): [boolean, object | null,object | null];
+    static remove(hash_table: HashTable, key: object | null): boolean;
+    static remove_all(hash_table: HashTable): void;
+    static replace(hash_table: HashTable, key: object | null, value: object | null): boolean;
+    static size(hash_table: HashTable): number;
+    static steal(hash_table: HashTable, key: object | null): boolean;
+    static steal_all(hash_table: HashTable): void;
+    static steal_extended(hash_table: HashTable, lookup_key: object | null): [boolean, object | null,object | null];
+    static unref(hash_table: HashTable): void;
+}
+export class HashTableIter  {
+    constructor(config?: properties);
+    readonly dummy1: object;
+    readonly dummy2: object;
+    readonly dummy3: object;
+    readonly dummy4: number;
+    readonly dummy5: boolean;
+    readonly dummy6: object;
+    init(hash_table: HashTable): void;
+    next(): [boolean, object | null,object | null];
+    remove(): void;
+    replace(value: object | null): void;
+    steal(): void;
+}
+export class Hmac  {
+    constructor(config?: properties);
+    get_digest(buffer: number[], digest_len: number): [number];
+    get_string(): string;
+    unref(): void;
+    update(data: number[], length: number): void;
+}
+export class Hook  {
+    constructor(config?: properties);
+    data: object;
+    next: Hook;
+    prev: Hook;
+    ref_count: number;
+    hook_id: number;
+    flags: number;
+    func: object;
+    compare_ids(sibling: Hook): number;
+    static destroy(hook_list: HookList, hook_id: number): boolean;
+    static destroy_link(hook_list: HookList, hook: Hook): void;
+    static free(hook_list: HookList, hook: Hook): void;
+    static insert_before(hook_list: HookList, sibling: Hook | null, hook: Hook): void;
+    static prepend(hook_list: HookList, hook: Hook): void;
+    static unref(hook_list: HookList, hook: Hook): void;
+}
+export class HookList  {
+    constructor(config?: properties);
+    seq_id: number;
+    hook_size: number;
+    is_setup: number;
+    hooks: Hook;
+    dummy3: object;
+    finalize_hook: HookFinalizeFunc;
+    dummy: object[];
+    clear(): void;
+    init(hook_size: number): void;
+    invoke(may_recurse: boolean): void;
+    invoke_check(may_recurse: boolean): void;
+}
+export class IOChannel  {
+    constructor(config?: properties);
+    static new_file(filename: string, mode: string): IOChannel;
+    static unix_new(fd: number): IOChannel;
+    close(): void;
+    flush(): IOStatus;
+    get_buffer_condition(): IOCondition;
+    get_buffer_size(): number;
+    get_buffered(): boolean;
+    get_close_on_unref(): boolean;
+    get_encoding(): string;
+    get_flags(): IOFlags;
+    get_line_term(length: number): string;
+    init(): void;
+    read(buf: string, count: number, bytes_read: number): IOError;
+    read_chars(count: number): [IOStatus, number[],number | null];
+    read_line(): [IOStatus, string,number | null,number | null];
+    read_line_string(buffer: String, terminator_pos: number | null): IOStatus;
+    read_to_end(): [IOStatus, number[],number];
+    read_unichar(): [IOStatus, number];
+    ref(): IOChannel;
+    seek(offset: number, type: SeekType): IOError;
+    seek_position(offset: number, type: SeekType): IOStatus;
+    set_buffer_size(size: number): void;
+    set_buffered(buffered: boolean): void;
+    set_close_on_unref(do_close: boolean): void;
+    set_encoding(encoding: string | null): IOStatus;
+    set_flags(flags: IOFlags): IOStatus;
+    set_line_term(line_term: string | null, length: number): void;
+    shutdown(flush: boolean): IOStatus;
+    unix_get_fd(): number;
+    unref(): void;
+    write(buf: string, count: number, bytes_written: number): IOError;
+    write_chars(buf: number[], count: number): [IOStatus, number];
+    write_unichar(thechar: number): IOStatus;
+    static error_from_errno(en: number): IOChannelError;
+    static error_quark(): Quark;
+}
+export class IOFuncs  {
+    constructor(config?: properties);
+}
+export class KeyFile  {
+    constructor(config?: properties);
+    get_boolean(group_name: string, key: string): boolean;
+    get_boolean_list(group_name: string, key: string): [boolean[], number];
+    get_comment(group_name: string | null, key: string): string;
+    get_double(group_name: string, key: string): number;
+    get_double_list(group_name: string, key: string): [number[], number];
+    get_groups(): [string[], number | null];
+    get_int64(group_name: string, key: string): number;
+    get_integer(group_name: string, key: string): number;
+    get_integer_list(group_name: string, key: string): [number[], number];
+    get_keys(group_name: string): [string[], number | null];
+    get_locale_for_key(group_name: string, key: string, locale: string | null): string | null;
+    get_locale_string(group_name: string, key: string, locale: string | null): string;
+    get_locale_string_list(group_name: string, key: string, locale: string | null): [string[], number | null];
+    get_start_group(): string;
+    get_string(group_name: string, key: string): string;
+    get_string_list(group_name: string, key: string): [string[], number | null];
+    get_uint64(group_name: string, key: string): number;
+    get_value(group_name: string, key: string): string;
+    has_group(group_name: string): boolean;
+    load_from_bytes(bytes: Bytes, flags: KeyFileFlags): boolean;
+    load_from_data(data: string, length: number, flags: KeyFileFlags): boolean;
+    load_from_data_dirs(file: string, flags: KeyFileFlags): [boolean, string | null];
+    load_from_dirs(file: string, search_dirs: string[], flags: KeyFileFlags): [boolean, string | null];
+    load_from_file(file: string, flags: KeyFileFlags): boolean;
+    remove_comment(group_name: string | null, key: string | null): boolean;
+    remove_group(group_name: string): boolean;
+    remove_key(group_name: string, key: string): boolean;
+    save_to_file(filename: string): boolean;
+    set_boolean(group_name: string, key: string, value: boolean): void;
+    set_boolean_list(group_name: string, key: string, list: boolean[], length: number): void;
+    set_comment(group_name: string | null, key: string | null, comment: string): boolean;
+    set_double(group_name: string, key: string, value: number): void;
+    set_double_list(group_name: string, key: string, list: number[], length: number): void;
+    set_int64(group_name: string, key: string, value: number): void;
+    set_integer(group_name: string, key: string, value: number): void;
+    set_integer_list(group_name: string, key: string, list: number[], length: number): void;
+    set_list_separator(separator: number): void;
+    set_locale_string(group_name: string, key: string, locale: string, string: string): void;
+    set_locale_string_list(group_name: string, key: string, locale: string, list: string[], length: number): void;
+    set_string(group_name: string, key: string, string: string): void;
+    set_string_list(group_name: string, key: string, list: string[], length: number): void;
+    set_uint64(group_name: string, key: string, value: number): void;
+    set_value(group_name: string, key: string, value: string): void;
+    to_data(): [string, number | null];
+    unref(): void;
+    static error_quark(): Quark;
+}
+export class List  {
+    constructor(config?: properties);
+    data: object;
+    next: List;
+    prev: List;
+}
+export class LogField  {
+    constructor(config?: properties);
+    key: string;
+    value: object;
+    length: number;
+}
+export class MainContext  {
+    constructor(config?: properties);
+    acquire(): boolean;
+    add_poll(fd: PollFD, priority: number): void;
+    check(max_priority: number, fds: PollFD[], n_fds: number): boolean;
+    dispatch(): void;
+    find_source_by_funcs_user_data(funcs: SourceFuncs, user_data: object | null): Source;
+    find_source_by_id(source_id: number): Source;
+    find_source_by_user_data(user_data: object | null): Source;
+    invoke_full(priority: number, _function: SourceFunc, data: object | null, notify: DestroyNotify | null): void;
+    is_owner(): boolean;
+    iteration(may_block: boolean): boolean;
+    pending(): boolean;
+    pop_thread_default(): void;
+    prepare(priority: number): boolean;
+    push_thread_default(): void;
+    query(max_priority: number, n_fds: number): [number, number,PollFD[]];
+    ref(): MainContext;
+    release(): void;
+    remove_poll(fd: PollFD): void;
+    unref(): void;
+    wait(cond: Cond, mutex: Mutex): boolean;
+    wakeup(): void;
+    static _default(): MainContext;
+    static get_thread_default(): MainContext;
+    static ref_thread_default(): MainContext;
+}
+export class MainLoop  {
+    constructor(config?: properties);
+    get_context(): MainContext;
+    is_running(): boolean;
+    quit(): void;
+    ref(): MainLoop;
+    run(): void;
+    unref(): void;
+}
+export class MappedFile  {
+    constructor(config?: properties);
+    static new_from_fd(fd: number, writable: boolean): MappedFile;
+    free(): void;
+    get_bytes(): Bytes;
+    get_contents(): string;
+    get_length(): number;
+    ref(): MappedFile;
+    unref(): void;
+}
+export class MarkupParseContext  {
+    constructor(config?: properties);
+    end_parse(): boolean;
+    free(): void;
+    get_element(): string;
+    get_position(line_number: number | null, char_number: number | null): void;
+    get_user_data(): object | null;
+    parse(text: string, text_len: number): boolean;
+    pop(): object | null;
+    push(parser: MarkupParser, user_data: object | null): void;
+    ref(): MarkupParseContext;
+    unref(): void;
+}
+export class MarkupParser  {
+    constructor(config?: properties);
+}
+export class MatchInfo  {
+    constructor(config?: properties);
+    expand_references(string_to_expand: string): string | null;
+    fetch(match_num: number): string | null;
+    fetch_all(): string[];
+    fetch_named(name: string): string | null;
+    fetch_named_pos(name: string): [boolean, number | null,number | null];
+    fetch_pos(match_num: number): [boolean, number | null,number | null];
+    free(): void;
+    get_match_count(): number;
+    get_regex(): Regex;
+    get_string(): string;
+    is_partial_match(): boolean;
+    matches(): boolean;
+    next(): boolean;
+    ref(): MatchInfo;
+    unref(): void;
+}
+export class MemVTable  {
+    constructor(config?: properties);
+}
+export class Node  {
+    constructor(config?: properties);
+    data: object;
+    next: Node;
+    prev: Node;
+    children: Node;
+    child_index(data: object | null): number;
+    child_position(child: Node): number;
+    depth(): number;
+    destroy(): void;
+    is_ancestor(descendant: Node): boolean;
+    max_height(): number;
+    n_children(): number;
+    n_nodes(flags: TraverseFlags): number;
+    reverse_children(): void;
+    unlink(): void;
+}
+export class Once  {
+    constructor(config?: properties);
+    status: OnceStatus;
+    retval: object;
+    static init_enter(location: object): boolean;
+    static init_leave(location: object, result: number): void;
+}
+export class OptionContext  {
+    constructor(config?: properties);
+    add_group(group: OptionGroup): void;
+    add_main_entries(entries: OptionEntry, translation_domain: string | null): void;
+    free(): void;
+    get_description(): string;
+    get_help(main_help: boolean, group: OptionGroup | null): string;
+    get_help_enabled(): boolean;
+    get_ignore_unknown_options(): boolean;
+    get_main_group(): OptionGroup;
+    get_strict_posix(): boolean;
+    get_summary(): string;
+    parse(argc: number | null, argv: string[] | null): [boolean, number,string[]];
+    parse_strv(_arguments: string[]): [boolean, string[]];
+    set_description(description: string | null): void;
+    set_help_enabled(help_enabled: boolean): void;
+    set_ignore_unknown_options(ignore_unknown: boolean): void;
+    set_main_group(group: OptionGroup): void;
+    set_strict_posix(strict_posix: boolean): void;
+    set_summary(summary: string | null): void;
+    set_translate_func(func: TranslateFunc | null, data: object | null, destroy_notify: DestroyNotify | null): void;
+    set_translation_domain(domain: string): void;
+}
+export class OptionEntry  {
+    constructor(config?: properties);
+    long_name: string;
+    short_name: number;
+    flags: number;
+    arg: OptionArg;
+    arg_data: object;
+    description: string;
+    arg_description: string;
+}
+export class OptionGroup  {
+    constructor(config?: properties);
+    add_entries(entries: OptionEntry): void;
+    free(): void;
+    ref(): OptionGroup;
+    set_translate_func(func: TranslateFunc | null, data: object | null, destroy_notify: DestroyNotify | null): void;
+    set_translation_domain(domain: string): void;
+    unref(): void;
+}
+export class PatternSpec  {
+    constructor(config?: properties);
+    equal(pspec2: PatternSpec): boolean;
+    free(): void;
+}
+export class PollFD  {
+    constructor(config?: properties);
+    fd: number;
+    events: number;
+    revents: number;
+}
+export class Private  {
+    constructor(config?: properties);
+    readonly p: object;
+    readonly notify: DestroyNotify;
+    readonly future: object[];
+    get(): object | null;
+    replace(value: object | null): void;
+    set(value: object | null): void;
+}
+export class PtrArray  {
+    constructor(config?: properties);
+    pdata: object;
+    len: number;
+}
+export class Queue  {
+    constructor(config?: properties);
+    head: List;
+    tail: List;
+    length: number;
+    clear(): void;
+    clear_full(free_func: DestroyNotify | null): void;
+    free(): void;
+    free_full(free_func: DestroyNotify): void;
+    get_length(): number;
+    index(data: object | null): number;
+    init(): void;
+    is_empty(): boolean;
+    peek_head(): object | null;
+    peek_nth(n: number): object | null;
+    peek_tail(): object | null;
+    pop_head(): object | null;
+    pop_nth(n: number): object | null;
+    pop_tail(): object | null;
+    push_head(data: object | null): void;
+    push_nth(data: object | null, n: number): void;
+    push_tail(data: object | null): void;
+    remove(data: object | null): boolean;
+    remove_all(data: object | null): number;
+    reverse(): void;
+}
+export class RWLock  {
+    constructor(config?: properties);
+    readonly p: object;
+    readonly i: number[];
+    clear(): void;
+    init(): void;
+    reader_lock(): void;
+    reader_trylock(): boolean;
+    reader_unlock(): void;
+    writer_lock(): void;
+    writer_trylock(): boolean;
+    writer_unlock(): void;
+}
+export class Rand  {
+    constructor(config?: properties);
+    _double(): number;
+    double_range(begin: number, end: number): number;
+    free(): void;
+    _int(): number;
+    int_range(begin: number, end: number): number;
+    set_seed(seed: number): void;
+    set_seed_array(seed: number, seed_length: number): void;
+}
+export class RecMutex  {
+    constructor(config?: properties);
+    readonly p: object;
+    readonly i: number[];
+    clear(): void;
+    init(): void;
+    lock(): void;
+    trylock(): boolean;
+    unlock(): void;
+}
+export class Regex  {
+    constructor(config?: properties);
+    get_capture_count(): number;
+    get_compile_flags(): RegexCompileFlags;
+    get_has_cr_or_lf(): boolean;
+    get_match_flags(): RegexMatchFlags;
+    get_max_backref(): number;
+    get_max_lookbehind(): number;
+    get_pattern(): string;
+    get_string_number(name: string): number;
+    match(string: string, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
+    match_all(string: string, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
+    match_all_full(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
+    match_full(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags): [boolean, MatchInfo | null];
+    ref(): Regex;
+    replace(string: string[], string_len: number, start_position: number, replacement: string, match_options: RegexMatchFlags): string;
+    replace_literal(string: string[], string_len: number, start_position: number, replacement: string, match_options: RegexMatchFlags): string;
+    split(string: string, match_options: RegexMatchFlags): string[];
+    split_full(string: string[], string_len: number, start_position: number, match_options: RegexMatchFlags, max_tokens: number): string[];
+    unref(): void;
+    static check_replacement(replacement: string): [boolean, boolean | null];
+    static error_quark(): Quark;
+    static escape_nul(string: string, length: number): string;
+    static escape_string(string: string[], length: number): string;
+    static match_simple(pattern: string, string: string, compile_options: RegexCompileFlags, match_options: RegexMatchFlags): boolean;
+    static split_simple(pattern: string, string: string, compile_options: RegexCompileFlags, match_options: RegexMatchFlags): string[];
+}
+export class SList  {
+    constructor(config?: properties);
+    data: object;
+    next: string[];
+}
+export class Scanner  {
+    constructor(config?: properties);
+    user_data: object;
+    max_parse_errors: number;
+    parse_errors: number;
+    input_name: string;
+    qdata: Data;
+    config: ScannerConfig;
+    token: TokenType;
+    value: TokenValue;
+    line: number;
+    position: number;
+    next_token: TokenType;
+    next_value: TokenValue;
+    next_line: number;
+    next_position: number;
+    readonly symbol_table: HashTable;
+    readonly input_fd: number;
+    readonly text: string;
+    readonly text_end: string;
+    readonly buffer: string;
+    readonly scope_id: number;
+    msg_handler: ScannerMsgFunc;
+    cur_line(): number;
+    cur_position(): number;
+    cur_token(): TokenType;
+    destroy(): void;
+    eof(): boolean;
+    get_next_token(): TokenType;
+    input_file(input_fd: number): void;
+    input_text(text: string, text_len: number): void;
+    lookup_symbol(symbol: string): object | null;
+    peek_next_token(): TokenType;
+    scope_add_symbol(scope_id: number, symbol: string, value: object | null): void;
+    scope_lookup_symbol(scope_id: number, symbol: string): object | null;
+    scope_remove_symbol(scope_id: number, symbol: string): void;
+    set_scope(scope_id: number): number;
+    sync_file_offset(): void;
+    unexp_token(expected_token: TokenType, identifier_spec: string, symbol_spec: string, symbol_name: string, message: string, is_error: number): void;
+}
+export class ScannerConfig  {
+    constructor(config?: properties);
+    cset_skip_characters: string;
+    cset_identifier_first: string;
+    cset_identifier_nth: string;
+    cpair_comment_single: string;
+    case_sensitive: number;
+    skip_comment_multi: number;
+    skip_comment_single: number;
+    scan_comment_multi: number;
+    scan_identifier: number;
+    scan_identifier_1char: number;
+    scan_identifier_NULL: number;
+    scan_symbols: number;
+    scan_binary: number;
+    scan_octal: number;
+    scan_float: number;
+    scan_hex: number;
+    scan_hex_dollar: number;
+    scan_string_sq: number;
+    scan_string_dq: number;
+    numbers_2_int: number;
+    int_2_float: number;
+    identifier_2_string: number;
+    char_2_token: number;
+    symbol_2_token: number;
+    scope_0_fallback: number;
+    store_int64: number;
+    readonly padding_dummy: number;
+}
+export class Sequence  {
+    constructor(config?: properties);
+    append(data: object | null): SequenceIter;
+    free(): void;
+    get_begin_iter(): SequenceIter;
+    get_end_iter(): SequenceIter;
+    get_iter_at_pos(pos: number): SequenceIter;
+    get_length(): number;
+    is_empty(): boolean;
+    prepend(data: object | null): SequenceIter;
+    static get(iter: SequenceIter): object | null;
+    static insert_before(iter: SequenceIter, data: object | null): SequenceIter;
+    static move(src: SequenceIter, dest: SequenceIter): void;
+    static move_range(dest: SequenceIter, begin: SequenceIter, end: SequenceIter): void;
+    static range_get_midpoint(begin: SequenceIter, end: SequenceIter): SequenceIter;
+    static remove(iter: SequenceIter): void;
+    static remove_range(begin: SequenceIter, end: SequenceIter): void;
+    static set(iter: SequenceIter, data: object | null): void;
+    static swap(a: SequenceIter, b: SequenceIter): void;
+}
+export class SequenceIter  {
+    constructor(config?: properties);
+    compare(b: SequenceIter): number;
+    get_position(): number;
+    get_sequence(): Sequence;
+    is_begin(): boolean;
+    is_end(): boolean;
+    move(delta: number): SequenceIter;
+    next(): SequenceIter;
+    prev(): SequenceIter;
+}
+export class Source  {
+    constructor(config?: properties);
+    add_child_source(child_source: Source): void;
+    add_poll(fd: PollFD): void;
+    add_unix_fd(fd: number, events: IOCondition): object;
+    attach(context: MainContext | null): number;
+    destroy(): void;
+    get_can_recurse(): boolean;
+    get_context(): MainContext | null;
+    get_current_time(timeval: TimeVal): void;
+    get_id(): number;
+    get_name(): string;
+    get_priority(): number;
+    get_ready_time(): number;
+    get_time(): number;
+    is_destroyed(): boolean;
+    modify_unix_fd(tag: object, new_events: IOCondition): void;
+    query_unix_fd(tag: object): IOCondition;
+    ref(): Source;
+    remove_child_source(child_source: Source): void;
+    remove_poll(fd: PollFD): void;
+    remove_unix_fd(tag: object): void;
+    set_callback(func: SourceFunc, data: object | null, notify: DestroyNotify | null): void;
+    set_callback_indirect(callback_data: object | null, callback_funcs: SourceCallbackFuncs): void;
+    set_can_recurse(can_recurse: boolean): void;
+    set_funcs(funcs: SourceFuncs): void;
+    set_name(name: string): void;
+    set_priority(priority: number): void;
+    set_ready_time(ready_time: number): void;
+    unref(): void;
+    static remove(tag: number): boolean;
+    static remove_by_funcs_user_data(funcs: SourceFuncs, user_data: object | null): boolean;
+    static remove_by_user_data(user_data: object | null): boolean;
+    static set_name_by_id(tag: number, name: string): void;
+}
+export class SourceCallbackFuncs  {
+    constructor(config?: properties);
+}
+export class SourceFuncs  {
+    constructor(config?: properties);
+    readonly closure_callback: SourceFunc;
+    readonly closure_marshal: SourceDummyMarshal;
+}
+export class SourcePrivate  {
+    constructor(config?: properties);
+}
+export class StatBuf  {
+    constructor(config?: properties);
+}
+export class String  {
+    constructor(config?: properties);
+    str: string;
+    len: number;
+    allocated_len: number;
+    append(val: string): String;
+    append_c(c: number): String;
+    append_len(val: string, len: number): String;
+    append_unichar(wc: number): String;
+    append_uri_escaped(unescaped: string, reserved_chars_allowed: string, allow_utf8: boolean): String;
+    ascii_down(): String;
+    ascii_up(): String;
+    assign(rval: string): String;
+    down(): String;
+    equal(v2: String): boolean;
+    erase(pos: number, len: number): String;
+    free(free_segment: boolean): string | null;
+    free_to_bytes(): Bytes;
+    hash(): number;
+    insert(pos: number, val: string): String;
+    insert_c(pos: number, c: number): String;
+    insert_len(pos: number, val: string, len: number): String;
+    insert_unichar(pos: number, wc: number): String;
+    overwrite(pos: number, val: string): String;
+    overwrite_len(pos: number, val: string, len: number): String;
+    prepend(val: string): String;
+    prepend_c(c: number): String;
+    prepend_len(val: string, len: number): String;
+    prepend_unichar(wc: number): String;
+    set_size(len: number): String;
+    truncate(len: number): String;
+    up(): String;
+}
+export class StringChunk  {
+    constructor(config?: properties);
+    clear(): void;
+    free(): void;
+    insert(string: string): string;
+    insert_const(string: string): string;
+    insert_len(string: string, len: number): string;
+}
+export class TestCase  {
+    constructor(config?: properties);
+}
+export class TestConfig  {
+    constructor(config?: properties);
+    test_initialized: boolean;
+    test_quick: boolean;
+    test_perf: boolean;
+    test_verbose: boolean;
+    test_quiet: boolean;
+    test_undefined: boolean;
+}
+export class TestLogBuffer  {
+    constructor(config?: properties);
+    readonly data: String;
+    readonly msgs: string[];
+    free(): void;
+    push(n_bytes: number, bytes: number): void;
+}
+export class TestLogMsg  {
+    constructor(config?: properties);
+    log_type: TestLogType;
+    n_strings: number;
+    strings: string;
+    n_nums: number;
+    free(): void;
+}
+export class TestSuite  {
+    constructor(config?: properties);
+    add(test_case: TestCase): void;
+    add_suite(nestedsuite: TestSuite): void;
+}
+export class Thread  {
+    constructor(config?: properties);
+    static try_new(name: string | null, func: ThreadFunc, data: object | null): Thread;
+    join(): object | null;
+    ref(): Thread;
+    unref(): void;
+    static error_quark(): Quark;
+    static exit(retval: object | null): void;
+    static self(): Thread;
+    static _yield(): void;
+}
+export class ThreadPool  {
+    constructor(config?: properties);
+    func: Func;
+    user_data: object;
+    exclusive: boolean;
+    free(immediate: boolean, wait_: boolean): void;
+    get_max_threads(): number;
+    get_num_threads(): number;
+    move_to_front(data: object | null): boolean;
+    push(data: object | null): boolean;
+    set_max_threads(max_threads: number): boolean;
+    unprocessed(): number;
+    static get_max_idle_time(): number;
+    static get_max_unused_threads(): number;
+    static get_num_unused_threads(): number;
+    static set_max_idle_time(interval: number): void;
+    static set_max_unused_threads(max_threads: number): void;
+    static stop_unused_threads(): void;
+}
+export class TimeVal  {
+    constructor(config?: properties);
+    tv_sec: number;
+    tv_usec: number;
+    add(microseconds: number): void;
+    to_iso8601(): string | null;
+    static from_iso8601(iso_date: string): [boolean, TimeVal];
+}
+export class TimeZone  {
+    constructor(config?: properties);
+    static new_local(): TimeZone;
+    static new_offset(seconds: number): TimeZone;
+    static new_utc(): TimeZone;
+    adjust_time(type: TimeType, time_: number): number;
+    find_interval(type: TimeType, time_: number): number;
+    get_abbreviation(interval: number): string;
+    get_identifier(): string;
+    get_offset(interval: number): number;
+    is_dst(interval: number): boolean;
+    ref(): TimeZone;
+    unref(): void;
+}
+export class Timer  {
+    constructor(config?: properties);
+    _continue(): void;
+    destroy(): void;
+    elapsed(microseconds: number): number;
+    reset(): void;
+    start(): void;
+    stop(): void;
+}
+export class TrashStack  {
+    constructor(config?: properties);
+    next: TrashStack;
+    static height(stack_p: TrashStack): number;
+    static peek(stack_p: TrashStack): object | null;
+    static pop(stack_p: TrashStack): object | null;
+    static push(stack_p: TrashStack, data_p: object): void;
+}
+export class Tree  {
+    constructor(config?: properties);
+    destroy(): void;
+    height(): number;
+    insert(key: object | null, value: object | null): void;
+    lookup(key: object | null): object | null;
+    lookup_extended(lookup_key: object | null, orig_key: object | null, value: object | null): boolean;
+    nnodes(): number;
+    remove(key: object | null): boolean;
+    replace(key: object | null, value: object | null): void;
+    steal(key: object | null): boolean;
+    unref(): void;
+}
+export class Variant  {
+    constructor(config?: properties);
+    static new_array(child_type: VariantType | null, children: Variant[] | null, n_children: number): Variant;
+    static new_boolean(value: boolean): Variant;
+    static new_byte(value: number): Variant;
+    static new_bytestring(string: number[]): Variant;
+    static new_bytestring_array(strv: string[], length: number): Variant;
+    static new_dict_entry(key: Variant, value: Variant): Variant;
+    static new_double(value: number): Variant;
+    static new_fixed_array(element_type: VariantType, elements: object | null, n_elements: number, element_size: number): Variant;
+    static new_from_bytes(type: VariantType, bytes: Bytes, trusted: boolean): Variant;
+    static new_from_data(type: VariantType, data: number[], size: number, trusted: boolean, notify: DestroyNotify, user_data: object | null): Variant;
+    static new_handle(value: number): Variant;
+    static new_int16(value: number): Variant;
+    static new_int32(value: number): Variant;
+    static new_int64(value: number): Variant;
+    static new_maybe(child_type: VariantType | null, child: Variant | null): Variant;
+    static new_object_path(object_path: string): Variant;
+    static new_objv(strv: string[], length: number): Variant;
+    static new_parsed(format: string, ___: any): Variant;
+    static new_parsed_va(format: string, app: any): Variant;
+    static new_printf(format_string: string, ___: any): Variant;
+    static new_signature(signature: string): Variant;
+    static new_string(string: string): Variant;
+    static new_strv(strv: string[], length: number): Variant;
+    static new_take_string(string: string): Variant;
+    static new_tuple(children: Variant[], n_children: number): Variant;
+    static new_uint16(value: number): Variant;
+    static new_uint32(value: number): Variant;
+    static new_uint64(value: number): Variant;
+    static new_va(format_string: string, endptr: string | null, app: any): Variant;
+    static new_variant(value: Variant): Variant;
+    byteswap(): Variant;
+    check_format_string(format_string: string, copy_only: boolean): boolean;
+    classify(): VariantClass;
+    compare(two: Variant): number;
+    dup_bytestring(): [number[], number | null];
+    dup_bytestring_array(): [string[], number | null];
+    dup_objv(): [string[], number | null];
+    dup_string(): [string, number];
+    dup_strv(): [string[], number | null];
+    equal(two: Variant): boolean;
+    get_boolean(): boolean;
+    get_byte(): number;
+    get_bytestring(): number[];
+    get_bytestring_array(): [string[], number | null];
+    get_child_value(index_: number): Variant;
+    get_data(): object | null;
+    get_data_as_bytes(): Bytes;
+    get_double(): number;
+    get_handle(): number;
+    get_int16(): number;
+    get_int32(): number;
+    get_int64(): number;
+    get_maybe(): Variant | null;
+    get_normal_form(): Variant;
+    get_objv(): [string[], number | null];
+    get_size(): number;
+    get_string(): [string, number | null];
+    get_strv(): [string[], number | null];
+    get_type(): VariantType;
+    get_type_string(): string;
+    get_uint16(): number;
+    get_uint32(): number;
+    get_uint64(): number;
+    get_variant(): Variant;
+    hash(): number;
+    is_container(): boolean;
+    is_floating(): boolean;
+    is_normal_form(): boolean;
+    is_of_type(type: VariantType): boolean;
+    lookup_value(key: string, expected_type: VariantType | null): Variant;
+    n_children(): number;
+    print(type_annotate: boolean): string;
+    ref(): Variant;
+    ref_sink(): Variant;
+    store(data: object): void;
+    take_ref(): Variant;
+    unref(): void;
+    static is_object_path(string: string): boolean;
+    static is_signature(string: string): boolean;
+    static parse(type: VariantType | null, text: string, limit: string | null, endptr: string | null): Variant;
+    static parse_error_print_context(error: Error, source_str: string): string;
+    static parse_error_quark(): Quark;
+    static parser_get_error_quark(): Quark;
+}
+export class VariantBuilder  {
+    constructor(config?: properties);
+    add_value(value: Variant): void;
+    close(): void;
+    end(): Variant;
+    open(type: VariantType): void;
+    ref(): VariantBuilder;
+    unref(): void;
+}
+export class VariantDict  {
+    constructor(config?: properties);
+    clear(): void;
+    contains(key: string): boolean;
+    end(): Variant;
+    insert_value(key: string, value: Variant): void;
+    lookup_value(key: string, expected_type: VariantType | null): Variant;
+    ref(): VariantDict;
+    remove(key: string): boolean;
+    unref(): void;
+}
+export class VariantType  {
+    constructor(config?: properties);
+    static new_array(element: VariantType): VariantType;
+    static new_dict_entry(key: VariantType, value: VariantType): VariantType;
+    static new_maybe(element: VariantType): VariantType;
+    static new_tuple(items: VariantType[], length: number): VariantType;
+    copy(): VariantType;
+    dup_string(): string;
+    element(): VariantType;
+    equal(type2: VariantType): boolean;
+    first(): VariantType;
+    free(): void;
+    get_string_length(): number;
+    hash(): number;
+    is_array(): boolean;
+    is_basic(): boolean;
+    is_container(): boolean;
+    is_definite(): boolean;
+    is_dict_entry(): boolean;
+    is_maybe(): boolean;
+    is_subtype_of(supertype: VariantType): boolean;
+    is_tuple(): boolean;
+    is_variant(): boolean;
+    key(): VariantType;
+    n_items(): number;
+    next(): VariantType;
+    value(): VariantType;
+    static checked_(arg0: string): VariantType;
+    static string_get_depth_(type_string: string): number;
+    static string_is_valid(type_string: string): boolean;
+    static string_scan(string: string, limit: string | null): [boolean, string | null];
+}
+export class DoubleIEEE754  {
+    constructor(config?: properties);
+    v_double: number;
+}
+export class FloatIEEE754  {
+    constructor(config?: properties);
+    v_float: number;
+}
+export class Mutex  {
+    constructor(config?: properties);
+    readonly p: object;
+    readonly i: number[];
+    clear(): void;
+    init(): void;
+    lock(): void;
+    trylock(): boolean;
+    unlock(): void;
+}
+export class TokenValue  {
+    constructor(config?: properties);
+    v_symbol: object;
+    v_identifier: string;
+    v_binary: number;
+    v_octal: number;
+    v_int: number;
+    v_int64: number;
+    v_float: number;
+    v_hex: number;
+    v_string: string;
+    v_comment: string;
+    v_char: number;
+    v_error: number;
 }

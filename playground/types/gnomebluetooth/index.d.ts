@@ -9,6 +9,7 @@ import * as GnomeBluetooth from "gnomebluetooth";
  * gnomebluetooth.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const CHOOSER_COMBO_FIRST_DEVICE: string;
 export const TYPE_AUDIO: number;
 export const TYPE_INPUT: number;
@@ -129,88 +130,71 @@ export enum Type {
     WEARABLE = 262144,
     TOY = 524288,
 }
-export class Chooser extends Gtk.Box {constructor(config?: properties);
-device_category_filter: unknown;
-device_selected: string;
-device_service_filter: string;
-device_type_filter: number;
-has_internal_device_filter: boolean;
-show_connected: boolean;
-show_device_category: boolean;
-show_device_type: boolean;
-show_device_type_column: boolean;
-show_pairing: boolean;
-show_searching: boolean;
-dump_selected_device(): void;
-get_scrolled_window(): Gtk.Widget;
-get_selected_device(): string;
-get_selected_device_icon(): string;
-get_selected_device_info(field: string, value: GObject.Value): boolean;
-get_selected_device_is_connected(): boolean;
-get_selected_device_name(): string;
-get_selected_device_type(): Type;
-start_discovery(): void;
-stop_discovery(): void;
-vfunc_selected_device_activated(address: string): void;
-vfunc_selected_device_changed(address: string): void;
+export class Chooser extends Gtk.Box {
+    constructor(config?: properties);
+    device_selected: string;
+    device_service_filter: string;
+    device_type_filter: number;
+    has_internal_device_filter: boolean;
+    show_connected: boolean;
+    show_device_category: boolean;
+    show_device_type: boolean;
+    show_device_type_column: boolean;
+    show_pairing: boolean;
+    show_searching: boolean;
+    dump_selected_device(): void;
+    get_scrolled_window(): Gtk.Widget;
+    get_selected_device(): string;
+    get_selected_device_icon(): string;
+    get_selected_device_info(field: string, value: GObject.Value): boolean;
+    get_selected_device_is_connected(): boolean;
+    get_selected_device_name(): string;
+    get_selected_device_type(): Type;
+    start_discovery(): void;
+    stop_discovery(): void;
+    vfunc_selected_device_activated(address: string): void;
+    vfunc_selected_device_changed(address: string): void;
 }
-export class ChooserButton extends Gtk.Button {constructor(config?: properties);
-device: string;
-readonly is_available: boolean;
-available(): boolean;
-vfunc_chooser_created(chooser: Gtk.Widget): void;
+export class ChooserButton extends Gtk.Button {
+    constructor(config?: properties);
+    device: string;
+    readonly is_available: boolean;
+    available(): boolean;
+    vfunc_chooser_created(chooser: Gtk.Widget): void;
 }
-export class ChooserCombo extends Gtk.Box {constructor(config?: properties);
-readonly chooser: Chooser;
-device: string;
-vfunc_chooser_created(chooser: Gtk.Widget): void;
+export class ChooserCombo extends Gtk.Box {
+    constructor(config?: properties);
+    readonly chooser: Chooser;
+    device: string;
+    vfunc_chooser_created(chooser: Gtk.Widget): void;
 }
-export class Client extends GObject.Object {constructor(config?: properties);
-readonly default_adapter: string;
-default_adapter_discoverable: boolean;
-default_adapter_discovering: boolean;
-readonly default_adapter_name: string;
-readonly default_adapter_powered: boolean;
-connect_service(path: string, connect: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-connect_service_finish(res: Gio.AsyncResult): boolean;
-get_adapter_model(): Gtk.TreeModel;
-get_device_model(): Gtk.TreeModel;
-get_filter_model(func: Gtk.TreeModelFilterVisibleFunc, data: object | null, destroy: GLib.DestroyNotify): Gtk.TreeModel;
-get_model(): Gtk.TreeModel;
+export class Client extends GObject.Object {
+    constructor(config?: properties);
+    readonly default_adapter: string;
+    default_adapter_discoverable: boolean;
+    default_adapter_discovering: boolean;
+    readonly default_adapter_name: string;
+    readonly default_adapter_powered: boolean;
+    connect_service(path: string, connect: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    connect_service_finish(res: Gio.AsyncResult): boolean;
+    get_adapter_model(): Gtk.TreeModel;
+    get_device_model(): Gtk.TreeModel;
+    get_filter_model(func: Gtk.TreeModelFilterVisibleFunc, data: object | null, destroy: GLib.DestroyNotify): Gtk.TreeModel;
+    get_model(): Gtk.TreeModel;
 }
-export class FilterWidget extends Gtk.Box {constructor(config?: properties);
-device_category_filter: unknown;
-device_service_filter: string;
-device_type_filter: number;
-show_device_category: boolean;
-show_device_type: boolean;
-bind_filter(chooser: Chooser): void;
-set_title(title: string): void;
+export class FilterWidget extends Gtk.Box {
+    constructor(config?: properties);
+    device_service_filter: string;
+    device_type_filter: number;
+    show_device_category: boolean;
+    show_device_type: boolean;
+    bind_filter(chooser: Chooser): void;
+    set_title(title: string): void;
 }
-export class SettingsWidget extends Gtk.Box {constructor(config?: properties);
-get_default_adapter_powered(): boolean;
+export class SettingsWidget extends Gtk.Box {
+    constructor(config?: properties);
+    get_default_adapter_powered(): boolean;
 }
-export class ChooserButtonClass  {constructor(config?: properties);
-readonly parent_class: Gtk.ButtonClass;
-readonly chooser_created: unknown;
-}
-export class ChooserClass  {constructor(config?: properties);
-readonly parent_class: Gtk.BoxClass;
-readonly selected_device_changed: unknown;
-readonly selected_device_activated: unknown;
-}
-export class ChooserComboClass  {constructor(config?: properties);
-readonly parent_class: Gtk.BoxClass;
-readonly chooser_created: unknown;
-}
-export class ChooserComboPrivate  {constructor(config?: properties);
-}
-export class ClientClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class FilterWidgetClass  {constructor(config?: properties);
-readonly parent_class: Gtk.BoxClass;
-}
-export class SettingsWidgetClass  {constructor(config?: properties);
-readonly parent_class: Gtk.BoxClass;
+export class ChooserComboPrivate  {
+    constructor(config?: properties);
 }

@@ -9,6 +9,7 @@ import * as GstPbutils from "gstpbutils";
  * gupnpdlnagst.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * This utility function creates a #GUPnPDLNAInformation from
  * #GstDiscovererInfo. Its purpose is mainly to pass its result to

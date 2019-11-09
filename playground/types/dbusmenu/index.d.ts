@@ -7,6 +7,7 @@ import * as Dbusmenu from "dbusmenu";
  * dbusmenu.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ClientTypeHandler = (newitem: Menuitem, parent: Menuitem, client: Client, user_data: object | null) => boolean;
 export type menuitem_about_to_show_cb = (mi: Menuitem, user_data: object | null) => void;
 export type menuitem_buildvariant_slot_t = (mi: Menuitem, properties: string | null) => GLib.Variant;
@@ -81,140 +82,89 @@ export enum TextDirection {
     LTR = 1,
     RTL = 2,
 }
-export class Client extends GObject.Object {constructor(config?: properties);
-dbus_name: string;
-dbus_object: string;
-group_events: boolean;
-readonly status: unknown;
-readonly text_direction: unknown;
-add_type_handler(type: string, newfunc: ClientTypeHandler): boolean;
-add_type_handler_full(type: string, newfunc: ClientTypeHandler, user_data: object | null, destroy_func: GLib.DestroyNotify): boolean;
-get_icon_paths(): string[];
-get_root(): Menuitem;
-get_status(): Status;
-get_text_direction(): TextDirection;
+export class Client extends GObject.Object {
+    constructor(config?: properties);
+    dbus_name: string;
+    dbus_object: string;
+    group_events: boolean;
+    add_type_handler(type: string, newfunc: ClientTypeHandler): boolean;
+    add_type_handler_full(type: string, newfunc: ClientTypeHandler, user_data: object | null, destroy_func: GLib.DestroyNotify): boolean;
+    get_icon_paths(): string[];
+    get_root(): Menuitem;
+    get_status(): Status;
+    get_text_direction(): TextDirection;
 }
-export class Menuitem extends GObject.Object {constructor(config?: properties);
-id: number;static new_with_id(id: number): Menuitem;
-child_add_position(child: Menuitem, position: number): boolean;
-child_append(child: Menuitem): boolean;
-child_delete(child: Menuitem): boolean;
-child_find(id: number): Menuitem;
-child_prepend(child: Menuitem): boolean;
-child_reorder(child: Menuitem, position: number): boolean;
-find_id(id: number): Menuitem;
-foreach(func: object | null, data: object | null): void;
-get_children(): GLib.List;
-get_id(): number;
-get_parent(): Menuitem;
-get_position(parent: Menuitem): number;
-get_position_realized(parent: Menuitem): number;
-get_root(): boolean;
-handle_event(name: string, variant: GLib.Variant, timestamp: number): void;
-properties_copy(): GLib.HashTable;
-properties_list(): GLib.List;
-property_exist(property: string): boolean;
-property_get(property: string): string;
-property_get_bool(property: string): boolean;
-property_get_byte_array(property: string): [number[], number];
-property_get_int(property: string): number;
-property_get_variant(property: string): GLib.Variant;
-property_remove(property: string): void;
-property_set(property: string, value: string): boolean;
-property_set_bool(property: string, value: boolean): boolean;
-property_set_byte_array(property: string, value: number, nelements: number): boolean;
-property_set_int(property: string, value: number): boolean;
-property_set_variant(property: string, value: GLib.Variant): boolean;
-send_about_to_show(cb: object | null, cb_data: object | null): void;
-set_parent(parent: Menuitem): boolean;
-set_root(root: boolean): void;
-show_to_user(timestamp: number): void;
-take_children(): GLib.List;
-unparent(): boolean;
-vfunc_child_added(position: number): void;
-vfunc_child_moved(newpos: number, oldpos: number): void;
-vfunc_child_removed(): void;
-vfunc_handle_event(name: string, variant: GLib.Variant, timestamp: number): void;
-vfunc_send_about_to_show(cb: unknown, cb_data: object | null): void;
-vfunc_show_to_user(timestamp: number, cb_data: object | null): void;
+export class Menuitem extends GObject.Object {
+    constructor(config?: properties);
+    id: number;static new_with_id(id: number): Menuitem;
+    child_add_position(child: Menuitem, position: number): boolean;
+    child_append(child: Menuitem): boolean;
+    child_delete(child: Menuitem): boolean;
+    child_find(id: number): Menuitem;
+    child_prepend(child: Menuitem): boolean;
+    child_reorder(child: Menuitem, position: number): boolean;
+    find_id(id: number): Menuitem;
+    foreach(func: object | null, data: object | null): void;
+    get_children(): GLib.List;
+    get_id(): number;
+    get_parent(): Menuitem;
+    get_position(parent: Menuitem): number;
+    get_position_realized(parent: Menuitem): number;
+    get_root(): boolean;
+    handle_event(name: string, variant: GLib.Variant, timestamp: number): void;
+    properties_copy(): GLib.HashTable;
+    properties_list(): GLib.List;
+    property_exist(property: string): boolean;
+    property_get(property: string): string;
+    property_get_bool(property: string): boolean;
+    property_get_byte_array(property: string): [number[], number];
+    property_get_int(property: string): number;
+    property_get_variant(property: string): GLib.Variant;
+    property_remove(property: string): void;
+    property_set(property: string, value: string): boolean;
+    property_set_bool(property: string, value: boolean): boolean;
+    property_set_byte_array(property: string, value: number, nelements: number): boolean;
+    property_set_int(property: string, value: number): boolean;
+    property_set_variant(property: string, value: GLib.Variant): boolean;
+    send_about_to_show(cb: object | null, cb_data: object | null): void;
+    set_parent(parent: Menuitem): boolean;
+    set_root(root: boolean): void;
+    show_to_user(timestamp: number): void;
+    take_children(): GLib.List;
+    unparent(): boolean;
+    vfunc_child_added(position: number): void;
+    vfunc_child_moved(newpos: number, oldpos: number): void;
+    vfunc_child_removed(): void;
+    vfunc_handle_event(name: string, variant: GLib.Variant, timestamp: number): void;
+    vfunc_show_to_user(timestamp: number, cb_data: object | null): void;
 }
-export class MenuitemProxy extends Menuitem {constructor(config?: properties);
-menu_item: Menuitem;
-get_wrapped(): Menuitem;
+export class MenuitemProxy extends Menuitem {
+    constructor(config?: properties);
+    menu_item: Menuitem;
+    get_wrapped(): Menuitem;
 }
-export class Server extends GObject.Object {constructor(config?: properties);
-dbus_object: string;
-root_node: Menuitem;
-status: unknown;
-text_direction: unknown;
-readonly version: number;
-get_icon_paths(): string[];
-get_status(): Status;
-get_text_direction(): TextDirection;
-set_icon_paths(icon_paths: string[]): void;
-set_root(root: Menuitem): void;
-set_status(status: Status): void;
-set_text_direction(dir: TextDirection): void;
+export class Server extends GObject.Object {
+    constructor(config?: properties);
+    dbus_object: string;
+    root_node: Menuitem;
+    readonly version: number;
+    get_icon_paths(): string[];
+    get_status(): Status;
+    get_text_direction(): TextDirection;
+    set_icon_paths(icon_paths: string[]): void;
+    set_root(root: Menuitem): void;
+    set_status(status: Status): void;
+    set_text_direction(dir: TextDirection): void;
 }
-export class ClientClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly layout_updated: unknown;
-readonly root_changed: unknown;
-readonly new_menuitem: unknown;
-readonly item_activate: unknown;
-readonly event_result: unknown;
-readonly icon_theme_dirs: unknown;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-readonly reserved5: unknown;
+export class ClientPrivate  {
+    constructor(config?: properties);
 }
-export class ClientPrivate  {constructor(config?: properties);
+export class MenuitemPrivate  {
+    constructor(config?: properties);
 }
-export class MenuitemClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly property_changed: unknown;
-readonly item_activated: unknown;
-readonly child_added: unknown;
-readonly child_removed: unknown;
-readonly child_moved: unknown;
-readonly realized: unknown;
-readonly buildvariant: unknown;
-readonly handle_event: unknown;
-readonly send_about_to_show: unknown;
-readonly show_to_user: unknown;
-readonly about_to_show: unknown;
-readonly event: unknown;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-readonly reserved5: unknown;
+export class MenuitemProxyPrivate  {
+    constructor(config?: properties);
 }
-export class MenuitemPrivate  {constructor(config?: properties);
-}
-export class MenuitemProxyClass  {constructor(config?: properties);
-readonly parent_class: MenuitemClass;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-}
-export class MenuitemProxyPrivate  {constructor(config?: properties);
-}
-export class ServerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly id_prop_update: unknown;
-readonly id_update: unknown;
-readonly layout_updated: unknown;
-readonly item_activation: unknown;
-readonly reserved1: unknown;
-readonly reserved2: unknown;
-readonly reserved3: unknown;
-readonly reserved4: unknown;
-readonly reserved5: unknown;
-readonly reserved6: unknown;
-}
-export class ServerPrivate  {constructor(config?: properties);
+export class ServerPrivate  {
+    constructor(config?: properties);
 }

@@ -9,6 +9,7 @@ import * as GstNet from "gstnet";
  * gstnet.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type PtpStatisticsCallback = (domain: number, stats: Gst.Structure, user_data: object | null) => boolean;
 export const NET_TIME_PACKET_SIZE: number;
 export const PTP_CLOCK_ID_NONE: number;
@@ -32,7 +33,7 @@ export function buffer_get_net_address_meta(buffer: Gst.Buffer): NetAddressMeta;
 /**
  * 
  */
-export function net_address_meta_api_get_type(): unknown;
+export function net_address_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -40,7 +41,7 @@ export function net_address_meta_get_info(): Gst.MetaInfo;
 /**
  * 
  */
-export function net_control_message_meta_api_get_type(): unknown;
+export function net_control_message_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -90,67 +91,61 @@ export function ptp_statistics_callback_add(callback: PtpStatisticsCallback, use
  * gst_ptp_statistics_callback_add().
  */
 export function ptp_statistics_callback_remove(id: number): void;
-export class NetClientClock extends Gst.SystemClock {constructor(config?: properties);
-address: string;
-base_time: number;
-bus: Gst.Bus;
-readonly internal_clock: Gst.Clock;
-minimum_update_interval: number;
-port: number;
-qos_dscp: number;
-round_trip_limit: number;
+export class NetClientClock extends Gst.SystemClock {
+    constructor(config?: properties);
+    address: string;
+    base_time: number;
+    bus: Gst.Bus;
+    readonly internal_clock: Gst.Clock;
+    minimum_update_interval: number;
+    port: number;
+    qos_dscp: number;
+    round_trip_limit: number;
 }
-export class NetTimeProvider extends Gst.Object {constructor(config?: properties);
-active: boolean;
-address: string;
-clock: Gst.Clock;
-port: number;
-qos_dscp: number;
+export class NetTimeProvider extends Gst.Object {
+    constructor(config?: properties);
+    active: boolean;
+    address: string;
+    clock: Gst.Clock;
+    port: number;
+    qos_dscp: number;
 }
-export class NtpClock extends NetClientClock {constructor(config?: properties);
+export class NtpClock extends NetClientClock {
+    constructor(config?: properties);
 }
-export class PtpClock extends Gst.SystemClock {constructor(config?: properties);
-domain: number;
-readonly grandmaster_clock_id: number;
-readonly internal_clock: Gst.Clock;
-readonly master_clock_id: number;
+export class PtpClock extends Gst.SystemClock {
+    constructor(config?: properties);
+    domain: number;
+    readonly grandmaster_clock_id: number;
+    readonly internal_clock: Gst.Clock;
+    readonly master_clock_id: number;
 }
-export class NetAddressMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-addr: Gio.SocketAddress;
-static get_info(): Gst.MetaInfo;
+export class NetAddressMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    addr: Gio.SocketAddress;
+    static get_info(): Gst.MetaInfo;
 }
-export class NetClientClockClass  {constructor(config?: properties);
-readonly parent_class: Gst.SystemClockClass;
-readonly _gst_reserved: object[];
+export class NetClientClockPrivate  {
+    constructor(config?: properties);
 }
-export class NetClientClockPrivate  {constructor(config?: properties);
+export class NetControlMessageMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    message: Gio.SocketControlMessage;
+    static get_info(): Gst.MetaInfo;
 }
-export class NetControlMessageMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-message: Gio.SocketControlMessage;
-static get_info(): Gst.MetaInfo;
+export class NetTimePacket  {
+    constructor(config?: properties);
+    copy(): NetTimePacket;
+    free(): void;
+    send(socket: Gio.Socket, dest_address: Gio.SocketAddress): boolean;
+    serialize(): number;
+    static receive(socket: Gio.Socket): [NetTimePacket, Gio.SocketAddress];
 }
-export class NetTimePacket  {constructor(config?: properties);
-copy(): NetTimePacket;
-free(): void;
-send(socket: Gio.Socket, dest_address: Gio.SocketAddress): boolean;
-serialize(): number;
-static receive(socket: Gio.Socket): [NetTimePacket, Gio.SocketAddress];
+export class NetTimeProviderPrivate  {
+    constructor(config?: properties);
 }
-export class NetTimeProviderClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly _gst_reserved: object[];
-}
-export class NetTimeProviderPrivate  {constructor(config?: properties);
-}
-export class NtpClockClass  {constructor(config?: properties);
-readonly parent_class: Gst.SystemClockClass;
-readonly _gst_reserved: object[];
-}
-export class PtpClockClass  {constructor(config?: properties);
-readonly parent_class: Gst.SystemClockClass;
-readonly _gst_reserved: object[];
-}
-export class PtpClockPrivate  {constructor(config?: properties);
+export class PtpClockPrivate  {
+    constructor(config?: properties);
 }

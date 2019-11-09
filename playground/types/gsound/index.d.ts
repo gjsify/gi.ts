@@ -6,6 +6,7 @@ import * as GLib from "glib";
  * gsound.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const ATTR_APPLICATION_ICON: string;
 export const ATTR_APPLICATION_ICON_NAME: string;
 export const ATTR_APPLICATION_ID: string;
@@ -76,18 +77,13 @@ export enum Error {
     FORKED = -17,
     DISCONNECTED = -18,
 }
-export class Context extends GObject.Object {constructor(config?: properties);
-cache(error: GLib.Error, ___: unknown[]): boolean;
-cachev(attrs: GLib.HashTable): boolean;
-open(): boolean;
-play_full(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null, ___: unknown[]): void;
-play_full_finish(result: Gio.AsyncResult): boolean;
-play_fullv(attrs: GLib.HashTable, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-play_simple(cancellable: Gio.Cancellable | null, error: GLib.Error, ___: unknown[]): boolean;
-play_simplev(attrs: GLib.HashTable, cancellable: Gio.Cancellable | null): boolean;
-set_attributes(error: GLib.Error, ___: unknown[]): boolean;
-set_attributesv(attrs: GLib.HashTable): boolean;
-set_driver(driver: string): boolean;
-}
-export class ContextClass  {constructor(config?: properties);
+export class Context extends GObject.Object {
+    constructor(config?: properties);
+    cachev(attrs: GLib.HashTable): boolean;
+    open(): boolean;
+    play_full_finish(result: Gio.AsyncResult): boolean;
+    play_fullv(attrs: GLib.HashTable, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    play_simplev(attrs: GLib.HashTable, cancellable: Gio.Cancellable | null): boolean;
+    set_attributesv(attrs: GLib.HashTable): boolean;
+    set_driver(driver: string): boolean;
 }

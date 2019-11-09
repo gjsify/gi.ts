@@ -8,6 +8,7 @@ import * as GstAllocators from "gstallocators";
  * gstallocators.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const ALLOCATOR_DMABUF: string;
 export const ALLOCATOR_FD: string;
 export const CAPS_FEATURE_MEMORY_DMABUF: string;
@@ -42,25 +43,16 @@ export enum FdMemoryFlags {
     MAP_PRIVATE = 2,
     DONT_CLOSE = 4,
 }
-export class DmaBufAllocator extends FdAllocator {constructor(config?: properties);
-static alloc(allocator: Gst.Allocator, fd: number, size: number): Gst.Memory;
-alloc(...args: never[]): never;
-static alloc_with_flags(allocator: Gst.Allocator, fd: number, size: number, flags: FdMemoryFlags): Gst.Memory;
+export class DmaBufAllocator extends FdAllocator {
+    constructor(config?: properties);
+    static alloc(allocator: Gst.Allocator, fd: number, size: number): Gst.Memory;
+    alloc(...args: never[]): never;
+    static alloc_with_flags(allocator: Gst.Allocator, fd: number, size: number, flags: FdMemoryFlags): Gst.Memory;
 }
-export class FdAllocator extends Gst.Allocator {constructor(config?: properties);
-static alloc(allocator: Gst.Allocator, fd: number, size: number, flags: FdMemoryFlags): Gst.Memory;
-alloc(...args: never[]): never;
-}
-export class DmaBufAllocatorClass  {constructor(config?: properties);
-readonly parent_class: FdAllocatorClass;
-readonly _gst_reserved: object[];
-}
-export class FdAllocatorClass  {constructor(config?: properties);
-readonly parent_class: Gst.AllocatorClass;
-}
-export class PhysMemoryAllocatorInterface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly get_phys_addr: unknown;
+export class FdAllocator extends Gst.Allocator {
+    constructor(config?: properties);
+    static alloc(allocator: Gst.Allocator, fd: number, size: number, flags: FdMemoryFlags): Gst.Memory;
+    alloc(...args: never[]): never;
 }
 export interface PhysMemoryAllocator  {
 }

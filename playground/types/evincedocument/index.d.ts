@@ -12,13 +12,10 @@ import * as Pango from "pango";
  * evincedocument.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const MAJOR_VERSION: number;
 export const MICRO_VERSION: number;
 export const MINOR_VERSION: number;
-/**
- * 
- */
-export function backends_manager_get_all_types_info(): GLib.List;
 /**
  * 
  */
@@ -27,10 +24,6 @@ export function backends_manager_get_document(mime_type: string): Document;
  * 
  */
 export function backends_manager_get_document_module_name(document: Document): string;
-/**
- * 
- */
-export function backends_manager_get_document_type_info(document: Document): TypeInfo;
 /**
  * 
  */
@@ -304,630 +297,486 @@ export enum FindOptions {
     CASE_SENSITIVE = 1,
     WHOLE_WORDS_ONLY = 2,
 }
-export class Annotation  {constructor(config?: properties);
-area: Rectangle;
-color: object;
-contents: string;
-modified: string;
-name: string;
-page: Page;
-rgba: Gdk.RGBA;
-equal(other: Annotation): boolean;
-get_annotation_type(): AnnotationType;
-get_area(area: Rectangle): void;
-get_color(): [Gdk.Color];
-get_contents(): string;
-get_modified(): string;
-get_name(): string;
-get_page(): Page;
-get_page_index(): number;
-get_rgba(): [Gdk.RGBA];
-set_area(area: Rectangle): boolean;
-set_color(color: Gdk.Color): boolean;
-set_contents(contents: string): boolean;
-set_modified(modified: string): boolean;
-set_modified_from_time(utime: GLib.Time): boolean;
-set_name(name: string): boolean;
-set_rgba(rgba: Gdk.RGBA): boolean;
-}
-export class AnnotationAttachment extends Annotation {constructor(config?: properties);
-attachment: Attachment;
-get_attachment(): Attachment;
-set_attachment(attachment: Attachment): boolean;
-}
-export class AnnotationText extends Annotation {constructor(config?: properties);
-icon: AnnotationTextIcon;
-is_open: boolean;
-get_icon(): AnnotationTextIcon;
-get_is_open(): boolean;
-set_icon(icon: AnnotationTextIcon): boolean;
-set_is_open(is_open: boolean): boolean;
-}
-export class AnnotationTextMarkup extends Annotation {constructor(config?: properties);
-type: AnnotationTextMarkupType;static highlight_new(page: Page): Annotation;
-static squiggly_new(page: Page): Annotation;
-static strike_out_new(page: Page): Annotation;
-static underline_new(page: Page): Annotation;
-get_markup_type(): AnnotationTextMarkupType;
-set_markup_type(markup_type: AnnotationTextMarkupType): boolean;
-}
-export class Attachment extends GObject.Object {constructor(config?: properties);
-ctime: number;
-data: object;
-description: string;
-mtime: number;
-name: string;
-size: number;
-get_creation_date(): GLib.Time;
-get_description(): string;
-get_mime_type(): string;
-get_modification_date(): GLib.Time;
-get_name(): string;
-open(screen: Gdk.Screen, timestamp: number): boolean;
-save(file: Gio.File): boolean;
-static error_quark(): GLib.Quark;
-}
-export class Document  {constructor(config?: properties);
-modified: boolean;
-readonly base: GObject.Object;
-readonly priv: DocumentPrivate;
-check_dimensions(): boolean;
-find_page_by_label(page_label: string, page_index: number): boolean;
-get_backend_info(info: DocumentBackendInfo): boolean;
-get_info(): DocumentInfo;
-get_max_label_len(): number;
-get_max_page_size(width: number, height: number): void;
-get_min_page_size(width: number, height: number): void;
-get_modified(): boolean;
-get_n_pages(): number;
-get_page(index: number): Page;
-get_page_label(page_index: number): string;
-get_page_size(page_index: number): [number | null,number | null];
-get_size(): number;
-get_thumbnail(rc: RenderContext): GdkPixbuf.Pixbuf;
-get_thumbnail_surface(rc: RenderContext): cairo.Surface;
-get_title(): string;
-get_uri(): string;
-has_synctex(): boolean;
-has_text_page_labels(): boolean;
-is_page_size_uniform(): boolean;
-load(uri: string): boolean;
-load_full(uri: string, flags: DocumentLoadFlags): boolean;
-load_gfile(file: Gio.File, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): boolean;
-load_stream(stream: Gio.InputStream, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): boolean;
-render(rc: RenderContext): cairo.Surface;
-save(uri: string): boolean;
-set_modified(modified: boolean): void;
-synctex_backward_search(page_index: number, x: number, y: number): SourceLink;
-synctex_forward_search(source_link: SourceLink): Mapping;
-static doc_mutex_lock(): void;
-static doc_mutex_trylock(): boolean;
-static doc_mutex_unlock(): void;
-static factory_add_filters(chooser: Gtk.Widget, document: Document): void;
-static factory_get_document(uri: string): Document;
-static factory_get_document_for_gfile(file: Gio.File, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): Document;
-static factory_get_document_for_stream(stream: Gio.InputStream, mime_type: string | null, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): Document;
-static factory_get_document_full(uri: string, flags: DocumentLoadFlags): Document;
-static fc_mutex_lock(): void;
-static fc_mutex_trylock(): boolean;
-static fc_mutex_unlock(): void;
-static get_doc_mutex(): GLib.Mutex;
-static get_fc_mutex(): GLib.Mutex;
-static misc_format_date(utime: GLib.Time): string;
-static misc_get_loading_thumbnail(width: number, height: number, inverted_colors: boolean): GdkPixbuf.Pixbuf;
-static misc_get_page_border_size(page_width: number, page_height: number, border: Gtk.Border): void;
-static misc_get_pointer_position(widget: Gtk.Widget, x: number, y: number): void;
-static misc_get_screen_dpi(screen: Gdk.Screen): number;
-static misc_get_thumbnail_frame(width: number, height: number, source_pixbuf: GdkPixbuf.Pixbuf): GdkPixbuf.Pixbuf;
-static misc_invert_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
-static misc_invert_surface(surface: cairo.Surface): void;
-static misc_paint_one_page(cr: cairo.Context, widget: Gtk.Widget, area: Gdk.Rectangle, border: Gtk.Border, highlight: boolean, inverted_colors: boolean): void;
-static misc_pixbuf_from_surface(surface: cairo.Surface): GdkPixbuf.Pixbuf;
-static misc_render_loading_thumbnail(widget: Gtk.Widget, width: number, height: number, inverted_colors: boolean): GdkPixbuf.Pixbuf;
-static misc_render_loading_thumbnail_surface(widget: Gtk.Widget, width: number, height: number, inverted_colors: boolean): cairo.Surface;
-static misc_render_thumbnail_surface_with_frame(widget: Gtk.Widget, source_surface: cairo.Surface, width: number, height: number): cairo.Surface;
-static misc_render_thumbnail_with_frame(widget: Gtk.Widget, source_pixbuf: GdkPixbuf.Pixbuf): GdkPixbuf.Pixbuf;
-static misc_surface_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): cairo.Surface;
-static misc_surface_rotate_and_scale(surface: cairo.Surface, dest_width: number, dest_height: number, dest_rotation: number): cairo.Surface;
-}
-export class FormField  {constructor(config?: properties);
-readonly id: number;
-readonly is_read_only: boolean;
-readonly font_size: number;
-readonly activation_link: Link;
-readonly page: Page;
-readonly changed: boolean;
-}
-export class FormFieldButton extends FormField {constructor(config?: properties);
-}
-export class FormFieldChoice extends FormField {constructor(config?: properties);
-}
-export class FormFieldSignature extends FormField {constructor(config?: properties);
-}
-export class FormFieldText extends FormField {constructor(config?: properties);
-}
-export class Image extends GObject.Object {constructor(config?: properties);
-static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): Image;
-get_id(): number;
-get_page(): number;
-get_pixbuf(): GdkPixbuf.Pixbuf;
-get_tmp_uri(): string;
-save_tmp(pixbuf: GdkPixbuf.Pixbuf): string;
-}
-export class Layer extends GObject.Object {constructor(config?: properties);
-get_rb_group(): number;
-is_parent(): boolean;
-}
-export class Link extends GObject.Object {constructor(config?: properties);
-action: LinkAction;
-title: string;
-get_action(): LinkAction;
-get_title(): string;
-}
-export class LinkAction extends GObject.Object {constructor(config?: properties);
-dest: LinkDest;
-filename: string;
-hide_list: object;
-name: string;
-params: string;
-show_list: object;
-toggle_list: object;
-type: LinkActionType;
-uri: string;static new_dest(dest: LinkDest): LinkAction;
-static new_external_uri(uri: string): LinkAction;
-static new_launch(filename: string, params: string): LinkAction;
-static new_layers_state(show_list: GLib.List, hide_list: GLib.List, toggle_list: GLib.List): LinkAction;
-static new_named(name: string): LinkAction;
-static new_remote(dest: LinkDest, filename: string): LinkAction;
-equal(b: LinkAction): boolean;
-get_action_type(): LinkActionType;
-get_dest(): LinkDest;
-get_filename(): string;
-get_hide_list(): GLib.List;
-get_name(): string;
-get_params(): string;
-get_show_list(): GLib.List;
-get_toggle_list(): GLib.List;
-get_uri(): string;
-}
-export class LinkDest extends GObject.Object {constructor(config?: properties);
-bottom: number;
-change: number;
-left: number;
-named: string;
-page: number;
-page_label: string;
-right: number;
-top: number;
-type: LinkDestType;
-zoom: number;static new_fit(page: number): LinkDest;
-static new_fith(page: number, top: number, change_top: boolean): LinkDest;
-static new_fitr(page: number, left: number, bottom: number, right: number, top: number): LinkDest;
-static new_fitv(page: number, left: number, change_left: boolean): LinkDest;
-static new_named(named_dest: string): LinkDest;
-static new_page(page: number): LinkDest;
-static new_page_label(page_label: string): LinkDest;
-static new_xyz(page: number, left: number, top: number, zoom: number, change_left: boolean, change_top: boolean, change_zoom: boolean): LinkDest;
-equal(b: LinkDest): boolean;
-get_bottom(): number;
-get_dest_type(): LinkDestType;
-get_left(change_left: boolean): number;
-get_named_dest(): string;
-get_page(): number;
-get_page_label(): string;
-get_right(): number;
-get_top(change_top: boolean): number;
-get_zoom(change_zoom: boolean): number;
-}
-export class Media extends GObject.Object {constructor(config?: properties);
-static new_for_uri(page: Page, uri: string): Media;
-get_page_index(): number;
-get_show_controls(): boolean;
-get_uri(): string;
-set_show_controls(show_controls: boolean): void;
-}
-export class Page extends GObject.Object {constructor(config?: properties);
-}
-export class RenderContext extends GObject.Object {constructor(config?: properties);
-compute_scaled_size(width_points: number, height_points: number, scaled_width: number, scaled_height: number): void;
-compute_scales(width_points: number, height_points: number, scale_x: number, scale_y: number): void;
-compute_transformed_size(width_points: number, height_points: number, transformed_width: number, transformed_height: number): void;
-set_page(page: Page): void;
-set_rotation(rotation: number): void;
-set_scale(scale: number): void;
-set_target_size(target_width: number, target_height: number): void;
-}
-export class TransitionEffect extends GObject.Object {constructor(config?: properties);
-alignment: TransitionEffectAlignment;
-angle: number;
-direction: TransitionEffectDirection;
-duration: number;
-rectangular: boolean;
-scale: number;
-type: TransitionEffectType;
-}
-export class AnnotationAttachmentClass  {constructor(config?: properties);
-}
-export class AnnotationClass  {constructor(config?: properties);
-}
-export class AnnotationMarkupInterface  {constructor(config?: properties);
-}
-export class AnnotationTextClass  {constructor(config?: properties);
-}
-export class AnnotationTextMarkupClass  {constructor(config?: properties);
-}
-export class AsyncRendererInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly render_finished: unknown;
-readonly render_pixbuf: unknown;
-}
-export class AttachmentClass  {constructor(config?: properties);
-readonly base_class: GObject.ObjectClass;
-}
-export class DocumentAnnotationsInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_annotations: unknown;
-readonly document_is_modified: unknown;
-readonly add_annotation: unknown;
-readonly save_annotation: unknown;
-readonly remove_annotation: unknown;
-}
-export class DocumentAttachmentsInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly has_attachments: unknown;
-readonly get_attachments: unknown;
-}
-export class DocumentBackendInfo  {constructor(config?: properties);
-name: string;
-version: string;
-}
-export class DocumentClass  {constructor(config?: properties);
-readonly base_class: GObject.ObjectClass;
-readonly load: unknown;
-readonly save: unknown;
-readonly get_n_pages: unknown;
-readonly get_page: unknown;
-readonly get_page_size: unknown;
-readonly get_page_label: unknown;
-readonly render: unknown;
-readonly get_thumbnail: unknown;
-readonly get_info: unknown;
-readonly get_backend_info: unknown;
-readonly support_synctex: unknown;
-readonly load_stream: unknown;
-readonly load_gfile: unknown;
-readonly get_thumbnail_surface: unknown;
-}
-export class DocumentFindInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly find_text: unknown;
-readonly find_text_with_options: unknown;
-readonly get_supported_options: unknown;
-}
-export class DocumentFontsInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly scan: unknown;
-readonly get_progress: unknown;
-readonly fill_model: unknown;
-readonly get_fonts_summary: unknown;
-}
-export class DocumentFormsInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_form_fields: unknown;
-readonly document_is_modified: unknown;
-readonly form_field_text_get_text: unknown;
-readonly form_field_text_set_text: unknown;
-readonly form_field_button_get_state: unknown;
-readonly form_field_button_set_state: unknown;
-readonly form_field_choice_get_item: unknown;
-readonly form_field_choice_get_n_items: unknown;
-readonly form_field_choice_is_item_selected: unknown;
-readonly form_field_choice_select_item: unknown;
-readonly form_field_choice_toggle_item: unknown;
-readonly form_field_choice_unselect_all: unknown;
-readonly form_field_choice_set_text: unknown;
-readonly form_field_choice_get_text: unknown;
-}
-export class DocumentImagesInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_image_mapping: unknown;
-readonly get_image: unknown;
-}
-export class DocumentInfo  {constructor(config?: properties);
-title: string;
-format: string;
-author: string;
-subject: string;
-keywords: string;
-creator: string;
-producer: string;
-linearized: string;
-security: string;
-creation_date: GLib.Time;
-modified_date: GLib.Time;
-layout: DocumentLayout;
-mode: DocumentMode;
-ui_hints: number;
-permissions: number;
-n_pages: number;
-paper_height: number;
-paper_width: number;
-license: DocumentLicense;
-fields_mask: number;
-copy(): DocumentInfo;
-free(): void;
-}
-export class DocumentLayersInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly has_layers: unknown;
-readonly get_layers: unknown;
-readonly show_layer: unknown;
-readonly hide_layer: unknown;
-readonly layer_is_visible: unknown;
-}
-export class DocumentLicense  {constructor(config?: properties);
-copy(): DocumentLicense;
-free(): void;
-get_text(): string;
-get_uri(): string;
-get_web_statement(): string;
-}
-export class DocumentLinksInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly has_document_links: unknown;
-readonly get_links_model: unknown;
-readonly get_links: unknown;
-readonly find_link_dest: unknown;
-readonly find_link_page: unknown;
-}
-export class DocumentMediaInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_media_mapping: unknown;
-}
-export class DocumentPrintInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly print_page: unknown;
-}
-export class DocumentPrivate  {constructor(config?: properties);
-}
-export class DocumentSecurityInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly has_document_security: unknown;
-readonly set_password: unknown;
-}
-export class DocumentTextInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_text_mapping: unknown;
-readonly get_text: unknown;
-readonly get_text_layout: unknown;
-readonly get_text_attrs: unknown;
-}
-export class DocumentTransitionInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly get_page_duration: unknown;
-readonly get_effect: unknown;
-}
-export class FileExporterContext  {constructor(config?: properties);
-format: FileExporterFormat;
-filename: string;
-first_page: number;
-last_page: number;
-paper_width: number;
-paper_height: number;
-duplex: boolean;
-pages_per_sheet: number;
-}
-export class FileExporterInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly begin: unknown;
-readonly begin_page: unknown;
-readonly do_page: unknown;
-readonly end_page: unknown;
-readonly end: unknown;
-readonly get_capabilities: unknown;
-}
-export class FormFieldButtonClass  {constructor(config?: properties);
-readonly parent_class: FormFieldClass;
-}
-export class FormFieldChoiceClass  {constructor(config?: properties);
-readonly parent_class: FormFieldClass;
-}
-export class FormFieldClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class FormFieldSignatureClass  {constructor(config?: properties);
-readonly parent_class: FormFieldClass;
-}
-export class FormFieldTextClass  {constructor(config?: properties);
-readonly parent_class: FormFieldClass;
-}
-export class ImageClass  {constructor(config?: properties);
-readonly base_class: GObject.ObjectClass;
-}
-export class ImagePrivate  {constructor(config?: properties);
-}
-export class LayerClass  {constructor(config?: properties);
-readonly base_class: GObject.ObjectClass;
-}
-export class LayerPrivate  {constructor(config?: properties);
-}
-export class LinkActionClass  {constructor(config?: properties);
-}
-export class LinkActionPrivate  {constructor(config?: properties);
-}
-export class LinkClass  {constructor(config?: properties);
-}
-export class LinkDestClass  {constructor(config?: properties);
-}
-export class LinkDestPrivate  {constructor(config?: properties);
-}
-export class LinkPrivate  {constructor(config?: properties);
-}
-export class Mapping  {constructor(config?: properties);
-area: Rectangle;
-data: object;
-}
-export class MappingList  {constructor(config?: properties);
-find(data: object | null): Mapping;
-find_custom(data: object | null, func: GLib.CompareFunc): Mapping;
-get(x: number, y: number): Mapping;
-get_data(x: number, y: number): object | null;
-get_list(): GLib.List;
-get_page(): number;
-length(): number;
-nth(n: number): Mapping;
-ref(): MappingList;
-remove(mapping: Mapping): void;
-unref(): void;
-}
-export class MediaClass  {constructor(config?: properties);
-readonly base_class: GObject.ObjectClass;
-}
-export class MediaPrivate  {constructor(config?: properties);
-}
-export class PageClass  {constructor(config?: properties);
-readonly base_class: GObject.ObjectClass;
-}
-export class Point  {constructor(config?: properties);
-x: number;
-y: number;
-}
-export class Rectangle  {constructor(config?: properties);
-copy(): Rectangle;
-free(): void;
-}
-export class RenderContextClass  {constructor(config?: properties);
-readonly klass: GObject.ObjectClass;
-}
-export class SelectionInterface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly render_selection: unknown;
-readonly get_selected_text: unknown;
-readonly get_selection_region: unknown;
-}
-export class SourceLink  {constructor(config?: properties);
-copy(): SourceLink;
-free(): void;
-}
-export class TransitionEffectClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class TypeInfo  {constructor(config?: properties);
-desc: string;
-mime_types: string;
+export class Annotation  {
+    constructor(config?: properties);
+    area: Rectangle;
+    color: object;
+    contents: string;
+    modified: string;
+    name: string;
+    page: Page;
+    rgba: Gdk.RGBA;
+    equal(other: Annotation): boolean;
+    get_annotation_type(): AnnotationType;
+    get_area(area: Rectangle): void;
+    get_color(): [Gdk.Color];
+    get_contents(): string;
+    get_modified(): string;
+    get_name(): string;
+    get_page(): Page;
+    get_page_index(): number;
+    get_rgba(): [Gdk.RGBA];
+    set_area(area: Rectangle): boolean;
+    set_color(color: Gdk.Color): boolean;
+    set_contents(contents: string): boolean;
+    set_modified(modified: string): boolean;
+    set_modified_from_time(utime: GLib.Time): boolean;
+    set_name(name: string): boolean;
+    set_rgba(rgba: Gdk.RGBA): boolean;
+}
+export class AnnotationAttachment extends Annotation {
+    constructor(config?: properties);
+    attachment: Attachment;
+    get_attachment(): Attachment;
+    set_attachment(attachment: Attachment): boolean;
+}
+export class AnnotationText extends Annotation {
+    constructor(config?: properties);
+    icon: AnnotationTextIcon;
+    is_open: boolean;
+    get_icon(): AnnotationTextIcon;
+    get_is_open(): boolean;
+    set_icon(icon: AnnotationTextIcon): boolean;
+    set_is_open(is_open: boolean): boolean;
+}
+export class AnnotationTextMarkup extends Annotation {
+    constructor(config?: properties);
+    type: AnnotationTextMarkupType;static highlight_new(page: Page): Annotation;
+    static squiggly_new(page: Page): Annotation;
+    static strike_out_new(page: Page): Annotation;
+    static underline_new(page: Page): Annotation;
+    get_markup_type(): AnnotationTextMarkupType;
+    set_markup_type(markup_type: AnnotationTextMarkupType): boolean;
+}
+export class Attachment extends GObject.Object {
+    constructor(config?: properties);
+    ctime: number;
+    data: object;
+    description: string;
+    mtime: number;
+    name: string;
+    size: number;
+    get_creation_date(): GLib.Time;
+    get_description(): string;
+    get_mime_type(): string;
+    get_modification_date(): GLib.Time;
+    get_name(): string;
+    open(screen: Gdk.Screen, timestamp: number): boolean;
+    save(file: Gio.File): boolean;
+    static error_quark(): GLib.Quark;
+}
+export class Document  {
+    constructor(config?: properties);
+    modified: boolean;
+    readonly base: GObject.Object;
+    readonly priv: DocumentPrivate;
+    check_dimensions(): boolean;
+    find_page_by_label(page_label: string, page_index: number): boolean;
+    get_backend_info(info: DocumentBackendInfo): boolean;
+    get_info(): DocumentInfo;
+    get_max_label_len(): number;
+    get_max_page_size(width: number, height: number): void;
+    get_min_page_size(width: number, height: number): void;
+    get_modified(): boolean;
+    get_n_pages(): number;
+    get_page(index: number): Page;
+    get_page_label(page_index: number): string;
+    get_page_size(page_index: number): [number | null,number | null];
+    get_size(): number;
+    get_thumbnail(rc: RenderContext): GdkPixbuf.Pixbuf;
+    get_thumbnail_surface(rc: RenderContext): cairo.Surface;
+    get_title(): string;
+    get_uri(): string;
+    has_synctex(): boolean;
+    has_text_page_labels(): boolean;
+    is_page_size_uniform(): boolean;
+    load(uri: string): boolean;
+    load_full(uri: string, flags: DocumentLoadFlags): boolean;
+    load_gfile(file: Gio.File, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): boolean;
+    load_stream(stream: Gio.InputStream, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): boolean;
+    render(rc: RenderContext): cairo.Surface;
+    save(uri: string): boolean;
+    set_modified(modified: boolean): void;
+    synctex_backward_search(page_index: number, x: number, y: number): SourceLink;
+    static doc_mutex_lock(): void;
+    static doc_mutex_trylock(): boolean;
+    static doc_mutex_unlock(): void;
+    static factory_add_filters(chooser: Gtk.Widget, document: Document): void;
+    static factory_get_document(uri: string): Document;
+    static factory_get_document_for_gfile(file: Gio.File, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): Document;
+    static factory_get_document_for_stream(stream: Gio.InputStream, mime_type: string | null, flags: DocumentLoadFlags, cancellable: Gio.Cancellable | null): Document;
+    static factory_get_document_full(uri: string, flags: DocumentLoadFlags): Document;
+    static fc_mutex_lock(): void;
+    static fc_mutex_trylock(): boolean;
+    static fc_mutex_unlock(): void;
+    static misc_format_date(utime: GLib.Time): string;
+    static misc_get_loading_thumbnail(width: number, height: number, inverted_colors: boolean): GdkPixbuf.Pixbuf;
+    static misc_get_page_border_size(page_width: number, page_height: number, border: Gtk.Border): void;
+    static misc_get_pointer_position(widget: Gtk.Widget, x: number, y: number): void;
+    static misc_get_screen_dpi(screen: Gdk.Screen): number;
+    static misc_get_thumbnail_frame(width: number, height: number, source_pixbuf: GdkPixbuf.Pixbuf): GdkPixbuf.Pixbuf;
+    static misc_invert_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
+    static misc_invert_surface(surface: cairo.Surface): void;
+    static misc_paint_one_page(cr: cairo.Context, widget: Gtk.Widget, area: Gdk.Rectangle, border: Gtk.Border, highlight: boolean, inverted_colors: boolean): void;
+    static misc_pixbuf_from_surface(surface: cairo.Surface): GdkPixbuf.Pixbuf;
+    static misc_render_loading_thumbnail(widget: Gtk.Widget, width: number, height: number, inverted_colors: boolean): GdkPixbuf.Pixbuf;
+    static misc_render_loading_thumbnail_surface(widget: Gtk.Widget, width: number, height: number, inverted_colors: boolean): cairo.Surface;
+    static misc_render_thumbnail_surface_with_frame(widget: Gtk.Widget, source_surface: cairo.Surface, width: number, height: number): cairo.Surface;
+    static misc_render_thumbnail_with_frame(widget: Gtk.Widget, source_pixbuf: GdkPixbuf.Pixbuf): GdkPixbuf.Pixbuf;
+    static misc_surface_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): cairo.Surface;
+    static misc_surface_rotate_and_scale(surface: cairo.Surface, dest_width: number, dest_height: number, dest_rotation: number): cairo.Surface;
+}
+export class FormField  {
+    constructor(config?: properties);
+    readonly id: number;
+    readonly is_read_only: boolean;
+    readonly font_size: number;
+    readonly activation_link: Link;
+    readonly page: Page;
+    readonly changed: boolean;
+}
+export class FormFieldButton extends FormField {
+    constructor(config?: properties);
+}
+export class FormFieldChoice extends FormField {
+    constructor(config?: properties);
+}
+export class FormFieldSignature extends FormField {
+    constructor(config?: properties);
+}
+export class FormFieldText extends FormField {
+    constructor(config?: properties);
+}
+export class Image extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): Image;
+    get_id(): number;
+    get_page(): number;
+    get_pixbuf(): GdkPixbuf.Pixbuf;
+    get_tmp_uri(): string;
+    save_tmp(pixbuf: GdkPixbuf.Pixbuf): string;
+}
+export class Layer extends GObject.Object {
+    constructor(config?: properties);
+    get_rb_group(): number;
+    is_parent(): boolean;
+}
+export class Link extends GObject.Object {
+    constructor(config?: properties);
+    action: LinkAction;
+    title: string;
+    get_action(): LinkAction;
+    get_title(): string;
+}
+export class LinkAction extends GObject.Object {
+    constructor(config?: properties);
+    dest: LinkDest;
+    filename: string;
+    hide_list: object;
+    name: string;
+    params: string;
+    show_list: object;
+    toggle_list: object;
+    type: LinkActionType;
+    uri: string;static new_dest(dest: LinkDest): LinkAction;
+    static new_external_uri(uri: string): LinkAction;
+    static new_launch(filename: string, params: string): LinkAction;
+    static new_layers_state(show_list: GLib.List, hide_list: GLib.List, toggle_list: GLib.List): LinkAction;
+    static new_named(name: string): LinkAction;
+    static new_remote(dest: LinkDest, filename: string): LinkAction;
+    equal(b: LinkAction): boolean;
+    get_action_type(): LinkActionType;
+    get_dest(): LinkDest;
+    get_filename(): string;
+    get_hide_list(): GLib.List;
+    get_name(): string;
+    get_params(): string;
+    get_show_list(): GLib.List;
+    get_toggle_list(): GLib.List;
+    get_uri(): string;
+}
+export class LinkDest extends GObject.Object {
+    constructor(config?: properties);
+    bottom: number;
+    change: number;
+    left: number;
+    named: string;
+    page: number;
+    page_label: string;
+    right: number;
+    top: number;
+    type: LinkDestType;
+    zoom: number;static new_fit(page: number): LinkDest;
+    static new_fith(page: number, top: number, change_top: boolean): LinkDest;
+    static new_fitr(page: number, left: number, bottom: number, right: number, top: number): LinkDest;
+    static new_fitv(page: number, left: number, change_left: boolean): LinkDest;
+    static new_named(named_dest: string): LinkDest;
+    static new_page(page: number): LinkDest;
+    static new_page_label(page_label: string): LinkDest;
+    static new_xyz(page: number, left: number, top: number, zoom: number, change_left: boolean, change_top: boolean, change_zoom: boolean): LinkDest;
+    equal(b: LinkDest): boolean;
+    get_bottom(): number;
+    get_dest_type(): LinkDestType;
+    get_left(change_left: boolean): number;
+    get_named_dest(): string;
+    get_page(): number;
+    get_page_label(): string;
+    get_right(): number;
+    get_top(change_top: boolean): number;
+    get_zoom(change_zoom: boolean): number;
+}
+export class Media extends GObject.Object {
+    constructor(config?: properties);
+    static new_for_uri(page: Page, uri: string): Media;
+    get_page_index(): number;
+    get_show_controls(): boolean;
+    get_uri(): string;
+    set_show_controls(show_controls: boolean): void;
+}
+export class Page extends GObject.Object {
+    constructor(config?: properties);
+}
+export class RenderContext extends GObject.Object {
+    constructor(config?: properties);
+    compute_scaled_size(width_points: number, height_points: number, scaled_width: number, scaled_height: number): void;
+    compute_scales(width_points: number, height_points: number, scale_x: number, scale_y: number): void;
+    compute_transformed_size(width_points: number, height_points: number, transformed_width: number, transformed_height: number): void;
+    set_page(page: Page): void;
+    set_rotation(rotation: number): void;
+    set_scale(scale: number): void;
+    set_target_size(target_width: number, target_height: number): void;
+}
+export class TransitionEffect extends GObject.Object {
+    constructor(config?: properties);
+    alignment: TransitionEffectAlignment;
+    angle: number;
+    direction: TransitionEffectDirection;
+    duration: number;
+    rectangular: boolean;
+    scale: number;
+    type: TransitionEffectType;
+}
+export class DocumentBackendInfo  {
+    constructor(config?: properties);
+    name: string;
+    version: string;
+}
+export class DocumentInfo  {
+    constructor(config?: properties);
+    title: string;
+    format: string;
+    author: string;
+    subject: string;
+    keywords: string;
+    creator: string;
+    producer: string;
+    linearized: string;
+    security: string;
+    creation_date: GLib.Time;
+    modified_date: GLib.Time;
+    layout: DocumentLayout;
+    mode: DocumentMode;
+    ui_hints: number;
+    permissions: number;
+    n_pages: number;
+    paper_height: number;
+    paper_width: number;
+    license: DocumentLicense;
+    fields_mask: number;
+    copy(): DocumentInfo;
+    free(): void;
+}
+export class DocumentLicense  {
+    constructor(config?: properties);
+    copy(): DocumentLicense;
+    free(): void;
+    get_text(): string;
+    get_uri(): string;
+    get_web_statement(): string;
+}
+export class DocumentPrivate  {
+    constructor(config?: properties);
+}
+export class FileExporterContext  {
+    constructor(config?: properties);
+    format: FileExporterFormat;
+    filename: string;
+    first_page: number;
+    last_page: number;
+    paper_width: number;
+    paper_height: number;
+    duplex: boolean;
+    pages_per_sheet: number;
+}
+export class ImagePrivate  {
+    constructor(config?: properties);
+}
+export class LayerPrivate  {
+    constructor(config?: properties);
+}
+export class LinkActionPrivate  {
+    constructor(config?: properties);
+}
+export class LinkDestPrivate  {
+    constructor(config?: properties);
+}
+export class LinkPrivate  {
+    constructor(config?: properties);
+}
+export class Mapping  {
+    constructor(config?: properties);
+    area: Rectangle;
+    data: object;
+}
+export class MappingList  {
+    constructor(config?: properties);
+    find(data: object | null): Mapping;
+    find_custom(data: object | null, func: GLib.CompareFunc): Mapping;
+    get(x: number, y: number): Mapping;
+    get_data(x: number, y: number): object | null;
+    get_list(): GLib.List;
+    get_page(): number;
+    length(): number;
+    nth(n: number): Mapping;
+    ref(): MappingList;
+    remove(mapping: Mapping): void;
+    unref(): void;
+}
+export class MediaPrivate  {
+    constructor(config?: properties);
+}
+export class Point  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+}
+export class Rectangle  {
+    constructor(config?: properties);
+    copy(): Rectangle;
+    free(): void;
+}
+export class SourceLink  {
+    constructor(config?: properties);
+    copy(): SourceLink;
+    free(): void;
+}
+export class TypeInfo  {
+    constructor(config?: properties);
+    desc: string;
+    mime_types: string;
 }
 export interface AnnotationMarkup  {
-label: string;
-opacity: number;
-popup_is_open: boolean;
-rectangle: Rectangle;
-can_have_popup(): boolean;
-get_label(): string;
-get_opacity(): number;
-get_popup_is_open(): boolean;
-get_rectangle(ev_rect: Rectangle): void;
-has_popup(): boolean;
-set_has_popup(has_popup: boolean): boolean;
-set_label(label: string): boolean;
-set_opacity(opacity: number): boolean;
-set_popup_is_open(is_open: boolean): boolean;
-set_rectangle(ev_rect: Rectangle): boolean;
+    label: string;
+    opacity: number;
+    popup_is_open: boolean;
+    rectangle: Rectangle;
+    can_have_popup(): boolean;
+    get_label(): string;
+    get_opacity(): number;
+    get_popup_is_open(): boolean;
+    get_rectangle(ev_rect: Rectangle): void;
+    has_popup(): boolean;
+    set_has_popup(has_popup: boolean): boolean;
+    set_label(label: string): boolean;
+    set_opacity(opacity: number): boolean;
+    set_popup_is_open(is_open: boolean): boolean;
+    set_rectangle(ev_rect: Rectangle): boolean;
 }
 export interface AsyncRenderer  {
-render_pixbuf(page: number, scale: number, rotation: number): void;
+    render_pixbuf(page: number, scale: number, rotation: number): void;
 }
 export interface DocumentAnnotations  {
-add_annotation(annot: Annotation, rect: Rectangle): void;
-can_add_annotation(): boolean;
-can_remove_annotation(): boolean;
-document_is_modified(): boolean;
-get_annotations(page: Page): MappingList;
-remove_annotation(annot: Annotation): void;
-save_annotation(annot: Annotation, mask: AnnotationsSaveMask): void;
+    add_annotation(annot: Annotation, rect: Rectangle): void;
+    can_add_annotation(): boolean;
+    can_remove_annotation(): boolean;
+    document_is_modified(): boolean;
+    get_annotations(page: Page): MappingList;
+    remove_annotation(annot: Annotation): void;
+    save_annotation(annot: Annotation, mask: AnnotationsSaveMask): void;
 }
 export interface DocumentAttachments  {
-get_attachments(): GLib.List;
-has_attachments(): boolean;
+    get_attachments(): GLib.List;
+    has_attachments(): boolean;
 }
 export interface DocumentFind  {
-find_text(page: Page, text: string, case_sensitive: boolean): GLib.List;
-find_text_with_options(page: Page, text: string, options: FindOptions): GLib.List;
-get_supported_options(): FindOptions;
+    find_text(page: Page, text: string, case_sensitive: boolean): GLib.List;
+    find_text_with_options(page: Page, text: string, options: FindOptions): GLib.List;
+    get_supported_options(): FindOptions;
 }
 export interface DocumentFonts  {
-fill_model(model: Gtk.TreeModel): void;
-get_fonts_summary(): string;
-get_progress(): number;
-scan(n_pages: number): boolean;
+    fill_model(model: Gtk.TreeModel): void;
+    get_fonts_summary(): string;
+    get_progress(): number;
+    scan(n_pages: number): boolean;
 }
 export interface DocumentForms  {
-document_is_modified(): boolean;
-form_field_button_get_state(field: FormField): boolean;
-form_field_button_set_state(field: FormField, state: boolean): void;
-form_field_choice_get_item(field: FormField, index: number): string;
-form_field_choice_get_n_items(field: FormField): number;
-form_field_choice_get_text(field: FormField): string;
-form_field_choice_is_item_selected(field: FormField, index: number): boolean;
-form_field_choice_select_item(field: FormField, index: number): void;
-form_field_choice_set_text(field: FormField, text: string): void;
-form_field_choice_toggle_item(field: FormField, index: number): void;
-form_field_choice_unselect_all(field: FormField): void;
-form_field_text_get_text(field: FormField): string;
-form_field_text_set_text(field: FormField, text: string): void;
-get_form_fields(page: Page): MappingList;
+    document_is_modified(): boolean;
+    form_field_button_get_state(field: FormField): boolean;
+    form_field_button_set_state(field: FormField, state: boolean): void;
+    form_field_choice_get_item(field: FormField, index: number): string;
+    form_field_choice_get_n_items(field: FormField): number;
+    form_field_choice_get_text(field: FormField): string;
+    form_field_choice_is_item_selected(field: FormField, index: number): boolean;
+    form_field_choice_select_item(field: FormField, index: number): void;
+    form_field_choice_set_text(field: FormField, text: string): void;
+    form_field_choice_toggle_item(field: FormField, index: number): void;
+    form_field_choice_unselect_all(field: FormField): void;
+    form_field_text_get_text(field: FormField): string;
+    form_field_text_set_text(field: FormField, text: string): void;
+    get_form_fields(page: Page): MappingList;
 }
 export interface DocumentImages  {
-get_image(image: Image): GdkPixbuf.Pixbuf;
-get_image_mapping(page: Page): MappingList;
+    get_image(image: Image): GdkPixbuf.Pixbuf;
+    get_image_mapping(page: Page): MappingList;
 }
 export interface DocumentLayers  {
-get_layers(): Gtk.TreeModel;
-has_layers(): boolean;
-hide_layer(layer: Layer): void;
-layer_is_visible(layer: Layer): boolean;
-show_layer(layer: Layer): void;
+    get_layers(): Gtk.TreeModel;
+    has_layers(): boolean;
+    hide_layer(layer: Layer): void;
+    layer_is_visible(layer: Layer): boolean;
+    show_layer(layer: Layer): void;
 }
 export interface DocumentLinks  {
-find_link_dest(link_name: string): LinkDest;
-find_link_page(link_name: string): number;
-get_dest_page(dest: LinkDest): number;
-get_dest_page_label(dest: LinkDest): string;
-get_link_page(link: Link): number;
-get_link_page_label(link: Link): string;
-get_links(page: Page): MappingList;
-get_links_model(): Gtk.TreeModel;
-has_document_links(): boolean;
+    find_link_dest(link_name: string): LinkDest;
+    find_link_page(link_name: string): number;
+    get_dest_page(dest: LinkDest): number;
+    get_dest_page_label(dest: LinkDest): string;
+    get_link_page(link: Link): number;
+    get_link_page_label(link: Link): string;
+    get_links(page: Page): MappingList;
+    get_links_model(): Gtk.TreeModel;
+    has_document_links(): boolean;
 }
 export interface DocumentMedia  {
-get_media_mapping(page: Page): MappingList;
+    get_media_mapping(page: Page): MappingList;
 }
 export interface DocumentPrint  {
-print_page(page: Page, cr: cairo.Context): void;
+    print_page(page: Page, cr: cairo.Context): void;
 }
 export interface DocumentSecurity  {
-has_document_security(): boolean;
-set_password(password: string): void;
+    has_document_security(): boolean;
+    set_password(password: string): void;
 }
 export interface DocumentText  {
-get_text(page: Page): string;
-get_text_attrs(page: Page): Pango.AttrList;
-get_text_layout(page: Page, areas: Rectangle, n_areas: number): boolean;
-get_text_mapping(page: Page): cairo.Region;
+    get_text(page: Page): string;
+    get_text_attrs(page: Page): Pango.AttrList;
+    get_text_layout(page: Page, areas: Rectangle, n_areas: number): boolean;
+    get_text_mapping(page: Page): cairo.Region;
 }
 export interface DocumentTransition  {
-get_effect(page: number): TransitionEffect;
-get_page_duration(page: number): number;
+    get_effect(page: number): TransitionEffect;
+    get_page_duration(page: number): number;
 }
 export interface FileExporter  {
-begin(fc: FileExporterContext): void;
-begin_page(): void;
-do_page(rc: RenderContext): void;
-end(): void;
-end_page(): void;
-get_capabilities(): FileExporterCapabilities;
+    begin(fc: FileExporterContext): void;
+    begin_page(): void;
+    do_page(rc: RenderContext): void;
+    end(): void;
+    end_page(): void;
+    get_capabilities(): FileExporterCapabilities;
 }
 export interface Selection  {
-get_selected_text(page: Page, style: SelectionStyle, points: Rectangle): string;
-get_selection_region(rc: RenderContext, style: SelectionStyle, points: Rectangle): cairo.Region;
-render_selection(rc: RenderContext, surface: cairo.Surface, points: Rectangle, old_points: Rectangle, style: SelectionStyle, text: Gdk.Color, base: Gdk.Color): void;
+    get_selected_text(page: Page, style: SelectionStyle, points: Rectangle): string;
+    get_selection_region(rc: RenderContext, style: SelectionStyle, points: Rectangle): cairo.Region;
+    render_selection(rc: RenderContext, surface: cairo.Surface, points: Rectangle, old_points: Rectangle, style: SelectionStyle, text: Gdk.Color, base: Gdk.Color): void;
 }

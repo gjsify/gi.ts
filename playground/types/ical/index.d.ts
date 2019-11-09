@@ -7,6 +7,7 @@ import * as ICal from "ical";
  * ical.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type icalattach_free_fn_t = (data: number, user_data: object | null) => void;
 export type icalparser_line_gen_func = (s: string, size: number, d: object | null) => string;
 export type pvl_applyf = (a: object | null, b: object | null) => void;
@@ -61,10 +62,6 @@ export function icalarray_append(array: array, element: object | null): void;
 /**
  * 
  */
-export function icalarray_copy(array: array): array;
-/**
- * 
- */
 export function icalarray_element_at(array: array, position: number): object | null;
 /**
  * ### Usage
@@ -80,10 +77,6 @@ export function icalarray_element_at(array: array, position: number): object | n
  * ```
  */
 export function icalarray_free(array: array): void;
-/**
- * 
- */
-export function icalarray_new(element_size: number, increment_size: number): array;
 /**
  * 
  */
@@ -107,31 +100,11 @@ export function icalattach_get_url(attach: attach): string;
 /**
  * 
  */
-export function icalattach_new_from_data(data: string, free_fn: icalattach_free_fn_t, free_fn_data: object | null): attach;
-/**
- * 
- */
-export function icalattach_new_from_url(url: string): attach;
-/**
- * 
- */
 export function icalattach_ref(attach: attach): void;
 /**
  * 
  */
 export function icalattach_unref(attach: attach): void;
-/**
- * 
- */
-export function icalcompiter_deref(i: compiter): component;
-/**
- * 
- */
-export function icalcompiter_next(i: compiter): component;
-/**
- * 
- */
-export function icalcompiter_prior(i: compiter): component;
 /**
  * 
  */
@@ -148,10 +121,6 @@ export function icalcomponent_as_ical_string(component: component): string;
  * 
  */
 export function icalcomponent_as_ical_string_r(component: component): string;
-/**
- * 
- */
-export function icalcomponent_begin_component(component: component, kind: component_kind): compiter;
 /**
  * 
  */
@@ -175,10 +144,6 @@ export function icalcomponent_count_properties(component: component, kind: prope
 /**
  * 
  */
-export function icalcomponent_end_component(component: component, kind: component_kind): compiter;
-/**
- * 
- */
 export function icalcomponent_foreach_recurrence(comp: component, start: object | null, end: object | null, callback: object | null, callback_data: object | null): void;
 /**
  * 
@@ -192,14 +157,6 @@ export function icalcomponent_free(component: component): void;
  * 
  */
 export function icalcomponent_get_comment(comp: component): string;
-/**
- * 
- */
-export function icalcomponent_get_current_component(component: component): component;
-/**
- * 
- */
-export function icalcomponent_get_current_property(component: component): property;
 /**
  * 
  */
@@ -227,39 +184,11 @@ export function icalcomponent_get_duration(comp: component): object | null;
 /**
  * 
  */
-export function icalcomponent_get_first_component(component: component, kind: component_kind): component;
-/**
- * 
- */
-export function icalcomponent_get_first_property(component: component, kind: property_kind): property;
-/**
- * 
- */
-export function icalcomponent_get_first_real_component(c: component): component;
-/**
- * 
- */
-export function icalcomponent_get_inner(comp: component): component;
-/**
- * 
- */
 export function icalcomponent_get_location(comp: component): string;
 /**
  * 
  */
 export function icalcomponent_get_method(comp: component): property_method;
-/**
- * 
- */
-export function icalcomponent_get_next_component(component: component, kind: component_kind): component;
-/**
- * 
- */
-export function icalcomponent_get_next_property(component: component, kind: property_kind): property;
-/**
- * 
- */
-export function icalcomponent_get_parent(component: component): component;
 /**
  * 
  */
@@ -284,10 +213,6 @@ export function icalcomponent_get_status(comp: component): object | null;
  * 
  */
 export function icalcomponent_get_summary(comp: component): string;
-/**
- * 
- */
-export function icalcomponent_get_timezone(comp: component, tzid: string): timezone;
 /**
  * 
  */
@@ -316,94 +241,6 @@ export function icalcomponent_kind_to_string(kind: component_kind): string;
  * 
  */
 export function icalcomponent_merge_component(comp: component, comp_to_merge: component): void;
-/**
- * 
- */
-export function icalcomponent_new(kind: component_kind): component;
-/**
- * 
- */
-export function icalcomponent_new_clone(component: component): component;
-/**
- * 
- */
-export function icalcomponent_new_from_string(str: string): component;
-/**
- * 
- */
-export function icalcomponent_new_vagenda(): component;
-/**
- * 
- */
-export function icalcomponent_new_valarm(): component;
-/**
- * 
- */
-export function icalcomponent_new_vavailability(): component;
-/**
- * 
- */
-export function icalcomponent_new_vcalendar(): component;
-/**
- * 
- */
-export function icalcomponent_new_vevent(): component;
-/**
- * 
- */
-export function icalcomponent_new_vfreebusy(): component;
-/**
- * 
- */
-export function icalcomponent_new_vjournal(): component;
-/**
- * 
- */
-export function icalcomponent_new_vpatch(): component;
-/**
- * 
- */
-export function icalcomponent_new_vpoll(): component;
-/**
- * 
- */
-export function icalcomponent_new_vquery(): component;
-/**
- * 
- */
-export function icalcomponent_new_vtimezone(): component;
-/**
- * 
- */
-export function icalcomponent_new_vtodo(): component;
-/**
- * 
- */
-export function icalcomponent_new_vvoter(): component;
-/**
- * 
- */
-export function icalcomponent_new_x(x_name: string): component;
-/**
- * 
- */
-export function icalcomponent_new_xavailable(): component;
-/**
- * 
- */
-export function icalcomponent_new_xdaylight(): component;
-/**
- * 
- */
-export function icalcomponent_new_xpatch(): component;
-/**
- * 
- */
-export function icalcomponent_new_xstandard(): component;
-/**
- * 
- */
-export function icalcomponent_new_xvote(): component;
 /**
  * 
  */
@@ -491,10 +328,6 @@ export function icalcomponent_strip_errors(component: component): void;
 /**
  * 
  */
-export function icalcomponent_vanew(kind: component_kind, ___: unknown[]): component;
-/**
- * 
- */
 export function icaldurationtype_as_ical_string(d: object | null): string;
 /**
  * 
@@ -531,7 +364,7 @@ export function icaldurationtype_null_duration(): object | null;
 /**
  * 
  */
-export function icalenum_num_to_reqstat(major: unknown, minor: unknown): requeststatus;
+export function icalenum_num_to_reqstat(major: number, minor: number): requeststatus;
 /**
  * 
  */
@@ -547,11 +380,11 @@ export function icalenum_reqstat_desc(stat: requeststatus): string;
 /**
  * 
  */
-export function icalenum_reqstat_major(stat: requeststatus): unknown;
+export function icalenum_reqstat_major(stat: requeststatus): number;
 /**
  * 
  */
-export function icalenum_reqstat_minor(stat: requeststatus): unknown;
+export function icalenum_reqstat_minor(stat: requeststatus): number;
 /**
  * 
  */
@@ -620,30 +453,6 @@ export function icallangbind_free_array(array: number): void;
 /**
  * 
  */
-export function icallangbind_get_first_component(c: component, comp: string): component;
-/**
- * 
- */
-export function icallangbind_get_first_parameter(prop: property): parameter;
-/**
- * 
- */
-export function icallangbind_get_first_property(c: component, prop: string): property;
-/**
- * 
- */
-export function icallangbind_get_next_component(c: component, comp: string): component;
-/**
- * 
- */
-export function icallangbind_get_next_parameter(prop: property): parameter;
-/**
- * 
- */
-export function icallangbind_get_next_property(c: component, prop: string): property;
-/**
- * 
- */
 export function icallangbind_new_array(size: number): number;
 /**
  * 
@@ -705,10 +514,6 @@ export function icalmemory_tmp_buffer(size: number): object | null;
  * 
  */
 export function icalmemory_tmp_copy(str: string): string;
-/**
- * 
- */
-export function icalmime_parse(line_gen_func: object | null, data: object | null): component;
 /**
  * ### Usage
  * ```c
@@ -853,10 +658,6 @@ export function icalparameter_get_options(value: parameter): string;
 /**
  * 
  */
-export function icalparameter_get_parent(param: parameter): property;
-/**
- * 
- */
 export function icalparameter_get_partstat(value: parameter): parameter_partstat;
 /**
  * 
@@ -974,231 +775,6 @@ export function icalparameter_kind_is_valid(kind: parameter_kind): number;
  * 
  */
 export function icalparameter_kind_to_string(kind: parameter_kind): string;
-/**
- * 
- */
-export function icalparameter_new(kind: parameter_kind): parameter;
-/**
- * 
- */
-export function icalparameter_new_actionparam(v: parameter_action): parameter;
-/**
- * 
- */
-export function icalparameter_new_altrep(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_charset(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_clone(p: parameter): parameter;
-/**
- * 
- */
-export function icalparameter_new_cn(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_cutype(v: parameter_cutype): parameter;
-/**
- * 
- */
-export function icalparameter_new_delegatedfrom(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_delegatedto(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_dir(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_display(v: parameter_display): parameter;
-/**
- * 
- */
-export function icalparameter_new_email(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_enable(v: parameter_enable): parameter;
-/**
- * 
- */
-export function icalparameter_new_encoding(v: parameter_encoding): parameter;
-/**
- * 
- */
-export function icalparameter_new_fbtype(v: parameter_fbtype): parameter;
-/**
- * 
- */
-export function icalparameter_new_feature(v: parameter_feature): parameter;
-/**
- * 
- */
-export function icalparameter_new_filename(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_fmttype(v: string): parameter;
-/**
- * when they are not needed anymore and to be released.
- * ### Usage
- * ```c
- * icalparameter *param = icalparameter_new();
- * if(param) {
- *     // use param...
- * }
- * // after use, release it
- * icalparameter_free(param);
- * ```
- */
-export function icalparameter_new_from_string(value: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_from_value_string(kind: parameter_kind, value: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_iana(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_id(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_label(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_language(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_latency(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_local(v: parameter_local): parameter;
-/**
- * 
- */
-export function icalparameter_new_localize(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_managedid(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_member(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_modified(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_options(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_partstat(v: parameter_partstat): parameter;
-/**
- * 
- */
-export function icalparameter_new_patchaction(v: parameter_patchaction): parameter;
-/**
- * 
- */
-export function icalparameter_new_publiccomment(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_range(v: parameter_range): parameter;
-/**
- * 
- */
-export function icalparameter_new_reason(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_related(v: parameter_related): parameter;
-/**
- * 
- */
-export function icalparameter_new_reltype(v: parameter_reltype): parameter;
-/**
- * 
- */
-export function icalparameter_new_required(v: parameter_required): parameter;
-/**
- * 
- */
-export function icalparameter_new_response(v: number): parameter;
-/**
- * 
- */
-export function icalparameter_new_role(v: parameter_role): parameter;
-/**
- * 
- */
-export function icalparameter_new_rsvp(v: parameter_rsvp): parameter;
-/**
- * 
- */
-export function icalparameter_new_scheduleagent(v: parameter_scheduleagent): parameter;
-/**
- * 
- */
-export function icalparameter_new_scheduleforcesend(v: parameter_scheduleforcesend): parameter;
-/**
- * 
- */
-export function icalparameter_new_schedulestatus(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_sentby(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_size(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_stayinformed(v: parameter_stayinformed): parameter;
-/**
- * 
- */
-export function icalparameter_new_substate(v: parameter_substate): parameter;
-/**
- * 
- */
-export function icalparameter_new_tzid(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_value(v: parameter_value): parameter;
-/**
- * 
- */
-export function icalparameter_new_x(v: string): parameter;
-/**
- * 
- */
-export function icalparameter_new_xliccomparetype(v: parameter_xliccomparetype): parameter;
-/**
- * 
- */
-export function icalparameter_new_xlicerrortype(v: parameter_xlicerrortype): parameter;
 /**
  * 
  */
@@ -1434,35 +1010,11 @@ export function icalparameter_value_to_value_kind(value: parameter_value): value
 /**
  * 
  */
-export function icalparser_add_line(parser: parser, str: string): component;
-/**
- * 
- */
-export function icalparser_clean(parser: parser): component;
-/**
- * 
- */
 export function icalparser_free(parser: parser): void;
 /**
  * 
  */
-export function icalparser_get_line(parser: parser, line_gen_func: icalparser_line_gen_func): string;
-/**
- * 
- */
 export function icalparser_get_state(parser: parser): parser_state;
-/**
- * 
- */
-export function icalparser_new(): parser;
-/**
- * 
- */
-export function icalparser_parse(parser: parser, line_gen_func: icalparser_line_gen_func): component;
-/**
- * 
- */
-export function icalparser_parse_string(str: string): component;
 /**
  * 
  */
@@ -1499,10 +1051,6 @@ export function icalperiodtype_null_period(): object | null;
  * 
  */
 export function icalproperty_add_parameter(prop: property, parameter: parameter): void;
-/**
- * 
- */
-export function icalproperty_add_parameters(prop: object | null, args: any): void;
 /**
  * 
  */
@@ -1547,10 +1095,6 @@ export function icalproperty_get_action(prop: property): object | null;
  * 
  */
 export function icalproperty_get_allowconflict(prop: property): string;
-/**
- * 
- */
-export function icalproperty_get_attach(prop: property): attach;
 /**
  * 
  */
@@ -1706,10 +1250,6 @@ export function icalproperty_get_exrule(prop: property): object | null;
 /**
  * 
  */
-export function icalproperty_get_first_parameter(prop: property, kind: parameter_kind): parameter;
-/**
- * 
- */
 export function icalproperty_get_freebusy(prop: property): object | null;
 /**
  * 
@@ -1719,10 +1259,6 @@ export function icalproperty_get_geo(prop: property): object | null;
  * 
  */
 export function icalproperty_get_grant(prop: property): string;
-/**
- * 
- */
-export function icalproperty_get_image(prop: property): attach;
 /**
  * 
  */
@@ -1770,10 +1306,6 @@ export function icalproperty_get_name(prop: property): string;
 /**
  * 
  */
-export function icalproperty_get_next_parameter(prop: property, kind: parameter_kind): parameter;
-/**
- * 
- */
 export function icalproperty_get_organizer(prop: property): string;
 /**
  * 
@@ -1787,10 +1319,6 @@ export function icalproperty_get_parameter_as_string(prop: property, name: strin
  * 
  */
 export function icalproperty_get_parameter_as_string_r(prop: property, name: string): string;
-/**
- * 
- */
-export function icalproperty_get_parent(property: property): component;
 /**
  * 
  */
@@ -2010,10 +1538,6 @@ export function icalproperty_get_url(prop: property): string;
 /**
  * 
  */
-export function icalproperty_get_value(prop: property): value;
-/**
- * 
- */
 export function icalproperty_get_value_as_string(prop: property): string;
 /**
  * 
@@ -2099,514 +1623,6 @@ export function icalproperty_kind_to_value_kind(kind: property_kind): value_kind
  * 
  */
 export function icalproperty_method_to_string(method: property_method): string;
-/**
- * 
- */
-export function icalproperty_new(kind: property_kind): property;
-/**
- * 
- */
-export function icalproperty_new_acceptresponse(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_acknowledged(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_action(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_allowconflict(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_attach(v: attach): property;
-/**
- * 
- */
-export function icalproperty_new_attendee(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_busytype(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_calid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_calmaster(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_calscale(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_capversion(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_carid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_carlevel(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_categories(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_class(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_clone(prop: property): property;
-/**
- * 
- */
-export function icalproperty_new_cmd(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_color(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_comment(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_completed(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_components(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_conference(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_contact(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_created(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_csid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_datemax(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_datemin(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_decreed(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_defaultcharset(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_defaultlocale(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_defaulttzid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_defaultvcars(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_deny(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_description(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_dtend(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_dtstamp(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_dtstart(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_due(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_duration(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_estimatedduration(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_exdate(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_expand(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_exrule(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_freebusy(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_from_string(str: string): property;
-/**
- * 
- */
-export function icalproperty_new_geo(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_grant(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_image(v: attach): property;
-/**
- * 
- */
-export function icalproperty_new_impl(kind: property_kind): property;
-/**
- * 
- */
-export function icalproperty_new_itipversion(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_lastmodified(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_location(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_maxcomponentsize(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_maxdate(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_maxresults(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_maxresultssize(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_method(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_mindate(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_multipart(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_name(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_organizer(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_owner(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_patchdelete(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_patchorder(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_patchparameter(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_patchtarget(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_patchversion(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_percentcomplete(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_permission(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_pollcompletion(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_pollitemid(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_pollmode(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_pollproperties(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_pollwinner(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_priority(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_prodid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_query(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_queryid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_querylevel(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_queryname(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_rdate(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_recuraccepted(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_recurexpand(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_recurlimit(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_recurrenceid(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_refreshinterval(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_relatedto(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_relcalid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_repeat(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_replyurl(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_requeststatus(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_resources(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_response(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_restriction(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_rrule(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_scope(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_sequence(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_source(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_status(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_storesexpanded(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_summary(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_target(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_taskmode(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_transp(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_trigger(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_tzid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_tzidaliasof(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_tzname(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_tzoffsetfrom(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_tzoffsetto(v: number): property;
-/**
- * 
- */
-export function icalproperty_new_tzuntil(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_tzurl(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_uid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_url(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_version(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_voter(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_x(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicclass(v: object | null): property;
-/**
- * 
- */
-export function icalproperty_new_xlicclustercount(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicerror(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicmimecharset(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicmimecid(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicmimecontenttype(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicmimeencoding(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicmimefilename(v: string): property;
-/**
- * 
- */
-export function icalproperty_new_xlicmimeoptinfo(v: string): property;
 /**
  * 
  */
@@ -3166,498 +2182,6 @@ export function icalproperty_value_kind_to_kind(kind: value_kind): property_kind
 /**
  * 
  */
-export function icalproperty_vanew_acceptresponse(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_acknowledged(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_action(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_allowconflict(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_attach(v: attach, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_attendee(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_busytype(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_calid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_calmaster(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_calscale(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_capversion(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_carid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_carlevel(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_categories(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_class(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_cmd(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_color(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_comment(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_completed(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_components(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_conference(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_contact(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_created(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_csid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_datemax(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_datemin(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_decreed(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_defaultcharset(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_defaultlocale(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_defaulttzid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_defaultvcars(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_deny(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_description(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_dtend(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_dtstamp(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_dtstart(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_due(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_duration(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_estimatedduration(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_exdate(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_expand(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_exrule(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_freebusy(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_geo(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_grant(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_image(v: attach, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_itipversion(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_lastmodified(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_location(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_maxcomponentsize(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_maxdate(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_maxresults(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_maxresultssize(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_method(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_mindate(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_multipart(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_name(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_organizer(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_owner(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_patchdelete(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_patchorder(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_patchparameter(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_patchtarget(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_patchversion(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_percentcomplete(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_permission(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_pollcompletion(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_pollitemid(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_pollmode(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_pollproperties(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_pollwinner(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_priority(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_prodid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_query(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_queryid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_querylevel(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_queryname(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_rdate(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_recuraccepted(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_recurexpand(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_recurlimit(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_recurrenceid(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_refreshinterval(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_relatedto(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_relcalid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_repeat(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_replyurl(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_requeststatus(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_resources(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_response(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_restriction(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_rrule(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_scope(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_sequence(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_source(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_status(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_storesexpanded(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_summary(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_target(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_taskmode(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_transp(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_trigger(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzidaliasof(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzname(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzoffsetfrom(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzoffsetto(v: number, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzuntil(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_tzurl(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_uid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_url(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_version(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_voter(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_x(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicclass(v: object | null, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicclustercount(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicerror(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicmimecharset(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicmimecid(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicmimecontenttype(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicmimeencoding(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicmimefilename(v: string, ___: unknown[]): property;
-/**
- * 
- */
-export function icalproperty_vanew_xlicmimeoptinfo(v: string, ___: unknown[]): property;
-/**
- * 
- */
 export function icalrecur_expand_recurrence(rule: string, start: number, count: number, array: number): number;
 /**
  * 
@@ -3667,10 +2191,6 @@ export function icalrecur_freq_to_string(kind: recurrencetype_frequency): string
  * 
  */
 export function icalrecur_iterator_free(arg0: recur_iterator): void;
-/**
- * 
- */
-export function icalrecur_iterator_new(rule: object | null, dtstart: object | null): recur_iterator;
 /**
  * 
  */
@@ -3714,11 +2234,11 @@ export function icalrecurrencetype_clear(r: object | null): void;
 /**
  * 
  */
-export function icalrecurrencetype_day_day_of_week(day: unknown): object | null;
+export function icalrecurrencetype_day_day_of_week(day: number): object | null;
 /**
  * 
  */
-export function icalrecurrencetype_day_position(day: unknown): number;
+export function icalrecurrencetype_day_position(day: number): number;
 /**
  * 
  */
@@ -3726,19 +2246,15 @@ export function icalrecurrencetype_from_string(str: string): object | null;
 /**
  * 
  */
-export function icalrecurrencetype_month_is_leap(month: unknown): number;
+export function icalrecurrencetype_month_is_leap(month: number): number;
 /**
  * 
  */
-export function icalrecurrencetype_month_month(month: unknown): number;
+export function icalrecurrencetype_month_month(month: number): number;
 /**
  * 
  */
 export function icalrecurrencetype_rscale_is_supported(): number;
-/**
- * 
- */
-export function icalrecurrencetype_rscale_supported_calendars(): array;
 /**
  * 
  */
@@ -3958,15 +2474,7 @@ export function icaltimezone_array_free(timezones: array): void;
 /**
  * 
  */
-export function icaltimezone_array_new(): array;
-/**
- * 
- */
 export function icaltimezone_convert_time(tt: object | null, from_zone: timezone, to_zone: timezone): void;
-/**
- * 
- */
-export function icaltimezone_copy(originalzone: timezone): timezone;
 /**
  * 
  */
@@ -3986,27 +2494,7 @@ export function icaltimezone_free_builtin_timezones(): void;
 /**
  * 
  */
-export function icaltimezone_get_builtin_timezone(location: string): timezone;
-/**
- * 
- */
-export function icaltimezone_get_builtin_timezone_from_offset(offset: number, tzname: string): timezone;
-/**
- * 
- */
-export function icaltimezone_get_builtin_timezone_from_tzid(tzid: string): timezone;
-/**
- * 
- */
-export function icaltimezone_get_builtin_timezones(): array;
-/**
- * 
- */
 export function icaltimezone_get_builtin_tzdata(): number;
-/**
- * 
- */
-export function icaltimezone_get_component(zone: timezone): component;
 /**
  * 
  */
@@ -4050,14 +2538,6 @@ export function icaltimezone_get_utc_offset_of_utc_time(zone: timezone, tt: obje
 /**
  * 
  */
-export function icaltimezone_get_utc_timezone(): timezone;
-/**
- * 
- */
-export function icaltimezone_new(): timezone;
-/**
- * 
- */
 export function icaltimezone_release_zone_tab(): void;
 /**
  * 
@@ -4098,10 +2578,6 @@ export function icaltriggertype_is_null_trigger(tr: object | null): number;
 /**
  * 
  */
-export function icaltzutil_fetch_timezone(location: string): component;
-/**
- * 
- */
 export function icaltzutil_get_zone_directory(): string;
 /**
  * 
@@ -4131,10 +2607,6 @@ export function icalvalue_free(value: value): void;
  * 
  */
 export function icalvalue_get_action(value: value): object | null;
-/**
- * 
- */
-export function icalvalue_get_attach(value: value): attach;
 /**
  * 
  */
@@ -4199,10 +2671,6 @@ export function icalvalue_get_integer(value: value): number;
  * 
  */
 export function icalvalue_get_method(value: value): object | null;
-/**
- * 
- */
-export function icalvalue_get_parent(value: value): property;
 /**
  * 
  */
@@ -4291,158 +2759,6 @@ export function icalvalue_kind_is_valid(kind: value_kind): number;
  * 
  */
 export function icalvalue_kind_to_string(kind: value_kind): string;
-/**
- * 
- */
-export function icalvalue_new(kind: value_kind): value;
-/**
- * 
- */
-export function icalvalue_new_action(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_attach(attach: attach): value;
-/**
- * 
- */
-export function icalvalue_new_binary(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_boolean(v: number): value;
-/**
- * 
- */
-export function icalvalue_new_busytype(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_caladdress(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_carlevel(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_class(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_clone(value: value): value;
-/**
- * 
- */
-export function icalvalue_new_cmd(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_date(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_datetime(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_datetimedate(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_datetimeperiod(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_duration(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_float(v: number): value;
-/**
- * 
- */
-export function icalvalue_new_from_string(kind: value_kind, str: string): value;
-/**
- * 
- */
-export function icalvalue_new_geo(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_integer(v: number): value;
-/**
- * 
- */
-export function icalvalue_new_method(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_period(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_pollcompletion(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_pollmode(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_query(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_querylevel(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_recur(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_requeststatus(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_status(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_string(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_taskmode(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_text(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_transp(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_trigger(v: object | null): value;
-/**
- * 
- */
-export function icalvalue_new_uri(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_utcoffset(v: number): value;
-/**
- * 
- */
-export function icalvalue_new_x(v: string): value;
-/**
- * 
- */
-export function icalvalue_new_xlicclass(v: object | null): value;
 /**
  * 
  */
@@ -4606,10 +2922,6 @@ export function print_datetime_to_string(str: string, data: object | null): void
 /**
  * 
  */
-export function pvl_apply(l: pvl_list, f: pvl_applyf, v: object | null): void;
-/**
- * 
- */
 export function pvl_clear(arg0: pvl_list): void;
 /**
  * 
@@ -4622,19 +2934,7 @@ export function pvl_data(arg0: pvl_elem): object | null;
 /**
  * 
  */
-export function pvl_find(l: pvl_list, f: pvl_findf, v: object | null): pvl_elem;
-/**
- * 
- */
-export function pvl_find_next(l: pvl_list, f: pvl_findf, v: object | null): pvl_elem;
-/**
- * 
- */
 export function pvl_free(arg0: pvl_list): void;
-/**
- * 
- */
-export function pvl_head(arg0: pvl_list): pvl_elem;
 /**
  * 
  */
@@ -4646,27 +2946,7 @@ export function pvl_insert_before(l: pvl_list, e: pvl_elem, d: object | null): v
 /**
  * 
  */
-export function pvl_insert_ordered(l: pvl_list, f: pvl_comparef, d: object | null): void;
-/**
- * 
- */
-export function pvl_new_element(d: object | null, next: pvl_elem, prior: pvl_elem): pvl_elem;
-/**
- * 
- */
-export function pvl_newlist(): pvl_list;
-/**
- * 
- */
-export function pvl_next(e: pvl_elem): pvl_elem;
-/**
- * 
- */
 export function pvl_pop(l: pvl_list): object | null;
-/**
- * 
- */
-export function pvl_prior(e: pvl_elem): pvl_elem;
 /**
  * 
  */
@@ -4679,10 +2959,6 @@ export function pvl_remove(arg0: pvl_list, arg1: pvl_elem): object | null;
  * 
  */
 export function pvl_shift(l: pvl_list): object | null;
-/**
- * 
- */
-export function pvl_tail(arg0: pvl_list): pvl_elem;
 /**
  * 
  */
@@ -5418,148 +3694,171 @@ export enum value_kind {
     XLICCLASS_VALUE = 5025,
     NO_VALUE = 5031,
 }
-export class array  {constructor(config?: properties);
-element_size: number;
-increment_size: number;
-num_elements: number;
-space_allocated: number;
-chunks: object;
+export class array  {
+    constructor(config?: properties);
+    element_size: number;
+    increment_size: number;
+    num_elements: number;
+    space_allocated: number;
+    chunks: object;
 }
-export class attach  {constructor(config?: properties);
+export class attach  {
+    constructor(config?: properties);
 }
-export class compiter  {constructor(config?: properties);
-kind: component_kind;
-iter: pvl_elem;
+export class compiter  {
+    constructor(config?: properties);
+    kind: component_kind;
+    iter: pvl_elem;
 }
-export class component  {constructor(config?: properties);
+export class component  {
+    constructor(config?: properties);
 }
-export class datetimeperiodtype  {constructor(config?: properties);
-time: object;
-period: object;
+export class datetimeperiodtype  {
+    constructor(config?: properties);
+    time: object;
+    period: object;
 }
-export class durationtype  {constructor(config?: properties);
-is_neg: number;
-days: number;
-weeks: number;
-hours: number;
-minutes: number;
-seconds: number;
+export class durationtype  {
+    constructor(config?: properties);
+    is_neg: number;
+    days: number;
+    weeks: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
 }
-export class geotype  {constructor(config?: properties);
-lat: number;
-lon: number;
+export class geotype  {
+    constructor(config?: properties);
+    lat: number;
+    lon: number;
 }
-export class parameter  {constructor(config?: properties);
+export class parameter  {
+    constructor(config?: properties);
 }
-export class parser  {constructor(config?: properties);
+export class parser  {
+    constructor(config?: properties);
 }
-export class periodtype  {constructor(config?: properties);
-start: object;
-end: object;
-duration: object;
+export class periodtype  {
+    constructor(config?: properties);
+    start: object;
+    end: object;
+    duration: object;
 }
-export class property  {constructor(config?: properties);
+export class property  {
+    constructor(config?: properties);
 }
-export class pvl_elem  {constructor(config?: properties);
+export class pvl_elem  {
+    constructor(config?: properties);
 }
-export class pvl_elem_t  {constructor(config?: properties);
-MAGIC: number;
-d: object;
-next: object;
-prior: object;
+export class pvl_elem_t  {
+    constructor(config?: properties);
+    MAGIC: number;
+    d: object;
+    next: object;
+    prior: object;
 }
-export class pvl_list  {constructor(config?: properties);
+export class pvl_list  {
+    constructor(config?: properties);
 }
-export class recur_iterator  {constructor(config?: properties);
+export class recur_iterator  {
+    constructor(config?: properties);
 }
-export class recurrencetype  {constructor(config?: properties);
-freq: recurrencetype_frequency;
-until: object;
-count: number;
-interval: unknown;
-week_start: recurrencetype_weekday;
-by_second: unknown[];
-by_minute: unknown[];
-by_hour: unknown[];
-by_day: unknown[];
-by_month_day: unknown[];
-by_year_day: unknown[];
-by_week_no: unknown[];
-by_month: unknown[];
-by_set_pos: unknown[];
-rscale: string;
-skip: recurrencetype_skip;
+export class recurrencetype  {
+    constructor(config?: properties);
+    freq: recurrencetype_frequency;
+    until: object;
+    count: number;
+    interval: number;
+    week_start: recurrencetype_weekday;
+    by_second: number[];
+    by_minute: number[];
+    by_hour: number[];
+    by_day: number[];
+    by_month_day: number[];
+    by_year_day: number[];
+    by_week_no: number[];
+    by_month: number[];
+    by_set_pos: number[];
+    rscale: string;
+    skip: recurrencetype_skip;
 }
-export class reqstattype  {constructor(config?: properties);
-code: requeststatus;
-desc: string;
-debug: string;
+export class reqstattype  {
+    constructor(config?: properties);
+    code: requeststatus;
+    desc: string;
+    debug: string;
 }
-export class sspm_action_map  {constructor(config?: properties);
-major: object;
-minor: object;
-readonly new_part: unknown;
-readonly add_line: unknown;
-readonly end_part: unknown;
-readonly free_part: unknown;
+export class sspm_action_map  {
+    constructor(config?: properties);
+    major: object;
+    minor: object;
 }
-export class sspm_header  {constructor(config?: properties);
-def: number;
-boundary: string;
-major: object;
-minor: object;
-minor_text: string;
-content_type_params: string;
-charset: string;
-encoding: object;
-filename: string;
-content_id: string;
-error: object;
-error_text: string;
+export class sspm_header  {
+    constructor(config?: properties);
+    def: number;
+    boundary: string;
+    major: object;
+    minor: object;
+    minor_text: string;
+    content_type_params: string;
+    charset: string;
+    encoding: object;
+    filename: string;
+    content_id: string;
+    error: object;
+    error_text: string;
 }
-export class sspm_part  {constructor(config?: properties);
-header: object;
-level: number;
-data_size: number;
-data: object;
+export class sspm_part  {
+    constructor(config?: properties);
+    header: object;
+    level: number;
+    data_size: number;
+    data: object;
 }
-export class time_span  {constructor(config?: properties);
-start: number;
-end: number;
-is_busy: number;
+export class time_span  {
+    constructor(config?: properties);
+    start: number;
+    end: number;
+    is_busy: number;
 }
-export class timetype  {constructor(config?: properties);
-year: number;
-month: number;
-day: number;
-hour: number;
-minute: number;
-second: number;
-is_date: number;
-is_daylight: number;
-zone: timezone;
+export class timetype  {
+    constructor(config?: properties);
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+    is_date: number;
+    is_daylight: number;
+    zone: timezone;
 }
-export class timezone  {constructor(config?: properties);
+export class timezone  {
+    constructor(config?: properties);
 }
-export class timezonephase  {constructor(config?: properties);
-tzname: string;
-is_stdandard: number;
-dtstart: object;
-offsetto: number;
-tzoffsetfrom: number;
-comment: string;
-rdate: object;
-rrule: string;
+export class timezonephase  {
+    constructor(config?: properties);
+    tzname: string;
+    is_stdandard: number;
+    dtstart: object;
+    offsetto: number;
+    tzoffsetfrom: number;
+    comment: string;
+    rdate: object;
+    rrule: string;
 }
-export class timezonetype  {constructor(config?: properties);
-tzid: string;
-last_mod: object;
-tzurl: string;
-phases: object;
+export class timezonetype  {
+    constructor(config?: properties);
+    tzid: string;
+    last_mod: object;
+    tzurl: string;
+    phases: object;
 }
-export class triggertype  {constructor(config?: properties);
-time: object;
-duration: object;
+export class triggertype  {
+    constructor(config?: properties);
+    time: object;
+    duration: object;
 }
-export class value  {constructor(config?: properties);
+export class value  {
+    constructor(config?: properties);
 }

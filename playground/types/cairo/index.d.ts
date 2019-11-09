@@ -6,6 +6,7 @@ import * as GLib from "glib";
  * cairo.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * 
  */
@@ -248,15 +249,17 @@ export class ScaledFont  {
 }
 export class Path  {
 }
-export class Rectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
+export class Rectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
-export class RectangleInt  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
+export class RectangleInt  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }

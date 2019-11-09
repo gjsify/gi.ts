@@ -8,6 +8,7 @@ import * as Notify from "notify";
  * notify.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ActionCallback = (notification: Notification, action: string, user_data: object | null) => void;
 export const EXPIRES_DEFAULT: number;
 export const EXPIRES_NEVER: number;
@@ -54,38 +55,36 @@ export enum Urgency {
     NORMAL = 1,
     CRITICAL = 2,
 }
-export class Notification extends GObject.Object {constructor(config?: properties);
-app_name: string;
-body: string;
-readonly closed_reason: number;
-icon_name: string;
-id: number;
-summary: string;
-add_action(action: string, label: string, callback: ActionCallback, user_data: object | null, free_func: GLib.DestroyNotify): void;
-clear_actions(): void;
-clear_hints(): void;
-close(): boolean;
-get_closed_reason(): number;
-set_app_name(app_name: string): void;
-set_category(category: string): void;
-set_hint(key: string, value: GLib.Variant | null): void;
-set_hint_byte(key: string, value: number): void;
-set_hint_byte_array(key: string, value: number[], len: number): void;
-set_hint_double(key: string, value: number): void;
-set_hint_int32(key: string, value: number): void;
-set_hint_string(key: string, value: string): void;
-set_hint_uint32(key: string, value: number): void;
-set_icon_from_pixbuf(icon: GdkPixbuf.Pixbuf): void;
-set_image_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
-set_timeout(timeout: number): void;
-set_urgency(urgency: Urgency): void;
-show(): boolean;
-update(summary: string, body: string | null, icon: string | null): boolean;
-vfunc_closed(): void;
+export class Notification extends GObject.Object {
+    constructor(config?: properties);
+    app_name: string;
+    body: string;
+    readonly closed_reason: number;
+    icon_name: string;
+    id: number;
+    summary: string;
+    add_action(action: string, label: string, callback: ActionCallback, user_data: object | null, free_func: GLib.DestroyNotify): void;
+    clear_actions(): void;
+    clear_hints(): void;
+    close(): boolean;
+    get_closed_reason(): number;
+    set_app_name(app_name: string): void;
+    set_category(category: string): void;
+    set_hint(key: string, value: GLib.Variant | null): void;
+    set_hint_byte(key: string, value: number): void;
+    set_hint_byte_array(key: string, value: number[], len: number): void;
+    set_hint_double(key: string, value: number): void;
+    set_hint_int32(key: string, value: number): void;
+    set_hint_string(key: string, value: string): void;
+    set_hint_uint32(key: string, value: number): void;
+    set_icon_from_pixbuf(icon: GdkPixbuf.Pixbuf): void;
+    set_image_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): void;
+    set_timeout(timeout: number): void;
+    set_urgency(urgency: Urgency): void;
+    show(): boolean;
+    update(summary: string, body: string | null, icon: string | null): boolean;
+    vfunc_closed(): void;
 }
-export class NotificationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly closed: unknown;
-}
-export class NotificationPrivate  {constructor(config?: properties);
+export class NotificationPrivate  {
+    constructor(config?: properties);
 }

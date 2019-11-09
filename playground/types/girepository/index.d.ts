@@ -7,6 +7,7 @@ import * as GIRepository from "girepository";
  * girepository.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ObjectInfoGetValueFunction = (value: GObject.Value) => object | null;
 export type ObjectInfoRefFunction = (object: object | null) => object | null;
 export type ObjectInfoSetValueFunction = (value: GObject.Value, object: object | null) => void;
@@ -170,22 +171,9 @@ export function callable_info_skip_return(info: CallableInfo): boolean;
  */
 export function cclosure_marshal_generic(closure: GObject.Closure, return_gvalue: GObject.Value, n_param_values: number, param_values: GObject.Value, invocation_hint: object | null, marshal_data: object | null): void;
 /**
- * Free the value returned from g_constant_info_get_value().
- */
-export function constant_info_free_value(info: ConstantInfo, value: Argument): void;
-/**
  * Obtain the type of the constant as a #GITypeInfo.
  */
 export function constant_info_get_type(info: ConstantInfo): TypeInfo;
-/**
- * Obtain the value associated with the #GIConstantInfo and store it in t
- * he
- * @value parameter. @argument needs to be allocated before passing it in
- * .
- * The size of the constant value stored in @argument will be returned.
- * Free the value with g_constant_info_free_value().
- */
-export function constant_info_get_value(info: ConstantInfo): [number, Argument];
 /**
  * Obtain the string form of the quark for the error domain associated wi
  * th
@@ -217,13 +205,6 @@ export function enum_info_get_storage_type(info: EnumInfo): TypeTag;
  */
 export function enum_info_get_value(info: EnumInfo, n: number): ValueInfo;
 /**
- * Reads a field identified by a #GIFieldInfo from a C structure or
- * union.  This only handles fields of simple C types. It will fail
- * for a field of a composite type like a nested structure or union
- * even if that is actually readable.
- */
-export function field_info_get_field(field_info: FieldInfo, mem: object | null, value: Argument): boolean;
-/**
  * Obtain the flags for this #GIFieldInfo. See #GIFieldInfoFlags for poss
  * ible
  * flag values.
@@ -243,15 +224,6 @@ export function field_info_get_size(info: FieldInfo): number;
  * Obtain the type of a field as a #GITypeInfo.
  */
 export function field_info_get_type(info: FieldInfo): TypeInfo;
-/**
- * Writes a field identified by a #GIFieldInfo to a C structure or
- * union.  This only handles fields of simple C types. It will fail
- * for a field of a composite type like a nested structure or union
- * even if that is actually writable. Note also that that it will refuse
- * to write fields where memory management would by required. A field
- * with a type such as 'char *' must be set with a setter function.
- */
-export function field_info_set_field(field_info: FieldInfo, mem: object | null, value: Argument): boolean;
 /**
  * Obtain the #GIFunctionInfoFlags for the @info.
  */
@@ -275,15 +247,6 @@ export function function_info_get_symbol(info: FunctionInfo): string;
  * a virtual function set. For other cases, %NULL will be returned.
  */
 export function function_info_get_vfunc(info: FunctionInfo): VFuncInfo;
-/**
- * Invokes the function described in @info with the given
- * arguments. Note that inout parameters must appear in both
- * argument lists. This function uses dlsym() to obtain a pointer
- * to the function, so the library or shared object containing the
- * described function must either be linked to the caller, or must
- * have been g_module_symbol()<!-- -->ed before calling this function.
- */
-export function function_info_invoke(info: FunctionInfo, in_args: Argument[], n_in_args: number, out_args: Argument[], n_out_args: number, return_value: Argument): boolean;
 /**
  * Returns the major version number of the girepository library.
  * (e.g. in version 1.58.2 this is 1.)
@@ -455,13 +418,6 @@ export function object_info_get_fundamental(info: ObjectInfo): boolean;
  */
 export function object_info_get_get_value_function(info: ObjectInfo): string;
 /**
- * Obtain a pointer to a function which can be used to
- * extract an instance of this object type out of a GValue.
- * This takes derivation into account and will reversely traverse
- * the base classes of this type, starting at the top type.
- */
-export function object_info_get_get_value_function_pointer(info: ObjectInfo): ObjectInfoGetValueFunction;
-/**
  * Obtain an object type interface at index @n.
  */
 export function object_info_get_interface(info: ObjectInfo, n: number): InterfaceInfo;
@@ -515,13 +471,6 @@ export function object_info_get_property(info: ObjectInfo, n: number): PropertyI
  */
 export function object_info_get_ref_function(info: ObjectInfo): string;
 /**
- * Obtain a pointer to a function which can be used to
- * increase the reference count an instance of this object type.
- * This takes derivation into account and will reversely traverse
- * the base classes of this type, starting at the top type.
- */
-export function object_info_get_ref_function_pointer(info: ObjectInfo): ObjectInfoRefFunction;
-/**
  * Obtain the symbol name of the function that should be called to conver
  * t
  * set a GValue giving an object instance pointer of this object type.
@@ -530,13 +479,6 @@ export function object_info_get_ref_function_pointer(info: ObjectInfo): ObjectIn
  * see g_object_info_get_set_value_function().
  */
 export function object_info_get_set_value_function(info: ObjectInfo): string;
-/**
- * Obtain a pointer to a function which can be used to
- * set a GValue given an instance of this object type.
- * This takes derivation into account and will reversely traverse
- * the base classes of this type, starting at the top type.
- */
-export function object_info_get_set_value_function_pointer(info: ObjectInfo): ObjectInfoSetValueFunction;
 /**
  * Obtain an object type signal at index @n.
  */
@@ -560,13 +502,6 @@ export function object_info_get_type_name(info: ObjectInfo): string;
  * see g_object_info_get_unref_function().
  */
 export function object_info_get_unref_function(info: ObjectInfo): string;
-/**
- * Obtain a pointer to a function which can be used to
- * decrease the reference count an instance of this object type.
- * This takes derivation into account and will reversely traverse
- * the base classes of this type, starting at the top type.
- */
-export function object_info_get_unref_function_pointer(info: ObjectInfo): ObjectInfoUnrefFunction;
 /**
  * Obtain an object type virtual function at index @n.
  */
@@ -594,7 +529,7 @@ export function property_info_get_type(info: PropertyInfo): TypeInfo;
  * that the shared library which provides the type_init function for this
  * @info cannot be called.
  */
-export function registered_type_info_get_g_type(info: RegisteredTypeInfo): unknown;
+export function registered_type_info_get_g_type(info: RegisteredTypeInfo): GType;
 /**
  * Obtain the type init function for @info. The type init function is the
  * function which will register the GType within the GObject type system.
@@ -779,7 +714,7 @@ export function value_info_get_value(info: ValueInfo): number;
  * gtype
  * is the implementation for @info.
  */
-export function vfunc_info_get_address(info: VFuncInfo, implementor_gtype: unknown): object | null;
+export function vfunc_info_get_address(info: VFuncInfo, implementor_gtype: GType): object | null;
 /**
  * Obtain the flags for this virtual function info. See #GIVFuncInfoFlags
  *  for
@@ -804,12 +739,6 @@ export function vfunc_info_get_offset(info: VFuncInfo): number;
  * this virtual function belongs.
  */
 export function vfunc_info_get_signal(info: VFuncInfo): SignalInfo;
-/**
- * Invokes the function described in @info with the given
- * arguments. Note that inout parameters must appear in both
- * argument lists.
- */
-export function vfunc_info_invoke(info: VFuncInfo, implementor: unknown, in_args: Argument[], n_in_args: number, out_args: Argument[], n_out_args: number, return_value: Argument): boolean;
 export enum ArrayType {
     C = 0,
     ARRAY = 1,
@@ -927,95 +856,95 @@ export enum VFuncInfoFlags {
     MUST_NOT_OVERRIDE = 4,
     THROWS = 8,
 }
-export class Repository  {constructor(config?: properties);
-readonly priv: RepositoryPrivate;
-enumerate_versions(namespace_: string): GLib.List;
-find_by_error_domain(domain: GLib.Quark): EnumInfo;
-find_by_gtype(gtype: unknown): BaseInfo;
-find_by_name(namespace_: string, name: string): BaseInfo;
-get_c_prefix(namespace_: string): string;
-get_dependencies(namespace_: string): string[];
-get_immediate_dependencies(namespace_: string): string[];
-get_info(namespace_: string, index: number): BaseInfo;
-get_loaded_namespaces(): string[];
-get_n_infos(namespace_: string): number;
-get_object_gtype_interfaces(gtype: unknown): [number,InterfaceInfo[]];
-get_shared_library(namespace_: string): string;
-get_typelib_path(namespace_: string): string;
-get_version(namespace_: string): string;
-is_registered(namespace_: string, version: string | null): boolean;
-load_typelib(typelib: Typelib, flags: RepositoryLoadFlags): string;
-require(namespace_: string, version: string | null, flags: RepositoryLoadFlags): Typelib;
-require_private(typelib_dir: string, namespace_: string, version: string | null, flags: RepositoryLoadFlags): Typelib;
-static dump(arg: string): boolean;
-static error_quark(): GLib.Quark;
-static get_default(): Repository;
-static get_option_group(): GLib.OptionGroup;
-static get_search_path(): string[];
-static prepend_library_path(directory: string): void;
-static prepend_search_path(directory: unknown): void;
+export class Repository  {
+    constructor(config?: properties);
+    readonly priv: RepositoryPrivate;
+    enumerate_versions(namespace_: string): GLib.List;
+    find_by_error_domain(domain: GLib.Quark): EnumInfo;
+    find_by_gtype(gtype: GType): BaseInfo;
+    find_by_name(namespace_: string, name: string): BaseInfo;
+    get_c_prefix(namespace_: string): string;
+    get_dependencies(namespace_: string): string[];
+    get_immediate_dependencies(namespace_: string): string[];
+    get_info(namespace_: string, index: number): BaseInfo;
+    get_loaded_namespaces(): string[];
+    get_n_infos(namespace_: string): number;
+    get_object_gtype_interfaces(gtype: GType): [number,InterfaceInfo[]];
+    get_shared_library(namespace_: string): string;
+    get_typelib_path(namespace_: string): string;
+    get_version(namespace_: string): string;
+    is_registered(namespace_: string, version: string | null): boolean;
+    load_typelib(typelib: Typelib, flags: RepositoryLoadFlags): string;
+    require(namespace_: string, version: string | null, flags: RepositoryLoadFlags): Typelib;
+    require_private(typelib_dir: string, namespace_: string, version: string | null, flags: RepositoryLoadFlags): Typelib;
+    static dump(arg: string): boolean;
+    static error_quark(): GLib.Quark;
+    static get_default(): Repository;
+    static get_option_group(): GLib.OptionGroup;
+    static get_search_path(): string[];
+    static prepend_library_path(directory: string): void;
+    static prepend_search_path(directory: string): void;
 }
-export class AttributeIter  {constructor(config?: properties);
-readonly data: object;
-readonly data2: object;
-readonly data3: object;
-readonly data4: object;
+export class AttributeIter  {
+    constructor(config?: properties);
+    readonly data: object;
+    readonly data2: object;
+    readonly data3: object;
+    readonly data4: object;
 }
-export class BaseInfo  {constructor(config?: properties);
-readonly dummy1: number;
-readonly dummy2: number;
-readonly dummy3: object;
-readonly dummy4: object;
-readonly dummy5: object;
-readonly dummy6: number;
-readonly dummy7: number;
-readonly padding: object[];
-equal(info2: BaseInfo): boolean;
-get_attribute(name: string): string;
-get_container(): BaseInfo;
-get_name(): string;
-get_namespace(): string;
-get_type(): InfoType;
-get_typelib(): Typelib;
-is_deprecated(): boolean;
-iterate_attributes(iterator: AttributeIter): [boolean, AttributeIter,string,string];
-ref(): BaseInfo;
-unref(): void;
+export class BaseInfo  {
+    constructor(config?: properties);
+    readonly dummy1: number;
+    readonly dummy2: number;
+    readonly dummy3: object;
+    readonly dummy4: object;
+    readonly dummy5: object;
+    readonly dummy6: number;
+    readonly dummy7: number;
+    readonly padding: object[];
+    equal(info2: BaseInfo): boolean;
+    get_attribute(name: string): string;
+    get_container(): BaseInfo;
+    get_name(): string;
+    get_namespace(): string;
+    get_type(): InfoType;
+    get_typelib(): Typelib;
+    is_deprecated(): boolean;
+    iterate_attributes(iterator: AttributeIter): [boolean, AttributeIter,string,string];
 }
-export class RepositoryClass  {constructor(config?: properties);
+export class RepositoryPrivate  {
+    constructor(config?: properties);
 }
-export class RepositoryPrivate  {constructor(config?: properties);
+export class Typelib  {
+    constructor(config?: properties);
+    free(): void;
+    get_namespace(): string;
+    symbol(symbol_name: string, symbol: object | null): boolean;
 }
-export class Typelib  {constructor(config?: properties);
-free(): void;
-get_namespace(): string;
-symbol(symbol_name: string, symbol: object | null): boolean;
-static new_from_const_memory(memory: number, len: number): Typelib;
-static new_from_mapped_file(mfile: GLib.MappedFile): Typelib;
-static new_from_memory(memory: number, len: number): Typelib;
+export class UnresolvedInfo  {
+    constructor(config?: properties);
 }
-export class UnresolvedInfo  {constructor(config?: properties);
-}
-export class Argument  {constructor(config?: properties);
-v_boolean: boolean;
-v_int8: number;
-v_uint8: number;
-v_int16: number;
-v_uint16: number;
-v_int32: number;
-v_uint32: number;
-v_int64: number;
-v_uint64: number;
-v_float: number;
-v_double: number;
-v_short: unknown;
-v_ushort: number;
-v_int: number;
-v_uint: number;
-v_long: number;
-v_ulong: number;
-v_ssize: number;
-v_size: number;
-v_string: string;
-v_pointer: object;
+export class Argument  {
+    constructor(config?: properties);
+    v_boolean: boolean;
+    v_int8: number;
+    v_uint8: number;
+    v_int16: number;
+    v_uint16: number;
+    v_int32: number;
+    v_uint32: number;
+    v_int64: number;
+    v_uint64: number;
+    v_float: number;
+    v_double: number;
+    v_short: number;
+    v_ushort: number;
+    v_int: number;
+    v_uint: number;
+    v_long: number;
+    v_ulong: number;
+    v_ssize: number;
+    v_size: number;
+    v_string: string;
+    v_pointer: object;
 }

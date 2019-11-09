@@ -7,6 +7,7 @@ import * as BlockDev from "blockdev";
  * blockdev.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type UtilsLogFunc = (level: number, msg: string) => void;
 export type UtilsProgExtract = (line: string) => boolean;
 export type UtilsProgFunc = (task_id: number, status: UtilsProgStatus, completion: number, msg: string | null) => void;
@@ -638,10 +639,6 @@ export function init(require_plugins: PluginSpec[] | null, log_func: UtilsLogFun
 /**
  * 
  */
-export function init_error_quark(): GLib.Quark;
-/**
- * 
- */
 export function is_initialized(): boolean;
 /**
  * 
@@ -797,10 +794,6 @@ export function lvm_cache_pool_name(vg_name: string, cached_lv: string): string;
  * 
  */
 export function lvm_cache_stats(vg_name: string, cached_lv: string): LVMCacheStats;
-/**
- * Frees @data.
- */
-export function lvm_cache_stats_free(data: LVMLVdata): void;
 /**
  * 
  */
@@ -1291,15 +1284,7 @@ export function utils_check_util_version(util: string, version: string | null, v
 /**
  * 
  */
-export function utils_dbus_error_quark(): GLib.Quark;
-/**
- * 
- */
 export function utils_dbus_service_available(connection: Gio.DBusConnection | null, bus_type: Gio.BusType, bus_name: string, obj_prefix: string): boolean;
-/**
- * 
- */
-export function utils_dev_utils_error_quark(): GLib.Quark;
 /**
  * 
  */
@@ -1324,10 +1309,6 @@ export function utils_exec_and_report_progress(argv: string[], extra: ExtraArg[]
  * 
  */
 export function utils_exec_and_report_status_error(argv: string[], extra: ExtraArg[] | null): [boolean, number];
-/**
- * 
- */
-export function utils_exec_error_quark(): GLib.Quark;
 /**
  * 
  */
@@ -1356,10 +1337,6 @@ export function utils_load_kernel_module(module_name: string, options: string | 
  * 
  */
 export function utils_log(level: number, msg: string): void;
-/**
- * 
- */
-export function utils_module_error_quark(): GLib.Quark;
 /**
  * 
  */
@@ -1886,305 +1863,287 @@ export enum VDOTechMode {
     QUERY = 32,
     GROW = 64,
 }
-export class BtrfsDeviceInfo  {constructor(config?: properties);
-id: number;
-path: string;
-size: number;
-used: number;
-copy(): BtrfsDeviceInfo;
-free(): void;
+export class BtrfsDeviceInfo  {
+    constructor(config?: properties);
+    id: number;
+    path: string;
+    size: number;
+    used: number;
 }
-export class BtrfsFilesystemInfo  {constructor(config?: properties);
-label: string;
-uuid: string;
-num_devices: number;
-used: number;
-copy(): BtrfsFilesystemInfo;
-free(): void;
+export class BtrfsFilesystemInfo  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    num_devices: number;
+    used: number;
 }
-export class BtrfsSubvolumeInfo  {constructor(config?: properties);
-id: number;
-parent_id: number;
-path: string;
-copy(): BtrfsSubvolumeInfo;
-free(): void;
+export class BtrfsSubvolumeInfo  {
+    constructor(config?: properties);
+    id: number;
+    parent_id: number;
+    path: string;
 }
-export class CryptoIntegrityInfo  {constructor(config?: properties);
-algorithm: string;
-key_size: number;
-sector_size: number;
-tag_size: number;
-interleave_sectors: number;
-journal_size: number;
-journal_crypt: string;
-journal_integrity: string;
-copy(): CryptoIntegrityInfo;
-free(): void;
+export class CryptoIntegrityInfo  {
+    constructor(config?: properties);
+    algorithm: string;
+    key_size: number;
+    sector_size: number;
+    tag_size: number;
+    interleave_sectors: number;
+    journal_size: number;
+    journal_crypt: string;
+    journal_integrity: string;
+    copy(): CryptoIntegrityInfo;
 }
-export class CryptoLUKSExtra  {constructor(config?: properties);
-copy(): CryptoLUKSExtra;
-free(): void;
+export class CryptoLUKSExtra  {
+    constructor(config?: properties);
 }
-export class CryptoLUKSInfo  {constructor(config?: properties);
-version: CryptoLUKSVersion;
-cipher: string;
-mode: string;
-uuid: string;
-backing_device: string;
-sector_size: number;
-copy(): CryptoLUKSInfo;
-free(): void;
+export class CryptoLUKSInfo  {
+    constructor(config?: properties);
+    version: CryptoLUKSVersion;
+    cipher: string;
+    mode: string;
+    uuid: string;
+    backing_device: string;
+    sector_size: number;
 }
-export class CryptoLUKSPBKDF  {constructor(config?: properties);
-copy(): CryptoLUKSPBKDF;
-free(): void;
+export class CryptoLUKSPBKDF  {
+    constructor(config?: properties);
 }
-export class ExtraArg  {constructor(config?: properties);
-copy(): ExtraArg;
-free(): void;
+export class ExtraArg  {
+    constructor(config?: properties);
+    copy(): ExtraArg;
+    free(): void;
 }
-export class FSExt2Info  {constructor(config?: properties);
-label: string;
-uuid: string;
-state: string;
-block_size: number;
-block_count: number;
-free_blocks: number;
-copy(): FSExt2Info;
+export class FSExt2Info  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    state: string;
+    block_size: number;
+    block_count: number;
+    free_blocks: number;
 }
-export class FSExt3Info  {constructor(config?: properties);
-label: string;
-uuid: string;
-state: string;
-block_size: number;
-block_count: number;
-free_blocks: number;
-copy(): FSExt3Info;
-free(): void;
+export class FSExt3Info  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    state: string;
+    block_size: number;
+    block_count: number;
+    free_blocks: number;
 }
-export class FSExt4Info  {constructor(config?: properties);
-label: string;
-uuid: string;
-state: string;
-block_size: number;
-block_count: number;
-free_blocks: number;
-copy(): FSExt4Info;
-free(): void;
+export class FSExt4Info  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    state: string;
+    block_size: number;
+    block_count: number;
+    free_blocks: number;
 }
-export class FSExtInfo  {constructor(config?: properties);
-label: string;
-uuid: string;
-state: string;
-block_size: number;
-block_count: number;
-free_blocks: number;
+export class FSExtInfo  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    state: string;
+    block_size: number;
+    block_count: number;
+    free_blocks: number;
 }
-export class FSNtfsInfo  {constructor(config?: properties);
-size: number;
-free_space: number;
-copy(): FSNtfsInfo;
-free(): void;
+export class FSNtfsInfo  {
+    constructor(config?: properties);
+    size: number;
+    free_space: number;
 }
-export class FSVfatInfo  {constructor(config?: properties);
-label: string;
-uuid: string;
-cluster_size: number;
-cluster_count: number;
-free_cluster_count: number;
-copy(): FSVfatInfo;
-free(): void;
+export class FSVfatInfo  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    cluster_size: number;
+    cluster_count: number;
+    free_cluster_count: number;
 }
-export class FSXfsInfo  {constructor(config?: properties);
-label: string;
-uuid: string;
-block_size: number;
-block_count: number;
-copy(): FSXfsInfo;
-free(): void;
+export class FSXfsInfo  {
+    constructor(config?: properties);
+    label: string;
+    uuid: string;
+    block_size: number;
+    block_count: number;
 }
-export class KBDBcacheStats  {constructor(config?: properties);
-state: string;
-block_size: number;
-cache_size: number;
-cache_used: number;
-hits: number;
-misses: number;
-bypass_hits: number;
-bypass_misses: number;
-copy(): KBDBcacheStats;
-free(): void;
+export class KBDBcacheStats  {
+    constructor(config?: properties);
+    state: string;
+    block_size: number;
+    cache_size: number;
+    cache_used: number;
+    hits: number;
+    misses: number;
+    bypass_hits: number;
+    bypass_misses: number;
 }
-export class KBDZramStats  {constructor(config?: properties);
-disksize: number;
-num_reads: number;
-num_writes: number;
-invalid_io: number;
-zero_pages: number;
-max_comp_streams: number;
-comp_algorithm: string;
-orig_data_size: number;
-compr_data_size: number;
-mem_used_total: number;
-copy(): KBDZramStats;
-free(): void;
+export class KBDZramStats  {
+    constructor(config?: properties);
+    disksize: number;
+    num_reads: number;
+    num_writes: number;
+    invalid_io: number;
+    zero_pages: number;
+    max_comp_streams: number;
+    comp_algorithm: string;
+    orig_data_size: number;
+    compr_data_size: number;
+    mem_used_total: number;
 }
-export class LVMCacheStats  {constructor(config?: properties);
-block_size: number;
-cache_size: number;
-cache_used: number;
-md_block_size: number;
-md_size: number;
-md_used: number;
-read_hits: number;
-read_misses: number;
-write_hits: number;
-write_misses: number;
-mode: LVMCacheMode;
-copy(): LVMCacheStats;
-static free(data: LVMLVdata): void;
+export class LVMCacheStats  {
+    constructor(config?: properties);
+    block_size: number;
+    cache_size: number;
+    cache_used: number;
+    md_block_size: number;
+    md_size: number;
+    md_used: number;
+    read_hits: number;
+    read_misses: number;
+    write_hits: number;
+    write_misses: number;
+    mode: LVMCacheMode;
 }
-export class LVMLVdata  {constructor(config?: properties);
-lv_name: string;
-vg_name: string;
-uuid: string;
-size: number;
-attr: string;
-segtype: string;
-origin: string;
-pool_lv: string;
-data_lv: string;
-metadata_lv: string;
-roles: string;
-move_pv: string;
-data_percent: number;
-metadata_percent: number;
-copy_percent: number;
-copy(): LVMLVdata;
-free(): void;
+export class LVMLVdata  {
+    constructor(config?: properties);
+    lv_name: string;
+    vg_name: string;
+    uuid: string;
+    size: number;
+    attr: string;
+    segtype: string;
+    origin: string;
+    pool_lv: string;
+    data_lv: string;
+    metadata_lv: string;
+    roles: string;
+    move_pv: string;
+    data_percent: number;
+    metadata_percent: number;
+    copy_percent: number;
 }
-export class LVMPVdata  {constructor(config?: properties);
-pv_name: string;
-pv_uuid: string;
-pv_free: number;
-pv_size: number;
-pe_start: number;
-vg_name: string;
-vg_uuid: string;
-vg_size: number;
-vg_free: number;
-vg_extent_size: number;
-vg_extent_count: number;
-vg_free_count: number;
-vg_pv_count: number;
-copy(): LVMPVdata;
-free(): void;
+export class LVMPVdata  {
+    constructor(config?: properties);
+    pv_name: string;
+    pv_uuid: string;
+    pv_free: number;
+    pv_size: number;
+    pe_start: number;
+    vg_name: string;
+    vg_uuid: string;
+    vg_size: number;
+    vg_free: number;
+    vg_extent_size: number;
+    vg_extent_count: number;
+    vg_free_count: number;
+    vg_pv_count: number;
 }
-export class LVMVGdata  {constructor(config?: properties);
-name: string;
-uuid: string;
-size: number;
-extent_size: number;
-extent_count: number;
-free_count: number;
-pv_count: number;
-copy(): LVMVGdata;
-free(): void;
+export class LVMVGdata  {
+    constructor(config?: properties);
+    name: string;
+    uuid: string;
+    size: number;
+    free: number;
+    extent_size: number;
+    extent_count: number;
+    free_count: number;
+    pv_count: number;
 }
-export class MDDetailData  {constructor(config?: properties);
-device: string;
-metadata: string;
-creation_time: string;
-level: string;
-name: string;
-array_size: number;
-use_dev_size: number;
-raid_devices: number;
-total_devices: number;
-active_devices: number;
-working_devices: number;
-failed_devices: number;
-spare_devices: number;
-clean: boolean;
-uuid: string;
-copy(): MDDetailData;
-free(): void;
+export class MDDetailData  {
+    constructor(config?: properties);
+    device: string;
+    metadata: string;
+    creation_time: string;
+    level: string;
+    name: string;
+    array_size: number;
+    use_dev_size: number;
+    raid_devices: number;
+    total_devices: number;
+    active_devices: number;
+    working_devices: number;
+    failed_devices: number;
+    spare_devices: number;
+    clean: boolean;
+    uuid: string;
 }
-export class MDExamineData  {constructor(config?: properties);
-device: string;
-level: string;
-num_devices: number;
-name: string;
-size: number;
-uuid: string;
-update_time: number;
-dev_uuid: string;
-events: number;
-metadata: string;
-chunk_size: number;
-copy(): MDExamineData;
-free(): void;
+export class MDExamineData  {
+    constructor(config?: properties);
+    device: string;
+    level: string;
+    num_devices: number;
+    name: string;
+    size: number;
+    uuid: string;
+    update_time: number;
+    dev_uuid: string;
+    events: number;
+    metadata: string;
+    chunk_size: number;
 }
-export class NVDIMMNamespaceInfo  {constructor(config?: properties);
-dev: string;
-mode: number;
-size: number;
-uuid: string;
-sector_size: number;
-blockdev: string;
-enabled: boolean;
-copy(): NVDIMMNamespaceInfo;
-free(): void;
+export class NVDIMMNamespaceInfo  {
+    constructor(config?: properties);
+    dev: string;
+    mode: number;
+    size: number;
+    uuid: string;
+    sector_size: number;
+    blockdev: string;
+    enabled: boolean;
 }
-export class PartDiskSpec  {constructor(config?: properties);
-path: string;
-table_type: PartTableType;
-size: number;
-sector_size: number;
-flags: number;
-copy(): PartDiskSpec;
-free(): void;
+export class PartDiskSpec  {
+    constructor(config?: properties);
+    path: string;
+    table_type: PartTableType;
+    size: number;
+    sector_size: number;
+    flags: number;
+    copy(): PartDiskSpec;
+    free(): void;
 }
-export class PartSpec  {constructor(config?: properties);
-path: string;
-name: string;
-type_guid: string;
-type: number;
-start: number;
-size: number;
-flags: number;
-copy(): PartSpec;
-free(): void;
+export class PartSpec  {
+    constructor(config?: properties);
+    path: string;
+    name: string;
+    type_guid: string;
+    type: number;
+    start: number;
+    size: number;
+    flags: number;
+    copy(): PartSpec;
+    free(): void;
 }
-export class PluginSpec  {constructor(config?: properties);
-name: Plugin;
-so_name: string;
-copy(): PluginSpec;
-free(): void;
+export class PluginSpec  {
+    constructor(config?: properties);
+    name: Plugin;
+    so_name: string;
 }
-export class VDOInfo  {constructor(config?: properties);
-name: string;
-device: string;
-active: boolean;
-deduplication: boolean;
-compression: boolean;
-logical_size: number;
-physical_size: number;
-index_memory: number;
-write_policy: VDOWritePolicy;
-copy(): VDOInfo;
-free(): void;
+export class VDOInfo  {
+    constructor(config?: properties);
+    name: string;
+    device: string;
+    active: boolean;
+    deduplication: boolean;
+    compression: boolean;
+    logical_size: number;
+    physical_size: number;
+    index_memory: number;
+    write_policy: VDOWritePolicy;
 }
-export class VDOStats  {constructor(config?: properties);
-block_size: number;
-logical_block_size: number;
-physical_blocks: number;
-data_blocks_used: number;
-overhead_blocks_used: number;
-logical_blocks_used: number;
-used_percent: number;
-saving_percent: number;
-write_amplification_ratio: number;
-copy(): VDOStats;
-free(): void;
+export class VDOStats  {
+    constructor(config?: properties);
+    block_size: number;
+    logical_block_size: number;
+    physical_blocks: number;
+    data_blocks_used: number;
+    overhead_blocks_used: number;
+    logical_blocks_used: number;
+    used_percent: number;
+    saving_percent: number;
+    write_amplification_ratio: number;
 }

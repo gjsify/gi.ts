@@ -9,6 +9,7 @@ import * as PangoCairo from "pangocairo";
  * pangocairo.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ShapeRendererFunc = (cr: cairo.Context, attr: Pango.AttrShape, do_path: boolean, data: object | null) => void;
 /**
  * Retrieves any font rendering options previously set with
@@ -23,15 +24,6 @@ export function context_get_font_options(context: Pango.Context): cairo.FontOpti
  * ution()
  */
 export function context_get_resolution(context: Pango.Context): number;
-/**
- * Sets callback function for context to use for rendering attributes
- * of type %PANGO_ATTR_SHAPE.  See #PangoCairoShapeRendererFunc for
- * details.
- * Retrieves callback function and associated user data for rendering
- * attributes of type %PANGO_ATTR_SHAPE as set by
- * pango_cairo_context_set_shape_renderer(), if any.
- */
-export function context_get_shape_renderer(context: Pango.Context, data: object | null): ShapeRendererFunc | null;
 /**
  * Sets the font options used when rendering text with this context.
  * These options override any options that pango_cairo_update_context()
@@ -205,7 +197,6 @@ export interface Font  {
     get_scaled_font(): cairo.ScaledFont | null;
 }
 export interface FontMap  {
-    create_context(): Pango.Context;
     get_font_type(): cairo.FontType;
     get_resolution(): number;
     set_default(): void;

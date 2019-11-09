@@ -14,6 +14,7 @@ import * as Pango from "pango";
  * clutter.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ActorCreateChildFunc = (item: GObject.Object, user_data: object | null) => Actor;
 export type AlphaFunc = (alpha: Alpha, user_data: object | null) => number;
 export type BehaviourForeachFunc = (behaviour: Behaviour, actor: Actor, data: object | null) => void;
@@ -4785,10 +4786,6 @@ export function feature_available(feature: FeatureFlags): boolean;
  */
 export function feature_get_all(): FeatureFlags;
 /**
- * Simple wrapper around clutter_frame_source_add_full().
- */
-export function frame_source_add(fps: number, func: GLib.SourceFunc, data: object | null): number;
-/**
  * Sets a function to be called at regular intervals with the given
  * priority.  The function is called repeatedly until it returns
  * %FALSE, at which point the timeout is automatically destroyed and
@@ -4883,44 +4880,6 @@ export function get_keyboard_grab(): Actor;
  * Gets whether the per-actor motion events are enabled.
  */
 export function get_motion_events_enabled(): boolean;
-/**
- * Returns a #GOptionGroup for the command line arguments recognized
- * by Clutter. You should add this group to your #GOptionContext with
- * g_option_context_add_group(), if you are using g_option_context_parse(
- * )
- * to parse your commandline arguments.
- * Calling g_option_context_parse() with Clutter's #GOptionGroup will res
- * ult
- * in Clutter's initialization. That is, the following code:
- * |[
- *   g_option_context_set_main_group (context, clutter_get_option_group (
- * ));
- *   res = g_option_context_parse (context, &argc, &argc, NULL);
- * ]|
- * is functionally equivalent to:
- * |[
- *   clutter_init (&argc, &argv);
- * ]|
- * After g_option_context_parse() on a #GOptionContext containing the
- * Clutter #GOptionGroup has returned %TRUE, Clutter is guaranteed to be
- * initialized.
- */
-export function get_option_group(): GLib.OptionGroup;
-/**
- * Returns a #GOptionGroup for the command line arguments recognized
- * by Clutter. You should add this group to your #GOptionContext with
- * g_option_context_add_group(), if you are using g_option_context_parse(
- * )
- * to parse your commandline arguments.
- * Unlike clutter_get_option_group(), calling g_option_context_parse() wi
- * th
- * the #GOptionGroup returned by this function requires a subsequent expl
- * icit
- * call to clutter_init(); use this function when needing to set foreign
- * display connection with clutter_x11_set_display(), or with
- * `gtk_clutter_init()`.
- */
-export function get_option_group_without_init(): GLib.OptionGroup;
 /**
  * Queries the current pointer grab of clutter.
  */
@@ -5058,7 +5017,7 @@ export function matrix_free(matrix: Matrix | null): void;
 /**
  * 
  */
-export function matrix_get_type(): unknown;
+export function matrix_get_type(): GType;
 /**
  * Initializes @matrix with the contents of a C array of floating point
  * values.
@@ -5079,18 +5038,6 @@ export function matrix_init_from_matrix(a: Matrix, b: Matrix): Matrix;
  * ]|
  */
 export function matrix_init_identity(matrix: Matrix): Matrix;
-/**
- * Creates a #GParamSpec for properties using #ClutterColor.
- */
-export function param_spec_color(name: string, nick: string, blurb: string, default_value: Color, flags: GObject.ParamFlags): GObject.ParamSpec;
-/**
- * Creates a #GParamSpec for properties using #CoglFixed values
- */
-export function param_spec_fixed(name: string, nick: string, blurb: string, minimum: Cogl.Fixed, maximum: Cogl.Fixed, default_value: Cogl.Fixed, flags: GObject.ParamFlags): GObject.ParamSpec;
-/**
- * Creates a #GParamSpec for properties using #ClutterUnits.
- */
-export function param_spec_units(name: string, nick: string, blurb: string, default_type: UnitType, minimum: number, maximum: number, default_value: number, flags: GObject.ParamFlags): GObject.ParamSpec;
 /**
  * A point centered at (0, 0).
  * The returned value can be used as a guard.
@@ -5179,16 +5126,6 @@ export function set_windowing_backend(backend_type: string): void;
 export function shader_error_quark(): GLib.Quark;
 /**
  * Adds a test unit to the Clutter test environment.
- * See also: g_test_add()
- */
-export function test_add(test_path: string, test_func: GLib.TestFunc): void;
-/**
- * Adds a test unit to the Clutter test environment.
- * See also: g_test_add_data_func()
- */
-export function test_add_data(test_path: string, test_func: GLib.TestDataFunc, test_data: object | null): void;
-/**
- * Adds a test unit to the Clutter test environment.
  * See also: g_test_add_data_func_full()
  */
 export function test_add_data_full(test_path: string, test_func: GLib.TestDataFunc, test_data: object | null, test_notify: GLib.DestroyNotify): void;
@@ -5237,10 +5174,6 @@ export function test_run(): number;
  */
 export function texture_error_quark(): GLib.Quark;
 /**
- * Simple wrapper around clutter_threads_add_frame_source_full().
- */
-export function threads_add_frame_source(fps: number, func: GLib.SourceFunc, data: object | null): number;
-/**
  * Sets a function to be called at regular intervals holding the Clutter
  * threads lock, with the given priority. The function is called repeated
  * ly
@@ -5260,11 +5193,6 @@ export function threads_add_frame_source(fps: number, func: GLib.SourceFunc, dat
  * See also clutter_threads_add_idle_full().
  */
 export function threads_add_frame_source_full(priority: number, fps: number, func: GLib.SourceFunc, data: object | null, notify: GLib.DestroyNotify): number;
-/**
- * Simple wrapper around clutter_threads_add_idle_full() using the
- * default priority.
- */
-export function threads_add_idle(func: GLib.SourceFunc, data: object | null): number;
 /**
  * Adds a function to be called whenever there are no higher priority
  * events pending. If the function returns %FALSE it is automatically
@@ -5383,10 +5311,6 @@ export function threads_add_repaint_func(func: GLib.SourceFunc, data: object | n
  */
 export function threads_add_repaint_func_full(flags: RepaintFlags, func: GLib.SourceFunc, data: object | null, notify: GLib.DestroyNotify): number;
 /**
- * Simple wrapper around clutter_threads_add_timeout_full().
- */
-export function threads_add_timeout(interval: number, func: GLib.SourceFunc, data: object | null): number;
-/**
  * Sets a function to be called at regular intervals holding the Clutter
  * threads lock, with the given priority. The function is called repeated
  * ly
@@ -5424,38 +5348,6 @@ export function threads_leave(): void;
  * Removes the repaint function with @handle_id as its id
  */
 export function threads_remove_repaint_func(handle_id: number): void;
-/**
- * Allows the application to replace the standard method that
- * Clutter uses to protect its data structures. Normally, Clutter
- * creates a single #GMutex that is locked by clutter_threads_enter(),
- * and released by clutter_threads_leave(); using this function an
- * application provides, instead, a function @enter_fn that is
- * called by clutter_threads_enter() and a function @leave_fn that is
- * called by clutter_threads_leave().
- * The functions must provide at least same locking functionality
- * as the default implementation, but can also do extra application
- * specific processing.
- * As an example, consider an application that has its own recursive
- * lock that when held, holds the Clutter lock as well. When Clutter
- * unlocks the Clutter lock when entering a recursive main loop, the
- * application must temporarily release its lock as well.
- * Most threaded Clutter apps won't need to use this method.
- * This method must be called before clutter_init(), and cannot
- * be called multiple times.
- */
-export function threads_set_lock_functions(enter_fn: GObject.Callback, leave_fn: GObject.Callback): void;
-/**
- * Creates a new timeout pool source. A timeout pool should be used when
- * multiple timeout functions, running at the same priority, are needed a
- * nd
- * the g_timeout_add() API might lead to starvation of the time slice of
- * the main loop. A timeout pool allocates a single time slice of the mai
- * n
- * loop and runs every timeout function inside it. The timeout pool is
- * always sorted, so that the extraction of the next timeout function is
- * a constant time operation.
- */
-export function timeout_pool_new(priority: number): TimeoutPool;
 /**
  * Removes an existing grab of the keyboard.
  */
@@ -5541,10 +5433,6 @@ export function value_dup_paint_node(value: GObject.Value): PaintNode;
  */
 export function value_get_color(value: GObject.Value): Color;
 /**
- * Gets the fixed point value stored inside @value.
- */
-export function value_get_fixed(value: GObject.Value): Cogl.Fixed;
-/**
  * Retrieves a pointer to the #ClutterPaintNode contained inside
  * the passed #GValue.
  */
@@ -5575,10 +5463,6 @@ export function value_get_units(value: GObject.Value): Units;
  * Sets @value to @color.
  */
 export function value_set_color(value: GObject.Value, color: Color): void;
-/**
- * Sets @value to @fixed_.
- */
-export function value_set_fixed(value: GObject.Value, fixed_: Cogl.Fixed): void;
 /**
  * Sets the contents of a #GValue initialized with %CLUTTER_TYPE_PAINT_NO
  * DE.
@@ -6088,2824 +5972,2280 @@ export enum TextureFlags {
     RGB_FLAG_PREMULT = 4,
     YUV_FLAG_YUV2 = 8,
 }
-export class Action  {constructor(config?: properties);
-}
-export class Actor extends GObject.InitiallyUnowned {constructor(config?: properties);
-actions: Action;
-readonly allocation: ActorBox;
-anchor_gravity: Gravity;
-anchor_x: number;
-anchor_y: number;
-background_color: Color;
-readonly background_color_set: boolean;
-child_transform: unknown;
-readonly child_transform_set: boolean;
-clip: Geometry;
-clip_rect: Rect;
-clip_to_allocation: boolean;
-constraints: Constraint;
-content: Content;
-readonly content_box: ActorBox;
-content_gravity: ContentGravity;
-content_repeat: ContentRepeat;
-depth: number;
-effect: Effect;
-readonly first_child: Actor;
-fixed_position_set: boolean;
-fixed_x: number;
-fixed_y: number;
-height: number;
-readonly last_child: Actor;
-layout_manager: LayoutManager;
-magnification_filter: ScalingFilter;
-readonly mapped: boolean;
-margin_bottom: number;
-margin_left: number;
-margin_right: number;
-margin_top: number;
-min_height: number;
-min_height_set: boolean;
-min_width: number;
-min_width_set: boolean;
-minification_filter: ScalingFilter;
-name: string;
-natural_height: number;
-natural_height_set: boolean;
-natural_width: number;
-natural_width_set: boolean;
-offscreen_redirect: OffscreenRedirect;
-opacity: number;
-pivot_point: Point;
-pivot_point_z: number;
-position: Point;
-reactive: boolean;
-readonly realized: boolean;
-request_mode: RequestMode;
-rotation_angle_x: number;
-rotation_angle_y: number;
-rotation_angle_z: number;
-rotation_center_x: Vertex;
-rotation_center_y: Vertex;
-rotation_center_z: Vertex;
-rotation_center_z_gravity: Gravity;
-scale_center_x: number;
-scale_center_y: number;
-scale_gravity: Gravity;
-scale_x: number;
-scale_y: number;
-scale_z: number;
-show_on_set_parent: boolean;
-size: Size;
-text_direction: TextDirection;
-transform: unknown;
-readonly transform_set: boolean;
-translation_x: number;
-translation_y: number;
-translation_z: number;
-visible: boolean;
-width: number;
-x: number;
-x_align: ActorAlign;
-x_expand: boolean;
-y: number;
-y_align: ActorAlign;
-y_expand: boolean;
-z_position: number;
-add_action(action: Action): void;
-add_action_with_name(name: string, action: Action): void;
-add_child(child: Actor): void;
-add_constraint(constraint: Constraint): void;
-add_constraint_with_name(name: string, constraint: Constraint): void;
-add_effect(effect: Effect): void;
-add_effect_with_name(name: string, effect: Effect): void;
-add_transition(name: string, transition: Transition): void;
-allocate(box: ActorBox, flags: AllocationFlags): void;
-allocate_align_fill(box: ActorBox, x_align: number, y_align: number, x_fill: boolean, y_fill: boolean, flags: AllocationFlags): void;
-allocate_available_size(x: number, y: number, available_width: number, available_height: number, flags: AllocationFlags): void;
-allocate_preferred_size(flags: AllocationFlags): void;
-animate(mode: number, duration: number, first_property_name: string, ___: unknown[]): Animation;
-animate_with_alpha(alpha: Alpha, first_property_name: string, ___: unknown[]): Animation;
-animate_with_alphav(alpha: Alpha, n_properties: number, properties: string[], values: GObject.Value[]): Animation;
-animate_with_timeline(mode: number, timeline: Timeline, first_property_name: string, ___: unknown[]): Animation;
-animate_with_timelinev(mode: number, timeline: Timeline, n_properties: number, properties: string[], values: GObject.Value[]): Animation;
-animatev(mode: number, duration: number, n_properties: number, properties: string[], values: GObject.Value[]): Animation;
-apply_relative_transform_to_point(ancestor: Actor | null, point: Vertex): [Vertex];
-apply_transform_to_point(point: Vertex): [Vertex];
-bind_model(model: Gio.ListModel | null, create_child_func: ActorCreateChildFunc, user_data: object | null, notify: GLib.DestroyNotify): void;
-bind_model_with_properties(model: Gio.ListModel, child_type: unknown, first_model_property: string, ___: unknown[]): void;
-clear_actions(): void;
-clear_constraints(): void;
-clear_effects(): void;
-contains(descendant: Actor): boolean;
-continue_paint(): void;
-create_pango_context(): Pango.Context;
-create_pango_layout(text: string | null): Pango.Layout;
-destroy(): void;
-destroy_all_children(): void;
-detach_animation(): void;
-event(event: Event, capture: boolean): boolean;
-get_abs_allocation_vertices(): [Vertex[]];
-get_accessible(): Atk.Object;
-get_action(name: string): Action;
-get_actions(): GLib.List;
-get_allocation_box(): [ActorBox];
-get_allocation_geometry(): [Geometry];
-get_allocation_vertices(ancestor: Actor | null): [Vertex[]];
-get_anchor_point(): [number,number];
-get_anchor_point_gravity(): Gravity;
-get_animation(): Animation;
-get_background_color(): [Color];
-get_child_at_index(index_: number): Actor;
-get_child_transform(): [Matrix];
-get_children(): GLib.List;
-get_clip(): [number | null,number | null,number | null,number | null];
-get_clip_to_allocation(): boolean;
-get_constraint(name: string): Constraint;
-get_constraints(): GLib.List;
-get_content(): Content;
-get_content_box(): [ActorBox];
-get_content_gravity(): ContentGravity;
-get_content_repeat(): ContentRepeat;
-get_content_scaling_filters(): [ScalingFilter | null,ScalingFilter | null];
-get_default_paint_volume(): PaintVolume;
-get_depth(): number;
-get_easing_delay(): number;
-get_easing_duration(): number;
-get_easing_mode(): AnimationMode;
-get_effect(name: string): Effect;
-get_effects(): GLib.List;
-get_first_child(): Actor;
-get_fixed_position_set(): boolean;
-get_flags(): ActorFlags;
-get_geometry(): [Geometry];
-get_gid(): number;
-get_height(): number;
-get_last_child(): Actor;
-get_layout_manager(): LayoutManager;
-get_margin(): [Margin];
-get_margin_bottom(): number;
-get_margin_left(): number;
-get_margin_right(): number;
-get_margin_top(): number;
-get_n_children(): number;
-get_name(): string;
-get_next_sibling(): Actor;
-get_offscreen_redirect(): OffscreenRedirect;
-get_opacity(): number;
-get_paint_box(): [boolean, ActorBox];
-get_paint_opacity(): number;
-get_paint_visibility(): boolean;
-get_paint_volume(): PaintVolume;
-get_pango_context(): Pango.Context;
-get_parent(): Actor;
-get_pivot_point(): [number | null,number | null];
-get_pivot_point_z(): number;
-get_position(): [number | null,number | null];
-get_preferred_height(for_width: number): [number | null,number | null];
-get_preferred_size(): [number | null,number | null,number | null,number | null];
-get_preferred_width(for_height: number): [number | null,number | null];
-get_previous_sibling(): Actor;
-get_reactive(): boolean;
-get_request_mode(): RequestMode;
-get_rotation(axis: RotateAxis): [number, number,number,number];
-get_rotation_angle(axis: RotateAxis): number;
-get_scale(): [number | null,number | null];
-get_scale_center(): [number | null,number | null];
-get_scale_gravity(): Gravity;
-get_scale_z(): number;
-get_shader(): Shader;
-get_size(): [number | null,number | null];
-get_stage(): Stage;
-get_text_direction(): TextDirection;
-get_transform(): [Matrix];
-get_transformation_matrix(): [Matrix];
-get_transformed_paint_volume(relative_to_ancestor: Actor): PaintVolume;
-get_transformed_position(): [number | null,number | null];
-get_transformed_size(): [number | null,number | null];
-get_transition(name: string): Transition;
-get_translation(): [number | null,number | null,number | null];
-get_width(): number;
-get_x(): number;
-get_x_align(): ActorAlign;
-get_x_expand(): boolean;
-get_y(): number;
-get_y_align(): ActorAlign;
-get_y_expand(): boolean;
-get_z_position(): number;
-get_z_rotation_gravity(): Gravity;
-grab_key_focus(): void;
-has_actions(): boolean;
-has_allocation(): boolean;
-has_clip(): boolean;
-has_constraints(): boolean;
-has_effects(): boolean;
-has_key_focus(): boolean;
-has_overlaps(): boolean;
-has_pointer(): boolean;
-hide(): void;
-hide_all(): void;
-insert_child_above(child: Actor, sibling: Actor | null): void;
-insert_child_at_index(child: Actor, index_: number): void;
-insert_child_below(child: Actor, sibling: Actor | null): void;
-is_in_clone_paint(): boolean;
-is_mapped(): boolean;
-is_realized(): boolean;
-is_rotated(): boolean;
-is_scaled(): boolean;
-is_visible(): boolean;
-lower(above: Actor | null): void;
-lower_bottom(): void;
-map(): void;
-move_anchor_point(anchor_x: number, anchor_y: number): void;
-move_anchor_point_from_gravity(gravity: Gravity): void;
-move_by(dx: number, dy: number): void;
-needs_expand(orientation: Orientation): boolean;
-paint(): void;
-pop_internal(): void;
-push_internal(): void;
-queue_redraw(): void;
-queue_redraw_with_clip(clip: cairo.RectangleInt | null): void;
-queue_relayout(): void;
-raise(below: Actor | null): void;
-raise_top(): void;
-realize(): void;
-remove_action(action: Action): void;
-remove_action_by_name(name: string): void;
-remove_all_children(): void;
-remove_all_transitions(): void;
-remove_child(child: Actor): void;
-remove_clip(): void;
-remove_constraint(constraint: Constraint): void;
-remove_constraint_by_name(name: string): void;
-remove_effect(effect: Effect): void;
-remove_effect_by_name(name: string): void;
-remove_transition(name: string): void;
-reparent(new_parent: Actor): void;
-replace_child(old_child: Actor, new_child: Actor): void;
-restore_easing_state(): void;
-save_easing_state(): void;
-set_allocation(box: ActorBox, flags: AllocationFlags): void;
-set_anchor_point(anchor_x: number, anchor_y: number): void;
-set_anchor_point_from_gravity(gravity: Gravity): void;
-set_background_color(color: Color | null): void;
-set_child_above_sibling(child: Actor, sibling: Actor | null): void;
-set_child_at_index(child: Actor, index_: number): void;
-set_child_below_sibling(child: Actor, sibling: Actor | null): void;
-set_child_transform(transform: Matrix | null): void;
-set_clip(xoff: number, yoff: number, width: number, height: number): void;
-set_clip_to_allocation(clip_set: boolean): void;
-set_content(content: Content | null): void;
-set_content_gravity(gravity: ContentGravity): void;
-set_content_repeat(repeat: ContentRepeat): void;
-set_content_scaling_filters(min_filter: ScalingFilter, mag_filter: ScalingFilter): void;
-set_depth(depth: number): void;
-set_easing_delay(msecs: number): void;
-set_easing_duration(msecs: number): void;
-set_easing_mode(mode: AnimationMode): void;
-set_fixed_position_set(is_set: boolean): void;
-set_flags(flags: ActorFlags): void;
-set_geometry(geometry: Geometry): void;
-set_height(height: number): void;
-set_layout_manager(manager: LayoutManager | null): void;
-set_margin(margin: Margin): void;
-set_margin_bottom(margin: number): void;
-set_margin_left(margin: number): void;
-set_margin_right(margin: number): void;
-set_margin_top(margin: number): void;
-set_name(name: string): void;
-set_offscreen_redirect(redirect: OffscreenRedirect): void;
-set_opacity(opacity: number): void;
-set_parent(parent: Actor): void;
-set_pivot_point(pivot_x: number, pivot_y: number): void;
-set_pivot_point_z(pivot_z: number): void;
-set_position(x: number, y: number): void;
-set_reactive(reactive: boolean): void;
-set_request_mode(mode: RequestMode): void;
-set_rotation(axis: RotateAxis, angle: number, x: number, y: number, z: number): void;
-set_rotation_angle(axis: RotateAxis, angle: number): void;
-set_scale(scale_x: number, scale_y: number): void;
-set_scale_full(scale_x: number, scale_y: number, center_x: number, center_y: number): void;
-set_scale_with_gravity(scale_x: number, scale_y: number, gravity: Gravity): void;
-set_scale_z(scale_z: number): void;
-set_shader(shader: Shader | null): boolean;
-set_shader_param(param: string, value: GObject.Value): void;
-set_shader_param_float(param: string, value: number): void;
-set_shader_param_int(param: string, value: number): void;
-set_size(width: number, height: number): void;
-set_text_direction(text_dir: TextDirection): void;
-set_transform(transform: Matrix | null): void;
-set_translation(translate_x: number, translate_y: number, translate_z: number): void;
-set_width(width: number): void;
-set_x(x: number): void;
-set_x_align(x_align: ActorAlign): void;
-set_x_expand(expand: boolean): void;
-set_y(y: number): void;
-set_y_align(y_align: ActorAlign): void;
-set_y_expand(expand: boolean): void;
-set_z_position(z_position: number): void;
-set_z_rotation_from_gravity(angle: number, gravity: Gravity): void;
-should_pick_paint(): boolean;
-show(): void;
-show_all(): void;
-transform_stage_point(x: number, y: number): [boolean, number,number];
-unmap(): void;
-unparent(): void;
-unrealize(): void;
-unset_flags(flags: ActorFlags): void;
-vfunc_allocate(box: ActorBox, flags: AllocationFlags): void;
-vfunc_apply_transform(matrix: Matrix): void;
-vfunc_button_press_event(event: ButtonEvent): boolean;
-vfunc_button_release_event(event: ButtonEvent): boolean;
-vfunc_captured_event(event: Event): boolean;
-vfunc_destroy(): void;
-vfunc_enter_event(event: CrossingEvent): boolean;
-vfunc_event(event: Event): boolean;
-vfunc_get_accessible(): Atk.Object;
-vfunc_get_paint_volume(volume: PaintVolume): boolean;
-vfunc_get_preferred_height(for_width: number): [number | null,number | null];
-vfunc_get_preferred_width(for_height: number): [number | null,number | null];
-vfunc_has_overlaps(): boolean;
-vfunc_hide(): void;
-vfunc_hide_all(): void;
-vfunc_key_focus_in(): void;
-vfunc_key_focus_out(): void;
-vfunc_key_press_event(event: KeyEvent): boolean;
-vfunc_key_release_event(event: KeyEvent): boolean;
-vfunc_leave_event(event: CrossingEvent): boolean;
-vfunc_map(): void;
-vfunc_motion_event(event: MotionEvent): boolean;
-vfunc_paint(): void;
-vfunc_paint_node(root: PaintNode): void;
-vfunc_parent_set(old_parent: Actor): void;
-vfunc_pick(color: Color): void;
-vfunc_queue_redraw(leaf_that_queued: Actor): void;
-vfunc_queue_relayout(): void;
-vfunc_realize(): void;
-vfunc_scroll_event(event: ScrollEvent): boolean;
-vfunc_show(): void;
-vfunc_show_all(): void;
-vfunc_touch_event(event: TouchEvent): boolean;
-vfunc_unmap(): void;
-vfunc_unrealize(): void;
-}
-export class ActorMeta  {constructor(config?: properties);
-readonly actor: Actor;
-enabled: boolean;
-name: string;
-readonly priv: ActorMetaPrivate;
-get_actor(): Actor;
-get_enabled(): boolean;
-get_name(): string;
-set_enabled(is_enabled: boolean): void;
-set_name(name: string): void;
-}
-export class AlignConstraint extends Constraint {constructor(config?: properties);
-align_axis: AlignAxis;
-factor: number;
-source: Actor;
-get_align_axis(): AlignAxis;
-get_factor(): number;
-get_source(): Actor;
-set_align_axis(axis: AlignAxis): void;
-set_factor(factor: number): void;
-set_source(source: Actor | null): void;
-}
-export class Alpha extends GObject.InitiallyUnowned {constructor(config?: properties);
-readonly alpha: number;
-mode: number;
-timeline: Timeline;static new_full(timeline: Timeline, mode: number): Alpha;
-static new_with_func(timeline: Timeline, func: AlphaFunc, data: object | null, destroy: GLib.DestroyNotify): Alpha;
-get_alpha(): number;
-get_mode(): number;
-get_timeline(): Timeline;
-set_closure(closure: GObject.Closure): void;
-set_func(func: AlphaFunc, data: object | null, destroy: GLib.DestroyNotify): void;
-set_mode(mode: number): void;
-set_timeline(timeline: Timeline): void;
-static register_closure(closure: GObject.Closure): number;
-static register_func(func: AlphaFunc, data: object | null): number;
-}
-export class Animation extends GObject.Object {constructor(config?: properties);
-alpha: Alpha;
-duration: number;
-loop: boolean;
-mode: number;
-object: GObject.Object;
-timeline: Timeline;
-bind(property_name: string, _final: GObject.Value): Animation;
-bind_interval(property_name: string, interval: Interval): Animation;
-completed(): void;
-get_alpha(): Alpha;
-get_duration(): number;
-get_interval(property_name: string): Interval;
-get_loop(): boolean;
-get_mode(): number;
-get_object(): GObject.Object;
-get_timeline(): Timeline;
-has_property(property_name: string): boolean;
-set_alpha(alpha: Alpha): void;
-set_duration(msecs: number): void;
-set_loop(loop: boolean): void;
-set_mode(mode: number): void;
-set_object(object: GObject.Object): void;
-set_timeline(timeline: Timeline | null): void;
-unbind_property(property_name: string): void;
-update(property_name: string, _final: GObject.Value): Animation;
-update_interval(property_name: string, interval: Interval): void;
-vfunc_completed(): void;
-vfunc_started(): void;
-}
-export class Animator extends GObject.Object {constructor(config?: properties);
-duration: number;
-timeline: Timeline;
-compute_value(object: GObject.Object, property_name: string, progress: number, value: GObject.Value): boolean;
-get_duration(): number;
-get_keys(object: GObject.Object | null, property_name: string | null, progress: number): GLib.List;
-get_timeline(): Timeline;
-property_get_ease_in(object: GObject.Object, property_name: string): boolean;
-property_get_interpolation(object: GObject.Object, property_name: string): Interpolation;
-property_set_ease_in(object: GObject.Object, property_name: string, ease_in: boolean): void;
-property_set_interpolation(object: GObject.Object, property_name: string, interpolation: Interpolation): void;
-remove_key(object: GObject.Object | null, property_name: string | null, progress: number): void;
-set(first_object: object | null, first_property_name: string, first_mode: number, first_progress: number, ___: unknown[]): void;
-set(...args: never[]): never;
-set_duration(duration: number): void;
-set_key(object: GObject.Object, property_name: string, mode: number, progress: number, value: GObject.Value): Animator;
-set_timeline(timeline: Timeline): void;
-start(): Timeline;
-}
-export class Backend  {constructor(config?: properties);
-get_double_click_distance(): number;
-get_double_click_time(): number;
-get_font_name(): string;
-get_font_options(): cairo.FontOptions;
-get_resolution(): number;
-set_double_click_distance(distance: number): void;
-set_double_click_time(msec: number): void;
-set_font_name(font_name: string): void;
-set_font_options(options: cairo.FontOptions): void;
-set_resolution(dpi: number): void;
-}
-export class Behaviour  {constructor(config?: properties);
-alpha: Alpha;
-readonly priv: BehaviourPrivate;
-actors_foreach(func: BehaviourForeachFunc, data: object | null): void;
-apply(actor: Actor): void;
-get_actors(): string[];
-get_alpha(): Alpha;
-get_n_actors(): number;
-get_nth_actor(index_: number): Actor;
-is_applied(actor: Actor): boolean;
-remove(actor: Actor): void;
-remove_all(): void;
-set_alpha(alpha: Alpha): void;
-}
-export class BehaviourDepth extends Behaviour {constructor(config?: properties);
-depth_end: number;
-depth_start: number;
-get_bounds(): [number,number];
-set_bounds(depth_start: number, depth_end: number): void;
-}
-export class BehaviourEllipse extends Behaviour {constructor(config?: properties);
-angle_end: number;
-angle_start: number;
-angle_tilt_x: number;
-angle_tilt_y: number;
-angle_tilt_z: number;
-center: Knot;
-direction: RotateDirection;
-height: number;
-width: number;
-get_angle_end(): number;
-get_angle_start(): number;
-get_angle_tilt(axis: RotateAxis): number;
-get_center(): [number,number];
-get_direction(): RotateDirection;
-get_height(): number;
-get_tilt(): [number,number,number];
-get_width(): number;
-set_angle_end(angle_end: number): void;
-set_angle_start(angle_start: number): void;
-set_angle_tilt(axis: RotateAxis, angle_tilt: number): void;
-set_center(x: number, y: number): void;
-set_direction(direction: RotateDirection): void;
-set_height(height: number): void;
-set_tilt(angle_tilt_x: number, angle_tilt_y: number, angle_tilt_z: number): void;
-set_width(width: number): void;
-}
-export class BehaviourOpacity extends Behaviour {constructor(config?: properties);
-opacity_end: number;
-opacity_start: number;
-get_bounds(): [number,number];
-set_bounds(opacity_start: number, opacity_end: number): void;
-}
-export class BehaviourPath extends Behaviour {constructor(config?: properties);
-path: Path;static new_with_description(alpha: Alpha | null, desc: string): Behaviour;
-static new_with_knots(alpha: Alpha | null, knots: Knot[], n_knots: number): Behaviour;
-get_path(): Path;
-set_path(path: Path): void;
-vfunc_knot_reached(knot_num: number): void;
-}
-export class BehaviourRotate extends Behaviour {constructor(config?: properties);
-angle_end: number;
-angle_start: number;
-axis: RotateAxis;
-center_x: number;
-center_y: number;
-center_z: number;
-direction: RotateDirection;
-get_axis(): RotateAxis;
-get_bounds(): [number,number];
-get_center(): [number,number,number];
-get_direction(): RotateDirection;
-set_axis(axis: RotateAxis): void;
-set_bounds(angle_start: number, angle_end: number): void;
-set_center(x: number, y: number, z: number): void;
-set_direction(direction: RotateDirection): void;
-}
-export class BehaviourScale extends Behaviour {constructor(config?: properties);
-x_scale_end: number;
-x_scale_start: number;
-y_scale_end: number;
-y_scale_start: number;
-get_bounds(): [number,number,number,number];
-set_bounds(x_scale_start: number, y_scale_start: number, x_scale_end: number, y_scale_end: number): void;
-}
-export class BinLayout extends LayoutManager {constructor(config?: properties);
-x_align: BinAlignment;
-y_align: BinAlignment;
-add(child: Actor, x_align: BinAlignment, y_align: BinAlignment): void;
-get_alignment(child: Actor | null): [BinAlignment | null,BinAlignment | null];
-set_alignment(child: Actor | null, x_align: BinAlignment, y_align: BinAlignment): void;
-}
-export class BindConstraint extends Constraint {constructor(config?: properties);
-coordinate: BindCoordinate;
-offset: number;
-source: Actor;
-get_coordinate(): BindCoordinate;
-get_offset(): number;
-get_source(): Actor;
-set_coordinate(coordinate: BindCoordinate): void;
-set_offset(offset: number): void;
-set_source(source: Actor | null): void;
-}
-export class BindingPool extends GObject.Object {constructor(config?: properties);
-name: string;
-activate(key_val: number, modifiers: ModifierType, gobject: GObject.Object): boolean;
-block_action(action_name: string): void;
-find_action(key_val: number, modifiers: ModifierType): string;
-install_action(action_name: string, key_val: number, modifiers: ModifierType, callback: BindingActionFunc, data: object | null, notify: GLib.DestroyNotify): void;
-install_closure(action_name: string, key_val: number, modifiers: ModifierType, closure: GObject.Closure): void;
-override_action(key_val: number, modifiers: ModifierType, callback: GObject.Callback, data: object | null, notify: GLib.DestroyNotify): void;
-override_closure(key_val: number, modifiers: ModifierType, closure: GObject.Closure): void;
-remove_action(key_val: number, modifiers: ModifierType): void;
-unblock_action(action_name: string): void;
-static find(name: string): BindingPool;
-static get_for_class(klass: object | null): BindingPool;
-}
-export class BlurEffect extends OffscreenEffect {constructor(config?: properties);
-}
-export class Box extends Actor {constructor(config?: properties);
-color: Color;
-color_set: boolean;
-get_color(): [Color];
-get_layout_manager(): LayoutManager;
-pack(actor: Actor, first_property: string, ___: unknown[]): void;
-pack_after(actor: Actor, sibling: Actor | null, first_property: string, ___: unknown[]): void;
-pack_at(actor: Actor, position: number, first_property: string, ___: unknown[]): void;
-pack_before(actor: Actor, sibling: Actor | null, first_property: string, ___: unknown[]): void;
-packv(actor: Actor, n_properties: number, properties: string[], values: GObject.Value[]): void;
-set_color(color: Color | null): void;
-set_layout_manager(manager: LayoutManager): void;
-}
-export class BoxLayout extends LayoutManager {constructor(config?: properties);
-easing_duration: number;
-easing_mode: number;
-homogeneous: boolean;
-orientation: Orientation;
-pack_start: boolean;
-spacing: number;
-use_animations: boolean;
-vertical: boolean;
-get_alignment(actor: Actor): [BoxAlignment,BoxAlignment];
-get_easing_duration(): number;
-get_easing_mode(): number;
-get_expand(actor: Actor): boolean;
-get_fill(actor: Actor): [boolean,boolean];
-get_homogeneous(): boolean;
-get_orientation(): Orientation;
-get_pack_start(): boolean;
-get_spacing(): number;
-get_use_animations(): boolean;
-get_vertical(): boolean;
-pack(actor: Actor, expand: boolean, x_fill: boolean, y_fill: boolean, x_align: BoxAlignment, y_align: BoxAlignment): void;
-set_alignment(actor: Actor, x_align: BoxAlignment, y_align: BoxAlignment): void;
-set_easing_duration(msecs: number): void;
-set_easing_mode(mode: number): void;
-set_expand(actor: Actor, expand: boolean): void;
-set_fill(actor: Actor, x_fill: boolean, y_fill: boolean): void;
-set_homogeneous(homogeneous: boolean): void;
-set_orientation(orientation: Orientation): void;
-set_pack_start(pack_start: boolean): void;
-set_spacing(spacing: number): void;
-set_use_animations(animate: boolean): void;
-set_vertical(vertical: boolean): void;
-}
-export class BrightnessContrastEffect extends OffscreenEffect {constructor(config?: properties);
-brightness: Color;
-contrast: Color;
-get_brightness(): [number | null,number | null,number | null];
-get_contrast(): [number | null,number | null,number | null];
-set_brightness(brightness: number): void;
-set_brightness_full(red: number, green: number, blue: number): void;
-set_contrast(contrast: number): void;
-set_contrast_full(red: number, green: number, blue: number): void;
-}
-export class CairoTexture extends Texture {constructor(config?: properties);
-auto_resize: boolean;
-surface_height: number;
-surface_width: number;
-clear(): void;
-create(): cairo.Context;
-create_region(x_offset: number, y_offset: number, width: number, height: number): cairo.Context;
-get_auto_resize(): boolean;
-get_surface_size(): [number,number];
-invalidate(): void;
-invalidate_rectangle(rect: cairo.RectangleInt | null): void;
-set_auto_resize(value: boolean): void;
-set_surface_size(width: number, height: number): void;
-vfunc_create_surface(width: number, height: number): cairo.Surface;
-vfunc_draw(cr: cairo.Context): boolean;
-}
-export class Canvas  {constructor(config?: properties);
-height: number;
-scale_factor: number;
-readonly scale_factor_set: boolean;
-width: number;
-readonly priv: CanvasPrivate;
-get_scale_factor(): number;
-set_scale_factor(scale: number): void;
-set_size(width: number, height: number): boolean;
-static _new(): Content;
-}
-export class ChildMeta  {constructor(config?: properties);
-actor: Actor;
-container: Container;
-get_actor(): Actor;
-get_container(): Container;
-}
-export class ClickAction extends Action {constructor(config?: properties);
-readonly held: boolean;
-long_press_duration: number;
-long_press_threshold: number;
-readonly pressed: boolean;
-get_button(): number;
-get_coords(): [number,number];
-get_state(): ModifierType;
-release(): void;
-vfunc_clicked(actor: Actor): void;
-vfunc_long_press(actor: Actor, state: LongPressState): boolean;
-}
-export class ClipNode extends PaintNode {constructor(config?: properties);
-}
-export class Clone extends Actor {constructor(config?: properties);
-source: Actor;
-get_source(): Actor;
-set_source(source: Actor | null): void;
-}
-export class ColorNode extends PipelineNode {constructor(config?: properties);
-}
-export class ColorizeEffect extends OffscreenEffect {constructor(config?: properties);
-tint: Color;
-get_tint(): [Color];
-set_tint(tint: Color): void;
-}
-export class Constraint  {constructor(config?: properties);
-}
-export class DeformEffect  {constructor(config?: properties);
-back_material: unknown;
-x_tiles: number;
-y_tiles: number;
-readonly priv: DeformEffectPrivate;
-get_back_material(): Cogl.Handle;
-get_n_tiles(): [number,number];
-invalidate(): void;
-set_back_material(material: Cogl.Handle | null): void;
-set_n_tiles(x_tiles: number, y_tiles: number): void;
-}
-export class DesaturateEffect extends OffscreenEffect {constructor(config?: properties);
-factor: number;
-get_factor(): number;
-set_factor(factor: number): void;
-}
-export class DeviceManager  {constructor(config?: properties);
-backend: Backend;
-readonly priv: DeviceManagerPrivate;
-get_core_device(device_type: InputDeviceType): InputDevice;
-get_device(device_id: number): InputDevice;
-list_devices(): string[];
-peek_devices(): string[];
-static get_default(): DeviceManager;
-}
-export class DragAction extends Action {constructor(config?: properties);
-drag_area: Rect;
-readonly drag_area_set: boolean;
-drag_axis: DragAxis;
-drag_handle: Actor;
-x_drag_threshold: number;
-y_drag_threshold: number;
-get_drag_area(): [boolean, Rect];
-get_drag_axis(): DragAxis;
-get_drag_handle(): Actor;
-get_drag_threshold(): [number,number];
-get_motion_coords(): [number,number];
-get_press_coords(): [number,number];
-set_drag_area(drag_area: Rect | null): void;
-set_drag_axis(axis: DragAxis): void;
-set_drag_handle(handle: Actor | null): void;
-set_drag_threshold(x_threshold: number, y_threshold: number): void;
-vfunc_drag_begin(actor: Actor, event_x: number, event_y: number, modifiers: ModifierType): void;
-vfunc_drag_end(actor: Actor, event_x: number, event_y: number, modifiers: ModifierType): void;
-vfunc_drag_motion(actor: Actor, delta_x: number, delta_y: number): void;
-vfunc_drag_progress(actor: Actor, delta_x: number, delta_y: number): boolean;
-}
-export class DropAction extends Action {constructor(config?: properties);
-vfunc_can_drop(actor: Actor, event_x: number, event_y: number): boolean;
-vfunc_drop(actor: Actor, event_x: number, event_y: number): void;
-vfunc_over_in(actor: Actor): void;
-vfunc_over_out(actor: Actor): void;
-}
-export class Effect  {constructor(config?: properties);
-queue_repaint(): void;
-}
-export class FixedLayout extends LayoutManager {constructor(config?: properties);
-}
-export class FlowLayout extends LayoutManager {constructor(config?: properties);
-column_spacing: number;
-homogeneous: boolean;
-max_column_width: number;
-max_row_height: number;
-min_column_width: number;
-min_row_height: number;
-orientation: FlowOrientation;
-row_spacing: number;
-snap_to_grid: boolean;
-get_column_spacing(): number;
-get_column_width(): [number,number];
-get_homogeneous(): boolean;
-get_orientation(): FlowOrientation;
-get_row_height(): [number,number];
-get_row_spacing(): number;
-get_snap_to_grid(): boolean;
-set_column_spacing(spacing: number): void;
-set_column_width(min_width: number, max_width: number): void;
-set_homogeneous(homogeneous: boolean): void;
-set_orientation(orientation: FlowOrientation): void;
-set_row_height(min_height: number, max_height: number): void;
-set_row_spacing(spacing: number): void;
-set_snap_to_grid(snap_to_grid: boolean): void;
-}
-export class GestureAction extends Action {constructor(config?: properties);
-n_touch_points: number;
-threshold_trigger_distance_x: number;
-threshold_trigger_distance_y: number;
-threshold_trigger_edge: GestureTriggerEdge;
-cancel(): void;
-get_device(point: number): InputDevice;
-get_last_event(point: number): Event;
-get_motion_coords(point: number): [number | null,number | null];
-get_motion_delta(point: number): [number, number | null,number | null];
-get_n_current_points(): number;
-get_n_touch_points(): number;
-get_press_coords(point: number): [number | null,number | null];
-get_release_coords(point: number): [number | null,number | null];
-get_sequence(point: number): EventSequence;
-get_threshold_trigger_distance(): [number | null,number | null];
-get_threshold_trigger_edge(): GestureTriggerEdge;
-get_threshold_trigger_egde(): GestureTriggerEdge;
-get_velocity(point: number): [number, number | null,number | null];
-set_n_touch_points(nb_points: number): void;
-set_threshold_trigger_distance(x: number, y: number): void;
-set_threshold_trigger_edge(edge: GestureTriggerEdge): void;
-vfunc_gesture_begin(actor: Actor): boolean;
-vfunc_gesture_cancel(actor: Actor): void;
-vfunc_gesture_end(actor: Actor): void;
-vfunc_gesture_prepare(actor: Actor): boolean;
-vfunc_gesture_progress(actor: Actor): boolean;
-}
-export class GridLayout extends LayoutManager {constructor(config?: properties);
-column_homogeneous: boolean;
-column_spacing: number;
-orientation: Orientation;
-row_homogeneous: boolean;
-row_spacing: number;
-attach(child: Actor, left: number, top: number, width: number, height: number): void;
-attach_next_to(child: Actor, sibling: Actor | null, side: GridPosition, width: number, height: number): void;
-get_child_at(left: number, top: number): Actor;
-get_column_homogeneous(): boolean;
-get_column_spacing(): number;
-get_orientation(): Orientation;
-get_row_homogeneous(): boolean;
-get_row_spacing(): number;
-insert_column(position: number): void;
-insert_next_to(sibling: Actor, side: GridPosition): void;
-insert_row(position: number): void;
-set_column_homogeneous(homogeneous: boolean): void;
-set_column_spacing(spacing: number): void;
-set_orientation(orientation: Orientation): void;
-set_row_homogeneous(homogeneous: boolean): void;
-set_row_spacing(spacing: number): void;
-}
-export class Group extends Actor {constructor(config?: properties);
-get_n_children(): number;
-get_nth_child(index_: number): Actor;
-remove_all(): void;
-}
-export class Image  {constructor(config?: properties);
-readonly priv: ImagePrivate;
-set_area(data: number[], pixel_format: Cogl.PixelFormat, rect: cairo.RectangleInt, row_stride: number): boolean;
-set_bytes(data: GLib.Bytes, pixel_format: Cogl.PixelFormat, width: number, height: number, row_stride: number): boolean;
-set_data(data: number[], pixel_format: Cogl.PixelFormat, width: number, height: number, row_stride: number): boolean;
-static _new(): Content;
-}
-export class InputDevice  {constructor(config?: properties);
-backend: Backend;
-device_manager: DeviceManager;
-device_mode: InputMode;
-device_type: InputDeviceType;
-enabled: boolean;
-has_cursor: boolean;
-id: number;
-readonly n_axes: number;
-name: string;
-product_id: string;
-vendor_id: string;
-get_associated_device(): InputDevice;
-get_axis(index_: number): InputAxis;
-get_axis_value(axes: number[], axis: InputAxis): [boolean, number];
-get_coords(sequence: EventSequence | null): [boolean, Point];
-get_device_coords(): [number,number];
-get_device_id(): number;
-get_device_mode(): InputMode;
-get_device_name(): string;
-get_device_type(): InputDeviceType;
-get_enabled(): boolean;
-get_grabbed_actor(): Actor;
-get_has_cursor(): boolean;
-get_key(index_: number): [boolean, number,ModifierType];
-get_modifier_state(): ModifierType;
-get_n_axes(): number;
-get_n_keys(): number;
-get_pointer_actor(): Actor;
-get_pointer_stage(): Stage;
-get_product_id(): string;
-get_slave_devices(): GLib.List;
-get_vendor_id(): string;
-grab(actor: Actor): void;
-keycode_to_evdev(hardware_keycode: number, evdev_keycode: number): boolean;
-sequence_get_grabbed_actor(sequence: EventSequence): Actor;
-sequence_grab(sequence: EventSequence, actor: Actor): void;
-sequence_ungrab(sequence: EventSequence): void;
-set_enabled(enabled: boolean): void;
-set_key(index_: number, keyval: number, modifiers: ModifierType): void;
-ungrab(): void;
-update_from_event(event: Event, update_stage: boolean): void;
-}
-export class Interval extends GObject.InitiallyUnowned {constructor(config?: properties);
-_final: GObject.Value;
-initial: GObject.Value;
-value_type: unknown;static new_with_values(gtype: unknown, initial: GObject.Value | null, _final: GObject.Value | null): Interval;
-clone(): Interval;
-compute(factor: number): GObject.Value;
-compute_value(factor: number): [boolean, GObject.Value];
-get_final_value(): [GObject.Value];
-get_initial_value(): [GObject.Value];
-get_interval(___: unknown[]): void;
-get_value_type(): unknown;
-is_valid(): boolean;
-peek_final_value(): GObject.Value;
-peek_initial_value(): GObject.Value;
-set_final(___: unknown[]): void;
-set_final_value(value: GObject.Value): void;
-set_initial(___: unknown[]): void;
-set_initial_value(value: GObject.Value): void;
-set_interval(___: unknown[]): void;
-validate(pspec: GObject.ParamSpec): boolean;
-vfunc_compute_value(factor: number): [boolean, GObject.Value];
-vfunc_validate(pspec: GObject.ParamSpec): boolean;
-static register_progress_func(value_type: unknown, func: ProgressFunc): void;
-}
-export class KeyframeTransition extends PropertyTransition {constructor(config?: properties);
-clear(): void;
-get_key_frame(index_: number): [number | null,AnimationMode | null,GObject.Value];
-get_n_key_frames(): number;
-set(gtype: unknown, n_key_frames: number, ___: unknown[]): void;
-set_key_frame(index_: number, key: number, mode: AnimationMode, value: GObject.Value): void;
-set_key_frames(n_key_frames: number, key_frames: number[]): void;
-set_modes(n_modes: number, modes: AnimationMode[]): void;
-set_values(n_values: number, values: GObject.Value[]): void;
-}
-export class LayoutManager  {constructor(config?: properties);
-readonly dummy: object;
-allocate(container: Container, allocation: ActorBox, flags: AllocationFlags): void;
-begin_animation(duration: number, mode: number): Alpha;
-child_get(container: Container, actor: Actor, first_property: string, ___: unknown[]): void;
-child_get_property(container: Container, actor: Actor, property_name: string, value: GObject.Value): void;
-child_set(container: Container, actor: Actor, first_property: string, ___: unknown[]): void;
-child_set_property(container: Container, actor: Actor, property_name: string, value: GObject.Value): void;
-end_animation(): void;
-find_child_property(name: string): GObject.ParamSpec;
-get_animation_progress(): number;
-get_child_meta(container: Container, actor: Actor): LayoutMeta;
-get_preferred_height(container: Container, for_width: number): [number | null,number | null];
-get_preferred_width(container: Container, for_height: number): [number | null,number | null];
-layout_changed(): void;
-list_child_properties(): [GObject.ParamSpec[], number];
-set_container(container: Container | null): void;
-}
-export class LayoutMeta  {constructor(config?: properties);
-manager: LayoutManager;
-readonly dummy0: number;
-readonly dummy1: object;
-get_manager(): LayoutManager;
-}
-export class ListModel extends Model {constructor(config?: properties);
-static newv(n_columns: number, types: unknown[], names: string[]): Model;
-}
-export class Model  {constructor(config?: properties);
-readonly filter_set: boolean;
-readonly priv: ModelPrivate;
-append(___: unknown[]): void;
-appendv(n_columns: number, columns: number[], values: GObject.Value[]): void;
-filter_iter(iter: ModelIter): boolean;
-filter_row(row: number): boolean;
-foreach(func: ModelForeachFunc, user_data: object | null): void;
-get_column_name(column: number): string;
-get_column_type(column: number): unknown;
-get_filter_set(): boolean;
-get_first_iter(): ModelIter;
-get_iter_at_row(row: number): ModelIter;
-get_last_iter(): ModelIter;
-get_n_columns(): number;
-get_n_rows(): number;
-get_sorting_column(): number;
-insert(row: number, ___: unknown[]): void;
-insert_value(row: number, column: number, value: GObject.Value): void;
-insertv(row: number, n_columns: number, columns: number[], values: GObject.Value[]): void;
-prepend(___: unknown[]): void;
-prependv(n_columns: number, columns: number[], values: GObject.Value[]): void;
-remove(row: number): void;
-resort(): void;
-set_filter(func: ModelFilterFunc | null, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_names(n_columns: number, names: string[]): void;
-set_sort(column: number, func: ModelSortFunc | null, user_data: object | null, notify: GLib.DestroyNotify): void;
-set_sorting_column(column: number): void;
-set_types(n_columns: number, types: unknown[]): void;
-}
-export class ModelIter  {constructor(config?: properties);
-model: Model;
-row: number;
-readonly priv: ModelIterPrivate;
-copy(): ModelIter;
-get(___: unknown[]): void;
-get_model(): Model;
-get_row(): number;
-get_valist(args: any): void;
-get_value(column: number): [GObject.Value];
-is_first(): boolean;
-is_last(): boolean;
-next(): ModelIter;
-prev(): ModelIter;
-set(___: unknown[]): void;
-set_valist(args: any): void;
-set_value(column: number, value: GObject.Value): void;
-}
-export class OffscreenEffect  {constructor(config?: properties);
-readonly priv: OffscreenEffectPrivate;
-create_texture(width: number, height: number): Cogl.Handle;
-get_target(): Cogl.Material;
-get_target_rect(): [boolean, Rect];
-get_target_size(): [boolean, number,number];
-get_texture(): Cogl.Handle;
-paint_target(): void;
-}
-export class PageTurnEffect extends DeformEffect {constructor(config?: properties);
-angle: number;
-period: number;
-radius: number;
-get_angle(): number;
-get_period(): number;
-get_radius(): number;
-set_angle(angle: number): void;
-set_period(period: number): void;
-set_radius(radius: number): void;
-}
-export class PaintNode  {constructor(config?: properties);
-add_child(child: PaintNode): void;
-add_rectangle(rect: ActorBox): void;
-add_texture_rectangle(rect: ActorBox, x_1: number, y_1: number, x_2: number, y_2: number): void;
-ref(): PaintNode;
-set_name(name: string): void;
-unref(): void;
-}
-export class PanAction extends GestureAction {constructor(config?: properties);
-acceleration_factor: number;
-deceleration: number;
-interpolate: boolean;
-pan_axis: PanAxis;
-get_acceleration_factor(): number;
-get_constrained_motion_delta(point: number): [number, number | null,number | null];
-get_deceleration(): number;
-get_interpolate(): boolean;
-get_interpolated_coords(): [number | null,number | null];
-get_interpolated_delta(): [number, number | null,number | null];
-get_motion_coords(point: number): [number | null,number | null];
-get_motion_delta(point: number): [number, number | null,number | null];
-get_pan_axis(): PanAxis;
-set_acceleration_factor(factor: number): void;
-set_deceleration(rate: number): void;
-set_interpolate(should_interpolate: boolean): void;
-set_pan_axis(axis: PanAxis): void;
-vfunc_pan(actor: Actor, is_interpolated: boolean): boolean;
-vfunc_pan_stopped(actor: Actor): void;
-}
-export class ParamSpecColor  {constructor(config?: properties);
-readonly default_value: Color;
-}
-export class ParamSpecFixed  {constructor(config?: properties);
-readonly minimum: Cogl.Fixed;
-readonly maximum: Cogl.Fixed;
-readonly default_value: Cogl.Fixed;
-}
-export class ParamSpecUnit  {constructor(config?: properties);
-}
-export class Path extends GObject.InitiallyUnowned {constructor(config?: properties);
-description: string;
-readonly length: number;static new_with_description(desc: string): Path;
-add_cairo_path(cpath: cairo.Path): void;
-add_close(): void;
-add_curve_to(x_1: number, y_1: number, x_2: number, y_2: number, x_3: number, y_3: number): void;
-add_line_to(x: number, y: number): void;
-add_move_to(x: number, y: number): void;
-add_node(node: PathNode): void;
-add_rel_curve_to(x_1: number, y_1: number, x_2: number, y_2: number, x_3: number, y_3: number): void;
-add_rel_line_to(x: number, y: number): void;
-add_rel_move_to(x: number, y: number): void;
-add_string(str: string): boolean;
-clear(): void;
-foreach(callback: PathCallback, user_data: object | null): void;
-get_description(): string;
-get_length(): number;
-get_n_nodes(): number;
-get_node(index_: number): [PathNode];
-get_nodes(): string[];
-get_position(progress: number): [number, Knot];
-insert_node(index_: number, node: PathNode): void;
-remove_node(index_: number): void;
-replace_node(index_: number, node: PathNode): void;
-set_description(str: string): boolean;
-to_cairo_path(cr: cairo.Context): void;
-}
-export class PathConstraint extends Constraint {constructor(config?: properties);
-offset: number;
-path: Path;
-get_offset(): number;
-get_path(): Path;
-set_offset(offset: number): void;
-set_path(path: Path | null): void;
-}
-export class PipelineNode  {constructor(config?: properties);
-}
-export class PropertyTransition extends Transition {constructor(config?: properties);
-property_name: string;
-get_property_name(): string;
-set_property_name(property_name: string | null): void;
-}
-export class Rectangle extends Actor {constructor(config?: properties);
-border_color: Color;
-border_width: number;
-color: Color;
-has_border: boolean;static new_with_color(color: Color): Actor;
-get_border_color(): [Color];
-get_border_width(): number;
-get_color(): [Color];
-set_border_color(color: Color): void;
-set_border_width(width: number): void;
-set_color(color: Color): void;
-}
-export class RotateAction extends GestureAction {constructor(config?: properties);
-vfunc_rotate(actor: Actor, angle: number): boolean;
-}
-export class Score extends GObject.Object {constructor(config?: properties);
-loop: boolean;
-append(parent: Timeline | null, timeline: Timeline): number;
-append_at_marker(parent: Timeline, marker_name: string, timeline: Timeline): number;
-get_loop(): boolean;
-get_timeline(id_: number): Timeline;
-is_playing(): boolean;
-list_timelines(): string[];
-pause(): void;
-remove(id_: number): void;
-remove_all(): void;
-rewind(): void;
-set_loop(loop: boolean): void;
-start(): void;
-stop(): void;
-vfunc_completed(): void;
-vfunc_paused(): void;
-vfunc_started(): void;
-vfunc_timeline_completed(timeline: Timeline): void;
-vfunc_timeline_started(timeline: Timeline): void;
-}
-export class Script extends GObject.Object {constructor(config?: properties);
-readonly filename: string;
-readonly filename_set: boolean;
-translation_domain: string;
-add_search_paths(paths: string[], n_paths: number): void;
-add_states(name: string | null, state: State): void;
-connect_signals(user_data: object | null): void;
-connect_signals_full(func: ScriptConnectFunc, user_data: object | null): void;
-ensure_objects(): void;
-get_object(name: string): GObject.Object;
-get_objects(first_name: string, ___: unknown[]): number;
-get_states(name: string | null): State;
-get_translation_domain(): string;
-get_type_from_name(type_name: string): unknown;
-list_objects(): GLib.List;
-load_from_data(data: string, length: number): number;
-load_from_file(filename: string): number;
-load_from_resource(resource_path: string): number;
-lookup_filename(filename: string): string;
-set_translation_domain(domain: string | null): void;
-unmerge_objects(merge_id: number): void;
-vfunc_get_type_from_name(type_name: string): unknown;
-}
-export class ScrollActor extends Actor {constructor(config?: properties);
-scroll_mode: ScrollMode;
-get_scroll_mode(): ScrollMode;
-scroll_to_point(point: Point): void;
-scroll_to_rect(rect: Rect): void;
-set_scroll_mode(mode: ScrollMode): void;
-}
-export class Settings  {constructor(config?: properties);
-backend: Backend;
-dnd_drag_threshold: number;
-double_click_distance: number;
-double_click_time: number;
-font_antialias: number;
-font_dpi: number;
-font_hint_style: string;
-font_hinting: number;
-font_name: string;
-font_subpixel_order: string;
-fontconfig_timestamp: number;
-long_press_duration: number;
-password_hint_time: number;
-unscaled_font_dpi: number;
-window_scaling_factor: number;
-static get_default(): Settings;
-}
-export class Shader extends GObject.Object {constructor(config?: properties);
-readonly compiled: boolean;
-enabled: boolean;
-fragment_source: string;
-vertex_source: string;
-compile(): boolean;
-get_cogl_fragment_shader(): Cogl.Handle;
-get_cogl_program(): Cogl.Handle;
-get_cogl_vertex_shader(): Cogl.Handle;
-get_fragment_source(): string;
-get_is_enabled(): boolean;
-get_vertex_source(): string;
-is_compiled(): boolean;
-release(): void;
-set_fragment_source(data: string, length: number): void;
-set_is_enabled(enabled: boolean): void;
-set_uniform(name: string, value: GObject.Value): void;
-set_vertex_source(data: string, length: number): void;
-}
-export class ShaderEffect extends OffscreenEffect {constructor(config?: properties);
-shader_type: ShaderType;
-get_program(): Cogl.Handle;
-get_shader(): Cogl.Handle;
-set_shader_source(source: string): boolean;
-set_uniform(name: string, gtype: unknown, n_values: number, ___: unknown[]): void;
-set_uniform_value(name: string, value: GObject.Value): void;
-vfunc_get_static_shader_source(): string;
-}
-export class ShaderFloat  {constructor(config?: properties);
-}
-export class ShaderInt  {constructor(config?: properties);
-}
-export class ShaderMatrix  {constructor(config?: properties);
-}
-export class SnapConstraint extends Constraint {constructor(config?: properties);
-from_edge: SnapEdge;
-offset: number;
-source: Actor;
-to_edge: SnapEdge;
-get_edges(): [SnapEdge,SnapEdge];
-get_offset(): number;
-get_source(): Actor;
-set_edges(from_edge: SnapEdge, to_edge: SnapEdge): void;
-set_offset(offset: number): void;
-set_source(source: Actor | null): void;
-}
-export class Stage extends Group {constructor(config?: properties);
-accept_focus: boolean;
-color: Color;
-cursor_visible: boolean;
-fog: Fog;
-readonly fullscreen_set: boolean;
-key_focus: Actor;
-no_clear_hint: boolean;
-offscreen: boolean;
-perspective: Perspective;
-title: string;
-use_alpha: boolean;
-use_fog: boolean;
-user_resizable: boolean;
-ensure_current(): void;
-ensure_redraw(): void;
-ensure_viewport(): void;
-event(event: Event): boolean;
-event(...args: never[]): never;
-get_accept_focus(): boolean;
-get_actor_at_pos(pick_mode: PickMode, x: number, y: number): Actor;
-get_color(): [Color];
-get_fog(): [Fog];
-get_fullscreen(): boolean;
-get_key_focus(): Actor;
-get_minimum_size(): [number,number];
-get_motion_events_enabled(): boolean;
-get_no_clear_hint(): boolean;
-get_perspective(): [Perspective | null];
-get_redraw_clip_bounds(): [cairo.RectangleInt];
-get_throttle_motion_events(): boolean;
-get_title(): string;
-get_use_alpha(): boolean;
-get_use_fog(): boolean;
-get_user_resizable(): boolean;
-hide_cursor(): void;
-is_default(): boolean;
-queue_redraw(): void;
-queue_redraw(...args: never[]): never;
-read_pixels(x: number, y: number, width: number, height: number): number[];
-set_accept_focus(accept_focus: boolean): void;
-set_color(color: Color): void;
-set_fog(fog: Fog): void;
-set_fullscreen(fullscreen: boolean): void;
-set_key_focus(actor: Actor | null): void;
-set_minimum_size(width: number, height: number): void;
-set_motion_events_enabled(enabled: boolean): void;
-set_no_clear_hint(no_clear: boolean): void;
-set_perspective(perspective: Perspective): void;
-set_throttle_motion_events(throttle: boolean): void;
-set_title(title: string): void;
-set_use_alpha(use_alpha: boolean): void;
-set_use_fog(fog: boolean): void;
-set_user_resizable(resizable: boolean): void;
-show_cursor(): void;
-vfunc_activate(): void;
-vfunc_deactivate(): void;
-vfunc_delete_event(event: Event): boolean;
-vfunc_fullscreen(): void;
-vfunc_unfullscreen(): void;
-static get_default(): Stage;
-}
-export class StageManager  {constructor(config?: properties);
-readonly default_stage: Stage;
-get_default_stage(): Stage;
-list_stages(): string[];
-peek_stages(): string[];
-set_default_stage(stage: Stage): void;
-static get_default(): StageManager;
-}
-export class State extends GObject.Object {constructor(config?: properties);
-duration: number;
-state: string;
-get_animator(source_state_name: string, target_state_name: string): Animator;
-get_duration(source_state_name: string | null, target_state_name: string | null): number;
-get_keys(source_state_name: string | null, target_state_name: string | null, object: GObject.Object | null, property_name: string | null): GLib.List;
-get_state(): string;
-get_states(): GLib.List;
-get_timeline(): Timeline;
-remove_key(source_state_name: string | null, target_state_name: string | null, object: GObject.Object | null, property_name: string | null): void;
-set(source_state_name: string | null, target_state_name: string, first_object: object | null, first_property_name: string, first_mode: number, ___: unknown[]): void;
-set(...args: never[]): never;
-set_animator(source_state_name: string, target_state_name: string, animator: Animator | null): void;
-set_duration(source_state_name: string | null, target_state_name: string | null, duration: number): void;
-set_key(source_state_name: string | null, target_state_name: string, object: GObject.Object, property_name: string, mode: number, value: GObject.Value, pre_delay: number, post_delay: number): State;
-set_state(target_state_name: string): Timeline;
-warp_to_state(target_state_name: string): Timeline;
-vfunc_completed(): void;
-}
-export class SwipeAction extends GestureAction {constructor(config?: properties);
-vfunc_swept(actor: Actor, direction: SwipeDirection): void;
-vfunc_swipe(actor: Actor, direction: SwipeDirection): boolean;
-}
-export class TableLayout extends LayoutManager {constructor(config?: properties);
-column_spacing: number;
-easing_duration: number;
-easing_mode: number;
-row_spacing: number;
-use_animations: boolean;
-get_alignment(actor: Actor): [TableAlignment,TableAlignment];
-get_column_count(): number;
-get_column_spacing(): number;
-get_easing_duration(): number;
-get_easing_mode(): number;
-get_expand(actor: Actor): [boolean,boolean];
-get_fill(actor: Actor): [boolean,boolean];
-get_row_count(): number;
-get_row_spacing(): number;
-get_span(actor: Actor): [number,number];
-get_use_animations(): boolean;
-pack(actor: Actor, column: number, row: number): void;
-set_alignment(actor: Actor, x_align: TableAlignment, y_align: TableAlignment): void;
-set_column_spacing(spacing: number): void;
-set_easing_duration(msecs: number): void;
-set_easing_mode(mode: number): void;
-set_expand(actor: Actor, x_expand: boolean, y_expand: boolean): void;
-set_fill(actor: Actor, x_fill: boolean, y_fill: boolean): void;
-set_row_spacing(spacing: number): void;
-set_span(actor: Actor, column_span: number, row_span: number): void;
-set_use_animations(animate: boolean): void;
-}
-export class TapAction extends GestureAction {constructor(config?: properties);
-vfunc_tap(actor: Actor): boolean;
-}
-export class Text extends Actor {constructor(config?: properties);
-activatable: boolean;
-attributes: Pango.AttrList;
-buffer: TextBuffer;
-color: Color;
-cursor_color: Color;
-readonly cursor_color_set: boolean;
-cursor_position: number;
-cursor_size: number;
-cursor_visible: boolean;
-editable: boolean;
-ellipsize: Pango.EllipsizeMode;
-font_description: Pango.FontDescription;
-font_name: string;
-justify: boolean;
-line_alignment: Pango.Alignment;
-line_wrap: boolean;
-line_wrap_mode: Pango.WrapMode;
-max_length: number;
-password_char: number;
-position: number;
-readonly position: never;
-selectable: boolean;
-selected_text_color: Color;
-readonly selected_text_color_set: boolean;
-selection_bound: number;
-selection_color: Color;
-readonly selection_color_set: boolean;
-single_line_mode: boolean;
-text: string;
-use_markup: boolean;static new_full(font_name: string, text: string, color: Color): Actor;
-static new_with_buffer(buffer: TextBuffer): Actor;
-static new_with_text(font_name: string | null, text: string): Actor;
-activate(): boolean;
-coords_to_position(x: number, y: number): number;
-delete_chars(n_chars: number): void;
-delete_selection(): boolean;
-delete_text(start_pos: number, end_pos: number): void;
-get_activatable(): boolean;
-get_attributes(): Pango.AttrList;
-get_buffer(): TextBuffer;
-get_chars(start_pos: number, end_pos: number): string;
-get_color(): [Color];
-get_cursor_color(): [Color];
-get_cursor_position(): number;
-get_cursor_rect(): [Rect];
-get_cursor_size(): number;
-get_cursor_visible(): boolean;
-get_editable(): boolean;
-get_ellipsize(): Pango.EllipsizeMode;
-get_font_description(): Pango.FontDescription;
-get_font_name(): string;
-get_justify(): boolean;
-get_layout(): Pango.Layout;
-get_layout_offsets(): [number,number];
-get_line_alignment(): Pango.Alignment;
-get_line_wrap(): boolean;
-get_line_wrap_mode(): Pango.WrapMode;
-get_max_length(): number;
-get_password_char(): number;
-get_selectable(): boolean;
-get_selected_text_color(): [Color];
-get_selection(): string;
-get_selection_bound(): number;
-get_selection_color(): [Color];
-get_single_line_mode(): boolean;
-get_text(): string;
-get_use_markup(): boolean;
-insert_text(text: string, position: number): void;
-insert_unichar(wc: number): void;
-position_to_coords(position: number): [boolean, number,number,number];
-set_activatable(activatable: boolean): void;
-set_attributes(attrs: Pango.AttrList | null): void;
-set_buffer(buffer: TextBuffer): void;
-set_color(color: Color): void;
-set_cursor_color(color: Color | null): void;
-set_cursor_position(position: number): void;
-set_cursor_size(size: number): void;
-set_cursor_visible(cursor_visible: boolean): void;
-set_editable(editable: boolean): void;
-set_ellipsize(mode: Pango.EllipsizeMode): void;
-set_font_description(font_desc: Pango.FontDescription): void;
-set_font_name(font_name: string | null): void;
-set_justify(justify: boolean): void;
-set_line_alignment(alignment: Pango.Alignment): void;
-set_line_wrap(line_wrap: boolean): void;
-set_line_wrap_mode(wrap_mode: Pango.WrapMode): void;
-set_markup(markup: string | null): void;
-set_max_length(max: number): void;
-set_password_char(wc: number): void;
-set_preedit_string(preedit_str: string | null, preedit_attrs: Pango.AttrList | null, cursor_pos: number): void;
-set_selectable(selectable: boolean): void;
-set_selected_text_color(color: Color | null): void;
-set_selection(start_pos: number, end_pos: number): void;
-set_selection_bound(selection_bound: number): void;
-set_selection_color(color: Color | null): void;
-set_single_line_mode(single_line: boolean): void;
-set_text(text: string | null): void;
-set_use_markup(setting: boolean): void;
-vfunc_activate(): void;
-vfunc_cursor_changed(): void;
-vfunc_cursor_event(geometry: Geometry): void;
-vfunc_text_changed(): void;
-}
-export class TextBuffer extends GObject.Object {constructor(config?: properties);
-readonly length: number;
-max_length: number;
-readonly text: string;static new_with_text(text: string | null, text_len: number): TextBuffer;
-delete_text(position: number, n_chars: number): number;
-emit_deleted_text(position: number, n_chars: number): void;
-emit_inserted_text(position: number, chars: string, n_chars: number): void;
-get_bytes(): number;
-get_length(): number;
-get_max_length(): number;
-get_text(): string;
-insert_text(position: number, chars: string, n_chars: number): number;
-set_max_length(max_length: number): void;
-set_text(chars: string, n_chars: number): void;
-vfunc_delete_text(position: number, n_chars: number): number;
-vfunc_deleted_text(position: number, n_chars: number): void;
-vfunc_get_length(): number;
-vfunc_get_text(n_bytes: number): string;
-vfunc_insert_text(position: number, chars: string, n_chars: number): number;
-vfunc_inserted_text(position: number, chars: string, n_chars: number): void;
-}
-export class TextNode extends PaintNode {constructor(config?: properties);
-}
-export class Texture extends Actor {constructor(config?: properties);
-cogl_material: unknown;
-cogl_texture: unknown;
-disable_slicing: boolean;
-filename: string;
-filter_quality: TextureQuality;
-keep_aspect_ratio: boolean;
-load_async: boolean;
-load_data_async: boolean;
-pick_with_alpha: boolean;
-readonly pixel_format: Cogl.PixelFormat;
-repeat_x: boolean;
-repeat_y: boolean;
-sync_size: boolean;
-readonly tile_waste: number;static new_from_actor(actor: Actor): Actor;
-static new_from_file(filename: string): Actor;
-get_base_size(): [number,number];
-get_cogl_material(): Cogl.Handle;
-get_cogl_texture(): Cogl.Handle;
-get_filter_quality(): TextureQuality;
-get_keep_aspect_ratio(): boolean;
-get_load_async(): boolean;
-get_load_data_async(): boolean;
-get_max_tile_waste(): number;
-get_pick_with_alpha(): boolean;
-get_pixel_format(): Cogl.PixelFormat;
-get_repeat(): [boolean,boolean];
-get_sync_size(): boolean;
-set_area_from_rgb_data(data: number[], has_alpha: boolean, x: number, y: number, width: number, height: number, rowstride: number, bpp: number, flags: TextureFlags): boolean;
-set_cogl_material(cogl_material: Cogl.Handle): void;
-set_cogl_texture(cogl_tex: Cogl.Handle): void;
-set_filter_quality(filter_quality: TextureQuality): void;
-set_from_file(filename: string): boolean;
-set_from_rgb_data(data: number[], has_alpha: boolean, width: number, height: number, rowstride: number, bpp: number, flags: TextureFlags): boolean;
-set_from_yuv_data(data: number[], width: number, height: number, flags: TextureFlags): boolean;
-set_keep_aspect_ratio(keep_aspect: boolean): void;
-set_load_async(load_async: boolean): void;
-set_load_data_async(load_async: boolean): void;
-set_pick_with_alpha(pick_with_alpha: boolean): void;
-set_repeat(repeat_x: boolean, repeat_y: boolean): void;
-set_sync_size(sync_size: boolean): void;
-vfunc_load_finished(error: GLib.Error): void;
-vfunc_pixbuf_change(): void;
-vfunc_size_change(width: number, height: number): void;
-}
-export class TextureNode extends PipelineNode {constructor(config?: properties);
-}
-export class Timeline extends GObject.Object {constructor(config?: properties);
-auto_reverse: boolean;
-delay: number;
-direction: TimelineDirection;
-duration: number;
-loop: boolean;
-progress_mode: AnimationMode;
-repeat_count: number;
-add_marker(marker_name: string, progress: number): void;
-add_marker_at_time(marker_name: string, msecs: number): void;
-advance(msecs: number): void;
-advance_to_marker(marker_name: string): void;
-clone(): Timeline;
-get_auto_reverse(): boolean;
-get_cubic_bezier_progress(): [boolean, Point,Point];
-get_current_repeat(): number;
-get_delay(): number;
-get_delta(): number;
-get_direction(): TimelineDirection;
-get_duration(): number;
-get_duration_hint(): number;
-get_elapsed_time(): number;
-get_loop(): boolean;
-get_progress(): number;
-get_progress_mode(): AnimationMode;
-get_repeat_count(): number;
-get_step_progress(): [boolean, number,StepMode];
-has_marker(marker_name: string): boolean;
-is_playing(): boolean;
-list_markers(msecs: number): [string[], number];
-pause(): void;
-remove_marker(marker_name: string): void;
-rewind(): void;
-set_auto_reverse(reverse: boolean): void;
-set_cubic_bezier_progress(c_1: Point, c_2: Point): void;
-set_delay(msecs: number): void;
-set_direction(direction: TimelineDirection): void;
-set_duration(msecs: number): void;
-set_loop(loop: boolean): void;
-set_progress_func(func: TimelineProgressFunc | null, data: object | null, notify: GLib.DestroyNotify): void;
-set_progress_mode(mode: AnimationMode): void;
-set_repeat_count(count: number): void;
-set_step_progress(n_steps: number, step_mode: StepMode): void;
-skip(msecs: number): void;
-start(): void;
-stop(): void;
-vfunc_completed(): void;
-vfunc_marker_reached(marker_name: string, msecs: number): void;
-vfunc_new_frame(msecs: number): void;
-vfunc_paused(): void;
-vfunc_started(): void;
-vfunc_stopped(is_finished: boolean): void;
-}
-export class Transition  {constructor(config?: properties);
-animatable: Animatable;
-interval: Interval;
-remove_on_complete: boolean;
-readonly priv: TransitionPrivate;
-get_animatable(): Animatable;
-get_interval(): Interval;
-get_remove_on_complete(): boolean;
-set_animatable(animatable: Animatable | null): void;
-set_from(value_type: unknown, ___: unknown[]): void;
-set_from_value(value: GObject.Value): void;
-set_interval(interval: Interval | null): void;
-set_remove_on_complete(remove_complete: boolean): void;
-set_to(value_type: unknown, ___: unknown[]): void;
-set_to_value(value: GObject.Value): void;
-}
-export class TransitionGroup extends Transition {constructor(config?: properties);
-add_transition(transition: Transition): void;
-remove_all(): void;
-remove_transition(transition: Transition): void;
-}
-export class ZoomAction extends GestureAction {constructor(config?: properties);
-zoom_axis: ZoomAxis;
-get_focal_point(): [Point];
-get_transformed_focal_point(): [Point];
-get_zoom_axis(): ZoomAxis;
-set_zoom_axis(axis: ZoomAxis): void;
-vfunc_zoom(actor: Actor, focal_point: Point, factor: number): boolean;
-}
-export class ActionClass  {constructor(config?: properties);
-readonly parent_class: ActorMetaClass;
-readonly _clutter_action1: unknown;
-readonly _clutter_action2: unknown;
-readonly _clutter_action3: unknown;
-readonly _clutter_action4: unknown;
-readonly _clutter_action5: unknown;
-readonly _clutter_action6: unknown;
-readonly _clutter_action7: unknown;
-readonly _clutter_action8: unknown;
-}
-export class ActorBox  {constructor(config?: properties);
-clamp_to_pixel(): void;
-contains(x: number, y: number): boolean;
-copy(): ActorBox;
-equal(box_b: ActorBox): boolean;
-free(): void;
-from_vertices(verts: Vertex[]): void;
-get_area(): number;
-get_height(): number;
-get_origin(): [number | null,number | null];
-get_size(): [number | null,number | null];
-get_width(): number;
-get_x(): number;
-get_y(): number;
-init(x_1: number, y_1: number, x_2: number, y_2: number): ActorBox;
-init_rect(x: number, y: number, width: number, height: number): void;
-interpolate(_final: ActorBox, progress: number): [ActorBox];
-set_origin(x: number, y: number): void;
-set_size(width: number, height: number): void;
-union(b: ActorBox): [ActorBox];
-static alloc(): ActorBox;
-}
-export class ActorClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly show: unknown;
-readonly hide: unknown;
-readonly hide_all: unknown;
-readonly realize: unknown;
-readonly unrealize: unknown;
-readonly map: unknown;
-readonly unmap: unknown;
-readonly paint: unknown;
-readonly parent_set: unknown;
-readonly destroy: unknown;
-readonly pick: unknown;
-readonly queue_redraw: unknown;
-readonly get_preferred_width: unknown;
-readonly get_preferred_height: unknown;
-readonly allocate: unknown;
-readonly apply_transform: unknown;
-readonly event: unknown;
-readonly button_press_event: unknown;
-readonly button_release_event: unknown;
-readonly scroll_event: unknown;
-readonly key_press_event: unknown;
-readonly key_release_event: unknown;
-readonly motion_event: unknown;
-readonly enter_event: unknown;
-readonly leave_event: unknown;
-readonly captured_event: unknown;
-readonly key_focus_in: unknown;
-readonly key_focus_out: unknown;
-readonly queue_relayout: unknown;
-readonly get_accessible: unknown;
-readonly get_paint_volume: unknown;
-readonly has_overlaps: unknown;
-readonly paint_node: unknown;
-readonly touch_event: unknown;
-readonly _padding_dummy: object[];
-}
-export class ActorIter  {constructor(config?: properties);
-readonly dummy1: object;
-readonly dummy2: object;
-readonly dummy3: object;
-readonly dummy4: number;
-readonly dummy5: object;
-destroy(): void;
-init(root: Actor): void;
-is_valid(): boolean;
-next(): [boolean, Actor];
-prev(): [boolean, Actor];
-remove(): void;
-}
-export class ActorMetaClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly set_actor: unknown;
-readonly _clutter_meta1: unknown;
-readonly _clutter_meta2: unknown;
-readonly _clutter_meta3: unknown;
-readonly _clutter_meta4: unknown;
-readonly _clutter_meta5: unknown;
-readonly _clutter_meta6: unknown;
-readonly _clutter_meta7: unknown;
-}
-export class ActorMetaPrivate  {constructor(config?: properties);
-}
-export class ActorPrivate  {constructor(config?: properties);
-}
-export class AlignConstraintClass  {constructor(config?: properties);
-}
-export class AlphaClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly _clutter_alpha_1: unknown;
-readonly _clutter_alpha_2: unknown;
-readonly _clutter_alpha_3: unknown;
-readonly _clutter_alpha_4: unknown;
-readonly _clutter_alpha_5: unknown;
-}
-export class AlphaPrivate  {constructor(config?: properties);
-}
-export class AnimatableIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly animate_property: unknown;
-readonly find_property: unknown;
-readonly get_initial_state: unknown;
-readonly set_final_state: unknown;
-readonly interpolate_value: unknown;
-}
-export class AnimationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly started: unknown;
-readonly completed: unknown;
-readonly _clutter_reserved1: unknown;
-readonly _clutter_reserved2: unknown;
-readonly _clutter_reserved3: unknown;
-readonly _clutter_reserved4: unknown;
-readonly _clutter_reserved5: unknown;
-readonly _clutter_reserved6: unknown;
-readonly _clutter_reserved7: unknown;
-readonly _clutter_reserved8: unknown;
-}
-export class AnimationPrivate  {constructor(config?: properties);
-}
-export class AnimatorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _padding_dummy: object[];
-}
-export class AnimatorKey  {constructor(config?: properties);
-get_mode(): number;
-get_object(): GObject.Object;
-get_progress(): number;
-get_property_name(): string;
-get_property_type(): unknown;
-get_value(value: GObject.Value): boolean;
-}
-export class AnimatorPrivate  {constructor(config?: properties);
-}
-export class AnyEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-}
-export class BackendClass  {constructor(config?: properties);
-}
-export class BehaviourClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly alpha_notify: unknown;
-readonly applied: unknown;
-readonly removed: unknown;
-readonly _clutter_behaviour1: unknown;
-readonly _clutter_behaviour2: unknown;
-readonly _clutter_behaviour3: unknown;
-readonly _clutter_behaviour4: unknown;
-readonly _clutter_behaviour5: unknown;
-readonly _clutter_behaviour6: unknown;
-}
-export class BehaviourDepthClass  {constructor(config?: properties);
-readonly parent_class: BehaviourClass;
-}
-export class BehaviourDepthPrivate  {constructor(config?: properties);
-}
-export class BehaviourEllipseClass  {constructor(config?: properties);
-readonly parent_class: BehaviourClass;
-}
-export class BehaviourEllipsePrivate  {constructor(config?: properties);
-}
-export class BehaviourOpacityClass  {constructor(config?: properties);
-readonly parent_class: BehaviourClass;
-}
-export class BehaviourOpacityPrivate  {constructor(config?: properties);
-}
-export class BehaviourPathClass  {constructor(config?: properties);
-readonly parent_class: BehaviourClass;
-readonly knot_reached: unknown;
-readonly _clutter_path_1: unknown;
-readonly _clutter_path_2: unknown;
-readonly _clutter_path_3: unknown;
-readonly _clutter_path_4: unknown;
-}
-export class BehaviourPathPrivate  {constructor(config?: properties);
-}
-export class BehaviourPrivate  {constructor(config?: properties);
-}
-export class BehaviourRotateClass  {constructor(config?: properties);
-readonly parent_class: BehaviourClass;
-}
-export class BehaviourRotatePrivate  {constructor(config?: properties);
-}
-export class BehaviourScaleClass  {constructor(config?: properties);
-readonly parent_class: BehaviourClass;
-}
-export class BehaviourScalePrivate  {constructor(config?: properties);
-}
-export class BinLayoutClass  {constructor(config?: properties);
-readonly parent_class: LayoutManagerClass;
-}
-export class BinLayoutPrivate  {constructor(config?: properties);
-}
-export class BindConstraintClass  {constructor(config?: properties);
-}
-export class BindingPoolClass  {constructor(config?: properties);
-}
-export class BlurEffectClass  {constructor(config?: properties);
-}
-export class BoxClass  {constructor(config?: properties);
-readonly parent_class: ActorClass;
-readonly clutter_padding_1: unknown;
-readonly clutter_padding_2: unknown;
-readonly clutter_padding_3: unknown;
-readonly clutter_padding_4: unknown;
-readonly clutter_padding_5: unknown;
-readonly clutter_padding_6: unknown;
-}
-export class BoxLayoutClass  {constructor(config?: properties);
-readonly parent_class: LayoutManagerClass;
-}
-export class BoxLayoutPrivate  {constructor(config?: properties);
-}
-export class BoxPrivate  {constructor(config?: properties);
-}
-export class BrightnessContrastEffectClass  {constructor(config?: properties);
-}
-export class ButtonEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-x: number;
-y: number;
-modifier_state: ModifierType;
-button: number;
-click_count: number;
-axes: number;
-device: InputDevice;
-}
-export class CairoTextureClass  {constructor(config?: properties);
-readonly parent_class: TextureClass;
-readonly create_surface: unknown;
-readonly _clutter_cairo_3: unknown;
-readonly _clutter_cairo_4: unknown;
-}
-export class CairoTexturePrivate  {constructor(config?: properties);
-}
-export class CanvasClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _padding: object[];
-}
-export class CanvasPrivate  {constructor(config?: properties);
-}
-export class ChildMetaClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ClickActionClass  {constructor(config?: properties);
-readonly parent_class: ActionClass;
-readonly clicked: unknown;
-readonly long_press: unknown;
-readonly _clutter_click_action1: unknown;
-readonly _clutter_click_action2: unknown;
-readonly _clutter_click_action3: unknown;
-readonly _clutter_click_action4: unknown;
-readonly _clutter_click_action5: unknown;
-readonly _clutter_click_action6: unknown;
-readonly _clutter_click_action7: unknown;
-}
-export class ClickActionPrivate  {constructor(config?: properties);
-}
-export class ClipNodeClass  {constructor(config?: properties);
-}
-export class CloneClass  {constructor(config?: properties);
-readonly parent_class: ActorClass;
-readonly _clutter_actor_clone1: unknown;
-readonly _clutter_actor_clone2: unknown;
-readonly _clutter_actor_clone3: unknown;
-readonly _clutter_actor_clone4: unknown;
-}
-export class ClonePrivate  {constructor(config?: properties);
-}
-export class Color  {constructor(config?: properties);
-static alloc(): Color;
-add(b: Color): [Color];
-copy(): Color;
-darken(): [Color];
-equal(v2: Color): boolean;
-free(): void;
-hash(): number;
-init(red: number, green: number, blue: number, alpha: number): Color;
-interpolate(_final: Color, progress: number): [Color];
-lighten(): [Color];
-shade(factor: number): [Color];
-subtract(b: Color): [Color];
-to_hls(): [number,number,number];
-to_pixel(): number;
-to_string(): string;
-static from_hls(hue: number, luminance: number, saturation: number): [Color];
-static from_pixel(pixel: number): [Color];
-static from_string(str: string): [boolean, Color];
-static get_static(color: StaticColor): Color;
-}
-export class ColorNodeClass  {constructor(config?: properties);
-}
-export class ColorizeEffectClass  {constructor(config?: properties);
-}
-export class ConstraintClass  {constructor(config?: properties);
-readonly parent_class: ActorMetaClass;
-readonly update_allocation: unknown;
-readonly update_preferred_size: unknown;
-readonly _clutter_constraint1: unknown;
-readonly _clutter_constraint2: unknown;
-readonly _clutter_constraint3: unknown;
-readonly _clutter_constraint4: unknown;
-readonly _clutter_constraint5: unknown;
-readonly _clutter_constraint6: unknown;
-readonly _clutter_constraint7: unknown;
-}
-export class ContainerIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly add: unknown;
-readonly remove: unknown;
-readonly foreach: unknown;
-readonly foreach_with_internals: unknown;
-readonly raise: unknown;
-readonly lower: unknown;
-readonly sort_depth_order: unknown;
-readonly child_meta_type: unknown;
-readonly create_child_meta: unknown;
-readonly destroy_child_meta: unknown;
-readonly get_child_meta: unknown;
-readonly actor_added: unknown;
-readonly actor_removed: unknown;
-readonly child_notify: unknown;
-}
-export class ContentIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_preferred_size: unknown;
-readonly paint_content: unknown;
-readonly attached: unknown;
-readonly detached: unknown;
-readonly invalidate: unknown;
-}
-export class CrossingEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-x: number;
-y: number;
-device: InputDevice;
-related: Actor;
-}
-export class DeformEffectClass  {constructor(config?: properties);
-readonly parent_class: OffscreenEffectClass;
-readonly deform_vertex: unknown;
-readonly _clutter_deform1: unknown;
-readonly _clutter_deform2: unknown;
-readonly _clutter_deform3: unknown;
-readonly _clutter_deform4: unknown;
-readonly _clutter_deform5: unknown;
-readonly _clutter_deform6: unknown;
-readonly _clutter_deform7: unknown;
-}
-export class DeformEffectPrivate  {constructor(config?: properties);
-}
-export class DesaturateEffectClass  {constructor(config?: properties);
-}
-export class DeviceManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_devices: unknown;
-readonly get_core_device: unknown;
-readonly get_device: unknown;
-readonly add_device: unknown;
-readonly remove_device: unknown;
-readonly select_stage_events: unknown;
-readonly _padding: object[];
-}
-export class DeviceManagerPrivate  {constructor(config?: properties);
-}
-export class DragActionClass  {constructor(config?: properties);
-readonly parent_class: ActionClass;
-readonly drag_begin: unknown;
-readonly drag_motion: unknown;
-readonly drag_end: unknown;
-readonly drag_progress: unknown;
-readonly _clutter_drag_action1: unknown;
-readonly _clutter_drag_action2: unknown;
-readonly _clutter_drag_action3: unknown;
-readonly _clutter_drag_action4: unknown;
-}
-export class DragActionPrivate  {constructor(config?: properties);
-}
-export class DropActionClass  {constructor(config?: properties);
-readonly parent_class: ActionClass;
-readonly can_drop: unknown;
-readonly over_in: unknown;
-readonly over_out: unknown;
-readonly drop: unknown;
-readonly _clutter_drop_action1: unknown;
-readonly _clutter_drop_action2: unknown;
-readonly _clutter_drop_action3: unknown;
-readonly _clutter_drop_action4: unknown;
-readonly _clutter_drop_action5: unknown;
-readonly _clutter_drop_action6: unknown;
-readonly _clutter_drop_action7: unknown;
-readonly _clutter_drop_action8: unknown;
-}
-export class DropActionPrivate  {constructor(config?: properties);
-}
-export class EffectClass  {constructor(config?: properties);
-readonly parent_class: ActorMetaClass;
-readonly pre_paint: unknown;
-readonly post_paint: unknown;
-readonly get_paint_volume: unknown;
-readonly paint: unknown;
-readonly pick: unknown;
-readonly _clutter_effect4: unknown;
-readonly _clutter_effect5: unknown;
-readonly _clutter_effect6: unknown;
-}
-export class EventSequence  {constructor(config?: properties);
-}
-export class FixedLayoutClass  {constructor(config?: properties);
-readonly parent_class: LayoutManagerClass;
-}
-export class FlowLayoutClass  {constructor(config?: properties);
-readonly parent_class: LayoutManagerClass;
-}
-export class FlowLayoutPrivate  {constructor(config?: properties);
-}
-export class Fog  {constructor(config?: properties);
-z_near: number;
-z_far: number;
-}
-export class Geometry  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-intersects(geometry1: Geometry): boolean;
-union(geometry_b: Geometry): [Geometry];
-}
-export class GestureActionClass  {constructor(config?: properties);
-readonly parent_class: ActionClass;
-readonly gesture_begin: unknown;
-readonly gesture_progress: unknown;
-readonly gesture_end: unknown;
-readonly gesture_cancel: unknown;
-readonly gesture_prepare: unknown;
-readonly _clutter_gesture_action1: unknown;
-readonly _clutter_gesture_action2: unknown;
-readonly _clutter_gesture_action3: unknown;
-readonly _clutter_gesture_action4: unknown;
-readonly _clutter_gesture_action5: unknown;
-readonly _clutter_gesture_action6: unknown;
-}
-export class GestureActionPrivate  {constructor(config?: properties);
-}
-export class GridLayoutClass  {constructor(config?: properties);
-readonly parent_class: LayoutManagerClass;
-readonly _padding: object[];
-}
-export class GridLayoutPrivate  {constructor(config?: properties);
-}
-export class GroupClass  {constructor(config?: properties);
-readonly parent_class: ActorClass;
-readonly _clutter_reserved1: unknown;
-readonly _clutter_reserved2: unknown;
-readonly _clutter_reserved3: unknown;
-readonly _clutter_reserved4: unknown;
-readonly _clutter_reserved5: unknown;
-readonly _clutter_reserved6: unknown;
-}
-export class GroupPrivate  {constructor(config?: properties);
-}
-export class ImageClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _padding: object[];
-}
-export class ImagePrivate  {constructor(config?: properties);
-}
-export class InputDeviceClass  {constructor(config?: properties);
-}
-export class IntervalClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly validate: unknown;
-readonly compute_value: unknown;
-readonly _clutter_reserved1: unknown;
-readonly _clutter_reserved2: unknown;
-readonly _clutter_reserved3: unknown;
-readonly _clutter_reserved4: unknown;
-readonly _clutter_reserved5: unknown;
-readonly _clutter_reserved6: unknown;
-}
-export class IntervalPrivate  {constructor(config?: properties);
-}
-export class KeyEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-modifier_state: ModifierType;
-keyval: number;
-hardware_keycode: number;
-unicode_value: number;
-device: InputDevice;
-}
-export class KeyframeTransitionClass  {constructor(config?: properties);
-readonly parent_class: PropertyTransitionClass;
-readonly _padding: object[];
-}
-export class KeyframeTransitionPrivate  {constructor(config?: properties);
-}
-export class Knot  {constructor(config?: properties);
-x: number;
-y: number;
-copy(): Knot;
-equal(knot_b: Knot): boolean;
-free(): void;
-}
-export class LayoutManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-readonly get_preferred_width: unknown;
-readonly get_preferred_height: unknown;
-readonly allocate: unknown;
-readonly set_container: unknown;
-readonly get_child_meta_type: unknown;
-readonly create_child_meta: unknown;
-readonly begin_animation: unknown;
-readonly get_animation_progress: unknown;
-readonly end_animation: unknown;
-readonly layout_changed: unknown;
-readonly _clutter_padding_1: unknown;
-readonly _clutter_padding_2: unknown;
-readonly _clutter_padding_3: unknown;
-readonly _clutter_padding_4: unknown;
-readonly _clutter_padding_5: unknown;
-readonly _clutter_padding_6: unknown;
-readonly _clutter_padding_7: unknown;
-readonly _clutter_padding_8: unknown;
-}
-export class LayoutMetaClass  {constructor(config?: properties);
-readonly parent_class: ChildMetaClass;
-readonly _clutter_padding1: unknown;
-readonly _clutter_padding2: unknown;
-readonly _clutter_padding3: unknown;
-readonly _clutter_padding4: unknown;
-}
-export class ListModelClass  {constructor(config?: properties);
-readonly parent_class: ModelClass;
-}
-export class ListModelPrivate  {constructor(config?: properties);
-}
-export class Margin  {constructor(config?: properties);
-copy(): Margin;
-free(): void;
-}
-export class MediaIface  {constructor(config?: properties);
-readonly base_iface: GObject.TypeInterface;
-readonly eos: unknown;
-readonly error: unknown;
-}
-export class ModelClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_n_rows: unknown;
-readonly get_n_columns: unknown;
-readonly get_column_name: unknown;
-readonly get_column_type: unknown;
-readonly insert_row: unknown;
-readonly remove_row: unknown;
-readonly get_iter_at_row: unknown;
-readonly resort: unknown;
-readonly row_added: unknown;
-readonly row_removed: unknown;
-readonly row_changed: unknown;
-readonly sort_changed: unknown;
-readonly filter_changed: unknown;
-readonly _clutter_model_1: unknown;
-readonly _clutter_model_2: unknown;
-readonly _clutter_model_3: unknown;
-readonly _clutter_model_4: unknown;
-readonly _clutter_model_5: unknown;
-readonly _clutter_model_6: unknown;
-readonly _clutter_model_7: unknown;
-readonly _clutter_model_8: unknown;
-}
-export class ModelIterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_value: unknown;
-readonly set_value: unknown;
-readonly is_first: unknown;
-readonly is_last: unknown;
-readonly next: unknown;
-readonly prev: unknown;
-readonly get_model: unknown;
-readonly get_row: unknown;
-readonly copy: unknown;
-readonly _clutter_model_iter_1: unknown;
-readonly _clutter_model_iter_2: unknown;
-readonly _clutter_model_iter_3: unknown;
-readonly _clutter_model_iter_4: unknown;
-readonly _clutter_model_iter_5: unknown;
-readonly _clutter_model_iter_6: unknown;
-readonly _clutter_model_iter_7: unknown;
-readonly _clutter_model_iter_8: unknown;
-}
-export class ModelIterPrivate  {constructor(config?: properties);
-}
-export class ModelPrivate  {constructor(config?: properties);
-}
-export class MotionEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-x: number;
-y: number;
-modifier_state: ModifierType;
-axes: number;
-device: InputDevice;
-}
-export class OffscreenEffectClass  {constructor(config?: properties);
-readonly parent_class: EffectClass;
-readonly create_texture: unknown;
-readonly paint_target: unknown;
-readonly _clutter_offscreen1: unknown;
-readonly _clutter_offscreen2: unknown;
-readonly _clutter_offscreen3: unknown;
-readonly _clutter_offscreen4: unknown;
-readonly _clutter_offscreen5: unknown;
-readonly _clutter_offscreen6: unknown;
-readonly _clutter_offscreen7: unknown;
-}
-export class OffscreenEffectPrivate  {constructor(config?: properties);
-}
-export class PageTurnEffectClass  {constructor(config?: properties);
-}
-export class PaintNodeClass  {constructor(config?: properties);
-}
-export class PaintNodePrivate  {constructor(config?: properties);
-}
-export class PaintVolume  {constructor(config?: properties);
-copy(): PaintVolume;
-free(): void;
-get_depth(): number;
-get_height(): number;
-get_origin(): [Vertex];
-get_width(): number;
-set_depth(depth: number): void;
-set_from_allocation(actor: Actor): boolean;
-set_height(height: number): void;
-set_origin(origin: Vertex): void;
-set_width(width: number): void;
-union(another_pv: PaintVolume): void;
-union_box(box: ActorBox): void;
-}
-export class PanActionClass  {constructor(config?: properties);
-readonly parent_class: GestureActionClass;
-readonly pan: unknown;
-readonly pan_stopped: unknown;
-readonly _clutter_pan_action1: unknown;
-readonly _clutter_pan_action2: unknown;
-readonly _clutter_pan_action3: unknown;
-readonly _clutter_pan_action4: unknown;
-readonly _clutter_pan_action5: unknown;
-readonly _clutter_pan_action6: unknown;
-}
-export class PanActionPrivate  {constructor(config?: properties);
-}
-export class ParamSpecUnits  {constructor(config?: properties);
-default_type: UnitType;
-default_value: number;
-minimum: number;
-maximum: number;
-}
-export class PathClass  {constructor(config?: properties);
-readonly parent_class: GObject.InitiallyUnownedClass;
-}
-export class PathConstraintClass  {constructor(config?: properties);
-}
-export class PathNode  {constructor(config?: properties);
-type: PathNodeType;
-points: Knot[];
-copy(): PathNode;
-equal(node_b: PathNode): boolean;
-free(): void;
-}
-export class PathPrivate  {constructor(config?: properties);
-}
-export class Perspective  {constructor(config?: properties);
-fovy: number;
-aspect: number;
-z_near: number;
-z_far: number;
-}
-export class PipelineNodeClass  {constructor(config?: properties);
-}
-export class Point  {constructor(config?: properties);
-static alloc(): Point;
-copy(): Point;
-distance(b: Point): [number, number | null,number | null];
-equals(b: Point): boolean;
-free(): void;
-init(x: number, y: number): Point;
-static zero(): Point;
-}
-export class PropertyTransitionClass  {constructor(config?: properties);
-readonly parent_class: TransitionClass;
-readonly _padding: object[];
-}
-export class PropertyTransitionPrivate  {constructor(config?: properties);
-}
-export class Rect  {constructor(config?: properties);
-static alloc(): Rect;
-clamp_to_pixel(): void;
-contains_point(point: Point): boolean;
-contains_rect(b: Rect): boolean;
-copy(): Rect;
-equals(b: Rect): boolean;
-free(): void;
-get_center(): [Point];
-get_height(): number;
-get_width(): number;
-get_x(): number;
-get_y(): number;
-init(x: number, y: number, width: number, height: number): Rect;
-inset(d_x: number, d_y: number): void;
-intersection(b: Rect): [boolean, Rect | null];
-normalize(): Rect;
-offset(d_x: number, d_y: number): void;
-union(b: Rect): [Rect];
-static zero(): Rect;
-}
-export class RectangleClass  {constructor(config?: properties);
-readonly parent_class: ActorClass;
-readonly _clutter_rectangle1: unknown;
-readonly _clutter_rectangle2: unknown;
-readonly _clutter_rectangle3: unknown;
-readonly _clutter_rectangle4: unknown;
-}
-export class RectanglePrivate  {constructor(config?: properties);
-}
-export class RotateActionClass  {constructor(config?: properties);
-readonly parent_class: GestureActionClass;
-readonly rotate: unknown;
-readonly _clutter_rotate_action1: unknown;
-readonly _clutter_rotate_action2: unknown;
-readonly _clutter_rotate_action3: unknown;
-readonly _clutter_rotate_action4: unknown;
-readonly _clutter_rotate_action5: unknown;
-readonly _clutter_rotate_action6: unknown;
-readonly _clutter_rotate_action7: unknown;
-}
-export class RotateActionPrivate  {constructor(config?: properties);
-}
-export class ScoreClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly timeline_started: unknown;
-readonly timeline_completed: unknown;
-readonly started: unknown;
-readonly completed: unknown;
-readonly paused: unknown;
-readonly _clutter_score_1: unknown;
-readonly _clutter_score_2: unknown;
-readonly _clutter_score_3: unknown;
-readonly _clutter_score_4: unknown;
-readonly _clutter_score_5: unknown;
-}
-export class ScorePrivate  {constructor(config?: properties);
-}
-export class ScriptClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_type_from_name: unknown;
-readonly _clutter_reserved1: unknown;
-readonly _clutter_reserved2: unknown;
-readonly _clutter_reserved3: unknown;
-readonly _clutter_reserved4: unknown;
-readonly _clutter_reserved5: unknown;
-readonly _clutter_reserved6: unknown;
-readonly _clutter_reserved7: unknown;
-readonly _clutter_reserved8: unknown;
-}
-export class ScriptPrivate  {constructor(config?: properties);
-}
-export class ScriptableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly set_id: unknown;
-readonly get_id: unknown;
-readonly parse_custom_node: unknown;
-readonly set_custom_property: unknown;
-}
-export class ScrollActorClass  {constructor(config?: properties);
-readonly _padding: object[];
-}
-export class ScrollActorPrivate  {constructor(config?: properties);
-}
-export class ScrollEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-x: number;
-y: number;
-direction: ScrollDirection;
-modifier_state: ModifierType;
-axes: number;
-device: InputDevice;
-scroll_source: ScrollSource;
-finish_flags: ScrollFinishFlags;
-}
-export class SettingsClass  {constructor(config?: properties);
-}
-export class ShaderClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ShaderEffectClass  {constructor(config?: properties);
-readonly parent_class: OffscreenEffectClass;
-readonly get_static_shader_source: unknown;
-readonly _clutter_shader1: unknown;
-readonly _clutter_shader2: unknown;
-readonly _clutter_shader3: unknown;
-readonly _clutter_shader4: unknown;
-readonly _clutter_shader5: unknown;
-}
-export class ShaderEffectPrivate  {constructor(config?: properties);
-}
-export class ShaderPrivate  {constructor(config?: properties);
-}
-export class Size  {constructor(config?: properties);
-static alloc(): Size;
-copy(): Size;
-equals(b: Size): boolean;
-free(): void;
-init(width: number, height: number): Size;
-}
-export class SnapConstraintClass  {constructor(config?: properties);
-}
-export class StageClass  {constructor(config?: properties);
-readonly parent_class: GroupClass;
-readonly fullscreen: unknown;
-readonly unfullscreen: unknown;
-readonly activate: unknown;
-readonly deactivate: unknown;
-readonly delete_event: unknown;
-readonly _padding_dummy: object[];
-}
-export class StageManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly stage_added: unknown;
-readonly stage_removed: unknown;
-}
-export class StagePrivate  {constructor(config?: properties);
-}
-export class StageStateEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-changed_mask: StageState;
-new_state: StageState;
-}
-export class StateClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly completed: unknown;
-readonly _padding_dummy: object[];
-}
-export class StateKey  {constructor(config?: properties);
-get_mode(): number;
-get_object(): GObject.Object;
-get_post_delay(): number;
-get_pre_delay(): number;
-get_property_name(): string;
-get_property_type(): unknown;
-get_source_state_name(): string;
-get_target_state_name(): string;
-get_value(value: GObject.Value): boolean;
-}
-export class StatePrivate  {constructor(config?: properties);
-}
-export class SwipeActionClass  {constructor(config?: properties);
-readonly parent_class: GestureActionClass;
-readonly swept: unknown;
-readonly swipe: unknown;
-readonly _clutter_swipe_action1: unknown;
-readonly _clutter_swipe_action2: unknown;
-readonly _clutter_swipe_action3: unknown;
-readonly _clutter_swipe_action4: unknown;
-readonly _clutter_swipe_action5: unknown;
-readonly _clutter_swipe_action6: unknown;
-}
-export class SwipeActionPrivate  {constructor(config?: properties);
-}
-export class TableLayoutClass  {constructor(config?: properties);
-readonly parent_class: LayoutManagerClass;
-}
-export class TableLayoutPrivate  {constructor(config?: properties);
-}
-export class TapActionClass  {constructor(config?: properties);
-readonly parent_class: GestureActionClass;
-readonly tap: unknown;
-readonly _clutter_tap_action1: unknown;
-readonly _clutter_tap_action2: unknown;
-readonly _clutter_tap_action3: unknown;
-readonly _clutter_tap_action4: unknown;
-readonly _clutter_tap_action5: unknown;
-readonly _clutter_tap_action6: unknown;
-}
-export class TapActionPrivate  {constructor(config?: properties);
-}
-export class TextBufferClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly inserted_text: unknown;
-readonly deleted_text: unknown;
-readonly get_text: unknown;
-readonly get_length: unknown;
-readonly insert_text: unknown;
-readonly delete_text: unknown;
-readonly _clutter_reserved1: unknown;
-readonly _clutter_reserved2: unknown;
-readonly _clutter_reserved3: unknown;
-readonly _clutter_reserved4: unknown;
-readonly _clutter_reserved5: unknown;
-readonly _clutter_reserved6: unknown;
-readonly _clutter_reserved7: unknown;
-readonly _clutter_reserved8: unknown;
-}
-export class TextBufferPrivate  {constructor(config?: properties);
-}
-export class TextClass  {constructor(config?: properties);
-readonly parent_class: ActorClass;
-readonly text_changed: unknown;
-readonly activate: unknown;
-readonly cursor_event: unknown;
-readonly cursor_changed: unknown;
-readonly _clutter_reserved1: unknown;
-readonly _clutter_reserved2: unknown;
-readonly _clutter_reserved3: unknown;
-readonly _clutter_reserved4: unknown;
-readonly _clutter_reserved5: unknown;
-readonly _clutter_reserved6: unknown;
-readonly _clutter_reserved7: unknown;
-}
-export class TextNodeClass  {constructor(config?: properties);
-}
-export class TextPrivate  {constructor(config?: properties);
-}
-export class TextureClass  {constructor(config?: properties);
-readonly parent_class: ActorClass;
-readonly size_change: unknown;
-readonly pixbuf_change: unknown;
-readonly load_finished: unknown;
-readonly _clutter_texture1: unknown;
-readonly _clutter_texture2: unknown;
-readonly _clutter_texture3: unknown;
-readonly _clutter_texture4: unknown;
-readonly _clutter_texture5: unknown;
-}
-export class TextureNodeClass  {constructor(config?: properties);
-}
-export class TexturePrivate  {constructor(config?: properties);
-}
-export class TimelineClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly started: unknown;
-readonly completed: unknown;
-readonly paused: unknown;
-readonly new_frame: unknown;
-readonly marker_reached: unknown;
-readonly stopped: unknown;
-readonly _clutter_timeline_1: unknown;
-readonly _clutter_timeline_2: unknown;
-readonly _clutter_timeline_3: unknown;
-readonly _clutter_timeline_4: unknown;
-}
-export class TimelinePrivate  {constructor(config?: properties);
-}
-export class TimeoutPool  {constructor(config?: properties);
-add(fps: number, func: GLib.SourceFunc, data: object | null, notify: GLib.DestroyNotify): number;
-remove(id_: number): void;
-static _new(priority: number): TimeoutPool;
-}
-export class TouchEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-x: number;
-y: number;
-sequence: EventSequence;
-modifier_state: ModifierType;
-axes: number;
-device: InputDevice;
-}
-export class TouchpadPinchEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-phase: TouchpadGesturePhase;
-x: number;
-y: number;
-dx: number;
-dy: number;
-angle_delta: number;
-scale: number;
-}
-export class TouchpadSwipeEvent  {constructor(config?: properties);
-type: EventType;
-time: number;
-flags: EventFlags;
-stage: Stage;
-source: Actor;
-phase: TouchpadGesturePhase;
-n_fingers: number;
-x: number;
-y: number;
-dx: number;
-dy: number;
-}
-export class TransitionClass  {constructor(config?: properties);
-readonly parent_class: TimelineClass;
-readonly attached: unknown;
-readonly detached: unknown;
-readonly compute_value: unknown;
-readonly _padding: object[];
-}
-export class TransitionGroupClass  {constructor(config?: properties);
-readonly parent_class: TransitionClass;
-readonly _padding: object[];
-}
-export class TransitionGroupPrivate  {constructor(config?: properties);
-}
-export class TransitionPrivate  {constructor(config?: properties);
-}
-export class Units  {constructor(config?: properties);
-readonly unit_type: UnitType;
-readonly value: number;
-readonly pixels: number;
-readonly pixels_set: number;
-readonly serial: number;
-readonly __padding_1: number;
-readonly __padding_2: number;
-copy(): Units;
-free(): void;
-get_unit_type(): UnitType;
-get_unit_value(): number;
-to_pixels(): number;
-to_string(): string;
-static from_cm(cm: number): [Units];
-static from_em(em: number): [Units];
-static from_em_for_font(font_name: string | null, em: number): [Units];
-static from_mm(mm: number): [Units];
-static from_pixels(px: number): [Units];
-static from_pt(pt: number): [Units];
-static from_string(str: string): [boolean, Units];
-}
-export class Vertex  {constructor(config?: properties);
-static alloc(): Vertex;
-copy(): Vertex;
-equal(vertex_b: Vertex): boolean;
-free(): void;
-init(x: number, y: number, z: number): Vertex;
-}
-export class ZoomActionClass  {constructor(config?: properties);
-readonly parent_class: GestureActionClass;
-readonly zoom: unknown;
-readonly _clutter_zoom_action1: unknown;
-readonly _clutter_zoom_action2: unknown;
-readonly _clutter_zoom_action3: unknown;
-readonly _clutter_zoom_action4: unknown;
-readonly _clutter_zoom_action5: unknown;
-}
-export class ZoomActionPrivate  {constructor(config?: properties);
-}
-export class Event  {constructor(config?: properties);
-copy(): Event;
-free(): void;
-get_angle(target: Event): number;
-get_axes(): [number, number];
-get_button(): number;
-get_click_count(): number;
-get_coords(): [number,number];
-get_device(): InputDevice;
-get_device_id(): number;
-get_device_type(): InputDeviceType;
-get_distance(target: Event): number;
-get_event_sequence(): EventSequence;
-get_flags(): EventFlags;
-get_gesture_motion_delta(): [number | null,number | null];
-get_gesture_phase(): TouchpadGesturePhase;
-get_gesture_pinch_angle_delta(): number;
-get_gesture_pinch_scale(): number;
-get_gesture_swipe_finger_count(): number;
-get_key_code(): number;
-get_key_symbol(): number;
-get_key_unicode(): number;
-get_position(position: Point): void;
-get_related(): Actor;
-get_scroll_delta(): [number,number];
-get_scroll_direction(): ScrollDirection;
-get_scroll_finish_flags(): ScrollFinishFlags;
-get_scroll_source(): ScrollSource;
-get_source(): Actor;
-get_source_device(): InputDevice;
-get_stage(): Stage;
-get_state(): ModifierType;
-get_state_full(): [ModifierType | null,ModifierType | null,ModifierType | null,ModifierType | null,ModifierType | null];
-get_time(): number;
-has_control_modifier(): boolean;
-has_shift_modifier(): boolean;
-is_pointer_emulated(): boolean;
-put(): void;
-set_button(button: number): void;
-set_coords(x: number, y: number): void;
-set_device(device: InputDevice | null): void;
-set_flags(flags: EventFlags): void;
-set_key_code(key_code: number): void;
-set_key_symbol(key_sym: number): void;
-set_key_unicode(key_unicode: number): void;
-set_related(actor: Actor | null): void;
-set_scroll_delta(dx: number, dy: number): void;
-set_scroll_direction(direction: ScrollDirection): void;
-set_source(actor: Actor | null): void;
-set_source_device(device: InputDevice | null): void;
-set_stage(stage: Stage | null): void;
-set_state(state: ModifierType): void;
-set_time(time_: number): void;
-type(): EventType;
-static add_filter(stage: Stage | null, func: EventFilterFunc, notify: GLib.DestroyNotify, user_data: object | null): number;
-static get(): Event;
-static peek(): Event;
-static remove_filter(id: number): void;
+export class Action  {
+    constructor(config?: properties);
+}
+export class Actor extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    actions: Action;
+    readonly allocation: ActorBox;
+    anchor_gravity: Gravity;
+    anchor_x: number;
+    anchor_y: number;
+    background_color: Color;
+    readonly background_color_set: boolean;
+    readonly child_transform_set: boolean;
+    clip: Geometry;
+    clip_rect: Rect;
+    clip_to_allocation: boolean;
+    constraints: Constraint;
+    content: Content;
+    readonly content_box: ActorBox;
+    content_gravity: ContentGravity;
+    content_repeat: ContentRepeat;
+    depth: number;
+    effect: Effect;
+    readonly first_child: Actor;
+    fixed_position_set: boolean;
+    fixed_x: number;
+    fixed_y: number;
+    height: number;
+    readonly last_child: Actor;
+    layout_manager: LayoutManager;
+    magnification_filter: ScalingFilter;
+    readonly mapped: boolean;
+    margin_bottom: number;
+    margin_left: number;
+    margin_right: number;
+    margin_top: number;
+    min_height: number;
+    min_height_set: boolean;
+    min_width: number;
+    min_width_set: boolean;
+    minification_filter: ScalingFilter;
+    name: string;
+    natural_height: number;
+    natural_height_set: boolean;
+    natural_width: number;
+    natural_width_set: boolean;
+    offscreen_redirect: OffscreenRedirect;
+    opacity: number;
+    pivot_point: Point;
+    pivot_point_z: number;
+    position: Point;
+    reactive: boolean;
+    readonly realized: boolean;
+    request_mode: RequestMode;
+    rotation_angle_x: number;
+    rotation_angle_y: number;
+    rotation_angle_z: number;
+    rotation_center_x: Vertex;
+    rotation_center_y: Vertex;
+    rotation_center_z: Vertex;
+    rotation_center_z_gravity: Gravity;
+    scale_center_x: number;
+    scale_center_y: number;
+    scale_gravity: Gravity;
+    scale_x: number;
+    scale_y: number;
+    scale_z: number;
+    show_on_set_parent: boolean;
+    size: Size;
+    text_direction: TextDirection;
+    readonly transform_set: boolean;
+    translation_x: number;
+    translation_y: number;
+    translation_z: number;
+    visible: boolean;
+    width: number;
+    x: number;
+    x_align: ActorAlign;
+    x_expand: boolean;
+    y: number;
+    y_align: ActorAlign;
+    y_expand: boolean;
+    z_position: number;
+    add_action(action: Action): void;
+    add_action_with_name(name: string, action: Action): void;
+    add_child(child: Actor): void;
+    add_constraint(constraint: Constraint): void;
+    add_constraint_with_name(name: string, constraint: Constraint): void;
+    add_effect(effect: Effect): void;
+    add_effect_with_name(name: string, effect: Effect): void;
+    add_transition(name: string, transition: Transition): void;
+    allocate(box: ActorBox, flags: AllocationFlags): void;
+    allocate_align_fill(box: ActorBox, x_align: number, y_align: number, x_fill: boolean, y_fill: boolean, flags: AllocationFlags): void;
+    allocate_available_size(x: number, y: number, available_width: number, available_height: number, flags: AllocationFlags): void;
+    allocate_preferred_size(flags: AllocationFlags): void;
+    animate_with_alphav(alpha: Alpha, n_properties: number, properties: string[], values: GObject.Value[]): Animation;
+    animate_with_timelinev(mode: number, timeline: Timeline, n_properties: number, properties: string[], values: GObject.Value[]): Animation;
+    animatev(mode: number, duration: number, n_properties: number, properties: string[], values: GObject.Value[]): Animation;
+    apply_relative_transform_to_point(ancestor: Actor | null, point: Vertex): [Vertex];
+    apply_transform_to_point(point: Vertex): [Vertex];
+    bind_model(model: Gio.ListModel | null, create_child_func: ActorCreateChildFunc, user_data: object | null, notify: GLib.DestroyNotify): void;
+    clear_actions(): void;
+    clear_constraints(): void;
+    clear_effects(): void;
+    contains(descendant: Actor): boolean;
+    continue_paint(): void;
+    create_pango_context(): Pango.Context;
+    create_pango_layout(text: string | null): Pango.Layout;
+    destroy(): void;
+    destroy_all_children(): void;
+    detach_animation(): void;
+    event(event: Event, capture: boolean): boolean;
+    get_abs_allocation_vertices(): [Vertex[]];
+    get_accessible(): Atk.Object;
+    get_action(name: string): Action;
+    get_actions(): GLib.List;
+    get_allocation_box(): [ActorBox];
+    get_allocation_geometry(): [Geometry];
+    get_allocation_vertices(ancestor: Actor | null): [Vertex[]];
+    get_anchor_point(): [number,number];
+    get_anchor_point_gravity(): Gravity;
+    get_animation(): Animation;
+    get_background_color(): [Color];
+    get_child_at_index(index_: number): Actor;
+    get_child_transform(): [Matrix];
+    get_children(): GLib.List;
+    get_clip(): [number | null,number | null,number | null,number | null];
+    get_clip_to_allocation(): boolean;
+    get_constraint(name: string): Constraint;
+    get_constraints(): GLib.List;
+    get_content(): Content;
+    get_content_box(): [ActorBox];
+    get_content_gravity(): ContentGravity;
+    get_content_repeat(): ContentRepeat;
+    get_content_scaling_filters(): [ScalingFilter | null,ScalingFilter | null];
+    get_default_paint_volume(): PaintVolume;
+    get_depth(): number;
+    get_easing_delay(): number;
+    get_easing_duration(): number;
+    get_easing_mode(): AnimationMode;
+    get_effect(name: string): Effect;
+    get_effects(): GLib.List;
+    get_first_child(): Actor;
+    get_fixed_position_set(): boolean;
+    get_flags(): ActorFlags;
+    get_geometry(): [Geometry];
+    get_gid(): number;
+    get_height(): number;
+    get_last_child(): Actor;
+    get_layout_manager(): LayoutManager;
+    get_margin(): [Margin];
+    get_margin_bottom(): number;
+    get_margin_left(): number;
+    get_margin_right(): number;
+    get_margin_top(): number;
+    get_n_children(): number;
+    get_name(): string;
+    get_next_sibling(): Actor;
+    get_offscreen_redirect(): OffscreenRedirect;
+    get_opacity(): number;
+    get_paint_box(): [boolean, ActorBox];
+    get_paint_opacity(): number;
+    get_paint_visibility(): boolean;
+    get_paint_volume(): PaintVolume;
+    get_pango_context(): Pango.Context;
+    get_parent(): Actor;
+    get_pivot_point(): [number | null,number | null];
+    get_pivot_point_z(): number;
+    get_position(): [number | null,number | null];
+    get_preferred_height(for_width: number): [number | null,number | null];
+    get_preferred_size(): [number | null,number | null,number | null,number | null];
+    get_preferred_width(for_height: number): [number | null,number | null];
+    get_previous_sibling(): Actor;
+    get_reactive(): boolean;
+    get_request_mode(): RequestMode;
+    get_rotation(axis: RotateAxis): [number, number,number,number];
+    get_rotation_angle(axis: RotateAxis): number;
+    get_scale(): [number | null,number | null];
+    get_scale_center(): [number | null,number | null];
+    get_scale_gravity(): Gravity;
+    get_scale_z(): number;
+    get_shader(): Shader;
+    get_size(): [number | null,number | null];
+    get_stage(): Stage;
+    get_text_direction(): TextDirection;
+    get_transform(): [Matrix];
+    get_transformation_matrix(): [Matrix];
+    get_transformed_paint_volume(relative_to_ancestor: Actor): PaintVolume;
+    get_transformed_position(): [number | null,number | null];
+    get_transformed_size(): [number | null,number | null];
+    get_transition(name: string): Transition;
+    get_translation(): [number | null,number | null,number | null];
+    get_width(): number;
+    get_x(): number;
+    get_x_align(): ActorAlign;
+    get_x_expand(): boolean;
+    get_y(): number;
+    get_y_align(): ActorAlign;
+    get_y_expand(): boolean;
+    get_z_position(): number;
+    get_z_rotation_gravity(): Gravity;
+    grab_key_focus(): void;
+    has_actions(): boolean;
+    has_allocation(): boolean;
+    has_clip(): boolean;
+    has_constraints(): boolean;
+    has_effects(): boolean;
+    has_key_focus(): boolean;
+    has_overlaps(): boolean;
+    has_pointer(): boolean;
+    hide(): void;
+    hide_all(): void;
+    insert_child_above(child: Actor, sibling: Actor | null): void;
+    insert_child_at_index(child: Actor, index_: number): void;
+    insert_child_below(child: Actor, sibling: Actor | null): void;
+    is_in_clone_paint(): boolean;
+    is_mapped(): boolean;
+    is_realized(): boolean;
+    is_rotated(): boolean;
+    is_scaled(): boolean;
+    is_visible(): boolean;
+    lower(above: Actor | null): void;
+    lower_bottom(): void;
+    map(): void;
+    move_anchor_point(anchor_x: number, anchor_y: number): void;
+    move_anchor_point_from_gravity(gravity: Gravity): void;
+    move_by(dx: number, dy: number): void;
+    needs_expand(orientation: Orientation): boolean;
+    paint(): void;
+    pop_internal(): void;
+    push_internal(): void;
+    queue_redraw(): void;
+    queue_redraw_with_clip(clip: cairo.RectangleInt | null): void;
+    queue_relayout(): void;
+    raise(below: Actor | null): void;
+    raise_top(): void;
+    realize(): void;
+    remove_action(action: Action): void;
+    remove_action_by_name(name: string): void;
+    remove_all_children(): void;
+    remove_all_transitions(): void;
+    remove_child(child: Actor): void;
+    remove_clip(): void;
+    remove_constraint(constraint: Constraint): void;
+    remove_constraint_by_name(name: string): void;
+    remove_effect(effect: Effect): void;
+    remove_effect_by_name(name: string): void;
+    remove_transition(name: string): void;
+    reparent(new_parent: Actor): void;
+    replace_child(old_child: Actor, new_child: Actor): void;
+    restore_easing_state(): void;
+    save_easing_state(): void;
+    set_allocation(box: ActorBox, flags: AllocationFlags): void;
+    set_anchor_point(anchor_x: number, anchor_y: number): void;
+    set_anchor_point_from_gravity(gravity: Gravity): void;
+    set_background_color(color: Color | null): void;
+    set_child_above_sibling(child: Actor, sibling: Actor | null): void;
+    set_child_at_index(child: Actor, index_: number): void;
+    set_child_below_sibling(child: Actor, sibling: Actor | null): void;
+    set_child_transform(transform: Matrix | null): void;
+    set_clip(xoff: number, yoff: number, width: number, height: number): void;
+    set_clip_to_allocation(clip_set: boolean): void;
+    set_content(content: Content | null): void;
+    set_content_gravity(gravity: ContentGravity): void;
+    set_content_repeat(repeat: ContentRepeat): void;
+    set_content_scaling_filters(min_filter: ScalingFilter, mag_filter: ScalingFilter): void;
+    set_depth(depth: number): void;
+    set_easing_delay(msecs: number): void;
+    set_easing_duration(msecs: number): void;
+    set_easing_mode(mode: AnimationMode): void;
+    set_fixed_position_set(is_set: boolean): void;
+    set_flags(flags: ActorFlags): void;
+    set_geometry(geometry: Geometry): void;
+    set_height(height: number): void;
+    set_layout_manager(manager: LayoutManager | null): void;
+    set_margin(margin: Margin): void;
+    set_margin_bottom(margin: number): void;
+    set_margin_left(margin: number): void;
+    set_margin_right(margin: number): void;
+    set_margin_top(margin: number): void;
+    set_name(name: string): void;
+    set_offscreen_redirect(redirect: OffscreenRedirect): void;
+    set_opacity(opacity: number): void;
+    set_parent(parent: Actor): void;
+    set_pivot_point(pivot_x: number, pivot_y: number): void;
+    set_pivot_point_z(pivot_z: number): void;
+    set_position(x: number, y: number): void;
+    set_reactive(reactive: boolean): void;
+    set_request_mode(mode: RequestMode): void;
+    set_rotation(axis: RotateAxis, angle: number, x: number, y: number, z: number): void;
+    set_rotation_angle(axis: RotateAxis, angle: number): void;
+    set_scale(scale_x: number, scale_y: number): void;
+    set_scale_full(scale_x: number, scale_y: number, center_x: number, center_y: number): void;
+    set_scale_with_gravity(scale_x: number, scale_y: number, gravity: Gravity): void;
+    set_scale_z(scale_z: number): void;
+    set_shader(shader: Shader | null): boolean;
+    set_shader_param(param: string, value: GObject.Value): void;
+    set_shader_param_float(param: string, value: number): void;
+    set_shader_param_int(param: string, value: number): void;
+    set_size(width: number, height: number): void;
+    set_text_direction(text_dir: TextDirection): void;
+    set_transform(transform: Matrix | null): void;
+    set_translation(translate_x: number, translate_y: number, translate_z: number): void;
+    set_width(width: number): void;
+    set_x(x: number): void;
+    set_x_align(x_align: ActorAlign): void;
+    set_x_expand(expand: boolean): void;
+    set_y(y: number): void;
+    set_y_align(y_align: ActorAlign): void;
+    set_y_expand(expand: boolean): void;
+    set_z_position(z_position: number): void;
+    set_z_rotation_from_gravity(angle: number, gravity: Gravity): void;
+    should_pick_paint(): boolean;
+    show(): void;
+    show_all(): void;
+    transform_stage_point(x: number, y: number): [boolean, number,number];
+    unmap(): void;
+    unparent(): void;
+    unrealize(): void;
+    unset_flags(flags: ActorFlags): void;
+    vfunc_allocate(box: ActorBox, flags: AllocationFlags): void;
+    vfunc_apply_transform(matrix: Matrix): void;
+    vfunc_button_press_event(event: ButtonEvent): boolean;
+    vfunc_button_release_event(event: ButtonEvent): boolean;
+    vfunc_captured_event(event: Event): boolean;
+    vfunc_destroy(): void;
+    vfunc_enter_event(event: CrossingEvent): boolean;
+    vfunc_event(event: Event): boolean;
+    vfunc_get_accessible(): Atk.Object;
+    vfunc_get_paint_volume(volume: PaintVolume): boolean;
+    vfunc_get_preferred_height(for_width: number): [number | null,number | null];
+    vfunc_get_preferred_width(for_height: number): [number | null,number | null];
+    vfunc_has_overlaps(): boolean;
+    vfunc_hide(): void;
+    vfunc_hide_all(): void;
+    vfunc_key_focus_in(): void;
+    vfunc_key_focus_out(): void;
+    vfunc_key_press_event(event: KeyEvent): boolean;
+    vfunc_key_release_event(event: KeyEvent): boolean;
+    vfunc_leave_event(event: CrossingEvent): boolean;
+    vfunc_map(): void;
+    vfunc_motion_event(event: MotionEvent): boolean;
+    vfunc_paint(): void;
+    vfunc_paint_node(root: PaintNode): void;
+    vfunc_parent_set(old_parent: Actor): void;
+    vfunc_pick(color: Color): void;
+    vfunc_queue_redraw(leaf_that_queued: Actor): void;
+    vfunc_queue_relayout(): void;
+    vfunc_realize(): void;
+    vfunc_scroll_event(event: ScrollEvent): boolean;
+    vfunc_show(): void;
+    vfunc_show_all(): void;
+    vfunc_touch_event(event: TouchEvent): boolean;
+    vfunc_unmap(): void;
+    vfunc_unrealize(): void;
+}
+export class ActorMeta  {
+    constructor(config?: properties);
+    readonly actor: Actor;
+    enabled: boolean;
+    name: string;
+    readonly priv: ActorMetaPrivate;
+    get_actor(): Actor;
+    get_enabled(): boolean;
+    get_name(): string;
+    set_enabled(is_enabled: boolean): void;
+    set_name(name: string): void;
+}
+export class AlignConstraint extends Constraint {
+    constructor(config?: properties);
+    align_axis: AlignAxis;
+    factor: number;
+    source: Actor;
+    get_align_axis(): AlignAxis;
+    get_factor(): number;
+    get_source(): Actor;
+    set_align_axis(axis: AlignAxis): void;
+    set_factor(factor: number): void;
+    set_source(source: Actor | null): void;
+}
+export class Alpha extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    readonly alpha: number;
+    mode: number;
+    timeline: Timeline;static new_full(timeline: Timeline, mode: number): Alpha;
+    static new_with_func(timeline: Timeline, func: AlphaFunc, data: object | null, destroy: GLib.DestroyNotify): Alpha;
+    get_alpha(): number;
+    get_mode(): number;
+    get_timeline(): Timeline;
+    set_closure(closure: GObject.Closure): void;
+    set_func(func: AlphaFunc, data: object | null, destroy: GLib.DestroyNotify): void;
+    set_mode(mode: number): void;
+    set_timeline(timeline: Timeline): void;
+    static register_closure(closure: GObject.Closure): number;
+}
+export class Animation extends GObject.Object {
+    constructor(config?: properties);
+    alpha: Alpha;
+    duration: number;
+    loop: boolean;
+    mode: number;
+    object: GObject.Object;
+    timeline: Timeline;
+    bind(property_name: string, _final: GObject.Value): Animation;
+    bind_interval(property_name: string, interval: Interval): Animation;
+    completed(): void;
+    get_alpha(): Alpha;
+    get_duration(): number;
+    get_interval(property_name: string): Interval;
+    get_loop(): boolean;
+    get_mode(): number;
+    get_object(): GObject.Object;
+    get_timeline(): Timeline;
+    has_property(property_name: string): boolean;
+    set_alpha(alpha: Alpha): void;
+    set_duration(msecs: number): void;
+    set_loop(loop: boolean): void;
+    set_mode(mode: number): void;
+    set_object(object: GObject.Object): void;
+    set_timeline(timeline: Timeline | null): void;
+    unbind_property(property_name: string): void;
+    update(property_name: string, _final: GObject.Value): Animation;
+    update_interval(property_name: string, interval: Interval): void;
+    vfunc_completed(): void;
+    vfunc_started(): void;
+}
+export class Animator extends GObject.Object {
+    constructor(config?: properties);
+    duration: number;
+    timeline: Timeline;
+    compute_value(object: GObject.Object, property_name: string, progress: number, value: GObject.Value): boolean;
+    get_duration(): number;
+    get_keys(object: GObject.Object | null, property_name: string | null, progress: number): GLib.List;
+    get_timeline(): Timeline;
+    property_get_ease_in(object: GObject.Object, property_name: string): boolean;
+    property_get_interpolation(object: GObject.Object, property_name: string): Interpolation;
+    property_set_ease_in(object: GObject.Object, property_name: string, ease_in: boolean): void;
+    property_set_interpolation(object: GObject.Object, property_name: string, interpolation: Interpolation): void;
+    remove_key(object: GObject.Object | null, property_name: string | null, progress: number): void;
+    set_duration(duration: number): void;
+    set_key(object: GObject.Object, property_name: string, mode: number, progress: number, value: GObject.Value): Animator;
+    set_timeline(timeline: Timeline): void;
+    start(): Timeline;
+}
+export class Backend  {
+    constructor(config?: properties);
+    get_double_click_distance(): number;
+    get_double_click_time(): number;
+    get_font_name(): string;
+    get_font_options(): cairo.FontOptions;
+    get_resolution(): number;
+    set_double_click_distance(distance: number): void;
+    set_double_click_time(msec: number): void;
+    set_font_name(font_name: string): void;
+    set_font_options(options: cairo.FontOptions): void;
+    set_resolution(dpi: number): void;
+}
+export class Behaviour  {
+    constructor(config?: properties);
+    alpha: Alpha;
+    readonly priv: BehaviourPrivate;
+    actors_foreach(func: BehaviourForeachFunc, data: object | null): void;
+    apply(actor: Actor): void;
+    get_actors(): string[];
+    get_alpha(): Alpha;
+    get_n_actors(): number;
+    get_nth_actor(index_: number): Actor;
+    is_applied(actor: Actor): boolean;
+    remove(actor: Actor): void;
+    remove_all(): void;
+    set_alpha(alpha: Alpha): void;
+}
+export class BehaviourDepth extends Behaviour {
+    constructor(config?: properties);
+    depth_end: number;
+    depth_start: number;
+    get_bounds(): [number,number];
+    set_bounds(depth_start: number, depth_end: number): void;
+}
+export class BehaviourEllipse extends Behaviour {
+    constructor(config?: properties);
+    angle_end: number;
+    angle_start: number;
+    angle_tilt_x: number;
+    angle_tilt_y: number;
+    angle_tilt_z: number;
+    center: Knot;
+    direction: RotateDirection;
+    height: number;
+    width: number;
+    get_angle_end(): number;
+    get_angle_start(): number;
+    get_angle_tilt(axis: RotateAxis): number;
+    get_center(): [number,number];
+    get_direction(): RotateDirection;
+    get_height(): number;
+    get_tilt(): [number,number,number];
+    get_width(): number;
+    set_angle_end(angle_end: number): void;
+    set_angle_start(angle_start: number): void;
+    set_angle_tilt(axis: RotateAxis, angle_tilt: number): void;
+    set_center(x: number, y: number): void;
+    set_direction(direction: RotateDirection): void;
+    set_height(height: number): void;
+    set_tilt(angle_tilt_x: number, angle_tilt_y: number, angle_tilt_z: number): void;
+    set_width(width: number): void;
+}
+export class BehaviourOpacity extends Behaviour {
+    constructor(config?: properties);
+    opacity_end: number;
+    opacity_start: number;
+    get_bounds(): [number,number];
+    set_bounds(opacity_start: number, opacity_end: number): void;
+}
+export class BehaviourPath extends Behaviour {
+    constructor(config?: properties);
+    path: Path;static new_with_description(alpha: Alpha | null, desc: string): Behaviour;
+    static new_with_knots(alpha: Alpha | null, knots: Knot[], n_knots: number): Behaviour;
+    get_path(): Path;
+    set_path(path: Path): void;
+    vfunc_knot_reached(knot_num: number): void;
+}
+export class BehaviourRotate extends Behaviour {
+    constructor(config?: properties);
+    angle_end: number;
+    angle_start: number;
+    axis: RotateAxis;
+    center_x: number;
+    center_y: number;
+    center_z: number;
+    direction: RotateDirection;
+    get_axis(): RotateAxis;
+    get_bounds(): [number,number];
+    get_center(): [number,number,number];
+    get_direction(): RotateDirection;
+    set_axis(axis: RotateAxis): void;
+    set_bounds(angle_start: number, angle_end: number): void;
+    set_center(x: number, y: number, z: number): void;
+    set_direction(direction: RotateDirection): void;
+}
+export class BehaviourScale extends Behaviour {
+    constructor(config?: properties);
+    x_scale_end: number;
+    x_scale_start: number;
+    y_scale_end: number;
+    y_scale_start: number;
+    get_bounds(): [number,number,number,number];
+    set_bounds(x_scale_start: number, y_scale_start: number, x_scale_end: number, y_scale_end: number): void;
+}
+export class BinLayout extends LayoutManager {
+    constructor(config?: properties);
+    x_align: BinAlignment;
+    y_align: BinAlignment;
+    add(child: Actor, x_align: BinAlignment, y_align: BinAlignment): void;
+    get_alignment(child: Actor | null): [BinAlignment | null,BinAlignment | null];
+    set_alignment(child: Actor | null, x_align: BinAlignment, y_align: BinAlignment): void;
+}
+export class BindConstraint extends Constraint {
+    constructor(config?: properties);
+    coordinate: BindCoordinate;
+    offset: number;
+    source: Actor;
+    get_coordinate(): BindCoordinate;
+    get_offset(): number;
+    get_source(): Actor;
+    set_coordinate(coordinate: BindCoordinate): void;
+    set_offset(offset: number): void;
+    set_source(source: Actor | null): void;
+}
+export class BindingPool extends GObject.Object {
+    constructor(config?: properties);
+    name: string;
+    activate(key_val: number, modifiers: ModifierType, gobject: GObject.Object): boolean;
+    block_action(action_name: string): void;
+    find_action(key_val: number, modifiers: ModifierType): string;
+    install_action(action_name: string, key_val: number, modifiers: ModifierType, callback: BindingActionFunc, data: object | null, notify: GLib.DestroyNotify): void;
+    install_closure(action_name: string, key_val: number, modifiers: ModifierType, closure: GObject.Closure): void;
+    override_action(key_val: number, modifiers: ModifierType, callback: GObject.Callback, data: object | null, notify: GLib.DestroyNotify): void;
+    override_closure(key_val: number, modifiers: ModifierType, closure: GObject.Closure): void;
+    remove_action(key_val: number, modifiers: ModifierType): void;
+    unblock_action(action_name: string): void;
+    static find(name: string): BindingPool;
+    static get_for_class(klass: object | null): BindingPool;
+}
+export class BlurEffect extends OffscreenEffect {
+    constructor(config?: properties);
+}
+export class Box extends Actor {
+    constructor(config?: properties);
+    color: Color;
+    color_set: boolean;
+    get_color(): [Color];
+    get_layout_manager(): LayoutManager;
+    packv(actor: Actor, n_properties: number, properties: string[], values: GObject.Value[]): void;
+    set_color(color: Color | null): void;
+    set_layout_manager(manager: LayoutManager): void;
+}
+export class BoxLayout extends LayoutManager {
+    constructor(config?: properties);
+    easing_duration: number;
+    easing_mode: number;
+    homogeneous: boolean;
+    orientation: Orientation;
+    pack_start: boolean;
+    spacing: number;
+    use_animations: boolean;
+    vertical: boolean;
+    get_alignment(actor: Actor): [BoxAlignment,BoxAlignment];
+    get_easing_duration(): number;
+    get_easing_mode(): number;
+    get_expand(actor: Actor): boolean;
+    get_fill(actor: Actor): [boolean,boolean];
+    get_homogeneous(): boolean;
+    get_orientation(): Orientation;
+    get_pack_start(): boolean;
+    get_spacing(): number;
+    get_use_animations(): boolean;
+    get_vertical(): boolean;
+    pack(actor: Actor, expand: boolean, x_fill: boolean, y_fill: boolean, x_align: BoxAlignment, y_align: BoxAlignment): void;
+    set_alignment(actor: Actor, x_align: BoxAlignment, y_align: BoxAlignment): void;
+    set_easing_duration(msecs: number): void;
+    set_easing_mode(mode: number): void;
+    set_expand(actor: Actor, expand: boolean): void;
+    set_fill(actor: Actor, x_fill: boolean, y_fill: boolean): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_orientation(orientation: Orientation): void;
+    set_pack_start(pack_start: boolean): void;
+    set_spacing(spacing: number): void;
+    set_use_animations(animate: boolean): void;
+    set_vertical(vertical: boolean): void;
+}
+export class BrightnessContrastEffect extends OffscreenEffect {
+    constructor(config?: properties);
+    brightness: Color;
+    contrast: Color;
+    get_brightness(): [number | null,number | null,number | null];
+    get_contrast(): [number | null,number | null,number | null];
+    set_brightness(brightness: number): void;
+    set_brightness_full(red: number, green: number, blue: number): void;
+    set_contrast(contrast: number): void;
+    set_contrast_full(red: number, green: number, blue: number): void;
+}
+export class CairoTexture extends Texture {
+    constructor(config?: properties);
+    auto_resize: boolean;
+    surface_height: number;
+    surface_width: number;
+    clear(): void;
+    create(): cairo.Context;
+    create_region(x_offset: number, y_offset: number, width: number, height: number): cairo.Context;
+    get_auto_resize(): boolean;
+    get_surface_size(): [number,number];
+    invalidate(): void;
+    invalidate_rectangle(rect: cairo.RectangleInt | null): void;
+    set_auto_resize(value: boolean): void;
+    set_surface_size(width: number, height: number): void;
+    vfunc_create_surface(width: number, height: number): cairo.Surface;
+    vfunc_draw(cr: cairo.Context): boolean;
+}
+export class Canvas  {
+    constructor(config?: properties);
+    height: number;
+    scale_factor: number;
+    readonly scale_factor_set: boolean;
+    width: number;
+    readonly priv: CanvasPrivate;
+    get_scale_factor(): number;
+    set_scale_factor(scale: number): void;
+    set_size(width: number, height: number): boolean;
+    static _new(): Content;
+}
+export class ChildMeta  {
+    constructor(config?: properties);
+    actor: Actor;
+    container: Container;
+    get_actor(): Actor;
+    get_container(): Container;
+}
+export class ClickAction extends Action {
+    constructor(config?: properties);
+    readonly held: boolean;
+    long_press_duration: number;
+    long_press_threshold: number;
+    readonly pressed: boolean;
+    get_button(): number;
+    get_coords(): [number,number];
+    get_state(): ModifierType;
+    release(): void;
+    vfunc_clicked(actor: Actor): void;
+    vfunc_long_press(actor: Actor, state: LongPressState): boolean;
+}
+export class ClipNode extends PaintNode {
+    constructor(config?: properties);
+}
+export class Clone extends Actor {
+    constructor(config?: properties);
+    source: Actor;
+    get_source(): Actor;
+    set_source(source: Actor | null): void;
+}
+export class ColorNode extends PipelineNode {
+    constructor(config?: properties);
+}
+export class ColorizeEffect extends OffscreenEffect {
+    constructor(config?: properties);
+    tint: Color;
+    get_tint(): [Color];
+    set_tint(tint: Color): void;
+}
+export class Constraint  {
+    constructor(config?: properties);
+}
+export class DeformEffect  {
+    constructor(config?: properties);
+    x_tiles: number;
+    y_tiles: number;
+    readonly priv: DeformEffectPrivate;
+    get_back_material(): Cogl.Handle;
+    get_n_tiles(): [number,number];
+    invalidate(): void;
+    set_back_material(material: Cogl.Handle | null): void;
+    set_n_tiles(x_tiles: number, y_tiles: number): void;
+}
+export class DesaturateEffect extends OffscreenEffect {
+    constructor(config?: properties);
+    factor: number;
+    get_factor(): number;
+    set_factor(factor: number): void;
+}
+export class DeviceManager  {
+    constructor(config?: properties);
+    backend: Backend;
+    readonly priv: DeviceManagerPrivate;
+    get_core_device(device_type: InputDeviceType): InputDevice;
+    get_device(device_id: number): InputDevice;
+    list_devices(): string[];
+    peek_devices(): string[];
+    static get_default(): DeviceManager;
+}
+export class DragAction extends Action {
+    constructor(config?: properties);
+    drag_area: Rect;
+    readonly drag_area_set: boolean;
+    drag_axis: DragAxis;
+    drag_handle: Actor;
+    x_drag_threshold: number;
+    y_drag_threshold: number;
+    get_drag_area(): [boolean, Rect];
+    get_drag_axis(): DragAxis;
+    get_drag_handle(): Actor;
+    get_drag_threshold(): [number,number];
+    get_motion_coords(): [number,number];
+    get_press_coords(): [number,number];
+    set_drag_area(drag_area: Rect | null): void;
+    set_drag_axis(axis: DragAxis): void;
+    set_drag_handle(handle: Actor | null): void;
+    set_drag_threshold(x_threshold: number, y_threshold: number): void;
+    vfunc_drag_begin(actor: Actor, event_x: number, event_y: number, modifiers: ModifierType): void;
+    vfunc_drag_end(actor: Actor, event_x: number, event_y: number, modifiers: ModifierType): void;
+    vfunc_drag_motion(actor: Actor, delta_x: number, delta_y: number): void;
+    vfunc_drag_progress(actor: Actor, delta_x: number, delta_y: number): boolean;
+}
+export class DropAction extends Action {
+    constructor(config?: properties);
+    vfunc_can_drop(actor: Actor, event_x: number, event_y: number): boolean;
+    vfunc_drop(actor: Actor, event_x: number, event_y: number): void;
+    vfunc_over_in(actor: Actor): void;
+    vfunc_over_out(actor: Actor): void;
+}
+export class Effect  {
+    constructor(config?: properties);
+    queue_repaint(): void;
+}
+export class FixedLayout extends LayoutManager {
+    constructor(config?: properties);
+}
+export class FlowLayout extends LayoutManager {
+    constructor(config?: properties);
+    column_spacing: number;
+    homogeneous: boolean;
+    max_column_width: number;
+    max_row_height: number;
+    min_column_width: number;
+    min_row_height: number;
+    orientation: FlowOrientation;
+    row_spacing: number;
+    snap_to_grid: boolean;
+    get_column_spacing(): number;
+    get_column_width(): [number,number];
+    get_homogeneous(): boolean;
+    get_orientation(): FlowOrientation;
+    get_row_height(): [number,number];
+    get_row_spacing(): number;
+    get_snap_to_grid(): boolean;
+    set_column_spacing(spacing: number): void;
+    set_column_width(min_width: number, max_width: number): void;
+    set_homogeneous(homogeneous: boolean): void;
+    set_orientation(orientation: FlowOrientation): void;
+    set_row_height(min_height: number, max_height: number): void;
+    set_row_spacing(spacing: number): void;
+    set_snap_to_grid(snap_to_grid: boolean): void;
+}
+export class GestureAction extends Action {
+    constructor(config?: properties);
+    n_touch_points: number;
+    threshold_trigger_distance_x: number;
+    threshold_trigger_distance_y: number;
+    threshold_trigger_edge: GestureTriggerEdge;
+    cancel(): void;
+    get_device(point: number): InputDevice;
+    get_last_event(point: number): Event;
+    get_motion_coords(point: number): [number | null,number | null];
+    get_motion_delta(point: number): [number, number | null,number | null];
+    get_n_current_points(): number;
+    get_n_touch_points(): number;
+    get_press_coords(point: number): [number | null,number | null];
+    get_release_coords(point: number): [number | null,number | null];
+    get_sequence(point: number): EventSequence;
+    get_threshold_trigger_distance(): [number | null,number | null];
+    get_threshold_trigger_edge(): GestureTriggerEdge;
+    get_threshold_trigger_egde(): GestureTriggerEdge;
+    get_velocity(point: number): [number, number | null,number | null];
+    set_n_touch_points(nb_points: number): void;
+    set_threshold_trigger_distance(x: number, y: number): void;
+    set_threshold_trigger_edge(edge: GestureTriggerEdge): void;
+    vfunc_gesture_begin(actor: Actor): boolean;
+    vfunc_gesture_cancel(actor: Actor): void;
+    vfunc_gesture_end(actor: Actor): void;
+    vfunc_gesture_prepare(actor: Actor): boolean;
+    vfunc_gesture_progress(actor: Actor): boolean;
+}
+export class GridLayout extends LayoutManager {
+    constructor(config?: properties);
+    column_homogeneous: boolean;
+    column_spacing: number;
+    orientation: Orientation;
+    row_homogeneous: boolean;
+    row_spacing: number;
+    attach(child: Actor, left: number, top: number, width: number, height: number): void;
+    attach_next_to(child: Actor, sibling: Actor | null, side: GridPosition, width: number, height: number): void;
+    get_child_at(left: number, top: number): Actor;
+    get_column_homogeneous(): boolean;
+    get_column_spacing(): number;
+    get_orientation(): Orientation;
+    get_row_homogeneous(): boolean;
+    get_row_spacing(): number;
+    insert_column(position: number): void;
+    insert_next_to(sibling: Actor, side: GridPosition): void;
+    insert_row(position: number): void;
+    set_column_homogeneous(homogeneous: boolean): void;
+    set_column_spacing(spacing: number): void;
+    set_orientation(orientation: Orientation): void;
+    set_row_homogeneous(homogeneous: boolean): void;
+    set_row_spacing(spacing: number): void;
+}
+export class Group extends Actor {
+    constructor(config?: properties);
+    get_n_children(): number;
+    get_nth_child(index_: number): Actor;
+    remove_all(): void;
+}
+export class Image  {
+    constructor(config?: properties);
+    readonly priv: ImagePrivate;
+    set_area(data: number[], pixel_format: Cogl.PixelFormat, rect: cairo.RectangleInt, row_stride: number): boolean;
+    set_bytes(data: GLib.Bytes, pixel_format: Cogl.PixelFormat, width: number, height: number, row_stride: number): boolean;
+    set_data(data: number[], pixel_format: Cogl.PixelFormat, width: number, height: number, row_stride: number): boolean;
+    static _new(): Content;
+}
+export class InputDevice  {
+    constructor(config?: properties);
+    backend: Backend;
+    device_manager: DeviceManager;
+    device_mode: InputMode;
+    device_type: InputDeviceType;
+    enabled: boolean;
+    has_cursor: boolean;
+    id: number;
+    readonly n_axes: number;
+    name: string;
+    product_id: string;
+    vendor_id: string;
+    get_associated_device(): InputDevice;
+    get_axis(index_: number): InputAxis;
+    get_axis_value(axes: number[], axis: InputAxis): [boolean, number];
+    get_coords(sequence: EventSequence | null): [boolean, Point];
+    get_device_coords(): [number,number];
+    get_device_id(): number;
+    get_device_mode(): InputMode;
+    get_device_name(): string;
+    get_device_type(): InputDeviceType;
+    get_enabled(): boolean;
+    get_grabbed_actor(): Actor;
+    get_has_cursor(): boolean;
+    get_key(index_: number): [boolean, number,ModifierType];
+    get_modifier_state(): ModifierType;
+    get_n_axes(): number;
+    get_n_keys(): number;
+    get_pointer_actor(): Actor;
+    get_pointer_stage(): Stage;
+    get_product_id(): string;
+    get_slave_devices(): GLib.List;
+    get_vendor_id(): string;
+    grab(actor: Actor): void;
+    keycode_to_evdev(hardware_keycode: number, evdev_keycode: number): boolean;
+    sequence_get_grabbed_actor(sequence: EventSequence): Actor;
+    sequence_grab(sequence: EventSequence, actor: Actor): void;
+    sequence_ungrab(sequence: EventSequence): void;
+    set_enabled(enabled: boolean): void;
+    set_key(index_: number, keyval: number, modifiers: ModifierType): void;
+    ungrab(): void;
+    update_from_event(event: Event, update_stage: boolean): void;
+}
+export class Interval extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    _final: GObject.Value;
+    initial: GObject.Value;
+    value_type: GType;static new_with_values(gtype: GType, initial: GObject.Value | null, _final: GObject.Value | null): Interval;
+    clone(): Interval;
+    compute(factor: number): GObject.Value;
+    compute_value(factor: number): [boolean, GObject.Value];
+    get_final_value(): [GObject.Value];
+    get_initial_value(): [GObject.Value];
+    get_value_type(): GType;
+    is_valid(): boolean;
+    peek_final_value(): GObject.Value;
+    peek_initial_value(): GObject.Value;
+    set_final_value(value: GObject.Value): void;
+    set_initial_value(value: GObject.Value): void;
+    validate(pspec: GObject.ParamSpec): boolean;
+    vfunc_compute_value(factor: number): [boolean, GObject.Value];
+    vfunc_validate(pspec: GObject.ParamSpec): boolean;
+}
+export class KeyframeTransition extends PropertyTransition {
+    constructor(config?: properties);
+    clear(): void;
+    get_key_frame(index_: number): [number | null,AnimationMode | null,GObject.Value];
+    get_n_key_frames(): number;
+    set_key_frame(index_: number, key: number, mode: AnimationMode, value: GObject.Value): void;
+    set_key_frames(n_key_frames: number, key_frames: number[]): void;
+    set_modes(n_modes: number, modes: AnimationMode[]): void;
+    set_values(n_values: number, values: GObject.Value[]): void;
+}
+export class LayoutManager  {
+    constructor(config?: properties);
+    readonly dummy: object;
+    allocate(container: Container, allocation: ActorBox, flags: AllocationFlags): void;
+    begin_animation(duration: number, mode: number): Alpha;
+    child_get_property(container: Container, actor: Actor, property_name: string, value: GObject.Value): void;
+    child_set_property(container: Container, actor: Actor, property_name: string, value: GObject.Value): void;
+    end_animation(): void;
+    find_child_property(name: string): GObject.ParamSpec;
+    get_animation_progress(): number;
+    get_child_meta(container: Container, actor: Actor): LayoutMeta;
+    get_preferred_height(container: Container, for_width: number): [number | null,number | null];
+    get_preferred_width(container: Container, for_height: number): [number | null,number | null];
+    layout_changed(): void;
+    list_child_properties(): [GObject.ParamSpec[], number];
+    set_container(container: Container | null): void;
+}
+export class LayoutMeta  {
+    constructor(config?: properties);
+    manager: LayoutManager;
+    readonly dummy0: number;
+    readonly dummy1: object;
+    get_manager(): LayoutManager;
+}
+export class ListModel extends Model {
+    constructor(config?: properties);
+    static newv(n_columns: number, types: GType, names: string[]): Model;
+}
+export class Model  {
+    constructor(config?: properties);
+    readonly filter_set: boolean;
+    readonly priv: ModelPrivate;
+    appendv(n_columns: number, columns: number[], values: GObject.Value[]): void;
+    filter_iter(iter: ModelIter): boolean;
+    filter_row(row: number): boolean;
+    foreach(func: ModelForeachFunc, user_data: object | null): void;
+    get_column_name(column: number): string;
+    get_column_type(column: number): GType;
+    get_filter_set(): boolean;
+    get_first_iter(): ModelIter;
+    get_iter_at_row(row: number): ModelIter;
+    get_last_iter(): ModelIter;
+    get_n_columns(): number;
+    get_n_rows(): number;
+    get_sorting_column(): number;
+    insert_value(row: number, column: number, value: GObject.Value): void;
+    insertv(row: number, n_columns: number, columns: number[], values: GObject.Value[]): void;
+    prependv(n_columns: number, columns: number[], values: GObject.Value[]): void;
+    remove(row: number): void;
+    resort(): void;
+    set_filter(func: ModelFilterFunc | null, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_names(n_columns: number, names: string[]): void;
+    set_sort(column: number, func: ModelSortFunc | null, user_data: object | null, notify: GLib.DestroyNotify): void;
+    set_sorting_column(column: number): void;
+    set_types(n_columns: number, types: GType): void;
+}
+export class ModelIter  {
+    constructor(config?: properties);
+    model: Model;
+    row: number;
+    readonly priv: ModelIterPrivate;
+    copy(): ModelIter;
+    get_model(): Model;
+    get_row(): number;
+    get_value(column: number): [GObject.Value];
+    is_first(): boolean;
+    is_last(): boolean;
+    next(): ModelIter;
+    prev(): ModelIter;
+    set_value(column: number, value: GObject.Value): void;
+}
+export class OffscreenEffect  {
+    constructor(config?: properties);
+    readonly priv: OffscreenEffectPrivate;
+    create_texture(width: number, height: number): Cogl.Handle;
+    get_target(): Cogl.Material;
+    get_target_rect(): [boolean, Rect];
+    get_target_size(): [boolean, number,number];
+    get_texture(): Cogl.Handle;
+    paint_target(): void;
+}
+export class PageTurnEffect extends DeformEffect {
+    constructor(config?: properties);
+    angle: number;
+    period: number;
+    radius: number;
+    get_angle(): number;
+    get_period(): number;
+    get_radius(): number;
+    set_angle(angle: number): void;
+    set_period(period: number): void;
+    set_radius(radius: number): void;
+}
+export class PaintNode  {
+    constructor(config?: properties);
+    add_child(child: PaintNode): void;
+    add_rectangle(rect: ActorBox): void;
+    add_texture_rectangle(rect: ActorBox, x_1: number, y_1: number, x_2: number, y_2: number): void;
+    ref(): PaintNode;
+    set_name(name: string): void;
+    unref(): void;
+}
+export class PanAction extends GestureAction {
+    constructor(config?: properties);
+    acceleration_factor: number;
+    deceleration: number;
+    interpolate: boolean;
+    pan_axis: PanAxis;
+    get_acceleration_factor(): number;
+    get_constrained_motion_delta(point: number): [number, number | null,number | null];
+    get_deceleration(): number;
+    get_interpolate(): boolean;
+    get_interpolated_coords(): [number | null,number | null];
+    get_interpolated_delta(): [number, number | null,number | null];
+    get_motion_coords(point: number): [number | null,number | null];
+    get_motion_delta(point: number): [number, number | null,number | null];
+    get_pan_axis(): PanAxis;
+    set_acceleration_factor(factor: number): void;
+    set_deceleration(rate: number): void;
+    set_interpolate(should_interpolate: boolean): void;
+    set_pan_axis(axis: PanAxis): void;
+    vfunc_pan(actor: Actor, is_interpolated: boolean): boolean;
+    vfunc_pan_stopped(actor: Actor): void;
+}
+export class ParamSpecUnit  {
+    constructor(config?: properties);
+}
+export class Path extends GObject.InitiallyUnowned {
+    constructor(config?: properties);
+    description: string;
+    readonly length: number;static new_with_description(desc: string): Path;
+    add_cairo_path(cpath: cairo.Path): void;
+    add_close(): void;
+    add_curve_to(x_1: number, y_1: number, x_2: number, y_2: number, x_3: number, y_3: number): void;
+    add_line_to(x: number, y: number): void;
+    add_move_to(x: number, y: number): void;
+    add_node(node: PathNode): void;
+    add_rel_curve_to(x_1: number, y_1: number, x_2: number, y_2: number, x_3: number, y_3: number): void;
+    add_rel_line_to(x: number, y: number): void;
+    add_rel_move_to(x: number, y: number): void;
+    add_string(str: string): boolean;
+    clear(): void;
+    foreach(callback: PathCallback, user_data: object | null): void;
+    get_description(): string;
+    get_length(): number;
+    get_n_nodes(): number;
+    get_node(index_: number): [PathNode];
+    get_nodes(): string[];
+    get_position(progress: number): [number, Knot];
+    insert_node(index_: number, node: PathNode): void;
+    remove_node(index_: number): void;
+    replace_node(index_: number, node: PathNode): void;
+    set_description(str: string): boolean;
+    to_cairo_path(cr: cairo.Context): void;
+}
+export class PathConstraint extends Constraint {
+    constructor(config?: properties);
+    offset: number;
+    path: Path;
+    get_offset(): number;
+    get_path(): Path;
+    set_offset(offset: number): void;
+    set_path(path: Path | null): void;
+}
+export class PipelineNode  {
+    constructor(config?: properties);
+}
+export class PropertyTransition extends Transition {
+    constructor(config?: properties);
+    property_name: string;
+    get_property_name(): string;
+    set_property_name(property_name: string | null): void;
+}
+export class Rectangle extends Actor {
+    constructor(config?: properties);
+    border_color: Color;
+    border_width: number;
+    color: Color;
+    has_border: boolean;static new_with_color(color: Color): Actor;
+    get_border_color(): [Color];
+    get_border_width(): number;
+    get_color(): [Color];
+    set_border_color(color: Color): void;
+    set_border_width(width: number): void;
+    set_color(color: Color): void;
+}
+export class RotateAction extends GestureAction {
+    constructor(config?: properties);
+    vfunc_rotate(actor: Actor, angle: number): boolean;
+}
+export class Score extends GObject.Object {
+    constructor(config?: properties);
+    loop: boolean;
+    append(parent: Timeline | null, timeline: Timeline): number;
+    append_at_marker(parent: Timeline, marker_name: string, timeline: Timeline): number;
+    get_loop(): boolean;
+    get_timeline(id_: number): Timeline;
+    is_playing(): boolean;
+    list_timelines(): string[];
+    pause(): void;
+    remove(id_: number): void;
+    remove_all(): void;
+    rewind(): void;
+    set_loop(loop: boolean): void;
+    start(): void;
+    stop(): void;
+    vfunc_completed(): void;
+    vfunc_paused(): void;
+    vfunc_started(): void;
+    vfunc_timeline_completed(timeline: Timeline): void;
+    vfunc_timeline_started(timeline: Timeline): void;
+}
+export class Script extends GObject.Object {
+    constructor(config?: properties);
+    readonly filename: string;
+    readonly filename_set: boolean;
+    translation_domain: string;
+    add_search_paths(paths: string[], n_paths: number): void;
+    add_states(name: string | null, state: State): void;
+    connect_signals(user_data: object | null): void;
+    connect_signals_full(func: ScriptConnectFunc, user_data: object | null): void;
+    ensure_objects(): void;
+    get_object(name: string): GObject.Object;
+    get_states(name: string | null): State;
+    get_translation_domain(): string;
+    get_type_from_name(type_name: string): GType;
+    list_objects(): GLib.List;
+    load_from_data(data: string, length: number): number;
+    load_from_file(filename: string): number;
+    load_from_resource(resource_path: string): number;
+    lookup_filename(filename: string): string;
+    set_translation_domain(domain: string | null): void;
+    unmerge_objects(merge_id: number): void;
+    vfunc_get_type_from_name(type_name: string): GType;
+}
+export class ScrollActor extends Actor {
+    constructor(config?: properties);
+    scroll_mode: ScrollMode;
+    get_scroll_mode(): ScrollMode;
+    scroll_to_point(point: Point): void;
+    scroll_to_rect(rect: Rect): void;
+    set_scroll_mode(mode: ScrollMode): void;
+}
+export class Settings  {
+    constructor(config?: properties);
+    backend: Backend;
+    dnd_drag_threshold: number;
+    double_click_distance: number;
+    double_click_time: number;
+    font_antialias: number;
+    font_dpi: number;
+    font_hint_style: string;
+    font_hinting: number;
+    font_name: string;
+    font_subpixel_order: string;
+    fontconfig_timestamp: number;
+    long_press_duration: number;
+    password_hint_time: number;
+    unscaled_font_dpi: number;
+    window_scaling_factor: number;
+    static get_default(): Settings;
+}
+export class Shader extends GObject.Object {
+    constructor(config?: properties);
+    readonly compiled: boolean;
+    enabled: boolean;
+    fragment_source: string;
+    vertex_source: string;
+    compile(): boolean;
+    get_cogl_fragment_shader(): Cogl.Handle;
+    get_cogl_program(): Cogl.Handle;
+    get_cogl_vertex_shader(): Cogl.Handle;
+    get_fragment_source(): string;
+    get_is_enabled(): boolean;
+    get_vertex_source(): string;
+    is_compiled(): boolean;
+    release(): void;
+    set_fragment_source(data: string, length: number): void;
+    set_is_enabled(enabled: boolean): void;
+    set_uniform(name: string, value: GObject.Value): void;
+    set_vertex_source(data: string, length: number): void;
+}
+export class ShaderEffect extends OffscreenEffect {
+    constructor(config?: properties);
+    shader_type: ShaderType;
+    get_program(): Cogl.Handle;
+    get_shader(): Cogl.Handle;
+    set_shader_source(source: string): boolean;
+    set_uniform_value(name: string, value: GObject.Value): void;
+    vfunc_get_static_shader_source(): string;
+}
+export class ShaderFloat  {
+    constructor(config?: properties);
+}
+export class ShaderInt  {
+    constructor(config?: properties);
+}
+export class ShaderMatrix  {
+    constructor(config?: properties);
+}
+export class SnapConstraint extends Constraint {
+    constructor(config?: properties);
+    from_edge: SnapEdge;
+    offset: number;
+    source: Actor;
+    to_edge: SnapEdge;
+    get_edges(): [SnapEdge,SnapEdge];
+    get_offset(): number;
+    get_source(): Actor;
+    set_edges(from_edge: SnapEdge, to_edge: SnapEdge): void;
+    set_offset(offset: number): void;
+    set_source(source: Actor | null): void;
+}
+export class Stage extends Group {
+    constructor(config?: properties);
+    accept_focus: boolean;
+    color: Color;
+    cursor_visible: boolean;
+    fog: Fog;
+    readonly fullscreen_set: boolean;
+    key_focus: Actor;
+    no_clear_hint: boolean;
+    offscreen: boolean;
+    perspective: Perspective;
+    title: string;
+    use_alpha: boolean;
+    use_fog: boolean;
+    user_resizable: boolean;
+    ensure_current(): void;
+    ensure_redraw(): void;
+    ensure_viewport(): void;
+    event(event: Event): boolean;
+    event(...args: never[]): never;
+    get_accept_focus(): boolean;
+    get_actor_at_pos(pick_mode: PickMode, x: number, y: number): Actor;
+    get_color(): [Color];
+    get_fog(): [Fog];
+    get_fullscreen(): boolean;
+    get_key_focus(): Actor;
+    get_minimum_size(): [number,number];
+    get_motion_events_enabled(): boolean;
+    get_no_clear_hint(): boolean;
+    get_perspective(): [Perspective | null];
+    get_redraw_clip_bounds(): [cairo.RectangleInt];
+    get_throttle_motion_events(): boolean;
+    get_title(): string;
+    get_use_alpha(): boolean;
+    get_use_fog(): boolean;
+    get_user_resizable(): boolean;
+    hide_cursor(): void;
+    is_default(): boolean;
+    queue_redraw(): void;
+    queue_redraw(...args: never[]): never;
+    read_pixels(x: number, y: number, width: number, height: number): number[];
+    set_accept_focus(accept_focus: boolean): void;
+    set_color(color: Color): void;
+    set_fog(fog: Fog): void;
+    set_fullscreen(fullscreen: boolean): void;
+    set_key_focus(actor: Actor | null): void;
+    set_minimum_size(width: number, height: number): void;
+    set_motion_events_enabled(enabled: boolean): void;
+    set_no_clear_hint(no_clear: boolean): void;
+    set_perspective(perspective: Perspective): void;
+    set_throttle_motion_events(throttle: boolean): void;
+    set_title(title: string): void;
+    set_use_alpha(use_alpha: boolean): void;
+    set_use_fog(fog: boolean): void;
+    set_user_resizable(resizable: boolean): void;
+    show_cursor(): void;
+    vfunc_activate(): void;
+    vfunc_deactivate(): void;
+    vfunc_delete_event(event: Event): boolean;
+    vfunc_fullscreen(): void;
+    vfunc_unfullscreen(): void;
+    static get_default(): Stage;
+}
+export class StageManager  {
+    constructor(config?: properties);
+    readonly default_stage: Stage;
+    get_default_stage(): Stage;
+    list_stages(): string[];
+    peek_stages(): string[];
+    set_default_stage(stage: Stage): void;
+    static get_default(): StageManager;
+}
+export class State extends GObject.Object {
+    constructor(config?: properties);
+    duration: number;
+    state: string;
+    get_animator(source_state_name: string, target_state_name: string): Animator;
+    get_duration(source_state_name: string | null, target_state_name: string | null): number;
+    get_keys(source_state_name: string | null, target_state_name: string | null, object: GObject.Object | null, property_name: string | null): GLib.List;
+    get_state(): string;
+    get_states(): GLib.List;
+    get_timeline(): Timeline;
+    remove_key(source_state_name: string | null, target_state_name: string | null, object: GObject.Object | null, property_name: string | null): void;
+    set_animator(source_state_name: string, target_state_name: string, animator: Animator | null): void;
+    set_duration(source_state_name: string | null, target_state_name: string | null, duration: number): void;
+    set_key(source_state_name: string | null, target_state_name: string, object: GObject.Object, property_name: string, mode: number, value: GObject.Value, pre_delay: number, post_delay: number): State;
+    set_state(target_state_name: string): Timeline;
+    warp_to_state(target_state_name: string): Timeline;
+    vfunc_completed(): void;
+}
+export class SwipeAction extends GestureAction {
+    constructor(config?: properties);
+    vfunc_swept(actor: Actor, direction: SwipeDirection): void;
+    vfunc_swipe(actor: Actor, direction: SwipeDirection): boolean;
+}
+export class TableLayout extends LayoutManager {
+    constructor(config?: properties);
+    column_spacing: number;
+    easing_duration: number;
+    easing_mode: number;
+    row_spacing: number;
+    use_animations: boolean;
+    get_alignment(actor: Actor): [TableAlignment,TableAlignment];
+    get_column_count(): number;
+    get_column_spacing(): number;
+    get_easing_duration(): number;
+    get_easing_mode(): number;
+    get_expand(actor: Actor): [boolean,boolean];
+    get_fill(actor: Actor): [boolean,boolean];
+    get_row_count(): number;
+    get_row_spacing(): number;
+    get_span(actor: Actor): [number,number];
+    get_use_animations(): boolean;
+    pack(actor: Actor, column: number, row: number): void;
+    set_alignment(actor: Actor, x_align: TableAlignment, y_align: TableAlignment): void;
+    set_column_spacing(spacing: number): void;
+    set_easing_duration(msecs: number): void;
+    set_easing_mode(mode: number): void;
+    set_expand(actor: Actor, x_expand: boolean, y_expand: boolean): void;
+    set_fill(actor: Actor, x_fill: boolean, y_fill: boolean): void;
+    set_row_spacing(spacing: number): void;
+    set_span(actor: Actor, column_span: number, row_span: number): void;
+    set_use_animations(animate: boolean): void;
+}
+export class TapAction extends GestureAction {
+    constructor(config?: properties);
+    vfunc_tap(actor: Actor): boolean;
+}
+export class Text extends Actor {
+    constructor(config?: properties);
+    activatable: boolean;
+    attributes: Pango.AttrList;
+    buffer: TextBuffer;
+    color: Color;
+    cursor_color: Color;
+    readonly cursor_color_set: boolean;
+    cursor_position: number;
+    cursor_size: number;
+    cursor_visible: boolean;
+    editable: boolean;
+    ellipsize: Pango.EllipsizeMode;
+    font_description: Pango.FontDescription;
+    font_name: string;
+    justify: boolean;
+    line_alignment: Pango.Alignment;
+    line_wrap: boolean;
+    line_wrap_mode: Pango.WrapMode;
+    max_length: number;
+    password_char: number;
+    position: number;
+    readonly position: never;
+    selectable: boolean;
+    selected_text_color: Color;
+    readonly selected_text_color_set: boolean;
+    selection_bound: number;
+    selection_color: Color;
+    readonly selection_color_set: boolean;
+    single_line_mode: boolean;
+    text: string;
+    use_markup: boolean;static new_full(font_name: string, text: string, color: Color): Actor;
+    static new_with_buffer(buffer: TextBuffer): Actor;
+    static new_with_text(font_name: string | null, text: string): Actor;
+    activate(): boolean;
+    coords_to_position(x: number, y: number): number;
+    delete_chars(n_chars: number): void;
+    delete_selection(): boolean;
+    delete_text(start_pos: number, end_pos: number): void;
+    get_activatable(): boolean;
+    get_attributes(): Pango.AttrList;
+    get_buffer(): TextBuffer;
+    get_chars(start_pos: number, end_pos: number): string;
+    get_color(): [Color];
+    get_cursor_color(): [Color];
+    get_cursor_position(): number;
+    get_cursor_rect(): [Rect];
+    get_cursor_size(): number;
+    get_cursor_visible(): boolean;
+    get_editable(): boolean;
+    get_ellipsize(): Pango.EllipsizeMode;
+    get_font_description(): Pango.FontDescription;
+    get_font_name(): string;
+    get_justify(): boolean;
+    get_layout(): Pango.Layout;
+    get_layout_offsets(): [number,number];
+    get_line_alignment(): Pango.Alignment;
+    get_line_wrap(): boolean;
+    get_line_wrap_mode(): Pango.WrapMode;
+    get_max_length(): number;
+    get_password_char(): number;
+    get_selectable(): boolean;
+    get_selected_text_color(): [Color];
+    get_selection(): string;
+    get_selection_bound(): number;
+    get_selection_color(): [Color];
+    get_single_line_mode(): boolean;
+    get_text(): string;
+    get_use_markup(): boolean;
+    insert_text(text: string, position: number): void;
+    insert_unichar(wc: number): void;
+    position_to_coords(position: number): [boolean, number,number,number];
+    set_activatable(activatable: boolean): void;
+    set_attributes(attrs: Pango.AttrList | null): void;
+    set_buffer(buffer: TextBuffer): void;
+    set_color(color: Color): void;
+    set_cursor_color(color: Color | null): void;
+    set_cursor_position(position: number): void;
+    set_cursor_size(size: number): void;
+    set_cursor_visible(cursor_visible: boolean): void;
+    set_editable(editable: boolean): void;
+    set_ellipsize(mode: Pango.EllipsizeMode): void;
+    set_font_description(font_desc: Pango.FontDescription): void;
+    set_font_name(font_name: string | null): void;
+    set_justify(justify: boolean): void;
+    set_line_alignment(alignment: Pango.Alignment): void;
+    set_line_wrap(line_wrap: boolean): void;
+    set_line_wrap_mode(wrap_mode: Pango.WrapMode): void;
+    set_markup(markup: string | null): void;
+    set_max_length(max: number): void;
+    set_password_char(wc: number): void;
+    set_preedit_string(preedit_str: string | null, preedit_attrs: Pango.AttrList | null, cursor_pos: number): void;
+    set_selectable(selectable: boolean): void;
+    set_selected_text_color(color: Color | null): void;
+    set_selection(start_pos: number, end_pos: number): void;
+    set_selection_bound(selection_bound: number): void;
+    set_selection_color(color: Color | null): void;
+    set_single_line_mode(single_line: boolean): void;
+    set_text(text: string | null): void;
+    set_use_markup(setting: boolean): void;
+    vfunc_activate(): void;
+    vfunc_cursor_changed(): void;
+    vfunc_cursor_event(geometry: Geometry): void;
+    vfunc_text_changed(): void;
+}
+export class TextBuffer extends GObject.Object {
+    constructor(config?: properties);
+    readonly length: number;
+    max_length: number;
+    readonly text: string;static new_with_text(text: string | null, text_len: number): TextBuffer;
+    delete_text(position: number, n_chars: number): number;
+    emit_deleted_text(position: number, n_chars: number): void;
+    emit_inserted_text(position: number, chars: string, n_chars: number): void;
+    get_bytes(): number;
+    get_length(): number;
+    get_max_length(): number;
+    get_text(): string;
+    insert_text(position: number, chars: string, n_chars: number): number;
+    set_max_length(max_length: number): void;
+    set_text(chars: string, n_chars: number): void;
+    vfunc_delete_text(position: number, n_chars: number): number;
+    vfunc_deleted_text(position: number, n_chars: number): void;
+    vfunc_get_length(): number;
+    vfunc_get_text(n_bytes: number): string;
+    vfunc_insert_text(position: number, chars: string, n_chars: number): number;
+    vfunc_inserted_text(position: number, chars: string, n_chars: number): void;
+}
+export class TextNode extends PaintNode {
+    constructor(config?: properties);
+}
+export class Texture extends Actor {
+    constructor(config?: properties);
+    disable_slicing: boolean;
+    filename: string;
+    filter_quality: TextureQuality;
+    keep_aspect_ratio: boolean;
+    load_async: boolean;
+    load_data_async: boolean;
+    pick_with_alpha: boolean;
+    readonly pixel_format: Cogl.PixelFormat;
+    repeat_x: boolean;
+    repeat_y: boolean;
+    sync_size: boolean;
+    readonly tile_waste: number;static new_from_actor(actor: Actor): Actor;
+    static new_from_file(filename: string): Actor;
+    get_base_size(): [number,number];
+    get_cogl_material(): Cogl.Handle;
+    get_cogl_texture(): Cogl.Handle;
+    get_filter_quality(): TextureQuality;
+    get_keep_aspect_ratio(): boolean;
+    get_load_async(): boolean;
+    get_load_data_async(): boolean;
+    get_max_tile_waste(): number;
+    get_pick_with_alpha(): boolean;
+    get_pixel_format(): Cogl.PixelFormat;
+    get_repeat(): [boolean,boolean];
+    get_sync_size(): boolean;
+    set_area_from_rgb_data(data: number[], has_alpha: boolean, x: number, y: number, width: number, height: number, rowstride: number, bpp: number, flags: TextureFlags): boolean;
+    set_cogl_material(cogl_material: Cogl.Handle): void;
+    set_cogl_texture(cogl_tex: Cogl.Handle): void;
+    set_filter_quality(filter_quality: TextureQuality): void;
+    set_from_file(filename: string): boolean;
+    set_from_rgb_data(data: number[], has_alpha: boolean, width: number, height: number, rowstride: number, bpp: number, flags: TextureFlags): boolean;
+    set_from_yuv_data(data: number[], width: number, height: number, flags: TextureFlags): boolean;
+    set_keep_aspect_ratio(keep_aspect: boolean): void;
+    set_load_async(load_async: boolean): void;
+    set_load_data_async(load_async: boolean): void;
+    set_pick_with_alpha(pick_with_alpha: boolean): void;
+    set_repeat(repeat_x: boolean, repeat_y: boolean): void;
+    set_sync_size(sync_size: boolean): void;
+    vfunc_load_finished(error: GLib.Error): void;
+    vfunc_pixbuf_change(): void;
+    vfunc_size_change(width: number, height: number): void;
+}
+export class TextureNode extends PipelineNode {
+    constructor(config?: properties);
+}
+export class Timeline extends GObject.Object {
+    constructor(config?: properties);
+    auto_reverse: boolean;
+    delay: number;
+    direction: TimelineDirection;
+    duration: number;
+    loop: boolean;
+    progress_mode: AnimationMode;
+    repeat_count: number;
+    add_marker(marker_name: string, progress: number): void;
+    add_marker_at_time(marker_name: string, msecs: number): void;
+    advance(msecs: number): void;
+    advance_to_marker(marker_name: string): void;
+    clone(): Timeline;
+    get_auto_reverse(): boolean;
+    get_cubic_bezier_progress(): [boolean, Point,Point];
+    get_current_repeat(): number;
+    get_delay(): number;
+    get_delta(): number;
+    get_direction(): TimelineDirection;
+    get_duration(): number;
+    get_duration_hint(): number;
+    get_elapsed_time(): number;
+    get_loop(): boolean;
+    get_progress(): number;
+    get_progress_mode(): AnimationMode;
+    get_repeat_count(): number;
+    get_step_progress(): [boolean, number,StepMode];
+    has_marker(marker_name: string): boolean;
+    is_playing(): boolean;
+    list_markers(msecs: number): [string[], number];
+    pause(): void;
+    remove_marker(marker_name: string): void;
+    rewind(): void;
+    set_auto_reverse(reverse: boolean): void;
+    set_cubic_bezier_progress(c_1: Point, c_2: Point): void;
+    set_delay(msecs: number): void;
+    set_direction(direction: TimelineDirection): void;
+    set_duration(msecs: number): void;
+    set_loop(loop: boolean): void;
+    set_progress_func(func: TimelineProgressFunc | null, data: object | null, notify: GLib.DestroyNotify): void;
+    set_progress_mode(mode: AnimationMode): void;
+    set_repeat_count(count: number): void;
+    set_step_progress(n_steps: number, step_mode: StepMode): void;
+    skip(msecs: number): void;
+    start(): void;
+    stop(): void;
+    vfunc_completed(): void;
+    vfunc_marker_reached(marker_name: string, msecs: number): void;
+    vfunc_new_frame(msecs: number): void;
+    vfunc_paused(): void;
+    vfunc_started(): void;
+    vfunc_stopped(is_finished: boolean): void;
+}
+export class Transition  {
+    constructor(config?: properties);
+    animatable: Animatable;
+    interval: Interval;
+    remove_on_complete: boolean;
+    readonly priv: TransitionPrivate;
+    get_animatable(): Animatable;
+    get_interval(): Interval;
+    get_remove_on_complete(): boolean;
+    set_animatable(animatable: Animatable | null): void;
+    set_from_value(value: GObject.Value): void;
+    set_interval(interval: Interval | null): void;
+    set_remove_on_complete(remove_complete: boolean): void;
+    set_to_value(value: GObject.Value): void;
+}
+export class TransitionGroup extends Transition {
+    constructor(config?: properties);
+    add_transition(transition: Transition): void;
+    remove_all(): void;
+    remove_transition(transition: Transition): void;
+}
+export class ZoomAction extends GestureAction {
+    constructor(config?: properties);
+    zoom_axis: ZoomAxis;
+    get_focal_point(): [Point];
+    get_transformed_focal_point(): [Point];
+    get_zoom_axis(): ZoomAxis;
+    set_zoom_axis(axis: ZoomAxis): void;
+    vfunc_zoom(actor: Actor, focal_point: Point, factor: number): boolean;
+}
+export class ActorBox  {
+    constructor(config?: properties);
+    clamp_to_pixel(): void;
+    contains(x: number, y: number): boolean;
+    copy(): ActorBox;
+    equal(box_b: ActorBox): boolean;
+    free(): void;
+    from_vertices(verts: Vertex[]): void;
+    get_area(): number;
+    get_height(): number;
+    get_origin(): [number | null,number | null];
+    get_size(): [number | null,number | null];
+    get_width(): number;
+    get_x(): number;
+    get_y(): number;
+    init(x_1: number, y_1: number, x_2: number, y_2: number): ActorBox;
+    init_rect(x: number, y: number, width: number, height: number): void;
+    interpolate(_final: ActorBox, progress: number): [ActorBox];
+    set_origin(x: number, y: number): void;
+    set_size(width: number, height: number): void;
+    union(b: ActorBox): [ActorBox];
+    static alloc(): ActorBox;
+}
+export class ActorIter  {
+    constructor(config?: properties);
+    readonly dummy1: object;
+    readonly dummy2: object;
+    readonly dummy3: object;
+    readonly dummy4: number;
+    readonly dummy5: object;
+    destroy(): void;
+    init(root: Actor): void;
+    is_valid(): boolean;
+    next(): [boolean, Actor];
+    prev(): [boolean, Actor];
+    remove(): void;
+}
+export class ActorMetaPrivate  {
+    constructor(config?: properties);
+}
+export class ActorPrivate  {
+    constructor(config?: properties);
+}
+export class AlphaPrivate  {
+    constructor(config?: properties);
+}
+export class AnimationPrivate  {
+    constructor(config?: properties);
+}
+export class AnimatorKey  {
+    constructor(config?: properties);
+    get_mode(): number;
+    get_object(): GObject.Object;
+    get_progress(): number;
+    get_property_name(): string;
+    get_property_type(): GType;
+    get_value(value: GObject.Value): boolean;
+}
+export class AnimatorPrivate  {
+    constructor(config?: properties);
+}
+export class AnyEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+}
+export class BehaviourDepthPrivate  {
+    constructor(config?: properties);
+}
+export class BehaviourEllipsePrivate  {
+    constructor(config?: properties);
+}
+export class BehaviourOpacityPrivate  {
+    constructor(config?: properties);
+}
+export class BehaviourPathPrivate  {
+    constructor(config?: properties);
+}
+export class BehaviourPrivate  {
+    constructor(config?: properties);
+}
+export class BehaviourRotatePrivate  {
+    constructor(config?: properties);
+}
+export class BehaviourScalePrivate  {
+    constructor(config?: properties);
+}
+export class BinLayoutPrivate  {
+    constructor(config?: properties);
+}
+export class BoxLayoutPrivate  {
+    constructor(config?: properties);
+}
+export class BoxPrivate  {
+    constructor(config?: properties);
+}
+export class ButtonEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    x: number;
+    y: number;
+    modifier_state: ModifierType;
+    button: number;
+    click_count: number;
+    axes: number;
+    device: InputDevice;
+}
+export class CairoTexturePrivate  {
+    constructor(config?: properties);
+}
+export class CanvasPrivate  {
+    constructor(config?: properties);
+}
+export class ClickActionPrivate  {
+    constructor(config?: properties);
+}
+export class ClonePrivate  {
+    constructor(config?: properties);
+}
+export class Color  {
+    constructor(config?: properties);
+    static alloc(): Color;
+    add(b: Color): [Color];
+    copy(): Color;
+    darken(): [Color];
+    equal(v2: Color): boolean;
+    free(): void;
+    hash(): number;
+    init(red: number, green: number, blue: number, alpha: number): Color;
+    interpolate(_final: Color, progress: number): [Color];
+    lighten(): [Color];
+    shade(factor: number): [Color];
+    subtract(b: Color): [Color];
+    to_hls(): [number,number,number];
+    to_pixel(): number;
+    to_string(): string;
+    static from_hls(hue: number, luminance: number, saturation: number): [Color];
+    static from_pixel(pixel: number): [Color];
+    static from_string(str: string): [boolean, Color];
+    static get_static(color: StaticColor): Color;
+}
+export class CrossingEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    x: number;
+    y: number;
+    device: InputDevice;
+    related: Actor;
+}
+export class DeformEffectPrivate  {
+    constructor(config?: properties);
+}
+export class DeviceManagerPrivate  {
+    constructor(config?: properties);
+}
+export class DragActionPrivate  {
+    constructor(config?: properties);
+}
+export class DropActionPrivate  {
+    constructor(config?: properties);
+}
+export class EventSequence  {
+    constructor(config?: properties);
+}
+export class FlowLayoutPrivate  {
+    constructor(config?: properties);
+}
+export class Fog  {
+    constructor(config?: properties);
+    z_near: number;
+    z_far: number;
+}
+export class Geometry  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    intersects(geometry1: Geometry): boolean;
+    union(geometry_b: Geometry): [Geometry];
+}
+export class GestureActionPrivate  {
+    constructor(config?: properties);
+}
+export class GridLayoutPrivate  {
+    constructor(config?: properties);
+}
+export class GroupPrivate  {
+    constructor(config?: properties);
+}
+export class ImagePrivate  {
+    constructor(config?: properties);
+}
+export class IntervalPrivate  {
+    constructor(config?: properties);
+}
+export class KeyEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    modifier_state: ModifierType;
+    keyval: number;
+    hardware_keycode: number;
+    unicode_value: number;
+    device: InputDevice;
+}
+export class KeyframeTransitionPrivate  {
+    constructor(config?: properties);
+}
+export class Knot  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    copy(): Knot;
+    equal(knot_b: Knot): boolean;
+    free(): void;
+}
+export class ListModelPrivate  {
+    constructor(config?: properties);
+}
+export class Margin  {
+    constructor(config?: properties);
+    copy(): Margin;
+    free(): void;
+}
+export class ModelIterPrivate  {
+    constructor(config?: properties);
+}
+export class ModelPrivate  {
+    constructor(config?: properties);
+}
+export class MotionEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    x: number;
+    y: number;
+    modifier_state: ModifierType;
+    axes: number;
+    device: InputDevice;
+}
+export class OffscreenEffectPrivate  {
+    constructor(config?: properties);
+}
+export class PaintNodePrivate  {
+    constructor(config?: properties);
+}
+export class PaintVolume  {
+    constructor(config?: properties);
+    copy(): PaintVolume;
+    free(): void;
+    get_depth(): number;
+    get_height(): number;
+    get_origin(): [Vertex];
+    get_width(): number;
+    set_depth(depth: number): void;
+    set_from_allocation(actor: Actor): boolean;
+    set_height(height: number): void;
+    set_origin(origin: Vertex): void;
+    set_width(width: number): void;
+    union(another_pv: PaintVolume): void;
+    union_box(box: ActorBox): void;
+}
+export class PanActionPrivate  {
+    constructor(config?: properties);
+}
+export class PathNode  {
+    constructor(config?: properties);
+    type: PathNodeType;
+    points: Knot[];
+    copy(): PathNode;
+    equal(node_b: PathNode): boolean;
+    free(): void;
+}
+export class PathPrivate  {
+    constructor(config?: properties);
+}
+export class Perspective  {
+    constructor(config?: properties);
+    fovy: number;
+    aspect: number;
+    z_near: number;
+    z_far: number;
+}
+export class Point  {
+    constructor(config?: properties);
+    static alloc(): Point;
+    copy(): Point;
+    distance(b: Point): [number, number | null,number | null];
+    equals(b: Point): boolean;
+    free(): void;
+    init(x: number, y: number): Point;
+    static zero(): Point;
+}
+export class PropertyTransitionPrivate  {
+    constructor(config?: properties);
+}
+export class Rect  {
+    constructor(config?: properties);
+    static alloc(): Rect;
+    clamp_to_pixel(): void;
+    contains_point(point: Point): boolean;
+    contains_rect(b: Rect): boolean;
+    copy(): Rect;
+    equals(b: Rect): boolean;
+    free(): void;
+    get_center(): [Point];
+    get_height(): number;
+    get_width(): number;
+    get_x(): number;
+    get_y(): number;
+    init(x: number, y: number, width: number, height: number): Rect;
+    inset(d_x: number, d_y: number): void;
+    intersection(b: Rect): [boolean, Rect | null];
+    normalize(): Rect;
+    offset(d_x: number, d_y: number): void;
+    union(b: Rect): [Rect];
+    static zero(): Rect;
+}
+export class RectanglePrivate  {
+    constructor(config?: properties);
+}
+export class RotateActionPrivate  {
+    constructor(config?: properties);
+}
+export class ScorePrivate  {
+    constructor(config?: properties);
+}
+export class ScriptPrivate  {
+    constructor(config?: properties);
+}
+export class ScrollActorPrivate  {
+    constructor(config?: properties);
+}
+export class ScrollEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    x: number;
+    y: number;
+    direction: ScrollDirection;
+    modifier_state: ModifierType;
+    axes: number;
+    device: InputDevice;
+    scroll_source: ScrollSource;
+    finish_flags: ScrollFinishFlags;
+}
+export class ShaderEffectPrivate  {
+    constructor(config?: properties);
+}
+export class ShaderPrivate  {
+    constructor(config?: properties);
+}
+export class Size  {
+    constructor(config?: properties);
+    static alloc(): Size;
+    copy(): Size;
+    equals(b: Size): boolean;
+    free(): void;
+    init(width: number, height: number): Size;
+}
+export class StagePrivate  {
+    constructor(config?: properties);
+}
+export class StageStateEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    changed_mask: StageState;
+    new_state: StageState;
+}
+export class StateKey  {
+    constructor(config?: properties);
+    get_mode(): number;
+    get_object(): GObject.Object;
+    get_post_delay(): number;
+    get_pre_delay(): number;
+    get_property_name(): string;
+    get_property_type(): GType;
+    get_source_state_name(): string;
+    get_target_state_name(): string;
+    get_value(value: GObject.Value): boolean;
+}
+export class StatePrivate  {
+    constructor(config?: properties);
+}
+export class SwipeActionPrivate  {
+    constructor(config?: properties);
+}
+export class TableLayoutPrivate  {
+    constructor(config?: properties);
+}
+export class TapActionPrivate  {
+    constructor(config?: properties);
+}
+export class TextBufferPrivate  {
+    constructor(config?: properties);
+}
+export class TextPrivate  {
+    constructor(config?: properties);
+}
+export class TexturePrivate  {
+    constructor(config?: properties);
+}
+export class TimelinePrivate  {
+    constructor(config?: properties);
+}
+export class TouchEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    x: number;
+    y: number;
+    sequence: EventSequence;
+    modifier_state: ModifierType;
+    axes: number;
+    device: InputDevice;
+}
+export class TouchpadPinchEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    phase: TouchpadGesturePhase;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+    angle_delta: number;
+    scale: number;
+}
+export class TouchpadSwipeEvent  {
+    constructor(config?: properties);
+    type: EventType;
+    time: number;
+    flags: EventFlags;
+    stage: Stage;
+    source: Actor;
+    phase: TouchpadGesturePhase;
+    n_fingers: number;
+    x: number;
+    y: number;
+    dx: number;
+    dy: number;
+}
+export class TransitionGroupPrivate  {
+    constructor(config?: properties);
+}
+export class TransitionPrivate  {
+    constructor(config?: properties);
+}
+export class Units  {
+    constructor(config?: properties);
+    readonly unit_type: UnitType;
+    readonly value: number;
+    readonly pixels: number;
+    readonly pixels_set: number;
+    readonly serial: number;
+    copy(): Units;
+    free(): void;
+    get_unit_type(): UnitType;
+    get_unit_value(): number;
+    to_pixels(): number;
+    to_string(): string;
+    static from_cm(cm: number): [Units];
+    static from_em(em: number): [Units];
+    static from_em_for_font(font_name: string | null, em: number): [Units];
+    static from_mm(mm: number): [Units];
+    static from_pixels(px: number): [Units];
+    static from_pt(pt: number): [Units];
+    static from_string(str: string): [boolean, Units];
+}
+export class Vertex  {
+    constructor(config?: properties);
+    static alloc(): Vertex;
+    copy(): Vertex;
+    equal(vertex_b: Vertex): boolean;
+    free(): void;
+    init(x: number, y: number, z: number): Vertex;
+}
+export class ZoomActionPrivate  {
+    constructor(config?: properties);
+}
+export class Event  {
+    constructor(config?: properties);
+    copy(): Event;
+    free(): void;
+    get_angle(target: Event): number;
+    get_axes(): [number, number];
+    get_button(): number;
+    get_click_count(): number;
+    get_coords(): [number,number];
+    get_device(): InputDevice;
+    get_device_id(): number;
+    get_device_type(): InputDeviceType;
+    get_distance(target: Event): number;
+    get_event_sequence(): EventSequence;
+    get_flags(): EventFlags;
+    get_gesture_motion_delta(): [number | null,number | null];
+    get_gesture_phase(): TouchpadGesturePhase;
+    get_gesture_pinch_angle_delta(): number;
+    get_gesture_pinch_scale(): number;
+    get_gesture_swipe_finger_count(): number;
+    get_key_code(): number;
+    get_key_symbol(): number;
+    get_key_unicode(): number;
+    get_position(position: Point): void;
+    get_related(): Actor;
+    get_scroll_delta(): [number,number];
+    get_scroll_direction(): ScrollDirection;
+    get_scroll_finish_flags(): ScrollFinishFlags;
+    get_scroll_source(): ScrollSource;
+    get_source(): Actor;
+    get_source_device(): InputDevice;
+    get_stage(): Stage;
+    get_state(): ModifierType;
+    get_state_full(): [ModifierType | null,ModifierType | null,ModifierType | null,ModifierType | null,ModifierType | null];
+    get_time(): number;
+    has_control_modifier(): boolean;
+    has_shift_modifier(): boolean;
+    is_pointer_emulated(): boolean;
+    put(): void;
+    set_button(button: number): void;
+    set_coords(x: number, y: number): void;
+    set_device(device: InputDevice | null): void;
+    set_flags(flags: EventFlags): void;
+    set_key_code(key_code: number): void;
+    set_key_symbol(key_sym: number): void;
+    set_key_unicode(key_unicode: number): void;
+    set_related(actor: Actor | null): void;
+    set_scroll_delta(dx: number, dy: number): void;
+    set_scroll_direction(direction: ScrollDirection): void;
+    set_source(actor: Actor | null): void;
+    set_source_device(device: InputDevice | null): void;
+    set_stage(stage: Stage | null): void;
+    set_state(state: ModifierType): void;
+    set_time(time_: number): void;
+    type(): EventType;
+    static add_filter(stage: Stage | null, func: EventFilterFunc, notify: GLib.DestroyNotify, user_data: object | null): number;
+    static get(): Event;
+    static peek(): Event;
+    static remove_filter(id: number): void;
 }
 export interface Animatable  {
-animate_property(animation: Animation, property_name: string, initial_value: GObject.Value, final_value: GObject.Value, progress: number, value: GObject.Value): boolean;
-find_property(property_name: string): GObject.ParamSpec;
-get_initial_state(property_name: string, value: GObject.Value): void;
-interpolate_value(property_name: string, interval: Interval, progress: number): [boolean, GObject.Value];
-set_final_state(property_name: string, value: GObject.Value): void;
+    animate_property(animation: Animation, property_name: string, initial_value: GObject.Value, final_value: GObject.Value, progress: number, value: GObject.Value): boolean;
+    find_property(property_name: string): GObject.ParamSpec;
+    get_initial_state(property_name: string, value: GObject.Value): void;
+    interpolate_value(property_name: string, interval: Interval, progress: number): [boolean, GObject.Value];
+    set_final_state(property_name: string, value: GObject.Value): void;
 }
 export interface Container  {
-add(first_actor: Actor, ___: unknown[]): void;
-add_actor(actor: Actor): void;
-add_valist(first_actor: Actor, var_args: any): void;
-child_get(actor: Actor, first_prop: string, ___: unknown[]): void;
-child_get_property(child: Actor, property: string, value: GObject.Value): void;
-child_notify(child: Actor, pspec: GObject.ParamSpec): void;
-child_set(actor: Actor, first_prop: string, ___: unknown[]): void;
-child_set_property(child: Actor, property: string, value: GObject.Value): void;
-create_child_meta(actor: Actor): void;
-destroy_child_meta(actor: Actor): void;
-find_child_by_name(child_name: string): Actor;
-foreach(callback: Callback, user_data: object | null): void;
-foreach_with_internals(callback: Callback, user_data: object | null): void;
-get_child_meta(actor: Actor): ChildMeta;
-get_children(): GLib.List;
-lower_child(actor: Actor, sibling: Actor | null): void;
-raise_child(actor: Actor, sibling: Actor | null): void;
-remove(first_actor: Actor, ___: unknown[]): void;
-remove_actor(actor: Actor): void;
-remove_valist(first_actor: Actor, var_args: any): void;
-sort_depth_order(): void;
+    add_actor(actor: Actor): void;
+    child_get_property(child: Actor, property: string, value: GObject.Value): void;
+    child_notify(child: Actor, pspec: GObject.ParamSpec): void;
+    child_set_property(child: Actor, property: string, value: GObject.Value): void;
+    create_child_meta(actor: Actor): void;
+    destroy_child_meta(actor: Actor): void;
+    find_child_by_name(child_name: string): Actor;
+    foreach(callback: Callback, user_data: object | null): void;
+    foreach_with_internals(callback: Callback, user_data: object | null): void;
+    get_child_meta(actor: Actor): ChildMeta;
+    get_children(): GLib.List;
+    lower_child(actor: Actor, sibling: Actor | null): void;
+    raise_child(actor: Actor, sibling: Actor | null): void;
+    remove_actor(actor: Actor): void;
+    sort_depth_order(): void;
 }
 export interface Content  {
-get_preferred_size(): [boolean, number,number];
-invalidate(): void;
+    get_preferred_size(): [boolean, number,number];
+    invalidate(): void;
 }
 export interface Media  {
-audio_volume: number;
-readonly buffer_fill: number;
-readonly can_seek: boolean;
-readonly duration: number;
-playing: boolean;
-progress: number;
-subtitle_font_name: string;
-subtitle_uri: string;
-uri: string;
-get_audio_volume(): number;
-get_buffer_fill(): number;
-get_can_seek(): boolean;
-get_duration(): number;
-get_playing(): boolean;
-get_progress(): number;
-get_subtitle_font_name(): string;
-get_subtitle_uri(): string;
-get_uri(): string;
-set_audio_volume(volume: number): void;
-set_filename(filename: string): void;
-set_playing(playing: boolean): void;
-set_progress(progress: number): void;
-set_subtitle_font_name(font_name: string): void;
-set_subtitle_uri(uri: string): void;
-set_uri(uri: string): void;
+    audio_volume: number;
+    readonly buffer_fill: number;
+    readonly can_seek: boolean;
+    readonly duration: number;
+    playing: boolean;
+    progress: number;
+    subtitle_font_name: string;
+    subtitle_uri: string;
+    uri: string;
+    get_audio_volume(): number;
+    get_buffer_fill(): number;
+    get_can_seek(): boolean;
+    get_duration(): number;
+    get_playing(): boolean;
+    get_progress(): number;
+    get_subtitle_font_name(): string;
+    get_subtitle_uri(): string;
+    get_uri(): string;
+    set_audio_volume(volume: number): void;
+    set_filename(filename: string): void;
+    set_playing(playing: boolean): void;
+    set_progress(progress: number): void;
+    set_subtitle_font_name(font_name: string): void;
+    set_subtitle_uri(uri: string): void;
+    set_uri(uri: string): void;
 }
 export interface Scriptable  {
-get_id(): string;
-parse_custom_node(script: Script, value: GObject.Value, name: string, node: Json.Node): boolean;
-set_custom_property(script: Script, name: string, value: GObject.Value): void;
-set_id(id_: string): void;
+    get_id(): string;
+    parse_custom_node(script: Script, value: GObject.Value, name: string, node: Json.Node): boolean;
+    set_custom_property(script: Script, name: string, value: GObject.Value): void;
+    set_id(id_: string): void;
 }

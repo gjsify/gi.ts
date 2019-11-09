@@ -6,5 +6,7 @@ import * as GLib from "glib";
  * xfixes.d.ts
  */
 type properties = { [key: string]: any };
-export class XserverRegion  {constructor(config?: properties);
+type GType = object;
+export class XserverRegion  {
+    constructor(config?: properties);
 }

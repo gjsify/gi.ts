@@ -7,6 +7,7 @@ import * as GnomeAutoar from "gnomeautoar";
  * gnomeautoar.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type FilterFunc = (a: object | null) => number;
 export type FormatFunc = (a: object | null) => number;
 /**
@@ -34,16 +35,6 @@ export function filter_get_extension(filter: Filter): string;
  * as the argument for archive_write_add_filter().
  */
 export function filter_get_filter_libarchive(filter: Filter): number;
-/**
- * Gets the function used to add filter on the object returned by
- * archive_read_new().
- */
-export function filter_get_libarchive_read(filter: Filter): FilterFunc;
-/**
- * Gets the function used to add filter on the object returned by
- * archive_write_new().
- */
-export function filter_get_libarchive_write(filter: Filter): FilterFunc;
 /**
  * Gets the MIME type of the filter from the internal static data.
  */
@@ -101,16 +92,6 @@ export function format_get_extension(format: Format): string;
  */
 export function format_get_format_libarchive(format: Format): number;
 /**
- * Gets the function used to set format on the object returned by
- * archive_read_new().
- */
-export function format_get_libarchive_read(format: Format): FormatFunc;
-/**
- * Gets the function used to set format on the object returned by
- * archive_write_new().
- */
-export function format_get_libarchive_write(format: Format): FormatFunc;
-/**
  * Gets the MIME type of the format from the internal static data.
  */
 export function format_get_mime_type(format: Format): string;
@@ -162,64 +143,57 @@ export enum Format {
     USTAR = 11,
     XAR = 12,
 }
-export class Compressor extends GObject.Object {constructor(config?: properties);
-readonly completed_files: number;
-readonly completed_size: number;
-create_top_level_directory: boolean;
-readonly files: number;
-filter: unknown;
-format: unknown;
-notify_interval: number;
-output_file: Gio.File;
-output_is_dest: boolean;
-readonly size: number;
-source_files: object;
-get_completed_files(): number;
-get_completed_size(): number;
-get_create_top_level_directory(): boolean;
-get_files(): number;
-get_filter(): Filter;
-get_format(): Format;
-get_notify_interval(): number;
-get_output_file(): Gio.File;
-get_output_is_dest(): boolean;
-get_size(): number;
-get_source_files(): GLib.List;
-set_notify_interval(notify_interval: number): void;
-set_output_is_dest(output_is_dest: boolean): void;
-start(cancellable: Gio.Cancellable | null): void;
-start_async(cancellable: Gio.Cancellable | null): void;
-static quark(): GLib.Quark;
+export class Compressor extends GObject.Object {
+    constructor(config?: properties);
+    readonly completed_files: number;
+    readonly completed_size: number;
+    create_top_level_directory: boolean;
+    readonly files: number;
+    notify_interval: number;
+    output_file: Gio.File;
+    output_is_dest: boolean;
+    readonly size: number;
+    source_files: object;
+    get_completed_files(): number;
+    get_completed_size(): number;
+    get_create_top_level_directory(): boolean;
+    get_files(): number;
+    get_filter(): Filter;
+    get_format(): Format;
+    get_notify_interval(): number;
+    get_output_file(): Gio.File;
+    get_output_is_dest(): boolean;
+    get_size(): number;
+    set_notify_interval(notify_interval: number): void;
+    set_output_is_dest(output_is_dest: boolean): void;
+    start(cancellable: Gio.Cancellable | null): void;
+    start_async(cancellable: Gio.Cancellable | null): void;
+    static quark(): GLib.Quark;
 }
-export class Extractor extends GObject.Object {constructor(config?: properties);
-readonly completed_files: number;
-readonly completed_size: number;
-delete_after_extraction: boolean;
-notify_interval: number;
-output_file: Gio.File;
-output_is_dest: boolean;
-source_file: Gio.File;
-readonly total_files: number;
-readonly total_size: number;
-get_completed_files(): number;
-get_completed_size(): number;
-get_delete_after_extraction(): boolean;
-get_notify_interval(): number;
-get_output_file(): Gio.File;
-get_output_is_dest(): boolean;
-get_source_file(): Gio.File;
-get_total_files(): number;
-get_total_size(): number;
-set_delete_after_extraction(delete_if_succeed: boolean): void;
-set_notify_interval(notify_interval: number): void;
-set_output_is_dest(output_is_dest: boolean): void;
-start(cancellable: Gio.Cancellable | null): void;
-start_async(cancellable: Gio.Cancellable | null): void;
-static quark(): GLib.Quark;
-}
-export class CompressorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ExtractorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class Extractor extends GObject.Object {
+    constructor(config?: properties);
+    readonly completed_files: number;
+    readonly completed_size: number;
+    delete_after_extraction: boolean;
+    notify_interval: number;
+    output_file: Gio.File;
+    output_is_dest: boolean;
+    source_file: Gio.File;
+    readonly total_files: number;
+    readonly total_size: number;
+    get_completed_files(): number;
+    get_completed_size(): number;
+    get_delete_after_extraction(): boolean;
+    get_notify_interval(): number;
+    get_output_file(): Gio.File;
+    get_output_is_dest(): boolean;
+    get_source_file(): Gio.File;
+    get_total_files(): number;
+    get_total_size(): number;
+    set_delete_after_extraction(delete_if_succeed: boolean): void;
+    set_notify_interval(notify_interval: number): void;
+    set_output_is_dest(output_is_dest: boolean): void;
+    start(cancellable: Gio.Cancellable | null): void;
+    start_async(cancellable: Gio.Cancellable | null): void;
+    static quark(): GLib.Quark;
 }

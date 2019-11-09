@@ -8,8 +8,9 @@ import * as MyPaint from "mypaint";
  * mypaintgegl.d.ts
  */
 type properties = { [key: string]: any };
-export class TiledSurface  {constructor(config?: properties);
-get_buffer(): Gegl.Buffer;
-_interface(): MyPaint.Surface;
-set_buffer(buffer: Gegl.Buffer): void;
+type GType = object;
+export class TiledSurface  {
+    constructor(config?: properties);
+    get_buffer(): Gegl.Buffer;
+    set_buffer(buffer: Gegl.Buffer): void;
 }

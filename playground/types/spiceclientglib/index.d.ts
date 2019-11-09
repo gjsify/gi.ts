@@ -8,6 +8,7 @@ import * as SpiceClientGLib from "spiceclientglib";
  * spiceclientglib.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type msg_handler = (channel: Channel, _in: MsgIn) => void;
 export const GTK_MAJOR_VERSION: number;
 export const GTK_MICRO_VERSION: number;
@@ -43,11 +44,6 @@ export function display_get_primary(channel: Channel, surface_id: number, primar
  * (failing to do so for each gl-draw may result in a frozen display).
  */
 export function display_gl_draw_done(channel: DisplayChannel): void;
-/**
- * Similar to g_signal_connect_object() but will delete connection
- * when any of the objects is destroyed.
- */
-export function g_signal_connect_object(instance: object | null, detailed_signal: string, c_handler: GObject.Callback, gobject: object | null, connect_flags: GObject.ConnectFlags): number;
 /**
  * Gets commandline options.
  * Bindings for other languages are available since 0.32
@@ -268,432 +264,370 @@ export enum SessionVerify {
     HOSTNAME = 2,
     SUBJECT = 4,
 }
-export class Audio extends GObject.Object {constructor(config?: properties);
-main_context: GLib.MainContext;
-session: Session;
-vfunc_connect_channel(channel: Channel): boolean;
-vfunc_get_playback_volume_info_async(cancellable: Gio.Cancellable | null, main_channel: MainChannel, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-vfunc_get_playback_volume_info_finish(res: Gio.AsyncResult, mute: boolean, nchannels: number, volume: number): boolean;
-vfunc_get_record_volume_info_async(cancellable: Gio.Cancellable | null, main_channel: MainChannel, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-vfunc_get_record_volume_info_finish(res: Gio.AsyncResult, mute: boolean, nchannels: number, volume: number): boolean;
-static get(session: Session, context: GLib.MainContext | null): Audio;
-get(...args: never[]): never;
+export class Audio extends GObject.Object {
+    constructor(config?: properties);
+    main_context: GLib.MainContext;
+    session: Session;
+    vfunc_connect_channel(channel: Channel): boolean;
+    vfunc_get_playback_volume_info_async(cancellable: Gio.Cancellable | null, main_channel: MainChannel, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    vfunc_get_playback_volume_info_finish(res: Gio.AsyncResult, mute: boolean, nchannels: number, volume: number): boolean;
+    vfunc_get_record_volume_info_async(cancellable: Gio.Cancellable | null, main_channel: MainChannel, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    vfunc_get_record_volume_info_finish(res: Gio.AsyncResult, mute: boolean, nchannels: number, volume: number): boolean;
+    static get(session: Session, context: GLib.MainContext | null): Audio;
 }
-export class Channel extends GObject.Object {constructor(config?: properties);
-channel_id: number;
-channel_type: number;
-readonly socket: Gio.Socket;
-spice_session: Session;
-readonly total_read_bytes: number;
-connect(): boolean;
-connect(...args: never[]): never;
-destroy(): void;
-disconnect(reason: ChannelEvent): void;
-disconnect(...args: never[]): never;
-flush_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-flush_finish(result: Gio.AsyncResult): boolean;
-get_error(): GLib.Error;
-open_fd(fd: number): boolean;
-set_capability(cap: number): void;
-test_capability(cap: number): boolean;
-test_common_capability(cap: number): boolean;
-vfunc_channel_event(event: ChannelEvent): void;
-vfunc_channel_reset(migrating: boolean): void;
-vfunc_channel_send_migration_handshake(): void;
-vfunc_channel_up(): void;
-vfunc_handle_msg(msg: MsgIn): void;
-vfunc_iterate_read(): void;
-vfunc_iterate_write(): void;
-vfunc_open_fd(with_tls: number): void;
-static string_to_type(str: string): number;
-static type_to_string(type: number): string;
+export class Channel extends GObject.Object {
+    constructor(config?: properties);
+    channel_id: number;
+    channel_type: number;
+    readonly socket: Gio.Socket;
+    spice_session: Session;
+    readonly total_read_bytes: number;
+    connect(): boolean;
+    destroy(): void;
+    disconnect(reason: ChannelEvent): void;
+    flush_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    flush_finish(result: Gio.AsyncResult): boolean;
+    get_error(): GLib.Error;
+    open_fd(fd: number): boolean;
+    set_capability(cap: number): void;
+    test_capability(cap: number): boolean;
+    test_common_capability(cap: number): boolean;
+    vfunc_channel_event(event: ChannelEvent): void;
+    vfunc_channel_reset(migrating: boolean): void;
+    vfunc_channel_send_migration_handshake(): void;
+    vfunc_channel_up(): void;
+    vfunc_handle_msg(msg: MsgIn): void;
+    vfunc_iterate_read(): void;
+    vfunc_iterate_write(): void;
+    vfunc_open_fd(with_tls: number): void;
+    static string_to_type(str: string): number;
+    static type_to_string(type: number): string;
 }
-export class CursorChannel  {constructor(config?: properties);
-readonly cursor: CursorShape;
-readonly priv: CursorChannelPrivate;
+export class CursorChannel  {
+    constructor(config?: properties);
+    readonly cursor: CursorShape;
+    readonly priv: CursorChannelPrivate;
 }
-export class DisplayChannel  {constructor(config?: properties);
-readonly gl_scanout: GlScanout;
-readonly height: number;
-readonly monitors: object[];
-readonly monitors_max: number;
-readonly width: number;
-readonly priv: DisplayChannelPrivate;
-get_gl_scanout(): GlScanout;
-gl_draw_done(): void;
-static change_preferred_compression(channel: Channel, compression: number): void;
-static change_preferred_video_codec_type(channel: Channel, codec_type: number): void;
-static get_primary(channel: Channel, surface_id: number, primary: DisplayPrimary): boolean;
+export class DisplayChannel  {
+    constructor(config?: properties);
+    readonly gl_scanout: GlScanout;
+    readonly height: number;
+    readonly monitors: object[];
+    readonly monitors_max: number;
+    readonly width: number;
+    readonly priv: DisplayChannelPrivate;
+    get_gl_scanout(): GlScanout;
+    gl_draw_done(): void;
+    static change_preferred_compression(channel: Channel, compression: number): void;
+    static change_preferred_video_codec_type(channel: Channel, codec_type: number): void;
+    static get_primary(channel: Channel, surface_id: number, primary: DisplayPrimary): boolean;
 }
-export class FileTransferTask  {constructor(config?: properties);
-cancellable: Gio.Cancellable;
-channel: MainChannel;
-file: Gio.File;
-id: number;
-readonly progress: number;
-readonly total_bytes: number;
-readonly transferred_bytes: number;
-cancel(): void;
-get_filename(): string;
-get_progress(): number;
-get_total_bytes(): number;
-get_transferred_bytes(): number;
+export class FileTransferTask  {
+    constructor(config?: properties);
+    cancellable: Gio.Cancellable;
+    channel: MainChannel;
+    file: Gio.File;
+    id: number;
+    readonly progress: number;
+    readonly total_bytes: number;
+    readonly transferred_bytes: number;
+    cancel(): void;
+    get_filename(): string;
+    get_progress(): number;
+    get_total_bytes(): number;
+    get_transferred_bytes(): number;
 }
-export class InputsChannel  {constructor(config?: properties);
-readonly key_modifiers: number;
-readonly priv: InputsChannelPrivate;
-button_press(button: number, button_state: number): void;
-button_release(button: number, button_state: number): void;
-key_press(scancode: number): void;
-key_press_and_release(scancode: number): void;
-key_release(scancode: number): void;
-motion(dx: number, dy: number, button_state: number): void;
-position(x: number, y: number, display: number, button_state: number): void;
-set_key_locks(locks: number): void;
+export class InputsChannel  {
+    constructor(config?: properties);
+    readonly key_modifiers: number;
+    readonly priv: InputsChannelPrivate;
+    button_press(button: number, button_state: number): void;
+    button_release(button: number, button_state: number): void;
+    key_press(scancode: number): void;
+    key_press_and_release(scancode: number): void;
+    key_release(scancode: number): void;
+    motion(dx: number, dy: number, button_state: number): void;
+    position(x: number, y: number, display: number, button_state: number): void;
+    set_key_locks(locks: number): void;
 }
-export class MainChannel  {constructor(config?: properties);
-readonly agent_caps_0: number;
-readonly agent_connected: boolean;
-color_depth: number;
-disable_animation: boolean;
-disable_display_align: boolean;
-disable_display_position: boolean;
-disable_font_smooth: boolean;
-disable_wallpaper: boolean;
-max_clipboard: number;
-readonly mouse_mode: number;
-readonly priv: MainChannelPrivate;
-agent_test_capability(cap: number): boolean;
-clipboard_selection_grab(selection: number, types: number, ntypes: number): void;
-clipboard_selection_notify(selection: number, type: number, data: number, size: number): void;
-clipboard_selection_release(selection: number): void;
-clipboard_selection_request(selection: number, type: number): void;
-file_copy_async(sources: Gio.File[], flags: Gio.FileCopyFlags, cancellable: Gio.Cancellable | null, progress_callback: Gio.FileProgressCallback | null, progress_callback_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-file_copy_finish(result: Gio.AsyncResult): boolean;
-request_mouse_mode(mode: number): void;
-send_monitor_config(): boolean;
-update_display(id: number, x: number, y: number, width: number, height: number, update: boolean): void;
-update_display_enabled(id: number, enabled: boolean, update: boolean): void;
+export class MainChannel  {
+    constructor(config?: properties);
+    readonly agent_caps_0: number;
+    readonly agent_connected: boolean;
+    color_depth: number;
+    disable_animation: boolean;
+    disable_display_align: boolean;
+    disable_display_position: boolean;
+    disable_font_smooth: boolean;
+    disable_wallpaper: boolean;
+    max_clipboard: number;
+    readonly mouse_mode: number;
+    readonly priv: MainChannelPrivate;
+    agent_test_capability(cap: number): boolean;
+    clipboard_selection_grab(selection: number, types: number, ntypes: number): void;
+    clipboard_selection_notify(selection: number, type: number, data: number, size: number): void;
+    clipboard_selection_release(selection: number): void;
+    clipboard_selection_request(selection: number, type: number): void;
+    file_copy_async(sources: Gio.File[], flags: Gio.FileCopyFlags, cancellable: Gio.Cancellable | null, progress_callback: Gio.FileProgressCallback | null, progress_callback_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    file_copy_finish(result: Gio.AsyncResult): boolean;
+    request_mouse_mode(mode: number): void;
+    send_monitor_config(): boolean;
+    update_display(id: number, x: number, y: number, width: number, height: number, update: boolean): void;
+    update_display_enabled(id: number, enabled: boolean, update: boolean): void;
 }
-export class PlaybackChannel  {constructor(config?: properties);
-min_latency: number;
-mute: boolean;
-nchannels: number;
-volume: object;
-readonly priv: PlaybackChannelPrivate;
-set_delay(delay_ms: number): void;
+export class PlaybackChannel  {
+    constructor(config?: properties);
+    min_latency: number;
+    mute: boolean;
+    nchannels: number;
+    volume: object;
+    readonly priv: PlaybackChannelPrivate;
+    set_delay(delay_ms: number): void;
 }
-export class PortChannel  {constructor(config?: properties);
-readonly port_name: string;
-readonly port_opened: boolean;
-readonly priv: PortChannelPrivate;
-event(event: number): void;
-write_async(buffer: number[], count: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-write_finish(result: Gio.AsyncResult): number;
+export class PortChannel  {
+    constructor(config?: properties);
+    readonly port_name: string;
+    readonly port_opened: boolean;
+    readonly priv: PortChannelPrivate;
+    event(event: number): void;
+    write_async(buffer: number[], count: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    write_finish(result: Gio.AsyncResult): number;
 }
-export class QmpPort  {constructor(config?: properties);
-channel: PortChannel;
-readonly ready: boolean;
-query_status_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-query_status_finish(result: Gio.AsyncResult): QmpStatus;
-vm_action_async(action: QmpPortVmAction, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-vm_action_finish(result: Gio.AsyncResult): boolean;
-static get(channel: PortChannel): QmpPort;
+export class QmpPort  {
+    constructor(config?: properties);
+    channel: PortChannel;
+    readonly ready: boolean;
+    query_status_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    query_status_finish(result: Gio.AsyncResult): QmpStatus;
+    vm_action_async(action: QmpPortVmAction, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    vm_action_finish(result: Gio.AsyncResult): boolean;
+    static get(channel: PortChannel): QmpPort;
 }
-export class RecordChannel  {constructor(config?: properties);
-mute: boolean;
-nchannels: number;
-volume: object;
-readonly priv: RecordChannelPrivate;
-send_data(data: object | null, bytes: number, time: number): void;
+export class RecordChannel  {
+    constructor(config?: properties);
+    mute: boolean;
+    nchannels: number;
+    volume: object;
+    readonly priv: RecordChannelPrivate;
+    send_data(data: object | null, bytes: number, time: number): void;
 }
-export class Session extends GObject.Object {constructor(config?: properties);
-ca: number[];
-ca_file: string;
-cache_size: number;
-cert_subject: string;
-ciphers: string;
-client_sockets: boolean;
-color_depth: number;
-disable_effects: string[];
-enable_audio: boolean;
-enable_smartcard: boolean;
-enable_usbredir: boolean;
-gl_scanout: boolean;
-glz_window_size: number;
-host: string;
-inhibit_keyboard_grab: boolean;
-readonly migration_state: SessionMigration;
-readonly name: string;
-password: string;
-port: string;
-preferred_compression: unknown;
-protocol: number;
-proxy: string;
-pubkey: number[];
-read_only: boolean;
-secure_channels: string[];
-share_dir_ro: boolean;
-shared_dir: string;
-smartcard_certificates: string[];
-smartcard_db: string;
-tls_port: string;
-unix_path: string;
-uri: string;
-username: string;
-readonly uuid: object;
-verify: SessionVerify;
-connect(): boolean;
-connect(...args: never[]): never;
-disconnect(): void;
-disconnect(...args: never[]): never;
-get_channels(): GLib.List;
-get_proxy_uri(): URI;
-get_read_only(): boolean;
-has_channel_type(type: number): boolean;
-is_for_migration(): boolean;
-open_fd(fd: number): boolean;
-vfunc_channel_destroy(channel: Channel): void;
-vfunc_channel_new(channel: Channel): void;
+export class Session extends GObject.Object {
+    constructor(config?: properties);
+    ca: number[];
+    ca_file: string;
+    cache_size: number;
+    cert_subject: string;
+    ciphers: string;
+    client_sockets: boolean;
+    color_depth: number;
+    disable_effects: string[];
+    enable_audio: boolean;
+    enable_smartcard: boolean;
+    enable_usbredir: boolean;
+    gl_scanout: boolean;
+    glz_window_size: number;
+    host: string;
+    inhibit_keyboard_grab: boolean;
+    readonly migration_state: SessionMigration;
+    readonly name: string;
+    password: string;
+    port: string;
+    protocol: number;
+    proxy: string;
+    pubkey: number[];
+    read_only: boolean;
+    secure_channels: string[];
+    share_dir_ro: boolean;
+    shared_dir: string;
+    smartcard_certificates: string[];
+    smartcard_db: string;
+    tls_port: string;
+    unix_path: string;
+    uri: string;
+    username: string;
+    readonly uuid: object;
+    verify: SessionVerify;
+    connect(): boolean;
+    disconnect(): void;
+    get_channels(): GLib.List;
+    get_proxy_uri(): URI;
+    get_read_only(): boolean;
+    has_channel_type(type: number): boolean;
+    is_for_migration(): boolean;
+    open_fd(fd: number): boolean;
+    vfunc_channel_destroy(channel: Channel): void;
+    vfunc_channel_new(channel: Channel): void;
 }
-export class SmartcardChannel  {constructor(config?: properties);
-readonly priv: SmartcardChannelPrivate;
+export class SmartcardChannel  {
+    constructor(config?: properties);
+    readonly priv: SmartcardChannelPrivate;
 }
-export class SmartcardManager  {constructor(config?: properties);
-readonly priv: SmartcardManagerPrivate;
-get_readers(): GLib.List;
-insert_card(): boolean;
-remove_card(): boolean;
-static get(): SmartcardManager;
+export class SmartcardManager  {
+    constructor(config?: properties);
+    readonly priv: SmartcardManagerPrivate;
+    get_readers(): GLib.List;
+    insert_card(): boolean;
+    remove_card(): boolean;
+    static get(): SmartcardManager;
 }
-export class URI  {constructor(config?: properties);
-hostname: string;
-password: string;
-port: number;
-scheme: string;
-user: string;
-get_hostname(): string;
-get_password(): string;
-get_port(): number;
-get_scheme(): string;
-get_user(): string;
-set_hostname(hostname: string): void;
-set_password(password: string): void;
-set_port(port: number): void;
-set_scheme(scheme: string): void;
-set_user(user: string): void;
-to_string(): string;
+export class URI  {
+    constructor(config?: properties);
+    hostname: string;
+    password: string;
+    port: number;
+    scheme: string;
+    user: string;
+    get_hostname(): string;
+    get_password(): string;
+    get_port(): number;
+    get_scheme(): string;
+    get_user(): string;
+    set_hostname(hostname: string): void;
+    set_password(password: string): void;
+    set_port(port: number): void;
+    set_scheme(scheme: string): void;
+    set_user(user: string): void;
+    to_string(): string;
 }
-export class UsbDeviceManager  {constructor(config?: properties);
-auto_connect: boolean;
-auto_connect_filter: string;
-readonly free_channels: number;
-redirect_on_connect: string;
-session: Session;
-readonly priv: UsbDeviceManagerPrivate;
-can_redirect_device(device: UsbDevice): boolean;
-connect_device_async(device: UsbDevice, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-connect_device_finish(res: Gio.AsyncResult): boolean;
-disconnect_device(device: UsbDevice): void;
-disconnect_device_async(device: UsbDevice, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-disconnect_device_finish(res: Gio.AsyncResult): boolean;
-get_devices(): UsbDevice[];
-get_devices_with_filter(filter: string | null): UsbDevice[];
-is_device_connected(device: UsbDevice): boolean;
-is_redirecting(): boolean;
-static get(session: Session): UsbDeviceManager;
+export class UsbDeviceManager  {
+    constructor(config?: properties);
+    auto_connect: boolean;
+    auto_connect_filter: string;
+    readonly free_channels: number;
+    redirect_on_connect: string;
+    session: Session;
+    readonly priv: UsbDeviceManagerPrivate;
+    can_redirect_device(device: UsbDevice): boolean;
+    connect_device_async(device: UsbDevice, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    connect_device_finish(res: Gio.AsyncResult): boolean;
+    disconnect_device(device: UsbDevice): void;
+    disconnect_device_async(device: UsbDevice, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    disconnect_device_finish(res: Gio.AsyncResult): boolean;
+    get_devices(): UsbDevice[];
+    get_devices_with_filter(filter: string | null): UsbDevice[];
+    is_device_connected(device: UsbDevice): boolean;
+    is_redirecting(): boolean;
+    static get(session: Session): UsbDeviceManager;
 }
-export class UsbredirChannel  {constructor(config?: properties);
-readonly priv: UsbredirChannelPrivate;
+export class UsbredirChannel  {
+    constructor(config?: properties);
+    readonly priv: UsbredirChannelPrivate;
 }
-export class WebdavChannel  {constructor(config?: properties);
-readonly priv: WebdavChannelPrivate;
+export class WebdavChannel  {
+    constructor(config?: properties);
+    readonly priv: WebdavChannelPrivate;
 }
-export class AudioClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly connect_channel: unknown;
-readonly get_playback_volume_info_async: unknown;
-readonly get_playback_volume_info_finish: unknown;
-readonly get_record_volume_info_async: unknown;
-readonly get_record_volume_info_finish: unknown;
-readonly _spice_reserved: number[];
+export class AudioPrivate  {
+    constructor(config?: properties);
 }
-export class AudioPrivate  {constructor(config?: properties);
+export class ChannelClassPrivate  {
+    constructor(config?: properties);
 }
-export class ChannelClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly channel_event: unknown;
-readonly open_fd: unknown;
-readonly handle_msg: unknown;
-readonly channel_up: unknown;
-readonly iterate_write: unknown;
-readonly iterate_read: unknown;
-readonly deprecated: object;
-readonly channel_reset: unknown;
-readonly deprecated2: object;
-readonly channel_send_migration_handshake: unknown;
-readonly priv: ChannelClassPrivate;
-readonly _spice_reserved: number[];
+export class ChannelPrivate  {
+    constructor(config?: properties);
 }
-export class ChannelClassPrivate  {constructor(config?: properties);
+export class CursorChannelPrivate  {
+    constructor(config?: properties);
 }
-export class ChannelPrivate  {constructor(config?: properties);
+export class CursorShape  {
+    constructor(config?: properties);
+    width: number;
+    height: number;
+    hot_spot_x: number;
+    hot_spot_y: number;
+    data: object;
 }
-export class CursorChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-readonly cursor_set: unknown;
-readonly cursor_move: unknown;
-readonly cursor_hide: unknown;
-readonly cursor_reset: unknown;
+export class DisplayChannelPrivate  {
+    constructor(config?: properties);
 }
-export class CursorChannelPrivate  {constructor(config?: properties);
+export class DisplayMonitorConfig  {
+    constructor(config?: properties);
+    id: number;
+    surface_id: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
-export class CursorShape  {constructor(config?: properties);
-type: unknown;
-width: number;
-height: number;
-hot_spot_x: number;
-hot_spot_y: number;
-data: object;
+export class DisplayPrimary  {
+    constructor(config?: properties);
+    format: object;
+    width: number;
+    height: number;
+    stride: number;
+    shmid: number;
+    data: number;
+    marked: boolean;
 }
-export class DisplayChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-readonly display_primary_create: unknown;
-readonly display_primary_destroy: unknown;
-readonly display_invalidate: unknown;
-readonly display_mark: unknown;
+export class GlScanout  {
+    constructor(config?: properties);
+    fd: number;
+    width: number;
+    height: number;
+    stride: number;
+    format: number;
+    y0top: boolean;
+    free(): void;
 }
-export class DisplayChannelPrivate  {constructor(config?: properties);
+export class InputsChannelPrivate  {
+    constructor(config?: properties);
 }
-export class DisplayMonitorConfig  {constructor(config?: properties);
-id: number;
-surface_id: number;
-x: number;
-y: number;
-width: number;
-height: number;
+export class MainChannelPrivate  {
+    constructor(config?: properties);
 }
-export class DisplayPrimary  {constructor(config?: properties);
-format: object;
-width: number;
-height: number;
-stride: number;
-shmid: number;
-data: number;
-marked: boolean;
+export class MsgIn  {
+    constructor(config?: properties);
 }
-export class FileTransferTaskClass  {constructor(config?: properties);
+export class MsgOut  {
+    constructor(config?: properties);
 }
-export class GlScanout  {constructor(config?: properties);
-fd: number;
-width: number;
-height: number;
-stride: number;
-format: number;
-y0top: boolean;
-free(): void;
+export class PlaybackChannelPrivate  {
+    constructor(config?: properties);
 }
-export class InputsChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-readonly inputs_modifiers: unknown;
+export class PortChannelPrivate  {
+    constructor(config?: properties);
 }
-export class InputsChannelPrivate  {constructor(config?: properties);
+export class QmpStatus  {
+    constructor(config?: properties);
+    version: number;
+    running: boolean;
+    singlestep: boolean;
+    status: string;
+    ref(): QmpStatus;
+    unref(): void;
 }
-export class MainChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-readonly mouse_update: unknown;
-readonly agent_update: unknown;
+export class RecordChannelPrivate  {
+    constructor(config?: properties);
 }
-export class MainChannelPrivate  {constructor(config?: properties);
+export class SessionPrivate  {
+    constructor(config?: properties);
 }
-export class MsgIn  {constructor(config?: properties);
+export class SmartcardChannelPrivate  {
+    constructor(config?: properties);
 }
-export class MsgOut  {constructor(config?: properties);
+export class SmartcardManagerPrivate  {
+    constructor(config?: properties);
 }
-export class PlaybackChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-readonly playback_start: unknown;
-readonly playback_data: unknown;
-readonly playback_stop: unknown;
+export class SmartcardReader  {
+    constructor(config?: properties);
+    insert_card(): boolean;
+    is_software(): boolean;
+    remove_card(): boolean;
 }
-export class PlaybackChannelPrivate  {constructor(config?: properties);
+export class URIPrivate  {
+    constructor(config?: properties);
 }
-export class PortChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
+export class UsbDevice  {
+    constructor(config?: properties);
+    get_description(format: string | null): string;
+    get_libusb_device(): object | null;
 }
-export class PortChannelPrivate  {constructor(config?: properties);
+export class UsbDeviceManagerPrivate  {
+    constructor(config?: properties);
 }
-export class QmpPortClass  {constructor(config?: properties);
+export class UsbredirChannelPrivate  {
+    constructor(config?: properties);
 }
-export class QmpStatus  {constructor(config?: properties);
-version: number;
-running: boolean;
-singlestep: boolean;
-status: string;
-ref(): QmpStatus;
-unref(): void;
-}
-export class RecordChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-readonly record_start: unknown;
-readonly record_data: unknown;
-readonly record_stop: unknown;
-}
-export class RecordChannelPrivate  {constructor(config?: properties);
-}
-export class SessionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly channel_new: unknown;
-readonly channel_destroy: unknown;
-readonly _spice_reserved: number[];
-}
-export class SessionPrivate  {constructor(config?: properties);
-}
-export class SmartcardChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-}
-export class SmartcardChannelPrivate  {constructor(config?: properties);
-}
-export class SmartcardManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly reader_added: unknown;
-readonly reader_removed: unknown;
-readonly card_inserted: unknown;
-readonly card_removed: unknown;
-readonly _spice_reserved: number[];
-}
-export class SmartcardManagerPrivate  {constructor(config?: properties);
-}
-export class SmartcardReader  {constructor(config?: properties);
-insert_card(): boolean;
-is_software(): boolean;
-remove_card(): boolean;
-}
-export class URIClass  {constructor(config?: properties);
-}
-export class URIPrivate  {constructor(config?: properties);
-}
-export class UsbDevice  {constructor(config?: properties);
-get_description(format: string | null): string;
-get_libusb_device(): object | null;
-}
-export class UsbDeviceManagerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly device_added: unknown;
-readonly device_removed: unknown;
-readonly auto_connect_failed: unknown;
-readonly device_error: unknown;
-readonly _spice_reserved: number[];
-}
-export class UsbDeviceManagerPrivate  {constructor(config?: properties);
-}
-export class UsbredirChannelClass  {constructor(config?: properties);
-readonly parent_class: ChannelClass;
-}
-export class UsbredirChannelPrivate  {constructor(config?: properties);
-}
-export class WebdavChannelClass  {constructor(config?: properties);
-readonly parent_class: PortChannelClass;
-}
-export class WebdavChannelPrivate  {constructor(config?: properties);
+export class WebdavChannelPrivate  {
+    constructor(config?: properties);
 }

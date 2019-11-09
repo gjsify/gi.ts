@@ -7,6 +7,7 @@ import * as GModule from "gmodule";
  * gmodule.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ModuleCheckInit = (module: Module) => string;
 export type ModuleUnload = (module: Module) => void;
 /**
@@ -38,13 +39,13 @@ export enum ModuleFlags {
     LOCAL = 2,
     MASK = 3,
 }
-export class Module  {constructor(config?: properties);
-close(): boolean;
-make_resident(): void;
-name(): string;
-symbol(symbol_name: string): [boolean, object | null];
-static build_path(directory: string | null, module_name: string): string;
-static error(): string;
-static open(file_name: string | null, flags: ModuleFlags): Module;
-static supported(): boolean;
+export class Module  {
+    constructor(config?: properties);
+    close(): boolean;
+    make_resident(): void;
+    name(): string;
+    symbol(symbol_name: string): [boolean, object | null];
+    static build_path(directory: string | null, module_name: string): string;
+    static error(): string;
+    static supported(): boolean;
 }

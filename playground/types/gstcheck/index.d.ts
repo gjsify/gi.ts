@@ -9,6 +9,7 @@ import * as GstCheck from "gstcheck";
  * gstcheck.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type CheckLogFilterFunc = (log_domain: string, log_level: GLib.LogLevelFlags, message: string, user_data: object | null) => boolean;
 export type HarnessPrepareBufferFunc = (h: Harness, data: object | null) => Gst.Buffer;
 export type HarnessPrepareEventFunc = (h: Harness, data: object | null) => Gst.Event;
@@ -58,13 +59,6 @@ export function buffer_straw_stop_pipeline(bin: Gst.Element, pad: Gst.Pad): void
  * 
  */
 export function check_abi_list(list: CheckABIStruct, have_abi_sizes: boolean): void;
-/**
- * Add a callback @func to be called for all log messages that matches
- * @log_domain, @log_level and @regex. If @func is NULL the
- * matching logs will be silently discarded by GstCheck.
- * MT safe.
- */
-export function check_add_log_filter(log_domain: string, log_level: GLib.LogLevelFlags, regex: GLib.Regex, func: CheckLogFilterFunc, user_data: object | null, destroy_data: GLib.DestroyNotify): CheckLogFilter;
 /**
  * Compare the buffer contents with @data and @size.
  */
@@ -127,21 +121,10 @@ export function check_message_error(message: Gst.Message, type: Gst.MessageType,
  */
 export function check_object_destroyed_on_unref(object_to_unref: object | null): void;
 /**
- * Unrefs @object_to_unref and checks that is has properly been
- * destroyed, also checks that the other objects passed in
- * parametter have been destroyed as a concequence of
- * unrefing @object_to_unref. Last variable argument should be NULL.
- */
-export function check_objects_destroyed_on_unref(object_to_unref: object | null, first_object: object | null, ___: unknown[]): void;
-/**
  * Remove a filter that has been added by @gst_check_add_log_filter.
  * MT safe.
  */
 export function check_remove_log_filter(filter: CheckLogFilter): void;
-/**
- * 
- */
-export function check_run_suite(suite: unknown, name: string, fname: string): number;
 /**
  * setup an element for a filter test with mysrcpad and mysinkpad
  */
@@ -259,191 +242,120 @@ export function consistency_checker_add_pad(consist: StreamConsistency, pad: Gst
  */
 export function consistency_checker_free(consist: StreamConsistency): void;
 /**
- * Sets up a data probe on the given pad which will raise assertions if t
- * he
- * data flow is inconsistent.
- */
-export function consistency_checker_new(pad: Gst.Pad): StreamConsistency;
-/**
  * Reset the stream checker's internal variables.
  */
 export function consistency_checker_reset(consist: StreamConsistency): void;
-/**
- * Creates a new harness. Works like gst_harness_new_with_padnames(), exc
- * ept it
- * assumes the #GstElement sinkpad is named "sink" and srcpad is named "s
- * rc"
- * MT safe.
- */
-export function harness_new(element_name: string): Harness;
-/**
- * Creates a new empty harness. Use gst_harness_add_element_full() to add
- * an #GstElement to it.
- * MT safe.
- */
-export function harness_new_empty(): Harness;
-/**
- * Creates a new harness.
- * MT safe.
- */
-export function harness_new_full(element: Gst.Element, hsrc: Gst.StaticPadTemplate | null, element_sinkpad_name: string | null, hsink: Gst.StaticPadTemplate | null, element_srcpad_name: string | null): Harness;
-/**
- * Creates a new harness, parsing the @launchline and putting that in a #
- * GstBin,
- * and then attches the harness to the bin.
- * MT safe.
- */
-export function harness_new_parse(launchline: string): Harness;
-/**
- * Creates a new harness. Works in the same way as gst_harness_new_full()
- * , only
- * that generic padtemplates are used for the harness src and sinkpads, w
- * hich
- * will be sufficient in most usecases.
- * MT safe.
- */
-export function harness_new_with_element(element: Gst.Element, element_sinkpad_name: string | null, element_srcpad_name: string | null): Harness;
-/**
- * Creates a new harness. Works like gst_harness_new_with_element(),
- * except you specify the factoryname of the #GstElement
- * MT safe.
- */
-export function harness_new_with_padnames(element_name: string, element_sinkpad_name: string | null, element_srcpad_name: string | null): Harness;
-/**
- * Creates a new harness, like gst_harness_new_full(), except it
- * assumes the #GstElement sinkpad is named "sink" and srcpad is named "s
- * rc"
- * MT safe.
- */
-export function harness_new_with_templates(element_name: string, hsrc: Gst.StaticPadTemplate | null, hsink: Gst.StaticPadTemplate | null): Harness;
 /**
  * Stop the running #GstHarnessThread
  * MT safe.
  */
 export function harness_stress_thread_stop(t: HarnessThread): number;
-export class TestClock extends Gst.Clock {constructor(config?: properties);
-clock_type: Gst.ClockType;
-start_time: number;static new_with_start_time(start_time: Gst.ClockTime): Gst.Clock;
-advance_time(delta: Gst.ClockTimeDiff): void;
-crank(): boolean;
-get_next_entry_time(): Gst.ClockTime;
-has_id(id: Gst.ClockID): boolean;
-peek_id_count(): number;
-peek_next_pending_id(): [boolean, Gst.ClockID | null];
-process_id_list(pending_list: GLib.List | null): number;
-process_next_clock_id(): Gst.ClockID;
-set_time(new_time: Gst.ClockTime): void;
-timed_wait_for_multiple_pending_ids(count: number, timeout_ms: number): [boolean, GLib.List | null];
-wait_for_multiple_pending_ids(count: number): [GLib.List | null];
-wait_for_next_pending_id(): [Gst.ClockID | null];
-wait_for_pending_id_count(count: number): void;
-static id_list_get_latest_time(pending_list: GLib.List | null): Gst.ClockTime;
+export class TestClock extends Gst.Clock {
+    constructor(config?: properties);
+    clock_type: Gst.ClockType;
+    start_time: number;static new_with_start_time(start_time: Gst.ClockTime): Gst.Clock;
+    advance_time(delta: Gst.ClockTimeDiff): void;
+    crank(): boolean;
+    get_next_entry_time(): Gst.ClockTime;
+    has_id(id: Gst.ClockID): boolean;
+    peek_id_count(): number;
+    peek_next_pending_id(): [boolean, Gst.ClockID | null];
+    process_id_list(pending_list: GLib.List | null): number;
+    process_next_clock_id(): Gst.ClockID;
+    set_time(new_time: Gst.ClockTime): void;
+    timed_wait_for_multiple_pending_ids(count: number, timeout_ms: number): [boolean, GLib.List | null];
+    wait_for_multiple_pending_ids(count: number): [GLib.List | null];
+    wait_for_next_pending_id(): [Gst.ClockID | null];
+    wait_for_pending_id_count(count: number): void;
+    static id_list_get_latest_time(pending_list: GLib.List | null): Gst.ClockTime;
 }
-export class CheckABIStruct  {constructor(config?: properties);
-name: string;
-size: number;
-abi_size: number;
+export class CheckABIStruct  {
+    constructor(config?: properties);
+    name: string;
+    size: number;
+    abi_size: number;
 }
-export class CheckLogFilter  {constructor(config?: properties);
+export class CheckLogFilter  {
+    constructor(config?: properties);
 }
-export class Harness  {constructor(config?: properties);
-element: Gst.Element;
-srcpad: Gst.Pad;
-sinkpad: Gst.Pad;
-src_harness: Harness;
-sink_harness: Harness;
-readonly priv: HarnessPrivate;
-add_element_full(element: Gst.Element, hsrc: Gst.StaticPadTemplate | null, element_sinkpad_name: string | null, hsink: Gst.StaticPadTemplate | null, element_srcpad_name: string | null): void;
-add_element_sink_pad(sinkpad: Gst.Pad): void;
-add_element_src_pad(srcpad: Gst.Pad): void;
-add_parse(launchline: string): void;
-add_probe(element_name: string, pad_name: string, mask: Gst.PadProbeType, callback: Gst.PadProbeCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): void;
-add_propose_allocation_meta(api: unknown, params: Gst.Structure | null): void;
-add_sink(sink_element_name: string): void;
-add_sink_harness(sink_harness: Harness): void;
-add_sink_parse(launchline: string): void;
-add_src(src_element_name: string, has_clock_wait: boolean): void;
-add_src_harness(src_harness: Harness, has_clock_wait: boolean): void;
-add_src_parse(launchline: string, has_clock_wait: boolean): void;
-buffers_in_queue(): number;
-buffers_received(): number;
-crank_multiple_clock_waits(waits: number): boolean;
-crank_single_clock_wait(): boolean;
-create_buffer(size: number): Gst.Buffer;
-dump_to_file(filename: string): void;
-events_in_queue(): number;
-events_received(): number;
-find_element(element_name: string): Gst.Element | null;
-get(element_name: string, first_property_name: string, ___: unknown[]): void;
-get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
-get_last_pushed_timestamp(): Gst.ClockTime;
-get_testclock(): TestClock;
-play(): void;
-pull(): Gst.Buffer;
-pull_event(): Gst.Event;
-pull_upstream_event(): Gst.Event;
-push(buffer: Gst.Buffer): Gst.FlowReturn;
-push_and_pull(buffer: Gst.Buffer): Gst.Buffer;
-push_event(event: Gst.Event): boolean;
-push_from_src(): Gst.FlowReturn;
-push_to_sink(): Gst.FlowReturn;
-push_upstream_event(event: Gst.Event): boolean;
-query_latency(): Gst.ClockTime;
-set(element_name: string, first_property_name: string, ___: unknown[]): void;
-set_blocking_push_mode(): void;
-set_caps(_in: Gst.Caps, out: Gst.Caps): void;
-set_caps_str(_in: string, out: string): void;
-set_drop_buffers(drop_buffers: boolean): void;
-set_forwarding(forwarding: boolean): void;
-set_propose_allocator(allocator: Gst.Allocator | null, params: Gst.AllocationParams | null): void;
-set_sink_caps(caps: Gst.Caps): void;
-set_sink_caps_str(str: string): void;
-set_src_caps(caps: Gst.Caps): void;
-set_src_caps_str(str: string): void;
-set_time(time: Gst.ClockTime): boolean;
-set_upstream_latency(latency: Gst.ClockTime): void;
-sink_push_many(pushes: number): Gst.FlowReturn;
-src_crank_and_push_many(cranks: number, pushes: number): Gst.FlowReturn;
-src_push_event(): boolean;
-stress_custom_start(init: GLib.Func | null, callback: GLib.Func, data: object | null, sleep: number): HarnessThread;
-stress_property_start_full(name: string, value: GObject.Value, sleep: number): HarnessThread;
-stress_push_buffer_start_full(caps: Gst.Caps, segment: Gst.Segment, buf: Gst.Buffer, sleep: number): HarnessThread;
-stress_push_buffer_with_cb_start_full(caps: Gst.Caps, segment: Gst.Segment, func: HarnessPrepareBufferFunc, data: object | null, notify: GLib.DestroyNotify, sleep: number): HarnessThread;
-stress_push_event_start_full(event: Gst.Event, sleep: number): HarnessThread;
-stress_push_event_with_cb_start_full(func: HarnessPrepareEventFunc, data: object | null, notify: GLib.DestroyNotify, sleep: number): HarnessThread;
-stress_push_upstream_event_start_full(event: Gst.Event, sleep: number): HarnessThread;
-stress_push_upstream_event_with_cb_start_full(func: HarnessPrepareEventFunc, data: object | null, notify: GLib.DestroyNotify, sleep: number): HarnessThread;
-stress_requestpad_start_full(templ: Gst.PadTemplate, name: string, caps: Gst.Caps, release: boolean, sleep: number): HarnessThread;
-stress_statechange_start_full(sleep: number): HarnessThread;
-take_all_data(): [number, number];
-take_all_data_as_buffer(): Gst.Buffer;
-take_all_data_as_bytes(): GLib.Bytes;
-teardown(): void;
-try_pull(): Gst.Buffer;
-try_pull_event(): Gst.Event;
-try_pull_upstream_event(): Gst.Event;
-upstream_events_in_queue(): number;
-upstream_events_received(): number;
-use_systemclock(): void;
-use_testclock(): void;
-wait_for_clock_id_waits(waits: number, timeout: number): boolean;
-static _new(element_name: string): Harness;
-static new_empty(): Harness;
-static new_full(element: Gst.Element, hsrc: Gst.StaticPadTemplate | null, element_sinkpad_name: string | null, hsink: Gst.StaticPadTemplate | null, element_srcpad_name: string | null): Harness;
-static new_parse(launchline: string): Harness;
-static new_with_element(element: Gst.Element, element_sinkpad_name: string | null, element_srcpad_name: string | null): Harness;
-static new_with_padnames(element_name: string, element_sinkpad_name: string | null, element_srcpad_name: string | null): Harness;
-static new_with_templates(element_name: string, hsrc: Gst.StaticPadTemplate | null, hsink: Gst.StaticPadTemplate | null): Harness;
-static stress_thread_stop(t: HarnessThread): number;
+export class Harness  {
+    constructor(config?: properties);
+    element: Gst.Element;
+    srcpad: Gst.Pad;
+    sinkpad: Gst.Pad;
+    src_harness: Harness;
+    sink_harness: Harness;
+    readonly priv: HarnessPrivate;
+    add_element_sink_pad(sinkpad: Gst.Pad): void;
+    add_element_src_pad(srcpad: Gst.Pad): void;
+    add_probe(element_name: string, pad_name: string, mask: Gst.PadProbeType, callback: Gst.PadProbeCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): void;
+    add_propose_allocation_meta(api: GType, params: Gst.Structure | null): void;
+    add_sink(sink_element_name: string): void;
+    add_sink_harness(sink_harness: Harness): void;
+    add_sink_parse(launchline: string): void;
+    add_src(src_element_name: string, has_clock_wait: boolean): void;
+    add_src_harness(src_harness: Harness, has_clock_wait: boolean): void;
+    add_src_parse(launchline: string, has_clock_wait: boolean): void;
+    buffers_in_queue(): number;
+    buffers_received(): number;
+    crank_multiple_clock_waits(waits: number): boolean;
+    crank_single_clock_wait(): boolean;
+    create_buffer(size: number): Gst.Buffer;
+    dump_to_file(filename: string): void;
+    events_in_queue(): number;
+    events_received(): number;
+    find_element(element_name: string): Gst.Element | null;
+    get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
+    get_last_pushed_timestamp(): Gst.ClockTime;
+    get_testclock(): TestClock;
+    play(): void;
+    pull(): Gst.Buffer;
+    pull_event(): Gst.Event;
+    pull_upstream_event(): Gst.Event;
+    push(buffer: Gst.Buffer): Gst.FlowReturn;
+    push_and_pull(buffer: Gst.Buffer): Gst.Buffer;
+    push_event(event: Gst.Event): boolean;
+    push_from_src(): Gst.FlowReturn;
+    push_to_sink(): Gst.FlowReturn;
+    push_upstream_event(event: Gst.Event): boolean;
+    query_latency(): Gst.ClockTime;
+    set_blocking_push_mode(): void;
+    set_caps(_in: Gst.Caps, out: Gst.Caps): void;
+    set_caps_str(_in: string, out: string): void;
+    set_drop_buffers(drop_buffers: boolean): void;
+    set_forwarding(forwarding: boolean): void;
+    set_propose_allocator(allocator: Gst.Allocator | null, params: Gst.AllocationParams | null): void;
+    set_sink_caps(caps: Gst.Caps): void;
+    set_sink_caps_str(str: string): void;
+    set_src_caps(caps: Gst.Caps): void;
+    set_src_caps_str(str: string): void;
+    set_time(time: Gst.ClockTime): boolean;
+    set_upstream_latency(latency: Gst.ClockTime): void;
+    sink_push_many(pushes: number): Gst.FlowReturn;
+    src_crank_and_push_many(cranks: number, pushes: number): Gst.FlowReturn;
+    src_push_event(): boolean;
+    take_all_data_as_buffer(): Gst.Buffer;
+    take_all_data_as_bytes(): GLib.Bytes;
+    teardown(): void;
+    try_pull(): Gst.Buffer;
+    try_pull_event(): Gst.Event;
+    try_pull_upstream_event(): Gst.Event;
+    upstream_events_in_queue(): number;
+    upstream_events_received(): number;
+    use_systemclock(): void;
+    use_testclock(): void;
+    wait_for_clock_id_waits(waits: number, timeout: number): boolean;
+    static stress_thread_stop(t: HarnessThread): number;
 }
-export class HarnessPrivate  {constructor(config?: properties);
+export class HarnessPrivate  {
+    constructor(config?: properties);
 }
-export class HarnessThread  {constructor(config?: properties);
+export class HarnessThread  {
+    constructor(config?: properties);
 }
-export class StreamConsistency  {constructor(config?: properties);
+export class StreamConsistency  {
+    constructor(config?: properties);
 }
-export class TestClockClass  {constructor(config?: properties);
-readonly parent_class: Gst.ClockClass;
-}
-export class TestClockPrivate  {constructor(config?: properties);
+export class TestClockPrivate  {
+    constructor(config?: properties);
 }

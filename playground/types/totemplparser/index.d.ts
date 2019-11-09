@@ -7,6 +7,7 @@ import * as TotemPlParser from "totemplparser";
  * totemplparser.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const PARSER_FIELD_ABSTRACT: string;
 export const PARSER_FIELD_ALBUM: string;
 export const PARSER_FIELD_AUDIO_TRACK: string;
@@ -47,7 +48,7 @@ export function parser_error_quark(): GLib.Quark;
 /**
  * 
  */
-export function parser_metadata_get_type(): unknown;
+export function parser_metadata_get_type(): GType;
 export enum ParserError {
     NO_DISC = 0,
     MOUNT_FAILED = 1,
@@ -67,60 +68,46 @@ export enum ParserType {
     XSPF = 3,
     IRIVER_PLA = 4,
 }
-export type ParserMetadata = GLib.HashTable;
-export class Parser extends GObject.Object {constructor(config?: properties);
-debug: boolean;
-disable_unsafe: boolean;
-force: boolean;
-recurse: boolean;
-add_ignored_mimetype(mimetype: string): void;
-add_ignored_scheme(scheme: string): void;
-parse(uri: string, fallback: boolean): ParserResult;
-parse_async(uri: string, fallback: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-parse_finish(async_result: Gio.AsyncResult): ParserResult;
-parse_with_base(uri: string, base: string | null, fallback: boolean): ParserResult;
-parse_with_base_async(uri: string, base: string | null, fallback: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-save(playlist: Playlist, dest: Gio.File, title: string, type: ParserType): boolean;
-vfunc_entry_parsed(uri: string, metadata: GLib.HashTable): void;
-vfunc_playlist_ended(uri: string): void;
-vfunc_playlist_started(uri: string, metadata: GLib.HashTable): void;
-static can_parse_from_data(data: string, len: number, debug: boolean): boolean;
-static can_parse_from_filename(filename: string, debug: boolean): boolean;
-static can_parse_from_uri(uri: string, debug: boolean): boolean;
-static parse_date(date_str: string, debug: boolean): number;
-static parse_duration(duration: string, debug: boolean): number;
+export class Parser extends GObject.Object {
+    constructor(config?: properties);
+    debug: boolean;
+    disable_unsafe: boolean;
+    force: boolean;
+    recurse: boolean;
+    add_ignored_mimetype(mimetype: string): void;
+    add_ignored_scheme(scheme: string): void;
+    parse(uri: string, fallback: boolean): ParserResult;
+    parse_async(uri: string, fallback: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    parse_finish(async_result: Gio.AsyncResult): ParserResult;
+    parse_with_base(uri: string, base: string | null, fallback: boolean): ParserResult;
+    parse_with_base_async(uri: string, base: string | null, fallback: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    save(playlist: Playlist, dest: Gio.File, title: string, type: ParserType): boolean;
+    vfunc_entry_parsed(uri: string, metadata: GLib.HashTable): void;
+    vfunc_playlist_ended(uri: string): void;
+    vfunc_playlist_started(uri: string, metadata: GLib.HashTable): void;
+    static can_parse_from_data(data: string, len: number, debug: boolean): boolean;
+    static can_parse_from_filename(filename: string, debug: boolean): boolean;
+    static can_parse_from_uri(uri: string, debug: boolean): boolean;
+    static parse_date(date_str: string, debug: boolean): number;
+    static parse_duration(duration: string, debug: boolean): number;
 }
-export class Playlist extends GObject.Object {constructor(config?: properties);
-append(): [PlaylistIter];
-get(iter: PlaylistIter, ___: unknown[]): void;
-get(...args: never[]): never;
-get_valist(iter: PlaylistIter, args: any): void;
-get_valist(...args: never[]): never;
-get_value(iter: PlaylistIter, key: string, value: GObject.Value): boolean;
-insert(position: number): [PlaylistIter];
-iter_first(): [boolean, PlaylistIter];
-iter_next(iter: PlaylistIter): boolean;
-iter_prev(iter: PlaylistIter): boolean;
-prepend(): [PlaylistIter];
-set(iter: PlaylistIter, ___: unknown[]): void;
-set(...args: never[]): never;
-set_valist(iter: PlaylistIter, args: any): void;
-set_valist(...args: never[]): never;
-set_value(iter: PlaylistIter, key: string, value: GObject.Value): boolean;
-size(): number;
+export class Playlist extends GObject.Object {
+    constructor(config?: properties);
+    append(): [PlaylistIter];
+    get_value(iter: PlaylistIter, key: string, value: GObject.Value): boolean;
+    insert(position: number): [PlaylistIter];
+    iter_first(): [boolean, PlaylistIter];
+    iter_next(iter: PlaylistIter): boolean;
+    iter_prev(iter: PlaylistIter): boolean;
+    prepend(): [PlaylistIter];
+    set_value(iter: PlaylistIter, key: string, value: GObject.Value): boolean;
+    size(): number;
 }
-export class ParserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly entry_parsed: unknown;
-readonly playlist_started: unknown;
-readonly playlist_ended: unknown;
+export class ParserPrivate  {
+    constructor(config?: properties);
 }
-export class ParserPrivate  {constructor(config?: properties);
-}
-export class PlaylistClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class PlaylistIter  {constructor(config?: properties);
-readonly data1: object;
-readonly data2: object;
+export class PlaylistIter  {
+    constructor(config?: properties);
+    readonly data1: object;
+    readonly data2: object;
 }

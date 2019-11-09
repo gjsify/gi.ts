@@ -11,6 +11,7 @@ import * as PangoFT2 from "pangoft2";
  * pangoft2.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type SubstituteFunc = (pattern: fontconfig.Pattern, data: object | null) => void;
 /**
  * Gets the #PangoCoverage for a <type>PangoFT2Font</type>. Use
@@ -18,25 +19,10 @@ export type SubstituteFunc = (pattern: fontconfig.Pattern, data: object | null) 
  */
 export function font_get_coverage(font: Pango.Font, language: Pango.Language): Pango.Coverage;
 /**
- * Returns the native FreeType2 <type>FT_Face</type> structure used for t
- * his #PangoFont.
- * This may be useful if you want to use FreeType2 functions directly.
- * Use pango_fc_font_lock_face() instead; when you are done with a
- * face from pango_fc_font_lock_face() you must call
- * pango_fc_font_unlock_face().
- */
-export function font_get_face(font: Pango.Font): freetype2.Face | null;
-/**
  * Retrieves kerning information for a combination of two glyphs.
  * Use pango_fc_font_kern_glyphs() instead.
  */
 export function font_get_kerning(font: Pango.Font, left: Pango.Glyph, right: Pango.Glyph): number;
-/**
- * Retrieves a #PangoContext for the default PangoFT2 fontmap
- * (see pango_ft2_font_map_for_display()) and sets the resolution
- * for the default fontmap to @dpi_x by @dpi_y.
- */
-export function get_context(dpi_x: number, dpi_y: number): Pango.Context;
 /**
  * Return the index of a glyph suitable for drawing unknown characters wi
  * th
@@ -88,10 +74,9 @@ export function render_transformed(bitmap: freetype2.Bitmap, matrix: Pango.Matri
  * Use of the global PangoFT2 fontmap is deprecated.
  */
 export function shutdown_display(): void;
-export class FontMap extends PangoFc.FontMap {constructor(config?: properties);
-create_context(): Pango.Context;
-set_default_substitute(func: SubstituteFunc, data: object | null, notify: GLib.DestroyNotify): void;
-set_resolution(dpi_x: number, dpi_y: number): void;
-substitute_changed(): void;
-static for_display(): Pango.FontMap;
+export class FontMap extends PangoFc.FontMap {
+    constructor(config?: properties);
+    set_default_substitute(func: SubstituteFunc, data: object | null, notify: GLib.DestroyNotify): void;
+    set_resolution(dpi_x: number, dpi_y: number): void;
+    substitute_changed(): void;
 }

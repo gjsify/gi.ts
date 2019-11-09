@@ -8,6 +8,7 @@ import * as GdkPixdata from "gdkpixdata";
  * gdkpixdata.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const PIXBUF_MAGIC_NUMBER: number;
 export const PIXDATA_HEADER_LENGTH: number;
 /**
@@ -36,16 +37,16 @@ export enum PixdataType {
     ENCODING_RLE = 33554432,
     ENCODING_MASK = 251658240,
 }
-export class Pixdata  {constructor(config?: properties);
-magic: number;
-length: number;
-pixdata_type: number;
-rowstride: number;
-width: number;
-height: number;
-pixel_data: number[];
-deserialize(stream_length: number, stream: number[]): boolean;
-from_pixbuf(pixbuf: GdkPixbuf.Pixbuf, use_rle: boolean): object | null;
-serialize(): [number[], number];
-to_csource(name: string, dump_type: PixdataDumpType): GLib.String;
+export class Pixdata  {
+    constructor(config?: properties);
+    magic: number;
+    length: number;
+    pixdata_type: number;
+    rowstride: number;
+    width: number;
+    height: number;
+    pixel_data: number[];
+    deserialize(stream_length: number, stream: number[]): boolean;
+    serialize(): [number[], number];
+    to_csource(name: string, dump_type: PixdataDumpType): GLib.String;
 }

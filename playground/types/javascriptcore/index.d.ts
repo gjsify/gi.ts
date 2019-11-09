@@ -7,6 +7,7 @@ import * as JavaScriptCore from "javascriptcore";
  * javascriptcore.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ClassDeletePropertyFunction = (jsc_class: Class, context: Context, instance: object | null, name: string) => boolean;
 export type ClassEnumeratePropertiesFunction = (jsc_class: Class, context: Context, instance: object | null) => string[] | null;
 export type ClassGetPropertyFunction = (jsc_class: Class, context: Context, instance: object | null, name: string) => Value | null;
@@ -162,163 +163,127 @@ export enum ValuePropertyFlags {
     ENUMERABLE = 2,
     WRITABLE = 4,
 }
-export class Class  {constructor(config?: properties);
-context: Context;
-name: string;
-add_constructor(name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown, n_params: number, ___: unknown[]): Value;
-add_constructor_variadic(name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown): Value;
-add_constructorv(name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown, n_parameters: number, parameter_types: unknown[] | null): Value;
-add_method(name: string, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown, n_params: number, ___: unknown[]): void;
-add_method_variadic(name: string, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown): void;
-add_methodv(name: string, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown, n_parameters: number, parameter_types: unknown[] | null): void;
-add_property(name: string, property_type: unknown, getter: GObject.Callback | null, setter: GObject.Callback | null, user_data: object | null, destroy_notify: GLib.DestroyNotify | null): void;
-get_name(): string;
-get_parent(): Class;
+export class Class  {
+    constructor(config?: properties);
+    context: Context;
+    name: string;
+    add_constructor_variadic(name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType): Value;
+    add_constructorv(name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType, n_parameters: number, parameter_types: GType): Value;
+    add_method_variadic(name: string, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType): void;
+    add_methodv(name: string, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType, n_parameters: number, parameter_types: GType): void;
+    add_property(name: string, property_type: GType, getter: GObject.Callback | null, setter: GObject.Callback | null, user_data: object | null, destroy_notify: GLib.DestroyNotify | null): void;
+    get_name(): string;
+    get_parent(): Class;
 }
-export class Context extends GObject.Object {constructor(config?: properties);
-virtual_machine: VirtualMachine;static new_with_virtual_machine(vm: VirtualMachine): Context;
-check_syntax(code: string, length: number, mode: CheckSyntaxMode, uri: string, line_number: number): [CheckSyntaxResult, Exception | null];
-clear_exception(): void;
-evaluate(code: string, length: number): Value;
-evaluate_in_object(code: string, length: number, object_instance: object | null, object_class: Class | null, uri: string, line_number: number): [Value, Value];
-evaluate_with_source_uri(code: string, length: number, uri: string, line_number: number): Value;
-get_exception(): Exception | null;
-get_global_object(): Value;
-get_value(name: string): Value;
-get_virtual_machine(): VirtualMachine;
-pop_exception_handler(): void;
-push_exception_handler(handler: ExceptionHandler, user_data: object | null, destroy_notify: GLib.DestroyNotify | null): void;
-register_class(name: string, parent_class: Class | null, vtable: ClassVTable | null, destroy_notify: GLib.DestroyNotify | null): Class;
-set_value(name: string, value: Value): void;
-_throw(error_message: string): void;
-throw_exception(exception: Exception): void;
-throw_printf(format: string, ___: unknown[]): void;
-throw_with_name(error_name: string, error_message: string): void;
-throw_with_name_printf(error_name: string, format: string, ___: unknown[]): void;
-static get_current(): Context | null;
+export class Context extends GObject.Object {
+    constructor(config?: properties);
+    virtual_machine: VirtualMachine;static new_with_virtual_machine(vm: VirtualMachine): Context;
+    check_syntax(code: string, length: number, mode: CheckSyntaxMode, uri: string, line_number: number): [CheckSyntaxResult, Exception | null];
+    clear_exception(): void;
+    evaluate(code: string, length: number): Value;
+    evaluate_in_object(code: string, length: number, object_instance: object | null, object_class: Class | null, uri: string, line_number: number): [Value, Value];
+    evaluate_with_source_uri(code: string, length: number, uri: string, line_number: number): Value;
+    get_exception(): Exception | null;
+    get_global_object(): Value;
+    get_value(name: string): Value;
+    get_virtual_machine(): VirtualMachine;
+    pop_exception_handler(): void;
+    push_exception_handler(handler: ExceptionHandler, user_data: object | null, destroy_notify: GLib.DestroyNotify | null): void;
+    register_class(name: string, parent_class: Class | null, vtable: ClassVTable | null, destroy_notify: GLib.DestroyNotify | null): Class;
+    set_value(name: string, value: Value): void;
+    _throw(error_message: string): void;
+    throw_exception(exception: Exception): void;
+    throw_with_name(error_name: string, error_message: string): void;
+    static get_current(): Context | null;
 }
-export class Exception extends GObject.Object {constructor(config?: properties);
-static new_printf(context: Context, format: string, ___: unknown[]): Exception;
-static new_vprintf(context: Context, format: string, args: any): Exception;
-static new_with_name(context: Context, name: string, message: string): Exception;
-static new_with_name_printf(context: Context, name: string, format: string, ___: unknown[]): Exception;
-static new_with_name_vprintf(context: Context, name: string, format: string, args: any): Exception;
-get_backtrace_string(): string | null;
-get_column_number(): number;
-get_line_number(): number;
-get_message(): string;
-get_name(): string;
-get_source_uri(): string | null;
-report(): string;
-to_string(): string;
+export class Exception extends GObject.Object {
+    constructor(config?: properties);
+    static new_printf(context: Context, format: string, ___: any): Exception;
+    static new_vprintf(context: Context, format: string, args: any): Exception;
+    static new_with_name(context: Context, name: string, message: string): Exception;
+    static new_with_name_printf(context: Context, name: string, format: string, ___: any): Exception;
+    static new_with_name_vprintf(context: Context, name: string, format: string, args: any): Exception;
+    get_backtrace_string(): string | null;
+    get_column_number(): number;
+    get_line_number(): number;
+    get_message(): string;
+    get_name(): string;
+    get_source_uri(): string | null;
+    report(): string;
+    to_string(): string;
 }
-export class Value extends GObject.Object {constructor(config?: properties);
-context: Context;static new_array(context: Context, first_item_type: unknown, ___: unknown[]): Value;
-static new_array_from_garray(context: Context, array: Value[] | null): Value;
-static new_array_from_strv(context: Context, strv: string[]): Value;
-static new_boolean(context: Context, value: boolean): Value;
-static new_function(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown, n_params: number, ___: unknown[]): Value;
-static new_function_variadic(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown): Value;
-static new_functionv(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: unknown, n_parameters: number, parameter_types: unknown[] | null): Value;
-static new_null(context: Context): Value;
-static new_number(context: Context, number: number): Value;
-static new_object(context: Context, instance: object | null, jsc_class: Class | null): Value;
-static new_string(context: Context, string: string | null): Value;
-static new_string_from_bytes(context: Context, bytes: GLib.Bytes | null): Value;
-static new_undefined(context: Context): Value;
-constructor_call(first_parameter_type: unknown, ___: unknown[]): Value;
-constructor_callv(n_parameters: number, parameters: Value[] | null): Value;
-function_call(first_parameter_type: unknown, ___: unknown[]): Value;
-function_callv(n_parameters: number, parameters: Value[] | null): Value;
-get_context(): Context;
-is_array(): boolean;
-is_boolean(): boolean;
-is_constructor(): boolean;
-is_function(): boolean;
-is_null(): boolean;
-is_number(): boolean;
-is_object(): boolean;
-is_string(): boolean;
-is_undefined(): boolean;
-object_define_property_accessor(property_name: string, flags: ValuePropertyFlags, property_type: unknown, getter: GObject.Callback | null, setter: GObject.Callback | null, user_data: object | null, destroy_notify: GLib.DestroyNotify | null): void;
-object_define_property_data(property_name: string, flags: ValuePropertyFlags, property_value: Value | null): void;
-object_delete_property(name: string): boolean;
-object_enumerate_properties(): string[] | null;
-object_get_property(name: string): Value;
-object_get_property_at_index(index: number): Value;
-object_has_property(name: string): boolean;
-object_invoke_method(name: string, first_parameter_type: unknown, ___: unknown[]): Value;
-object_invoke_methodv(name: string, n_parameters: number, parameters: Value[] | null): Value;
-object_is_instance_of(name: string): boolean;
-object_set_property(name: string, property: Value): void;
-object_set_property_at_index(index: number, property: Value): void;
-to_boolean(): boolean;
-to_double(): number;
-to_int32(): number;
-to_string(): string;
-to_string_as_bytes(): GLib.Bytes;
+export class Value extends GObject.Object {
+    constructor(config?: properties);
+    context: Context;static new_array(context: Context, first_item_type: GType, ___: any): Value;
+    static new_array_from_garray(context: Context, array: Value[] | null): Value;
+    static new_array_from_strv(context: Context, strv: string[]): Value;
+    static new_boolean(context: Context, value: boolean): Value;
+    static new_function(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType, n_params: number, ___: any): Value;
+    static new_function_variadic(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType): Value;
+    static new_functionv(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType, n_parameters: number, parameter_types: GType): Value;
+    static new_null(context: Context): Value;
+    static new_number(context: Context, number: number): Value;
+    static new_object(context: Context, instance: object | null, jsc_class: Class | null): Value;
+    static new_string(context: Context, string: string | null): Value;
+    static new_string_from_bytes(context: Context, bytes: GLib.Bytes | null): Value;
+    static new_undefined(context: Context): Value;
+    constructor_callv(n_parameters: number, parameters: Value[] | null): Value;
+    function_callv(n_parameters: number, parameters: Value[] | null): Value;
+    get_context(): Context;
+    is_array(): boolean;
+    is_boolean(): boolean;
+    is_constructor(): boolean;
+    is_function(): boolean;
+    is_null(): boolean;
+    is_number(): boolean;
+    is_object(): boolean;
+    is_string(): boolean;
+    is_undefined(): boolean;
+    object_define_property_accessor(property_name: string, flags: ValuePropertyFlags, property_type: GType, getter: GObject.Callback | null, setter: GObject.Callback | null, user_data: object | null, destroy_notify: GLib.DestroyNotify | null): void;
+    object_define_property_data(property_name: string, flags: ValuePropertyFlags, property_value: Value | null): void;
+    object_delete_property(name: string): boolean;
+    object_enumerate_properties(): string[] | null;
+    object_get_property(name: string): Value;
+    object_get_property_at_index(index: number): Value;
+    object_has_property(name: string): boolean;
+    object_invoke_methodv(name: string, n_parameters: number, parameters: Value[] | null): Value;
+    object_is_instance_of(name: string): boolean;
+    object_set_property(name: string, property: Value): void;
+    object_set_property_at_index(index: number, property: Value): void;
+    to_boolean(): boolean;
+    to_double(): number;
+    to_int32(): number;
+    to_string(): string;
+    to_string_as_bytes(): GLib.Bytes;
 }
-export class VirtualMachine extends GObject.Object {constructor(config?: properties);
+export class VirtualMachine extends GObject.Object {
+    constructor(config?: properties);
 }
-export class WeakValue extends GObject.Object {constructor(config?: properties);
-value: Value;
-get_value(): Value;
+export class WeakValue extends GObject.Object {
+    constructor(config?: properties);
+    value: Value;
+    get_value(): Value;
 }
-export class ClassClass  {constructor(config?: properties);
+export class ClassVTable  {
+    constructor(config?: properties);
+    get_property: ClassGetPropertyFunction;
+    set_property: ClassSetPropertyFunction;
+    has_property: ClassHasPropertyFunction;
+    delete_property: ClassDeletePropertyFunction;
+    enumerate_properties: ClassEnumeratePropertiesFunction;
 }
-export class ClassVTable  {constructor(config?: properties);
-get_property: ClassGetPropertyFunction;
-set_property: ClassSetPropertyFunction;
-has_property: ClassHasPropertyFunction;
-delete_property: ClassDeletePropertyFunction;
-enumerate_properties: ClassEnumeratePropertiesFunction;
-readonly _jsc_reserved0: unknown;
-readonly _jsc_reserved1: unknown;
-readonly _jsc_reserved2: unknown;
-readonly _jsc_reserved3: unknown;
+export class ContextPrivate  {
+    constructor(config?: properties);
 }
-export class ContextClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _jsc_reserved0: unknown;
-readonly _jsc_reserved1: unknown;
-readonly _jsc_reserved2: unknown;
-readonly _jsc_reserved3: unknown;
+export class ExceptionPrivate  {
+    constructor(config?: properties);
 }
-export class ContextPrivate  {constructor(config?: properties);
+export class ValuePrivate  {
+    constructor(config?: properties);
 }
-export class ExceptionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _jsc_reserved0: unknown;
-readonly _jsc_reserved1: unknown;
-readonly _jsc_reserved2: unknown;
-readonly _jsc_reserved3: unknown;
+export class VirtualMachinePrivate  {
+    constructor(config?: properties);
 }
-export class ExceptionPrivate  {constructor(config?: properties);
-}
-export class ValueClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _jsc_reserved0: unknown;
-readonly _jsc_reserved1: unknown;
-readonly _jsc_reserved2: unknown;
-readonly _jsc_reserved3: unknown;
-}
-export class ValuePrivate  {constructor(config?: properties);
-}
-export class VirtualMachineClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _jsc_reserved0: unknown;
-readonly _jsc_reserved1: unknown;
-readonly _jsc_reserved2: unknown;
-readonly _jsc_reserved3: unknown;
-}
-export class VirtualMachinePrivate  {constructor(config?: properties);
-}
-export class WeakValueClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _jsc_reserved0: unknown;
-readonly _jsc_reserved1: unknown;
-readonly _jsc_reserved2: unknown;
-readonly _jsc_reserved3: unknown;
-}
-export class WeakValuePrivate  {constructor(config?: properties);
+export class WeakValuePrivate  {
+    constructor(config?: properties);
 }

@@ -8,6 +8,7 @@ import * as Gcr from "gcr";
  * gcr.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type FilterCollectionFunc = (object: GObject.Object, user_data: object | null) => boolean;
 export const ICON_CERTIFICATE: string;
 export const ICON_GNUPG: string;
@@ -37,62 +38,6 @@ export const UNLOCK_OPTION_TIMEOUT: string;
  * meaning.
  */
 export function certificate_compare(first: Comparable | null, other: Comparable | null): number;
-/**
- * Get the columns appropriate for a certificate
- */
-export function certificate_get_columns(): Column;
-/**
- * Initialize the certificate mixin for the class. This mixin implements 
- * the
- * various required properties for the certificate.
- * Call this function near the end of your derived class_init function. T
- * he
- * derived class must implement the #GcrCertificate interface.
- */
-export function certificate_mixin_class_init(object_class: GObject.ObjectClass): void;
-/**
- * Initialize a #GcrComparableIface to compare the current certificate.
- * In general it's easier to use the GCR_CERTIFICATE_MIXIN_IMPLEMENT_COMP
- * ARABLE()
- * macro instead of this function.
- */
-export function certificate_mixin_comparable_init(iface: ComparableIface): void;
-/**
- * Implementation to get various required certificate properties. This sh
- * ould
- * be called from your derived class get_property function, or used as a
- * get_property virtual function.
- * Example of use as called from derived class get_property function:
- * <informalexample><programlisting>
- * static void
- * my_get_property (GObject *obj, guint prop_id, GValue *value, GParamSpe
- * c *pspec)
- * {
- * 	switch (prop_id) {
- * 	...
- * 	default:
- * 		gcr_certificate_mixin_get_property (obj, prop_id, value, pspec);
- * 		break;
- * 	}
- * }
- * </programlisting></informalexample>
- * Example of use as get_property function:
- * <informalexample><programlisting>
- * static void
- * my_class_init (MyClass *klass)
- * {
- * 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
- * 	gobject_class->get_property = gcr_certificate_mixin_get_property;
- * 	...
- * }
- * </programlisting></informalexample>
- */
-export function certificate_mixin_get_property(obj: GObject.Object, prop_id: number, value: GObject.Value, pspec: GObject.ParamSpec): void;
-/**
- * Compare two blocks of memory. The return value can be used to sort
- * the blocks of memory.
- */
-export function comparable_memcmp(mem1: number[], size1: number, mem2: number[], size2: number): number;
 /**
  * 
  */
@@ -133,7 +78,7 @@ export function importer_queue_and_filter_for_parsed(importers: GLib.List, parse
  * butes.
  * If @attrs are a floating reference, then it is consumed.
  */
-export function importer_register(importer_type: unknown, attrs: Gck.Attributes): void;
+export function importer_register(importer_type: GType, attrs: Gck.Attributes): void;
 /**
  * Register built-in PKCS\#11 and GnuPG importers.
  */
@@ -154,34 +99,9 @@ export function mock_prompter_expect_close(): void;
 export function mock_prompter_expect_confirm_cancel(): void;
 /**
  * Queue an expected response on the mock prompter.
- * Expects a confirmation prompt, and then confirms that prompt by
- * simulating a click on the ok button.
- * Additional property pairs for the prompt can be added in the argument
- * list, in the same way that you would with g_object_new().
- * If the "choice-chosen" property is specified then that value will be
- * set on the prompt as if the user had changed the value.
- * All other properties will be checked against the prompt, and an error
- * will occur if they do not match the value set on the prompt.
- */
-export function mock_prompter_expect_confirm_ok(first_property_name: string, ___: unknown[]): void;
-/**
- * Queue an expected response on the mock prompter.
  * Expects a password prompt, and then cancels that prompt.
  */
 export function mock_prompter_expect_password_cancel(): void;
-/**
- * Queue an expected response on the mock prompter.
- * Expects a password prompt, and returns @password as if the user had en
- * tered
- * it and clicked the ok button.
- * Additional property pairs for the prompt can be added in the argument
- * list, in the same way that you would with g_object_new().
- * If the "choice-chosen" property is specified then that value will be
- * set on the prompt as if the user had changed the value.
- * All other properties will be checked against the prompt, and an error
- * will occur if they do not match the value set on the prompt.
- */
-export function mock_prompter_expect_password_ok(password: string, first_property_name: string, ___: unknown[]): void;
 /**
  * Get the delay in milliseconds before the mock prompter completes
  * an expected prompt.
@@ -312,63 +232,6 @@ export function pkcs11_set_trust_lookup_uris(pkcs11_uris: string | null): void;
  * PKCS\#11 slot is automatically configured by the GCR library.
  */
 export function pkcs11_set_trust_store_uri(pkcs11_uri: string | null): void;
-/**
- * Allocate a block of non-pageable memory.
- * If non-pageable memory cannot be allocated then normal memory will be
- * returned.
- */
-export function secure_memory_alloc(size: number): object | null;
-/**
- * Free a block of non-pageable memory.
- * Glib memory is also freed correctly when passed to this function. If c
- * alled
- * with a %NULL pointer then no action is taken.
- */
-export function secure_memory_free(memory: object | null): void;
-/**
- * Check if a pointer is in non-pageable memory allocated by.
- */
-export function secure_memory_is_secure(memory: object | null): boolean;
-/**
- * Reallocate a block of non-pageable memory.
- * Glib memory is also reallocated correctly. If called with a null point
- * er,
- * then a new block of memory is allocated. If called with a zero size,
- * then the block of memory is freed.
- * If non-pageable memory cannot be allocated then normal memory will be
- * returned.
- */
-export function secure_memory_realloc(memory: object | null, size: number): object | null;
-/**
- * Copy a string into non-pageable memory. If the input string is %NULL, 
- * then
- * %NULL will be returned.
- */
-export function secure_memory_strdup(string: string | null): string;
-/**
- * Free a string, whether securely allocated using these functions or not
- * .
- * This will also clear out the contents of the string so they do not
- * remain in memory.
- */
-export function secure_memory_strfree(string: string | null): void;
-/**
- * Allocate a block of non-pageable memory.
- * If non-pageable memory cannot be allocated, then %NULL is returned.
- */
-export function secure_memory_try_alloc(size: number): object | null;
-/**
- * Reallocate a block of non-pageable memory.
- * Glib memory is also reallocated correctly when passed to this function
- * .
- * If called with a null pointer, then a new block of memory is allocated
- * .
- * If called with a zero size, then the block of memory is freed.
- * If memory cannot be allocated, %NULL is returned and the original bloc
- * k
- * of memory remains intact.
- */
-export function secure_memory_try_realloc(memory: object | null, size: number): object | null;
 /**
  * Add a pinned @certificate for connections to @peer for @purpose. A pin
  * ned
@@ -558,365 +421,291 @@ export enum ColumnFlags {
     HIDDEN = 2,
     SORTABLE = 4,
 }
-export class CertificateChain extends GObject.Object {constructor(config?: properties);
-readonly length: number;
-readonly status: unknown;
-add(certificate: Certificate): void;
-build(purpose: string, peer: string | null, flags: CertificateChainFlags, cancellable: Gio.Cancellable | null): boolean;
-build_async(purpose: string, peer: string | null, flags: CertificateChainFlags, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-build_finish(result: Gio.AsyncResult): boolean;
-get_anchor(): Certificate;
-get_certificate(index: number): Certificate;
-get_endpoint(): Certificate;
-get_length(): number;
-get_status(): CertificateChainStatus;
+export class CertificateChain extends GObject.Object {
+    constructor(config?: properties);
+    readonly length: number;
+    add(certificate: Certificate): void;
+    build(purpose: string, peer: string | null, flags: CertificateChainFlags, cancellable: Gio.Cancellable | null): boolean;
+    build_async(purpose: string, peer: string | null, flags: CertificateChainFlags, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    build_finish(result: Gio.AsyncResult): boolean;
+    get_anchor(): Certificate;
+    get_certificate(index: number): Certificate;
+    get_endpoint(): Certificate;
+    get_length(): number;
+    get_status(): CertificateChainStatus;
 }
-export class CertificateRequest  {constructor(config?: properties);
-format: unknown;
-private_key: Gck.Object;
-complete(cancellable: Gio.Cancellable | null): boolean;
-complete_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-complete_finish(result: Gio.AsyncResult): boolean;
-encode(textual: boolean): [number[], number];
-get_format(): CertificateRequestFormat;
-get_private_key(): Gck.Object;
-set_cn(cn: string): void;
-static capable(private_key: Gck.Object, cancellable: Gio.Cancellable | null): boolean;
-static capable_async(private_key: Gck.Object, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-static capable_finish(result: Gio.AsyncResult): boolean;
-static prepare(format: CertificateRequestFormat, private_key: Gck.Object): CertificateRequest;
+export class CertificateRequest  {
+    constructor(config?: properties);
+    private_key: Gck.Object;
+    complete(cancellable: Gio.Cancellable | null): boolean;
+    complete_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    complete_finish(result: Gio.AsyncResult): boolean;
+    encode(textual: boolean): [number[], number];
+    get_format(): CertificateRequestFormat;
+    get_private_key(): Gck.Object;
+    set_cn(cn: string): void;
+    static capable(private_key: Gck.Object, cancellable: Gio.Cancellable | null): boolean;
+    static capable_async(private_key: Gck.Object, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    static capable_finish(result: Gio.AsyncResult): boolean;
+    static prepare(format: CertificateRequestFormat, private_key: Gck.Object): CertificateRequest;
 }
-export class FilterCollection extends GObject.Object {constructor(config?: properties);
-underlying: Collection;static new_with_callback(underlying: Collection, callback: FilterCollectionFunc | null, user_data: object | null, destroy_func: GLib.DestroyNotify): FilterCollection;
-get_underlying(): Collection;
-refilter(): void;
-set_callback(callback: FilterCollectionFunc | null, user_data: object | null, destroy_func: GLib.DestroyNotify): void;
+export class FilterCollection extends GObject.Object {
+    constructor(config?: properties);
+    underlying: Collection;static new_with_callback(underlying: Collection, callback: FilterCollectionFunc | null, user_data: object | null, destroy_func: GLib.DestroyNotify): FilterCollection;
+    get_underlying(): Collection;
+    refilter(): void;
+    set_callback(callback: FilterCollectionFunc | null, user_data: object | null, destroy_func: GLib.DestroyNotify): void;
 }
-export class Parser extends GObject.Object {constructor(config?: properties);
-readonly parsed_attributes: Gck.Attributes;
-readonly parsed_description: string;
-readonly parsed_label: string;
-add_password(password: string | null): void;
-format_disable(format: DataFormat): void;
-format_enable(format: DataFormat): void;
-format_supported(format: DataFormat): boolean;
-get_filename(): string;
-get_parsed(): Parsed;
-get_parsed_attributes(): Gck.Attributes | null;
-get_parsed_block(): [number[] | null, number];
-get_parsed_bytes(): GLib.Bytes;
-get_parsed_description(): string | null;
-get_parsed_format(): DataFormat;
-get_parsed_label(): string | null;
-parse_bytes(data: GLib.Bytes): boolean;
-parse_data(data: number[], n_data: number): boolean;
-parse_stream(input: Gio.InputStream, cancellable: Gio.Cancellable | null): boolean;
-parse_stream_async(input: Gio.InputStream, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-parse_stream_finish(result: Gio.AsyncResult): boolean;
-set_filename(filename: string | null): void;
-vfunc_authenticate(count: number): boolean;
-vfunc_parsed(): void;
+export class Parser extends GObject.Object {
+    constructor(config?: properties);
+    readonly parsed_attributes: Gck.Attributes;
+    readonly parsed_description: string;
+    readonly parsed_label: string;
+    add_password(password: string | null): void;
+    format_disable(format: DataFormat): void;
+    format_enable(format: DataFormat): void;
+    format_supported(format: DataFormat): boolean;
+    get_filename(): string;
+    get_parsed(): Parsed;
+    get_parsed_attributes(): Gck.Attributes | null;
+    get_parsed_block(): [number[] | null, number];
+    get_parsed_bytes(): GLib.Bytes;
+    get_parsed_description(): string | null;
+    get_parsed_format(): DataFormat;
+    get_parsed_label(): string | null;
+    parse_bytes(data: GLib.Bytes): boolean;
+    parse_data(data: number[], n_data: number): boolean;
+    parse_stream(input: Gio.InputStream, cancellable: Gio.Cancellable | null): boolean;
+    parse_stream_async(input: Gio.InputStream, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    parse_stream_finish(result: Gio.AsyncResult): boolean;
+    set_filename(filename: string | null): void;
+    vfunc_authenticate(count: number): boolean;
+    vfunc_parsed(): void;
 }
-export class Pkcs11Certificate  {constructor(config?: properties);
-attributes: Gck.Attributes;
-readonly pv: Pkcs11CertificatePrivate;
-get_attributes(): Gck.Attributes;
-static lookup_issuer(certificate: Certificate, cancellable: Gio.Cancellable | null): Certificate;
-static lookup_issuer_async(certificate: Certificate, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-static lookup_issuer_finish(result: Gio.AsyncResult): Certificate;
+export class Pkcs11Certificate  {
+    constructor(config?: properties);
+    attributes: Gck.Attributes;
+    readonly pv: Pkcs11CertificatePrivate;
+    get_attributes(): Gck.Attributes;
+    static lookup_issuer(certificate: Certificate, cancellable: Gio.Cancellable | null): Certificate;
+    static lookup_issuer_async(certificate: Certificate, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    static lookup_issuer_finish(result: Gio.AsyncResult): Certificate;
 }
-export class SecretExchange extends GObject.Object {constructor(config?: properties);
-protocol: string;
-begin(): string;
-get_protocol(): string;
-get_secret(): [string[], number | null];
-receive(exchange: string): boolean;
-send(secret: string | null, secret_len: number): string;
-vfunc_decrypt_transport_data(allocator: Gck.Allocator, cipher_text: number, n_cipher_text: number, parameter: number, n_parameter: number, plain_text: number, n_plain_text: number): boolean;
-vfunc_derive_transport_key(peer: number, n_peer: number): boolean;
-vfunc_encrypt_transport_data(allocator: Gck.Allocator, plain_text: number, n_plain_text: number, parameter: number, n_parameter: number, cipher_text: number, n_cipher_text: number): boolean;
-vfunc_generate_exchange_key(scheme: string, public_key: number, n_public_key: number): boolean;
+export class SecretExchange extends GObject.Object {
+    constructor(config?: properties);
+    protocol: string;
+    begin(): string;
+    get_protocol(): string;
+    get_secret(): [string[], number | null];
+    receive(exchange: string): boolean;
+    send(secret: string | null, secret_len: number): string;
+    vfunc_derive_transport_key(peer: number, n_peer: number): boolean;
+    vfunc_generate_exchange_key(scheme: string, public_key: number, n_public_key: number): boolean;
 }
-export class SimpleCertificate extends GObject.Object {constructor(config?: properties);
-static new_static(data: number[], n_data: number): SimpleCertificate;
+export class SimpleCertificate extends GObject.Object {
+    constructor(config?: properties);
+    static new_static(data: number[], n_data: number): SimpleCertificate;
 }
-export class SimpleCollection extends GObject.Object {constructor(config?: properties);
-add(object: GObject.Object): void;
-remove(object: GObject.Object): void;
+export class SimpleCollection extends GObject.Object {
+    constructor(config?: properties);
+    add(object: GObject.Object): void;
+    remove(object: GObject.Object): void;
 }
-export class SshAskpass extends GObject.Object {constructor(config?: properties);
-interaction: Gio.TlsInteraction;
-get_interaction(): Gio.TlsInteraction;
-static child_setup(askpass: object | null): void;
+export class SshAskpass extends GObject.Object {
+    constructor(config?: properties);
+    interaction: Gio.TlsInteraction;
+    get_interaction(): Gio.TlsInteraction;
+    static child_setup(askpass: object | null): void;
 }
-export class SystemPrompt  {constructor(config?: properties);
-bus_name: string;
-secret_exchange: SecretExchange;
-timeout_seconds: number;
-readonly pv: SystemPromptPrivate;
-close(cancellable: Gio.Cancellable | null): boolean;
-close_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(result: Gio.AsyncResult): boolean;
-get_secret_exchange(): SecretExchange;
-static error_get_domain(): GLib.Quark;
-static open(timeout_seconds: number, cancellable: Gio.Cancellable | null): SystemPrompt;
-static open_async(timeout_seconds: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-static open_finish(result: Gio.AsyncResult): SystemPrompt;
-static open_for_prompter(prompter_name: string | null, timeout_seconds: number, cancellable: Gio.Cancellable | null): SystemPrompt;
-static open_for_prompter_async(prompter_name: string | null, timeout_seconds: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+export class SystemPrompt  {
+    constructor(config?: properties);
+    bus_name: string;
+    secret_exchange: SecretExchange;
+    timeout_seconds: number;
+    readonly pv: SystemPromptPrivate;
+    close(cancellable: Gio.Cancellable | null): boolean;
+    close_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(result: Gio.AsyncResult): boolean;
+    get_secret_exchange(): SecretExchange;
+    static error_get_domain(): GLib.Quark;
+    static open(timeout_seconds: number, cancellable: Gio.Cancellable | null): SystemPrompt;
+    static open_async(timeout_seconds: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    static open_finish(result: Gio.AsyncResult): SystemPrompt;
+    static open_for_prompter(prompter_name: string | null, timeout_seconds: number, cancellable: Gio.Cancellable | null): SystemPrompt;
+    static open_for_prompter_async(prompter_name: string | null, timeout_seconds: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
 }
-export class SystemPrompter extends GObject.Object {constructor(config?: properties);
-mode: unknown;
-prompt_type: unknown;
-readonly prompting: boolean;
-get_mode(): SystemPrompterMode;
-get_prompt_type(): unknown;
-get_prompting(): boolean;
-register(connection: Gio.DBusConnection): void;
-unregister(wait: boolean): void;
-vfunc_new_prompt(): Prompt;
+export class SystemPrompter extends GObject.Object {
+    constructor(config?: properties);
+    prompt_type: GType;
+    readonly prompting: boolean;
+    get_mode(): SystemPrompterMode;
+    get_prompt_type(): GType;
+    get_prompting(): boolean;
+    register(connection: Gio.DBusConnection): void;
+    unregister(wait: boolean): void;
 }
-export class UnionCollection extends GObject.Object {constructor(config?: properties);
-add(collection: Collection): void;
-elements(): GLib.List;
-have(collection: Collection): boolean;
-remove(collection: Collection): void;
-size(): number;
-take(collection: Collection): void;
+export class UnionCollection extends GObject.Object {
+    constructor(config?: properties);
+    add(collection: Collection): void;
+    elements(): GLib.List;
+    have(collection: Collection): boolean;
+    remove(collection: Collection): void;
+    size(): number;
+    take(collection: Collection): void;
 }
-export class CertificateChainClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class CertificateChainPrivate  {
+    constructor(config?: properties);
 }
-export class CertificateChainPrivate  {constructor(config?: properties);
+export class Column  {
+    constructor(config?: properties);
+    property_name: string;
+    property_type: GType;
+    column_type: GType;
+    label: string;
+    flags: ColumnFlags;
+    transformer: GObject.ValueTransform;
+    user_data: object;
+    readonly reserved: object;
 }
-export class CertificateIface  {constructor(config?: properties);
-readonly get_der_data: unknown;
-readonly dummy1: object;
-readonly dummy2: object;
-readonly dummy3: object;
-readonly dummy5: object;
-readonly dummy6: object;
-readonly dummy7: object;
-readonly dummy8: object;
+export class FilterCollectionPrivate  {
+    constructor(config?: properties);
 }
-export class CollectionIface  {constructor(config?: properties);
-readonly added: unknown;
-readonly removed: unknown;
-readonly get_length: unknown;
-readonly get_objects: unknown;
-readonly contains: unknown;
-readonly dummy1: object;
-readonly dummy2: object;
-readonly dummy3: object;
-readonly dummy5: object;
-readonly dummy6: object;
-readonly dummy7: object;
-readonly dummy8: object;
+export class Parsed  {
+    constructor(config?: properties);
+    get_attributes(): Gck.Attributes | null;
+    get_bytes(): GLib.Bytes;
+    get_data(): [number[] | null, number];
+    get_description(): string | null;
+    get_filename(): string;
+    get_format(): DataFormat;
+    get_label(): string | null;
+    ref(): Parsed;
+    static unref(parsed: object | null): void;
 }
-export class Column  {constructor(config?: properties);
-property_name: string;
-property_type: unknown;
-column_type: unknown;
-label: string;
-flags: ColumnFlags;
-transformer: GObject.ValueTransform;
-user_data: object;
-readonly reserved: object;
+export class ParserPrivate  {
+    constructor(config?: properties);
 }
-export class ComparableIface  {constructor(config?: properties);
-readonly compare: unknown;
+export class Pkcs11CertificatePrivate  {
+    constructor(config?: properties);
 }
-export class FilterCollectionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class SecretExchangePrivate  {
+    constructor(config?: properties);
 }
-export class FilterCollectionPrivate  {constructor(config?: properties);
+export class SimpleCertificatePrivate  {
+    constructor(config?: properties);
 }
-export class ImportInteractionIface  {constructor(config?: properties);
-readonly supplement_prep: unknown;
-readonly supplement: unknown;
-readonly supplement_async: unknown;
-readonly supplement_finish: unknown;
-readonly reserved: object[];
+export class SimpleCollectionPrivate  {
+    constructor(config?: properties);
 }
-export class ImporterIface  {constructor(config?: properties);
-readonly create_for_parsed: unknown;
-readonly queue_for_parsed: unknown;
-readonly import_sync: unknown;
-readonly import_async: unknown;
-readonly import_finish: unknown;
-readonly reserved: object[];
+export class SystemPromptPrivate  {
+    constructor(config?: properties);
 }
-export class Parsed  {constructor(config?: properties);
-get_attributes(): Gck.Attributes | null;
-get_bytes(): GLib.Bytes;
-get_data(): [number[] | null, number];
-get_description(): string | null;
-get_filename(): string;
-get_format(): DataFormat;
-get_label(): string | null;
-ref(): Parsed;
-static unref(parsed: object | null): void;
+export class SystemPrompterPrivate  {
+    constructor(config?: properties);
 }
-export class ParserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly authenticate: unknown;
-readonly parsed: unknown;
-}
-export class ParserPrivate  {constructor(config?: properties);
-}
-export class Pkcs11CertificateClass  {constructor(config?: properties);
-readonly parent_class: Gck.ObjectClass;
-}
-export class Pkcs11CertificatePrivate  {constructor(config?: properties);
-}
-export class PromptIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly prompt_password_async: unknown;
-readonly prompt_password_finish: unknown;
-readonly prompt_confirm_async: unknown;
-readonly prompt_confirm_finish: unknown;
-readonly prompt_close: unknown;
-}
-export class SecretExchangeClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly generate_exchange_key: unknown;
-readonly derive_transport_key: unknown;
-readonly encrypt_transport_data: unknown;
-readonly decrypt_transport_data: unknown;
-readonly dummy: object[];
-}
-export class SecretExchangePrivate  {constructor(config?: properties);
-}
-export class SimpleCertificateClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class SimpleCertificatePrivate  {constructor(config?: properties);
-}
-export class SimpleCollectionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class SimpleCollectionPrivate  {constructor(config?: properties);
-}
-export class SshAskpassClass  {constructor(config?: properties);
-}
-export class SystemPromptClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class SystemPromptPrivate  {constructor(config?: properties);
-}
-export class SystemPrompterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly new_prompt: unknown;
-readonly padding: object[];
-}
-export class SystemPrompterPrivate  {constructor(config?: properties);
-}
-export class UnionCollectionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class UnionCollectionPrivate  {constructor(config?: properties);
+export class UnionCollectionPrivate  {
+    constructor(config?: properties);
 }
 export interface Certificate  {
-readonly description: string;
-readonly expiry: GLib.Date;
-readonly icon: Gio.Icon;
-readonly issuer: string;
-readonly label: string;
-readonly markup: string;
-readonly subject: string;
-get_basic_constraints(): [boolean, boolean | null,number | null];
-get_der_data(): [number[], number];
-get_expiry_date(): GLib.Date;
-get_fingerprint(type: GLib.ChecksumType): [number[], number];
-get_fingerprint_hex(type: GLib.ChecksumType): string;
-get_icon(): Gio.Icon;
-get_issued_date(): GLib.Date;
-get_issuer_cn(): string;
-get_issuer_dn(): string;
-get_issuer_name(): string;
-get_issuer_part(part: string): string | null;
-get_issuer_raw(): [number[], number];
-get_key_size(): number;
-get_markup_text(): string;
-get_serial_number(): [number[], number];
-get_serial_number_hex(): string;
-get_subject_cn(): string;
-get_subject_dn(): string;
-get_subject_name(): string;
-get_subject_part(part: string): string | null;
-get_subject_raw(): [number[], number];
-is_issuer(issuer: Certificate): boolean;
-mixin_emit_notify(): void;
+    readonly description: string;
+    readonly expiry: GLib.Date;
+    readonly icon: Gio.Icon;
+    readonly issuer: string;
+    readonly label: string;
+    readonly markup: string;
+    readonly subject: string;
+    get_basic_constraints(): [boolean, boolean | null,number | null];
+    get_der_data(): [number[], number];
+    get_expiry_date(): GLib.Date;
+    get_fingerprint(type: GLib.ChecksumType): [number[], number];
+    get_fingerprint_hex(type: GLib.ChecksumType): string;
+    get_issued_date(): GLib.Date;
+    get_issuer_cn(): string;
+    get_issuer_dn(): string;
+    get_issuer_name(): string;
+    get_issuer_part(part: string): string | null;
+    get_issuer_raw(): [number[], number];
+    get_key_size(): number;
+    get_markup_text(): string;
+    get_serial_number(): [number[], number];
+    get_serial_number_hex(): string;
+    get_subject_cn(): string;
+    get_subject_dn(): string;
+    get_subject_name(): string;
+    get_subject_part(part: string): string | null;
+    get_subject_raw(): [number[], number];
+    is_issuer(issuer: Certificate): boolean;
+    mixin_emit_notify(): void;
 }
 export interface Collection  {
-contains(object: GObject.Object): boolean;
-emit_added(object: GObject.Object): void;
-emit_removed(object: GObject.Object): void;
-get_length(): number;
-get_objects(): GLib.List;
+    contains(object: GObject.Object): boolean;
+    emit_added(object: GObject.Object): void;
+    emit_removed(object: GObject.Object): void;
+    get_length(): number;
+    get_objects(): GLib.List;
 }
 export interface Comparable  {
-compare(other: Comparable | null): number;
+    compare(other: Comparable | null): number;
 }
 export interface ImportInteraction  {
-supplement(builder: Gck.Builder, cancellable: Gio.Cancellable | null): Gio.TlsInteractionResult;
-supplement_async(builder: Gck.Builder, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-supplement_finish(result: Gio.AsyncResult): Gio.TlsInteractionResult;
-supplement_prep(builder: Gck.Builder): void;
+    supplement(builder: Gck.Builder, cancellable: Gio.Cancellable | null): Gio.TlsInteractionResult;
+    supplement_async(builder: Gck.Builder, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    supplement_finish(result: Gio.AsyncResult): Gio.TlsInteractionResult;
+    supplement_prep(builder: Gck.Builder): void;
 }
 export interface Importer  {
-readonly icon: Gio.Icon;
-interaction: Gio.TlsInteraction;
-readonly label: string;
-readonly uri: string;
-get_interaction(): Gio.TlsInteraction | null;
-_import(cancellable: Gio.Cancellable | null): boolean;
-import_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-import_finish(result: Gio.AsyncResult): boolean;
-queue_for_parsed(parsed: Parsed): boolean;
-set_interaction(interaction: Gio.TlsInteraction): void;
+    readonly icon: Gio.Icon;
+    interaction: Gio.TlsInteraction;
+    readonly label: string;
+    readonly uri: string;
+    get_interaction(): Gio.TlsInteraction | null;
+    _import(cancellable: Gio.Cancellable | null): boolean;
+    import_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    import_finish(result: Gio.AsyncResult): boolean;
+    queue_for_parsed(parsed: Parsed): boolean;
+    set_interaction(interaction: Gio.TlsInteraction): void;
 }
 export interface Prompt  {
-caller_window: string;
-cancel_label: string;
-choice_chosen: boolean;
-choice_label: string;
-continue_label: string;
-description: string;
-message: string;
-password_new: boolean;
-readonly password_strength: number;
-title: string;
-warning: string;
-close(): void;
-confirm(cancellable: Gio.Cancellable | null): PromptReply;
-confirm_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-confirm_finish(result: Gio.AsyncResult): PromptReply;
-confirm_run(cancellable: Gio.Cancellable | null): PromptReply;
-get_caller_window(): string;
-get_cancel_label(): string;
-get_choice_chosen(): boolean;
-get_choice_label(): string;
-get_continue_label(): string;
-get_description(): string;
-get_message(): string;
-get_password_new(): boolean;
-get_password_strength(): number;
-get_title(): string;
-get_warning(): string;
-password(cancellable: Gio.Cancellable | null): string;
-password_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-password_finish(result: Gio.AsyncResult): string;
-password_run(cancellable: Gio.Cancellable | null): string;
-reset(): void;
-set_caller_window(window_id: string): void;
-set_cancel_label(cancel_label: string): void;
-set_choice_chosen(chosen: boolean): void;
-set_choice_label(choice_label: string | null): void;
-set_continue_label(continue_label: string): void;
-set_description(description: string): void;
-set_message(message: string): void;
-set_password_new(new_password: boolean): void;
-set_title(title: string): void;
-set_warning(warning: string | null): void;
+    caller_window: string;
+    cancel_label: string;
+    choice_chosen: boolean;
+    choice_label: string;
+    continue_label: string;
+    description: string;
+    message: string;
+    password_new: boolean;
+    readonly password_strength: number;
+    title: string;
+    warning: string;
+    close(): void;
+    confirm(cancellable: Gio.Cancellable | null): PromptReply;
+    confirm_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    confirm_finish(result: Gio.AsyncResult): PromptReply;
+    confirm_run(cancellable: Gio.Cancellable | null): PromptReply;
+    get_caller_window(): string;
+    get_cancel_label(): string;
+    get_choice_chosen(): boolean;
+    get_choice_label(): string;
+    get_continue_label(): string;
+    get_description(): string;
+    get_message(): string;
+    get_password_new(): boolean;
+    get_password_strength(): number;
+    get_title(): string;
+    get_warning(): string;
+    password(cancellable: Gio.Cancellable | null): string;
+    password_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    password_finish(result: Gio.AsyncResult): string;
+    password_run(cancellable: Gio.Cancellable | null): string;
+    reset(): void;
+    set_caller_window(window_id: string): void;
+    set_cancel_label(cancel_label: string): void;
+    set_choice_chosen(chosen: boolean): void;
+    set_choice_label(choice_label: string | null): void;
+    set_continue_label(continue_label: string): void;
+    set_description(description: string): void;
+    set_message(message: string): void;
+    set_password_new(new_password: boolean): void;
+    set_title(title: string): void;
+    set_warning(warning: string | null): void;
 }

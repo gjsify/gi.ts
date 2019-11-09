@@ -7,6 +7,7 @@ import * as OSTree from "ostree";
  * ostree.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type RepoCheckoutFilter = (repo: Repo, path: string, stbuf: object | null, user_data: object | null) => RepoCheckoutFilterResult;
 export type RepoCommitFilter = (repo: Repo, path: string, file_info: Gio.FileInfo, user_data: object | null) => RepoCommitFilterResult;
 export type RepoCommitModifierXattrCallback = (repo: Repo, path: string, file_info: Gio.FileInfo, user_data: object | null) => GLib.Variant;
@@ -59,16 +60,6 @@ export function check_version(required_year: number, required_release: number): 
  */
 export function checksum_b64_from_bytes(csum: number[]): string;
 /**
- * Overwrite the contents of @buf with modified base64 encoding of @csum.
- * The "modified" term refers to the fact that instead of '/', the '_'
- * character is used.
- */
-export function checksum_b64_inplace_from_bytes(csum: number[], buf: string): void;
-/**
- * Overwrite the contents of @buf with stringified version of @csum.
- */
-export function checksum_b64_inplace_to_bytes(checksum: string[], buf: number): void;
-/**
  * 
  */
 export function checksum_b64_to_bytes(checksum: string): number[];
@@ -113,10 +104,6 @@ export function checksum_from_bytes(csum: number[]): string;
  * 
  */
 export function checksum_from_bytes_v(csum_v: GLib.Variant): string;
-/**
- * Overwrite the contents of @buf with stringified version of @csum.
- */
-export function checksum_inplace_from_bytes(csum: number[], buf: string): void;
 /**
  * Convert @checksum from a string to binary in-place, without
  * allocating memory.  Use this function in hot code paths.
@@ -234,15 +221,6 @@ export function hash_object_name(a: object | null): number;
  * Frees the OstreeKernelArgs structure pointed by *loc
  */
 export function kernel_args_cleanup(loc: object | null): void;
-/**
- * Initializes a new OstreeKernelArgs then parses and appends @options
- * to the empty OstreeKernelArgs
- */
-export function kernel_args_from_string(options: string): KernelArgs;
-/**
- * Initializes a new OstreeKernelArgs structure and returns it
- */
-export function kernel_args_new(): KernelArgs;
 /**
  * 
  */
@@ -543,582 +521,535 @@ export enum SysrootUpgraderPullFlags {
     ALLOW_OLDER = 1,
     SYNTHETIC = 2,
 }
-export class AsyncProgress extends GObject.Object {constructor(config?: properties);
-static new_and_connect(changed: object | null, user_data: object | null): AsyncProgress;
-finish(): void;
-get(___: unknown[]): void;
-get(...args: never[]): never;
-get_status(): string | null;
-get_uint(key: string): number;
-get_uint64(key: string): number;
-get_variant(key: string): GLib.Variant | null;
-set(___: unknown[]): void;
-set(...args: never[]): never;
-set_status(status: string | null): void;
-set_uint(key: string, value: number): void;
-set_uint64(key: string, value: number): void;
-set_variant(key: string, value: GLib.Variant): void;
-vfunc_changed(user_data: object | null): void;
+export class AsyncProgress extends GObject.Object {
+    constructor(config?: properties);
+    static new_and_connect(changed: object | null, user_data: object | null): AsyncProgress;
+    finish(): void;
+    get_status(): string | null;
+    get_uint(key: string): number;
+    get_uint64(key: string): number;
+    get_variant(key: string): GLib.Variant | null;
+    set_status(status: string | null): void;
+    set_uint(key: string, value: number): void;
+    set_uint64(key: string, value: number): void;
+    set_variant(key: string, value: GLib.Variant): void;
+    vfunc_changed(user_data: object | null): void;
 }
-export class BootconfigParser extends GObject.Object {constructor(config?: properties);
-clone(): BootconfigParser;
-get(key: string): string;
-get(...args: never[]): never;
-parse(path: Gio.File, cancellable: Gio.Cancellable | null): boolean;
-parse_at(dfd: number, path: string, cancellable: Gio.Cancellable | null): boolean;
-set(key: string, value: string): void;
-set(...args: never[]): never;
-write(output: Gio.File, cancellable: Gio.Cancellable | null): boolean;
-write_at(dfd: number, path: string, cancellable: Gio.Cancellable | null): boolean;
+export class BootconfigParser extends GObject.Object {
+    constructor(config?: properties);
+    clone(): BootconfigParser;
+    get(key: string): string;
+    parse(path: Gio.File, cancellable: Gio.Cancellable | null): boolean;
+    parse_at(dfd: number, path: string, cancellable: Gio.Cancellable | null): boolean;
+    set(key: string, value: string): void;
+    write(output: Gio.File, cancellable: Gio.Cancellable | null): boolean;
+    write_at(dfd: number, path: string, cancellable: Gio.Cancellable | null): boolean;
 }
-export class ChecksumInputStream extends Gio.FilterInputStream {constructor(config?: properties);
-checksum: object;
+export class ChecksumInputStream extends Gio.FilterInputStream {
+    constructor(config?: properties);
+    checksum: object;
 }
-export class Deployment extends GObject.Object {constructor(config?: properties);
-clone(): Deployment;
-equal(bp: Deployment): boolean;
-get_bootconfig(): BootconfigParser;
-get_bootcsum(): string;
-get_bootserial(): number;
-get_csum(): string;
-get_deployserial(): number;
-get_index(): number;
-get_origin(): GLib.KeyFile;
-get_origin_relpath(): string;
-get_osname(): string;
-get_unlocked(): DeploymentUnlockedState;
-is_pinned(): boolean;
-is_staged(): boolean;
-set_bootconfig(bootconfig: BootconfigParser): void;
-set_bootserial(index: number): void;
-set_index(index: number): void;
-set_origin(origin: GLib.KeyFile): void;
-static hash(v: object | null): number;
-static origin_remove_transient_state(origin: GLib.KeyFile): void;
-static unlocked_state_to_string(state: DeploymentUnlockedState): string;
+export class Deployment extends GObject.Object {
+    constructor(config?: properties);
+    clone(): Deployment;
+    equal(bp: Deployment): boolean;
+    get_bootconfig(): BootconfigParser;
+    get_bootcsum(): string;
+    get_bootserial(): number;
+    get_csum(): string;
+    get_deployserial(): number;
+    get_index(): number;
+    get_origin(): GLib.KeyFile;
+    get_origin_relpath(): string;
+    get_osname(): string;
+    get_unlocked(): DeploymentUnlockedState;
+    is_pinned(): boolean;
+    is_staged(): boolean;
+    set_bootconfig(bootconfig: BootconfigParser): void;
+    set_bootserial(index: number): void;
+    set_index(index: number): void;
+    set_origin(origin: GLib.KeyFile): void;
+    static hash(v: object | null): number;
+    static origin_remove_transient_state(origin: GLib.KeyFile): void;
+    static unlocked_state_to_string(state: DeploymentUnlockedState): string;
 }
-export class GpgVerifyResult  {constructor(config?: properties);
-count_all(): number;
-count_valid(): number;
-describe(signature_index: number, output_buffer: GLib.String, line_prefix: string | null, flags: GpgSignatureFormatFlags): void;
-get(signature_index: number, attrs: GpgSignatureAttr[], n_attrs: number): GLib.Variant;
-get_all(signature_index: number): GLib.Variant;
-lookup(key_id: string): [boolean, number];
-require_valid_signature(): boolean;
-static describe_variant(variant: GLib.Variant, output_buffer: GLib.String, line_prefix: string | null, flags: GpgSignatureFormatFlags): void;
+export class GpgVerifyResult  {
+    constructor(config?: properties);
+    count_all(): number;
+    count_valid(): number;
+    describe(signature_index: number, output_buffer: GLib.String, line_prefix: string | null, flags: GpgSignatureFormatFlags): void;
+    get(signature_index: number, attrs: GpgSignatureAttr[], n_attrs: number): GLib.Variant;
+    get_all(signature_index: number): GLib.Variant;
+    lookup(key_id: string): [boolean, number];
+    require_valid_signature(): boolean;
+    static describe_variant(variant: GLib.Variant, output_buffer: GLib.String, line_prefix: string | null, flags: GpgSignatureFormatFlags): void;
 }
-export class MutableTree extends GObject.Object {constructor(config?: properties);
-static new_from_checksum(repo: Repo, contents_checksum: string, metadata_checksum: string): MutableTree;
-check_error(): boolean;
-ensure_dir(name: string): [boolean, MutableTree];
-ensure_parent_dirs(split_path: string[], metadata_checksum: string): [boolean, MutableTree];
-fill_empty_from_dirtree(repo: Repo, contents_checksum: string, metadata_checksum: string): boolean;
-get_contents_checksum(): string;
-get_files(): GLib.HashTable;
-get_metadata_checksum(): string;
-get_subdirs(): GLib.HashTable;
-lookup(name: string): [boolean, string,MutableTree];
-remove(name: string, allow_noent: boolean): boolean;
-replace_file(name: string, checksum: string): boolean;
-set_contents_checksum(checksum: string): void;
-set_metadata_checksum(checksum: string): void;
-walk(split_path: string[], start: number): [boolean, MutableTree];
+export class MutableTree extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_checksum(repo: Repo, contents_checksum: string, metadata_checksum: string): MutableTree;
+    check_error(): boolean;
+    ensure_dir(name: string): [boolean, MutableTree];
+    ensure_parent_dirs(split_path: string[], metadata_checksum: string): [boolean, MutableTree];
+    fill_empty_from_dirtree(repo: Repo, contents_checksum: string, metadata_checksum: string): boolean;
+    get_contents_checksum(): string;
+    get_files(): GLib.HashTable;
+    get_metadata_checksum(): string;
+    get_subdirs(): GLib.HashTable;
+    lookup(name: string): [boolean, string,MutableTree];
+    remove(name: string, allow_noent: boolean): boolean;
+    replace_file(name: string, checksum: string): boolean;
+    set_contents_checksum(checksum: string): void;
+    set_metadata_checksum(checksum: string): void;
+    walk(split_path: string[], start: number): [boolean, MutableTree];
 }
-export class Repo extends GObject.Object {constructor(config?: properties);
-path: Gio.File;
-remotes_config_dir: string;
-sysroot_path: Gio.File;static new_default(): Repo;
-static new_for_sysroot_path(repo_path: Gio.File, sysroot_path: Gio.File): Repo;
-abort_transaction(cancellable: Gio.Cancellable | null): boolean;
-add_gpg_signature_summary(key_id: string[], homedir: string | null, cancellable: Gio.Cancellable | null): boolean;
-append_gpg_signature(commit_checksum: string, signature_bytes: GLib.Bytes, cancellable: Gio.Cancellable | null): boolean;
-checkout_at(options: RepoCheckoutAtOptions | null, destination_dfd: number, destination_path: string, commit: string, cancellable: Gio.Cancellable | null): boolean;
-checkout_gc(cancellable: Gio.Cancellable | null): boolean;
-checkout_tree(mode: RepoCheckoutMode, overwrite_mode: RepoCheckoutOverwriteMode, destination: Gio.File, source: RepoFile, source_info: Gio.FileInfo, cancellable: Gio.Cancellable | null): boolean;
-checkout_tree_at(options: RepoCheckoutOptions | null, destination_dfd: number, destination_path: string, commit: string, cancellable: Gio.Cancellable | null): boolean;
-commit_transaction(cancellable: Gio.Cancellable | null): [boolean, RepoTransactionStats | null];
-copy_config(): GLib.KeyFile;
-create(mode: RepoMode, cancellable: Gio.Cancellable | null): boolean;
-delete_object(objtype: ObjectType, sha256: string, cancellable: Gio.Cancellable | null): boolean;
-equal(b: Repo): boolean;
-export_tree_to_archive(opts: RepoExportArchiveOptions, root: RepoFile, archive: object | null, cancellable: Gio.Cancellable | null): boolean;
-find_remotes_async(refs: CollectionRef[], options: GLib.Variant | null, finders: RepoFinder[], progress: AsyncProgress | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-find_remotes_finish(result: Gio.AsyncResult): RepoFinderResult[];
-fsck_object(objtype: ObjectType, sha256: string, cancellable: Gio.Cancellable | null): boolean;
-get_bootloader(): string;
-get_collection_id(): string | null;
-get_config(): GLib.KeyFile;
-get_default_repo_finders(): string[];
-get_dfd(): number;
-get_disable_fsync(): boolean;
-get_min_free_space_bytes(): [boolean, number];
-get_mode(): RepoMode;
-get_parent(): Repo;
-get_path(): Gio.File;
-get_remote_boolean_option(remote_name: string, option_name: string, default_value: boolean): [boolean, boolean];
-get_remote_list_option(remote_name: string, option_name: string): [boolean, string[]];
-get_remote_option(remote_name: string, option_name: string, default_value: string | null): [boolean, string];
-gpg_verify_data(remote_name: string | null, data: GLib.Bytes, signatures: GLib.Bytes, keyringdir: Gio.File | null, extra_keyring: Gio.File | null, cancellable: Gio.Cancellable | null): GpgVerifyResult;
-has_object(objtype: ObjectType, checksum: string, cancellable: Gio.Cancellable | null): [boolean, boolean];
-hash(): number;
-import_archive_to_mtree(opts: RepoImportArchiveOptions, archive: object | null, mtree: MutableTree, modifier: RepoCommitModifier | null, cancellable: Gio.Cancellable | null): boolean;
-import_object_from(source: Repo, objtype: ObjectType, checksum: string, cancellable: Gio.Cancellable | null): boolean;
-import_object_from_with_trust(source: Repo, objtype: ObjectType, checksum: string, trusted: boolean, cancellable: Gio.Cancellable | null): boolean;
-is_system(): boolean;
-is_writable(): boolean;
-list_collection_refs(match_collection_id: string | null, flags: RepoListRefsExtFlags, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-list_commit_objects_starting_with(start: string, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-list_objects(flags: RepoListObjectsFlags, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-list_refs(refspec_prefix: string | null, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-list_refs_ext(refspec_prefix: string | null, flags: RepoListRefsExtFlags, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-list_static_delta_names(cancellable: Gio.Cancellable | null): [boolean, string[]];
-load_commit(checksum: string): [boolean, GLib.Variant | null,RepoCommitState | null];
-load_file(checksum: string, cancellable: Gio.Cancellable | null): [boolean, Gio.InputStream | null,Gio.FileInfo | null,GLib.Variant | null];
-load_object_stream(objtype: ObjectType, checksum: string, cancellable: Gio.Cancellable | null): [boolean, Gio.InputStream,number];
-load_variant(objtype: ObjectType, sha256: string): [boolean, GLib.Variant];
-load_variant_if_exists(objtype: ObjectType, sha256: string): [boolean, GLib.Variant];
-mark_commit_partial(checksum: string, is_partial: boolean): boolean;
-mark_commit_partial_reason(checksum: string, is_partial: boolean, in_state: RepoCommitState): boolean;
-open(cancellable: Gio.Cancellable | null): boolean;
-prepare_transaction(cancellable: Gio.Cancellable | null): [boolean, boolean | null];
-prune(flags: RepoPruneFlags, depth: number, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
-prune_from_reachable(options: RepoPruneOptions, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
-prune_static_deltas(commit: string | null, cancellable: Gio.Cancellable | null): boolean;
-pull(remote_name: string, refs_to_fetch: string[] | null, flags: RepoPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): boolean;
-pull_from_remotes_async(results: RepoFinderResult[], options: GLib.Variant | null, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-pull_from_remotes_finish(result: Gio.AsyncResult): boolean;
-pull_one_dir(remote_name: string, dir_to_pull: string, refs_to_fetch: string[] | null, flags: RepoPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): boolean;
-pull_with_options(remote_name_or_baseurl: string, options: GLib.Variant, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): boolean;
-query_object_storage_size(objtype: ObjectType, sha256: string, cancellable: Gio.Cancellable | null): [boolean, number];
-read_commit(ref: string, cancellable: Gio.Cancellable | null): [boolean, Gio.File,string];
-read_commit_detached_metadata(checksum: string, cancellable: Gio.Cancellable | null): [boolean, GLib.Variant];
-regenerate_summary(additional_metadata: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
-reload_config(cancellable: Gio.Cancellable | null): boolean;
-remote_add(name: string, url: string, options: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
-remote_change(sysroot: Gio.File | null, changeop: RepoRemoteChange, name: string, url: string, options: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
-remote_delete(name: string, cancellable: Gio.Cancellable | null): boolean;
-remote_fetch_summary(name: string, cancellable: Gio.Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
-remote_fetch_summary_with_options(name: string, options: GLib.Variant | null, cancellable: Gio.Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
-remote_get_gpg_verify(name: string): [boolean, boolean | null];
-remote_get_gpg_verify_summary(name: string): [boolean, boolean | null];
-remote_get_url(name: string): [boolean, string | null];
-remote_gpg_import(name: string, source_stream: Gio.InputStream | null, key_ids: string[] | null, cancellable: Gio.Cancellable | null): [boolean, number | null];
-remote_list(): [string[], number | null];
-remote_list_collection_refs(remote_name: string, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-remote_list_refs(remote_name: string, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-resolve_collection_ref(ref: CollectionRef, allow_noent: boolean, flags: RepoResolveRevExtFlags, cancellable: Gio.Cancellable | null): [boolean, string | null];
-resolve_keyring_for_collection(collection_id: string, cancellable: Gio.Cancellable | null): Remote;
-resolve_rev(refspec: string, allow_noent: boolean): [boolean, string];
-resolve_rev_ext(refspec: string, allow_noent: boolean, flags: RepoResolveRevExtFlags): [boolean, string];
-scan_hardlinks(cancellable: Gio.Cancellable | null): boolean;
-set_alias_ref_immediate(remote: string | null, ref: string, target: string | null, cancellable: Gio.Cancellable | null): boolean;
-set_cache_dir(dfd: number, path: string, cancellable: Gio.Cancellable | null): boolean;
-set_collection_id(collection_id: string | null): boolean;
-set_collection_ref_immediate(ref: CollectionRef, checksum: string | null, cancellable: Gio.Cancellable | null): boolean;
-set_disable_fsync(disable_fsync: boolean): void;
-set_ref_immediate(remote: string | null, ref: string, checksum: string | null, cancellable: Gio.Cancellable | null): boolean;
-sign_commit(commit_checksum: string, key_id: string, homedir: string | null, cancellable: Gio.Cancellable | null): boolean;
-sign_delta(from_commit: string, to_commit: string, key_id: string, homedir: string, cancellable: Gio.Cancellable | null): boolean;
-static_delta_execute_offline(dir_or_file: Gio.File, skip_validation: boolean, cancellable: Gio.Cancellable | null): boolean;
-static_delta_generate(opt: StaticDeltaGenerateOpt, from: string, to: string, metadata: GLib.Variant | null, params: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
-transaction_set_collection_ref(ref: CollectionRef, checksum: string | null): void;
-transaction_set_ref(remote: string | null, ref: string, checksum: string | null): void;
-transaction_set_refspec(refspec: string, checksum: string | null): void;
-traverse_commit(commit_checksum: string, maxdepth: number, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
-traverse_commit_union(commit_checksum: string, maxdepth: number, inout_reachable: GLib.HashTable, cancellable: Gio.Cancellable | null): boolean;
-traverse_commit_union_with_parents(commit_checksum: string, maxdepth: number, inout_reachable: GLib.HashTable, inout_parents: GLib.HashTable, cancellable: Gio.Cancellable | null): boolean;
-traverse_reachable_refs(depth: number, reachable: GLib.HashTable, cancellable: Gio.Cancellable | null): boolean;
-verify_commit(commit_checksum: string, keyringdir: Gio.File | null, extra_keyring: Gio.File | null, cancellable: Gio.Cancellable | null): boolean;
-verify_commit_ext(commit_checksum: string, keyringdir: Gio.File | null, extra_keyring: Gio.File | null, cancellable: Gio.Cancellable | null): GpgVerifyResult;
-verify_commit_for_remote(commit_checksum: string, remote_name: string, cancellable: Gio.Cancellable | null): GpgVerifyResult;
-verify_summary(remote_name: string, summary: GLib.Bytes, signatures: GLib.Bytes, cancellable: Gio.Cancellable | null): GpgVerifyResult;
-write_archive_to_mtree(archive: Gio.File, mtree: MutableTree, modifier: RepoCommitModifier | null, autocreate_parents: boolean, cancellable: Gio.Cancellable | null): boolean;
-write_archive_to_mtree_from_fd(fd: number, mtree: MutableTree, modifier: RepoCommitModifier | null, autocreate_parents: boolean, cancellable: Gio.Cancellable | null): boolean;
-write_commit(parent: string | null, subject: string | null, body: string | null, metadata: GLib.Variant | null, root: RepoFile, cancellable: Gio.Cancellable | null): [boolean, string];
-write_commit_detached_metadata(checksum: string, metadata: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
-write_commit_with_time(parent: string | null, subject: string | null, body: string | null, metadata: GLib.Variant | null, root: RepoFile, time: number, cancellable: Gio.Cancellable | null): [boolean, string];
-write_config(new_config: GLib.KeyFile): boolean;
-write_content(expected_checksum: string | null, object_input: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null): [boolean, number[] | null];
-write_content_async(expected_checksum: string | null, object: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-write_content_finish(result: Gio.AsyncResult): [boolean, number];
-write_content_trusted(checksum: string, object_input: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null): boolean;
-write_dfd_to_mtree(dfd: number, path: string, mtree: MutableTree, modifier: RepoCommitModifier | null, cancellable: Gio.Cancellable | null): boolean;
-write_directory_to_mtree(dir: Gio.File, mtree: MutableTree, modifier: RepoCommitModifier | null, cancellable: Gio.Cancellable | null): boolean;
-write_metadata(objtype: ObjectType, expected_checksum: string | null, object: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, number[] | null];
-write_metadata_async(objtype: ObjectType, expected_checksum: string | null, object: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-write_metadata_finish(result: Gio.AsyncResult): [boolean, number[]];
-write_metadata_stream_trusted(objtype: ObjectType, checksum: string, object_input: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null): boolean;
-write_metadata_trusted(objtype: ObjectType, checksum: string, variant: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-write_mtree(mtree: MutableTree, cancellable: Gio.Cancellable | null): [boolean, Gio.File];
-static create_at(dfd: number, path: string, mode: RepoMode, options: GLib.Variant, cancellable: Gio.Cancellable | null): Repo;
-static mode_from_string(mode: string): [boolean, RepoMode];
-static open_at(dfd: number, path: string, cancellable: Gio.Cancellable | null): Repo;
-static pull_default_console_progress_changed(progress: AsyncProgress, user_data: object | null): void;
-static traverse_new_parents(): GLib.HashTable;
-static traverse_new_reachable(): GLib.HashTable;
-static traverse_parents_get_commits(parents: GLib.HashTable, object: GLib.Variant): string[];
+export class Repo extends GObject.Object {
+    constructor(config?: properties);
+    path: Gio.File;
+    remotes_config_dir: string;
+    sysroot_path: Gio.File;static new_default(): Repo;
+    static new_for_sysroot_path(repo_path: Gio.File, sysroot_path: Gio.File): Repo;
+    abort_transaction(cancellable: Gio.Cancellable | null): boolean;
+    add_gpg_signature_summary(key_id: string[], homedir: string | null, cancellable: Gio.Cancellable | null): boolean;
+    append_gpg_signature(commit_checksum: string, signature_bytes: GLib.Bytes, cancellable: Gio.Cancellable | null): boolean;
+    checkout_at(options: RepoCheckoutAtOptions | null, destination_dfd: number, destination_path: string, commit: string, cancellable: Gio.Cancellable | null): boolean;
+    checkout_gc(cancellable: Gio.Cancellable | null): boolean;
+    checkout_tree(mode: RepoCheckoutMode, overwrite_mode: RepoCheckoutOverwriteMode, destination: Gio.File, source: RepoFile, source_info: Gio.FileInfo, cancellable: Gio.Cancellable | null): boolean;
+    commit_transaction(cancellable: Gio.Cancellable | null): [boolean, RepoTransactionStats | null];
+    copy_config(): GLib.KeyFile;
+    create(mode: RepoMode, cancellable: Gio.Cancellable | null): boolean;
+    delete_object(objtype: ObjectType, sha256: string, cancellable: Gio.Cancellable | null): boolean;
+    equal(b: Repo): boolean;
+    find_remotes_async(refs: CollectionRef[], options: GLib.Variant | null, finders: RepoFinder[], progress: AsyncProgress | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    find_remotes_finish(result: Gio.AsyncResult): RepoFinderResult[];
+    fsck_object(objtype: ObjectType, sha256: string, cancellable: Gio.Cancellable | null): boolean;
+    get_bootloader(): string;
+    get_collection_id(): string | null;
+    get_config(): GLib.KeyFile;
+    get_default_repo_finders(): string[];
+    get_dfd(): number;
+    get_disable_fsync(): boolean;
+    get_min_free_space_bytes(): [boolean, number];
+    get_mode(): RepoMode;
+    get_parent(): Repo;
+    get_path(): Gio.File;
+    get_remote_boolean_option(remote_name: string, option_name: string, default_value: boolean): [boolean, boolean];
+    get_remote_list_option(remote_name: string, option_name: string): [boolean, string[]];
+    get_remote_option(remote_name: string, option_name: string, default_value: string | null): [boolean, string];
+    gpg_verify_data(remote_name: string | null, data: GLib.Bytes, signatures: GLib.Bytes, keyringdir: Gio.File | null, extra_keyring: Gio.File | null, cancellable: Gio.Cancellable | null): GpgVerifyResult;
+    has_object(objtype: ObjectType, checksum: string, cancellable: Gio.Cancellable | null): [boolean, boolean];
+    hash(): number;
+    import_object_from(source: Repo, objtype: ObjectType, checksum: string, cancellable: Gio.Cancellable | null): boolean;
+    import_object_from_with_trust(source: Repo, objtype: ObjectType, checksum: string, trusted: boolean, cancellable: Gio.Cancellable | null): boolean;
+    is_system(): boolean;
+    is_writable(): boolean;
+    list_collection_refs(match_collection_id: string | null, flags: RepoListRefsExtFlags, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    list_commit_objects_starting_with(start: string, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    list_objects(flags: RepoListObjectsFlags, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    list_refs(refspec_prefix: string | null, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    list_refs_ext(refspec_prefix: string | null, flags: RepoListRefsExtFlags, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    list_static_delta_names(cancellable: Gio.Cancellable | null): [boolean, string[]];
+    load_commit(checksum: string): [boolean, GLib.Variant | null,RepoCommitState | null];
+    load_file(checksum: string, cancellable: Gio.Cancellable | null): [boolean, Gio.InputStream | null,Gio.FileInfo | null,GLib.Variant | null];
+    load_object_stream(objtype: ObjectType, checksum: string, cancellable: Gio.Cancellable | null): [boolean, Gio.InputStream,number];
+    load_variant(objtype: ObjectType, sha256: string): [boolean, GLib.Variant];
+    load_variant_if_exists(objtype: ObjectType, sha256: string): [boolean, GLib.Variant];
+    mark_commit_partial(checksum: string, is_partial: boolean): boolean;
+    mark_commit_partial_reason(checksum: string, is_partial: boolean, in_state: RepoCommitState): boolean;
+    open(cancellable: Gio.Cancellable | null): boolean;
+    prepare_transaction(cancellable: Gio.Cancellable | null): [boolean, boolean | null];
+    prune(flags: RepoPruneFlags, depth: number, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
+    prune_from_reachable(options: RepoPruneOptions, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
+    prune_static_deltas(commit: string | null, cancellable: Gio.Cancellable | null): boolean;
+    pull(remote_name: string, refs_to_fetch: string[] | null, flags: RepoPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): boolean;
+    pull_from_remotes_async(results: RepoFinderResult[], options: GLib.Variant | null, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    pull_from_remotes_finish(result: Gio.AsyncResult): boolean;
+    pull_one_dir(remote_name: string, dir_to_pull: string, refs_to_fetch: string[] | null, flags: RepoPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): boolean;
+    pull_with_options(remote_name_or_baseurl: string, options: GLib.Variant, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): boolean;
+    query_object_storage_size(objtype: ObjectType, sha256: string, cancellable: Gio.Cancellable | null): [boolean, number];
+    read_commit(ref: string, cancellable: Gio.Cancellable | null): [boolean, Gio.File,string];
+    read_commit_detached_metadata(checksum: string, cancellable: Gio.Cancellable | null): [boolean, GLib.Variant];
+    regenerate_summary(additional_metadata: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
+    reload_config(cancellable: Gio.Cancellable | null): boolean;
+    remote_add(name: string, url: string, options: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
+    remote_change(sysroot: Gio.File | null, changeop: RepoRemoteChange, name: string, url: string, options: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
+    remote_delete(name: string, cancellable: Gio.Cancellable | null): boolean;
+    remote_fetch_summary(name: string, cancellable: Gio.Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
+    remote_fetch_summary_with_options(name: string, options: GLib.Variant | null, cancellable: Gio.Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
+    remote_get_gpg_verify(name: string): [boolean, boolean | null];
+    remote_get_gpg_verify_summary(name: string): [boolean, boolean | null];
+    remote_get_url(name: string): [boolean, string | null];
+    remote_gpg_import(name: string, source_stream: Gio.InputStream | null, key_ids: string[] | null, cancellable: Gio.Cancellable | null): [boolean, number | null];
+    remote_list(): [string[], number | null];
+    remote_list_collection_refs(remote_name: string, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    remote_list_refs(remote_name: string, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    resolve_collection_ref(ref: CollectionRef, allow_noent: boolean, flags: RepoResolveRevExtFlags, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    resolve_keyring_for_collection(collection_id: string, cancellable: Gio.Cancellable | null): Remote;
+    resolve_rev(refspec: string, allow_noent: boolean): [boolean, string];
+    resolve_rev_ext(refspec: string, allow_noent: boolean, flags: RepoResolveRevExtFlags): [boolean, string];
+    scan_hardlinks(cancellable: Gio.Cancellable | null): boolean;
+    set_alias_ref_immediate(remote: string | null, ref: string, target: string | null, cancellable: Gio.Cancellable | null): boolean;
+    set_cache_dir(dfd: number, path: string, cancellable: Gio.Cancellable | null): boolean;
+    set_collection_id(collection_id: string | null): boolean;
+    set_collection_ref_immediate(ref: CollectionRef, checksum: string | null, cancellable: Gio.Cancellable | null): boolean;
+    set_disable_fsync(disable_fsync: boolean): void;
+    set_ref_immediate(remote: string | null, ref: string, checksum: string | null, cancellable: Gio.Cancellable | null): boolean;
+    sign_commit(commit_checksum: string, key_id: string, homedir: string | null, cancellable: Gio.Cancellable | null): boolean;
+    sign_delta(from_commit: string, to_commit: string, key_id: string, homedir: string, cancellable: Gio.Cancellable | null): boolean;
+    static_delta_execute_offline(dir_or_file: Gio.File, skip_validation: boolean, cancellable: Gio.Cancellable | null): boolean;
+    static_delta_generate(opt: StaticDeltaGenerateOpt, from: string, to: string, metadata: GLib.Variant | null, params: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
+    transaction_set_collection_ref(ref: CollectionRef, checksum: string | null): void;
+    transaction_set_ref(remote: string | null, ref: string, checksum: string | null): void;
+    transaction_set_refspec(refspec: string, checksum: string | null): void;
+    traverse_commit(commit_checksum: string, maxdepth: number, cancellable: Gio.Cancellable | null): [boolean, GLib.HashTable];
+    traverse_reachable_refs(depth: number, reachable: GLib.HashTable, cancellable: Gio.Cancellable | null): boolean;
+    verify_commit(commit_checksum: string, keyringdir: Gio.File | null, extra_keyring: Gio.File | null, cancellable: Gio.Cancellable | null): boolean;
+    verify_commit_ext(commit_checksum: string, keyringdir: Gio.File | null, extra_keyring: Gio.File | null, cancellable: Gio.Cancellable | null): GpgVerifyResult;
+    verify_commit_for_remote(commit_checksum: string, remote_name: string, cancellable: Gio.Cancellable | null): GpgVerifyResult;
+    verify_summary(remote_name: string, summary: GLib.Bytes, signatures: GLib.Bytes, cancellable: Gio.Cancellable | null): GpgVerifyResult;
+    write_archive_to_mtree(archive: Gio.File, mtree: MutableTree, modifier: RepoCommitModifier | null, autocreate_parents: boolean, cancellable: Gio.Cancellable | null): boolean;
+    write_archive_to_mtree_from_fd(fd: number, mtree: MutableTree, modifier: RepoCommitModifier | null, autocreate_parents: boolean, cancellable: Gio.Cancellable | null): boolean;
+    write_commit(parent: string | null, subject: string | null, body: string | null, metadata: GLib.Variant | null, root: RepoFile, cancellable: Gio.Cancellable | null): [boolean, string];
+    write_commit_detached_metadata(checksum: string, metadata: GLib.Variant | null, cancellable: Gio.Cancellable | null): boolean;
+    write_commit_with_time(parent: string | null, subject: string | null, body: string | null, metadata: GLib.Variant | null, root: RepoFile, time: number, cancellable: Gio.Cancellable | null): [boolean, string];
+    write_config(new_config: GLib.KeyFile): boolean;
+    write_content(expected_checksum: string | null, object_input: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null): [boolean, number[] | null];
+    write_content_async(expected_checksum: string | null, object: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    write_content_finish(result: Gio.AsyncResult): [boolean, number];
+    write_content_trusted(checksum: string, object_input: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null): boolean;
+    write_dfd_to_mtree(dfd: number, path: string, mtree: MutableTree, modifier: RepoCommitModifier | null, cancellable: Gio.Cancellable | null): boolean;
+    write_directory_to_mtree(dir: Gio.File, mtree: MutableTree, modifier: RepoCommitModifier | null, cancellable: Gio.Cancellable | null): boolean;
+    write_metadata(objtype: ObjectType, expected_checksum: string | null, object: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, number[] | null];
+    write_metadata_async(objtype: ObjectType, expected_checksum: string | null, object: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    write_metadata_finish(result: Gio.AsyncResult): [boolean, number[]];
+    write_metadata_stream_trusted(objtype: ObjectType, checksum: string, object_input: Gio.InputStream, length: number, cancellable: Gio.Cancellable | null): boolean;
+    write_metadata_trusted(objtype: ObjectType, checksum: string, variant: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    write_mtree(mtree: MutableTree, cancellable: Gio.Cancellable | null): [boolean, Gio.File];
+    static create_at(dfd: number, path: string, mode: RepoMode, options: GLib.Variant, cancellable: Gio.Cancellable | null): Repo;
+    static mode_from_string(mode: string): [boolean, RepoMode];
+    static open_at(dfd: number, path: string, cancellable: Gio.Cancellable | null): Repo;
+    static pull_default_console_progress_changed(progress: AsyncProgress, user_data: object | null): void;
+    static traverse_new_parents(): GLib.HashTable;
+    static traverse_new_reachable(): GLib.HashTable;
+    static traverse_parents_get_commits(parents: GLib.HashTable, object: GLib.Variant): string[];
 }
-export class RepoFile  {constructor(config?: properties);
-ensure_resolved(): boolean;
-get_checksum(): string;
-get_repo(): Repo;
-get_root(): RepoFile;
-get_xattrs(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
-tree_find_child(name: string): [number, boolean,GLib.Variant];
-tree_get_contents(): GLib.Variant;
-tree_get_contents_checksum(): string;
-tree_get_metadata(): GLib.Variant;
-tree_get_metadata_checksum(): string;
-tree_query_child(n: number, attributes: string, flags: Gio.FileQueryInfoFlags, cancellable: Gio.Cancellable | null): [boolean, Gio.FileInfo];
-tree_set_metadata(checksum: string, metadata: GLib.Variant): void;
+export class RepoFile  {
+    constructor(config?: properties);
+    ensure_resolved(): boolean;
+    get_checksum(): string;
+    get_repo(): Repo;
+    get_root(): RepoFile;
+    get_xattrs(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
+    tree_find_child(name: string): [number, boolean,GLib.Variant];
+    tree_get_contents(): GLib.Variant;
+    tree_get_contents_checksum(): string;
+    tree_get_metadata(): GLib.Variant;
+    tree_get_metadata_checksum(): string;
+    tree_query_child(n: number, attributes: string, flags: Gio.FileQueryInfoFlags, cancellable: Gio.Cancellable | null): [boolean, Gio.FileInfo];
+    tree_set_metadata(checksum: string, metadata: GLib.Variant): void;
 }
-export class RepoFinderAvahi extends GObject.Object {constructor(config?: properties);
-start(): void;
-stop(): void;
+export class RepoFinderAvahi extends GObject.Object {
+    constructor(config?: properties);
+    start(): void;
+    stop(): void;
 }
-export class RepoFinderConfig extends GObject.Object {constructor(config?: properties);
+export class RepoFinderConfig extends GObject.Object {
+    constructor(config?: properties);
 }
-export class RepoFinderMount extends GObject.Object {constructor(config?: properties);
-monitor: Gio.VolumeMonitor;
+export class RepoFinderMount extends GObject.Object {
+    constructor(config?: properties);
+    monitor: Gio.VolumeMonitor;
 }
-export class RepoFinderOverride extends GObject.Object {constructor(config?: properties);
-add_uri(uri: string): void;
+export class RepoFinderOverride extends GObject.Object {
+    constructor(config?: properties);
+    add_uri(uri: string): void;
 }
-export class SePolicy extends GObject.Object {constructor(config?: properties);
-path: Gio.File;
-rootfs_dfd: number;static new_at(rootfs_dfd: number, cancellable: Gio.Cancellable | null): SePolicy;
-get_csum(): string;
-get_label(relpath: string, unix_mode: number, cancellable: Gio.Cancellable | null): [boolean, string | null];
-get_name(): string;
-get_path(): Gio.File;
-restorecon(path: string, info: Gio.FileInfo | null, target: Gio.File, flags: SePolicyRestoreconFlags, cancellable: Gio.Cancellable | null): [boolean, string | null];
-setfscreatecon(path: string, mode: number): boolean;
-static fscreatecon_cleanup(unused: object | null): void;
+export class SePolicy extends GObject.Object {
+    constructor(config?: properties);
+    path: Gio.File;
+    rootfs_dfd: number;static new_at(rootfs_dfd: number, cancellable: Gio.Cancellable | null): SePolicy;
+    get_csum(): string;
+    get_label(relpath: string, unix_mode: number, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    get_name(): string;
+    get_path(): Gio.File;
+    restorecon(path: string, info: Gio.FileInfo | null, target: Gio.File, flags: SePolicyRestoreconFlags, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    setfscreatecon(path: string, mode: number): boolean;
+    static fscreatecon_cleanup(unused: object | null): void;
 }
-export class Sysroot extends GObject.Object {constructor(config?: properties);
-path: Gio.File;static new_default(): Sysroot;
-cleanup(cancellable: Gio.Cancellable | null): boolean;
-cleanup_prune_repo(options: RepoPruneOptions, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
-deploy_tree(osname: string | null, revision: string, origin: GLib.KeyFile | null, provided_merge_deployment: Deployment | null, override_kernel_argv: string[] | null, cancellable: Gio.Cancellable | null): [boolean, Deployment];
-deployment_set_kargs(deployment: Deployment, new_kargs: string[], cancellable: Gio.Cancellable | null): boolean;
-deployment_set_mutable(deployment: Deployment, is_mutable: boolean, cancellable: Gio.Cancellable | null): boolean;
-deployment_set_pinned(deployment: Deployment, is_pinned: boolean): boolean;
-deployment_unlock(deployment: Deployment, unlocked_state: DeploymentUnlockedState, cancellable: Gio.Cancellable | null): boolean;
-ensure_initialized(cancellable: Gio.Cancellable | null): boolean;
-get_booted_deployment(): Deployment;
-get_bootversion(): number;
-get_deployment_directory(deployment: Deployment): Gio.File;
-get_deployment_dirpath(deployment: Deployment): string;
-get_deployments(): Deployment[];
-get_fd(): number;
-get_merge_deployment(osname: string | null): Deployment;
-get_path(): Gio.File;
-get_repo(cancellable: Gio.Cancellable | null): [boolean, Repo | null];
-get_staged_deployment(): Deployment;
-get_subbootversion(): number;
-init_osname(osname: string, cancellable: Gio.Cancellable | null): boolean;
-load(cancellable: Gio.Cancellable | null): boolean;
-load_if_changed(cancellable: Gio.Cancellable | null): [boolean, boolean];
-lock(): boolean;
-lock_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-lock_finish(result: Gio.AsyncResult): boolean;
-origin_new_from_refspec(refspec: string): GLib.KeyFile;
-prepare_cleanup(cancellable: Gio.Cancellable | null): boolean;
-query_deployments_for(osname: string | null): [Deployment | null,Deployment | null];
-repo(): Repo;
-simple_write_deployment(osname: string | null, new_deployment: Deployment, merge_deployment: Deployment | null, flags: SysrootSimpleWriteDeploymentFlags, cancellable: Gio.Cancellable | null): boolean;
-stage_tree(osname: string | null, revision: string, origin: GLib.KeyFile | null, merge_deployment: Deployment | null, override_kernel_argv: string[] | null, cancellable: Gio.Cancellable | null): [boolean, Deployment];
-try_lock(): [boolean, boolean];
-unload(): void;
-unlock(): void;
-write_deployments(new_deployments: Deployment[], cancellable: Gio.Cancellable | null): boolean;
-write_deployments_with_options(new_deployments: Deployment[], opts: SysrootWriteDeploymentsOpts, cancellable: Gio.Cancellable | null): boolean;
-write_origin_file(deployment: Deployment, new_origin: GLib.KeyFile | null, cancellable: Gio.Cancellable | null): boolean;
-static get_deployment_origin_path(deployment_path: Gio.File): Gio.File;
+export class Sysroot extends GObject.Object {
+    constructor(config?: properties);
+    path: Gio.File;static new_default(): Sysroot;
+    cleanup(cancellable: Gio.Cancellable | null): boolean;
+    cleanup_prune_repo(options: RepoPruneOptions, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
+    deploy_tree(osname: string | null, revision: string, origin: GLib.KeyFile | null, provided_merge_deployment: Deployment | null, override_kernel_argv: string[] | null, cancellable: Gio.Cancellable | null): [boolean, Deployment];
+    deployment_set_kargs(deployment: Deployment, new_kargs: string[], cancellable: Gio.Cancellable | null): boolean;
+    deployment_set_mutable(deployment: Deployment, is_mutable: boolean, cancellable: Gio.Cancellable | null): boolean;
+    deployment_set_pinned(deployment: Deployment, is_pinned: boolean): boolean;
+    deployment_unlock(deployment: Deployment, unlocked_state: DeploymentUnlockedState, cancellable: Gio.Cancellable | null): boolean;
+    ensure_initialized(cancellable: Gio.Cancellable | null): boolean;
+    get_booted_deployment(): Deployment;
+    get_bootversion(): number;
+    get_deployment_directory(deployment: Deployment): Gio.File;
+    get_deployment_dirpath(deployment: Deployment): string;
+    get_deployments(): Deployment[];
+    get_fd(): number;
+    get_merge_deployment(osname: string | null): Deployment;
+    get_path(): Gio.File;
+    get_repo(cancellable: Gio.Cancellable | null): [boolean, Repo | null];
+    get_staged_deployment(): Deployment;
+    get_subbootversion(): number;
+    init_osname(osname: string, cancellable: Gio.Cancellable | null): boolean;
+    load(cancellable: Gio.Cancellable | null): boolean;
+    load_if_changed(cancellable: Gio.Cancellable | null): [boolean, boolean];
+    lock(): boolean;
+    lock_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    lock_finish(result: Gio.AsyncResult): boolean;
+    origin_new_from_refspec(refspec: string): GLib.KeyFile;
+    prepare_cleanup(cancellable: Gio.Cancellable | null): boolean;
+    query_deployments_for(osname: string | null): [Deployment | null,Deployment | null];
+    repo(): Repo;
+    simple_write_deployment(osname: string | null, new_deployment: Deployment, merge_deployment: Deployment | null, flags: SysrootSimpleWriteDeploymentFlags, cancellable: Gio.Cancellable | null): boolean;
+    stage_tree(osname: string | null, revision: string, origin: GLib.KeyFile | null, merge_deployment: Deployment | null, override_kernel_argv: string[] | null, cancellable: Gio.Cancellable | null): [boolean, Deployment];
+    try_lock(): [boolean, boolean];
+    unload(): void;
+    unlock(): void;
+    write_deployments(new_deployments: Deployment[], cancellable: Gio.Cancellable | null): boolean;
+    write_deployments_with_options(new_deployments: Deployment[], opts: SysrootWriteDeploymentsOpts, cancellable: Gio.Cancellable | null): boolean;
+    write_origin_file(deployment: Deployment, new_origin: GLib.KeyFile | null, cancellable: Gio.Cancellable | null): boolean;
+    static get_deployment_origin_path(deployment_path: Gio.File): Gio.File;
 }
-export class SysrootUpgrader extends GObject.Object {constructor(config?: properties);
-flags: SysrootUpgraderFlags;
-osname: string;
-sysroot: Sysroot;static new_for_os(sysroot: Sysroot, osname: string | null, cancellable: Gio.Cancellable | null): SysrootUpgrader;
-static new_for_os_with_flags(sysroot: Sysroot, osname: string | null, flags: SysrootUpgraderFlags, cancellable: Gio.Cancellable | null): SysrootUpgrader;
-deploy(cancellable: Gio.Cancellable | null): boolean;
-dup_origin(): GLib.KeyFile;
-get_origin(): GLib.KeyFile;
-get_origin_description(): string;
-pull(flags: RepoPullFlags, upgrader_flags: SysrootUpgraderPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): [boolean, boolean];
-pull_one_dir(dir_to_pull: string, flags: RepoPullFlags, upgrader_flags: SysrootUpgraderPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): [boolean, boolean];
-set_origin(origin: GLib.KeyFile | null, cancellable: Gio.Cancellable | null): boolean;
-static check_timestamps(repo: Repo, from_rev: string, to_rev: string): boolean;
+export class SysrootUpgrader extends GObject.Object {
+    constructor(config?: properties);
+    flags: SysrootUpgraderFlags;
+    osname: string;
+    sysroot: Sysroot;static new_for_os(sysroot: Sysroot, osname: string | null, cancellable: Gio.Cancellable | null): SysrootUpgrader;
+    static new_for_os_with_flags(sysroot: Sysroot, osname: string | null, flags: SysrootUpgraderFlags, cancellable: Gio.Cancellable | null): SysrootUpgrader;
+    deploy(cancellable: Gio.Cancellable | null): boolean;
+    dup_origin(): GLib.KeyFile;
+    get_origin(): GLib.KeyFile;
+    get_origin_description(): string;
+    pull(flags: RepoPullFlags, upgrader_flags: SysrootUpgraderPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): [boolean, boolean];
+    pull_one_dir(dir_to_pull: string, flags: RepoPullFlags, upgrader_flags: SysrootUpgraderPullFlags, progress: AsyncProgress | null, cancellable: Gio.Cancellable | null): [boolean, boolean];
+    set_origin(origin: GLib.KeyFile | null, cancellable: Gio.Cancellable | null): boolean;
+    static check_timestamps(repo: Repo, from_rev: string, to_rev: string): boolean;
 }
-export class AsyncProgressClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
+export class Bootloader  {
+    constructor(config?: properties);
 }
-export class Bootloader  {constructor(config?: properties);
+export class BootloaderGrub2  {
+    constructor(config?: properties);
 }
-export class BootloaderGrub2  {constructor(config?: properties);
+export class BootloaderInterface  {
+    constructor(config?: properties);
+    g_iface: GObject.TypeInterface;
 }
-export class BootloaderInterface  {constructor(config?: properties);
-g_iface: GObject.TypeInterface;
-readonly query: unknown;
-readonly get_name: unknown;
-readonly write_config: unknown;
-readonly is_atomic: unknown;
+export class BootloaderSyslinux  {
+    constructor(config?: properties);
 }
-export class BootloaderSyslinux  {constructor(config?: properties);
+export class BootloaderUboot  {
+    constructor(config?: properties);
 }
-export class BootloaderUboot  {constructor(config?: properties);
+export class ChecksumInputStreamPrivate  {
+    constructor(config?: properties);
 }
-export class ChecksumInputStreamClass  {constructor(config?: properties);
-readonly parent_class: Gio.FilterInputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
+export class CmdPrivateVTable  {
+    constructor(config?: properties);
 }
-export class ChecksumInputStreamPrivate  {constructor(config?: properties);
+export class CollectionRef  {
+    constructor(config?: properties);
+    dup(): CollectionRef;
+    free(): void;
+    static dupv(refs: CollectionRef[]): CollectionRef[];
+    static equal(ref1: object, ref2: object): boolean;
+    static freev(refs: CollectionRef[]): void;
+    static hash(ref: object): number;
 }
-export class CmdPrivateVTable  {constructor(config?: properties);
-readonly ostree_system_generator: unknown;
-readonly ostree_generate_grub2_config: unknown;
-readonly ostree_static_delta_dump: unknown;
-readonly ostree_static_delta_query_exists: unknown;
-readonly ostree_static_delta_delete: unknown;
-readonly ostree_repo_verify_bindings: unknown;
-readonly ostree_finalize_staged: unknown;
+export class DiffDirsOptions  {
+    constructor(config?: properties);
+    owner_uid: number;
+    owner_gid: number;
+    devino_to_csum_cache: RepoDevInoCache;
+    unused_bools: boolean[];
+    unused_ints: number[];
+    unused_ptrs: object[];
 }
-export class CollectionRef  {constructor(config?: properties);
-dup(): CollectionRef;
-free(): void;
-static dupv(refs: CollectionRef[]): CollectionRef[];
-static equal(ref1: object, ref2: object): boolean;
-static freev(refs: CollectionRef[]): void;
-static hash(ref: object): number;
+export class DiffItem  {
+    constructor(config?: properties);
+    refcount: number;
+    src: Gio.File;
+    target: Gio.File;
+    src_info: Gio.FileInfo;
+    target_info: Gio.FileInfo;
+    src_checksum: string;
+    target_checksum: string;
+    ref(): DiffItem;
+    unref(): void;
 }
-export class DiffDirsOptions  {constructor(config?: properties);
-owner_uid: number;
-owner_gid: number;
-devino_to_csum_cache: RepoDevInoCache;
-unused_bools: boolean[];
-unused_ints: number[];
-unused_ptrs: object[];
+export class GpgVerifier  {
+    constructor(config?: properties);
 }
-export class DiffItem  {constructor(config?: properties);
-refcount: number;
-src: Gio.File;
-target: Gio.File;
-src_info: Gio.FileInfo;
-target_info: Gio.FileInfo;
-src_checksum: string;
-target_checksum: string;
-ref(): DiffItem;
-unref(): void;
+export class KernelArgs  {
+    constructor(config?: properties);
+    append(arg: string): void;
+    append_argv(argv: string): void;
+    append_argv_filtered(argv: string, prefixes: string): void;
+    append_proc_cmdline(cancellable: Gio.Cancellable | null): boolean;
+    _delete(arg: string): boolean;
+    delete_key_entry(key: string): boolean;
+    free(): void;
+    get_last_value(key: string): string;
+    new_replace(arg: string): boolean;
+    parse_append(options: string): void;
+    replace(arg: string): void;
+    replace_argv(argv: string): void;
+    replace_take(arg: string): void;
+    to_string(): string;
+    to_strv(): string[];
+    static cleanup(loc: object | null): void;
 }
-export class GpgVerifier  {constructor(config?: properties);
+export class LibarchiveInputStream  {
+    constructor(config?: properties);
+    readonly priv: LibarchiveInputStreamPrivate;
 }
-export class KernelArgs  {constructor(config?: properties);
-append(arg: string): void;
-append_argv(argv: string): void;
-append_argv_filtered(argv: string, prefixes: string): void;
-append_proc_cmdline(cancellable: Gio.Cancellable | null): boolean;
-_delete(arg: string): boolean;
-delete_key_entry(key: string): boolean;
-free(): void;
-get_last_value(key: string): string;
-new_replace(arg: string): boolean;
-parse_append(options: string): void;
-replace(arg: string): void;
-replace_argv(argv: string): void;
-replace_take(arg: string): void;
-to_string(): string;
-to_strv(): string[];
-static cleanup(loc: object | null): void;
-static from_string(options: string): KernelArgs;
-static _new(): KernelArgs;
+export class LibarchiveInputStreamClass  {
+    constructor(config?: properties);
+    parent_class: Gio.InputStreamClass;
 }
-export class LibarchiveInputStream  {constructor(config?: properties);
-readonly priv: LibarchiveInputStreamPrivate;
+export class LibarchiveInputStreamPrivate  {
+    constructor(config?: properties);
 }
-export class LibarchiveInputStreamClass  {constructor(config?: properties);
-parent_class: Gio.InputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
+export class LzmaCompressor  {
+    constructor(config?: properties);
 }
-export class LibarchiveInputStreamPrivate  {constructor(config?: properties);
+export class LzmaCompressorClass  {
+    constructor(config?: properties);
+    parent_class: GObject.ObjectClass;
 }
-export class LzmaCompressor  {constructor(config?: properties);
+export class LzmaDecompressor  {
+    constructor(config?: properties);
 }
-export class LzmaCompressorClass  {constructor(config?: properties);
-parent_class: GObject.ObjectClass;
+export class LzmaDecompressorClass  {
+    constructor(config?: properties);
+    parent_class: GObject.ObjectClass;
 }
-export class LzmaDecompressor  {constructor(config?: properties);
+export class MutableTreeIter  {
+    constructor(config?: properties);
+    in_files: boolean;
+    iter: GLib.HashTableIter;
 }
-export class LzmaDecompressorClass  {constructor(config?: properties);
-parent_class: GObject.ObjectClass;
+export class Remote  {
+    constructor(config?: properties);
+    get_name(): string;
+    get_url(): string;
+    ref(): Remote;
+    unref(): void;
 }
-export class MutableTreeClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class RepoCheckoutAtOptions  {
+    constructor(config?: properties);
+    mode: RepoCheckoutMode;
+    overwrite_mode: RepoCheckoutOverwriteMode;
+    enable_uncompressed_cache: boolean;
+    enable_fsync: boolean;
+    process_whiteouts: boolean;
+    no_copy_fallback: boolean;
+    force_copy: boolean;
+    bareuseronly_dirs: boolean;
+    force_copy_zerosized: boolean;
+    unused_bools: boolean[];
+    subpath: string;
+    devino_to_csum_cache: RepoDevInoCache;
+    unused_ints: number[];
+    unused_ptrs: object[];
+    filter: RepoCheckoutFilter;
+    filter_user_data: object;
+    sepolicy: SePolicy;
+    sepolicy_prefix: string;
+    set_devino(cache: RepoDevInoCache | null): void;
 }
-export class MutableTreeIter  {constructor(config?: properties);
-in_files: boolean;
-iter: GLib.HashTableIter;
+export class RepoCommitModifier  {
+    constructor(config?: properties);
+    ref(): RepoCommitModifier;
+    set_devino_cache(cache: RepoDevInoCache): void;
+    set_sepolicy(sepolicy: SePolicy | null): void;
+    set_xattr_callback(callback: RepoCommitModifierXattrCallback, destroy: GLib.DestroyNotify, user_data: object | null): void;
+    unref(): void;
 }
-export class Remote  {constructor(config?: properties);
-get_name(): string;
-get_url(): string;
-ref(): Remote;
-unref(): void;
+export class RepoCommitTraverseIter  {
+    constructor(config?: properties);
+    initialized: boolean;
+    dummy: object[];
+    dummy_checksum_data: number[];
+    clear(): void;
+    get_dir(): [string,string,string];
+    get_file(): [string,string];
+    init_commit(repo: Repo, commit: GLib.Variant, flags: RepoCommitTraverseFlags): boolean;
+    init_dirtree(repo: Repo, dirtree: GLib.Variant, flags: RepoCommitTraverseFlags): boolean;
+    next(cancellable: Gio.Cancellable | null): RepoCommitIterResult;
+    static cleanup(p: object | null): void;
 }
-export class RepoCheckoutAtOptions  {constructor(config?: properties);
-mode: RepoCheckoutMode;
-overwrite_mode: RepoCheckoutOverwriteMode;
-enable_uncompressed_cache: boolean;
-enable_fsync: boolean;
-process_whiteouts: boolean;
-no_copy_fallback: boolean;
-force_copy: boolean;
-bareuseronly_dirs: boolean;
-force_copy_zerosized: boolean;
-unused_bools: boolean[];
-subpath: string;
-devino_to_csum_cache: RepoDevInoCache;
-unused_ints: number[];
-unused_ptrs: object[];
-filter: RepoCheckoutFilter;
-filter_user_data: object;
-sepolicy: SePolicy;
-sepolicy_prefix: string;
-set_devino(cache: RepoDevInoCache | null): void;
+export class RepoDevInoCache  {
+    constructor(config?: properties);
+    ref(): RepoDevInoCache;
+    unref(): void;
 }
-export class RepoCheckoutOptions  {constructor(config?: properties);
-mode: RepoCheckoutMode;
-overwrite_mode: RepoCheckoutOverwriteMode;
-enable_uncompressed_cache: number;
-disable_fsync: number;
-process_whiteouts: number;
-no_copy_fallback: number;
-reserved: number;
-subpath: string;
-devino_to_csum_cache: RepoDevInoCache;
-unused_uints: number[];
-unused_ptrs: object[];
+export class RepoFileEnumerator  {
+    constructor(config?: properties);
 }
-export class RepoCommitModifier  {constructor(config?: properties);
-ref(): RepoCommitModifier;
-set_devino_cache(cache: RepoDevInoCache): void;
-set_sepolicy(sepolicy: SePolicy | null): void;
-set_xattr_callback(callback: RepoCommitModifierXattrCallback, destroy: GLib.DestroyNotify, user_data: object | null): void;
-unref(): void;
+export class RepoFileEnumeratorClass  {
+    constructor(config?: properties);
+    parent_class: Gio.FileEnumeratorClass;
 }
-export class RepoCommitTraverseIter  {constructor(config?: properties);
-initialized: boolean;
-dummy: object[];
-dummy_checksum_data: number[];
-clear(): void;
-get_dir(): [string,string,string];
-get_file(): [string,string];
-init_commit(repo: Repo, commit: GLib.Variant, flags: RepoCommitTraverseFlags): boolean;
-init_dirtree(repo: Repo, dirtree: GLib.Variant, flags: RepoCommitTraverseFlags): boolean;
-next(cancellable: Gio.Cancellable | null): RepoCommitIterResult;
-static cleanup(p: object | null): void;
+export class RepoFinderResult  {
+    constructor(config?: properties);
+    compare(b: RepoFinderResult): number;
+    dup(): RepoFinderResult;
+    free(): void;
+    static freev(results: RepoFinderResult[]): void;
 }
-export class RepoDevInoCache  {constructor(config?: properties);
-ref(): RepoDevInoCache;
-unref(): void;
+export class RepoPruneOptions  {
+    constructor(config?: properties);
+    flags: RepoPruneFlags;
+    reachable: GLib.HashTable;
+    unused_bools: boolean[];
+    unused_ints: number[];
+    unused_ptrs: object[];
 }
-export class RepoExportArchiveOptions  {constructor(config?: properties);
-disable_xattrs: number;
-reserved: number;
-timestamp_secs: number;
-unused_uint: number[];
-path_prefix: string;
-unused_ptrs: object[];
+export class RepoTransactionStats  {
+    constructor(config?: properties);
+    metadata_objects_total: number;
+    metadata_objects_written: number;
+    content_objects_total: number;
+    content_objects_written: number;
+    content_bytes_written: number;
+    devino_cache_hits: number;
+    padding1: number;
+    padding2: number;
+    padding3: number;
+    padding4: number;
 }
-export class RepoFileClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class RollsumMatches  {
+    constructor(config?: properties);
+    from_rollsums: GLib.HashTable;
+    to_rollsums: GLib.HashTable;
+    crcmatches: number;
+    bufmatches: number;
+    total: number;
+    match_size: number;
+    matches: object[];
 }
-export class RepoFileEnumerator  {constructor(config?: properties);
+export class SysrootWriteDeploymentsOpts  {
+    constructor(config?: properties);
+    do_postclean: boolean;
+    unused_bools: boolean[];
+    unused_ints: number[];
+    unused_ptrs: object[];
 }
-export class RepoFileEnumeratorClass  {constructor(config?: properties);
-parent_class: Gio.FileEnumeratorClass;
+export class TlsCertInteraction  {
+    constructor(config?: properties);
 }
-export class RepoFinderAvahiClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class RepoFinderConfigClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class RepoFinderInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly resolve_async: unknown;
-readonly resolve_finish: unknown;
-}
-export class RepoFinderMountClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class RepoFinderOverrideClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class RepoFinderResult  {constructor(config?: properties);
-compare(b: RepoFinderResult): number;
-dup(): RepoFinderResult;
-free(): void;
-static freev(results: RepoFinderResult[]): void;
-}
-export class RepoImportArchiveOptions  {constructor(config?: properties);
-ignore_unsupported_content: number;
-autocreate_parents: number;
-use_ostree_convention: number;
-callback_with_entry_pathname: number;
-reserved: number;
-unused_uint: number[];
-translate_pathname: RepoImportArchiveTranslatePathname;
-translate_pathname_user_data: object;
-unused_ptrs: object[];
-}
-export class RepoPruneOptions  {constructor(config?: properties);
-flags: RepoPruneFlags;
-reachable: GLib.HashTable;
-unused_bools: boolean[];
-unused_ints: number[];
-unused_ptrs: object[];
-}
-export class RepoTransactionStats  {constructor(config?: properties);
-metadata_objects_total: number;
-metadata_objects_written: number;
-content_objects_total: number;
-content_objects_written: number;
-content_bytes_written: number;
-devino_cache_hits: number;
-padding1: number;
-padding2: number;
-padding3: number;
-padding4: number;
-}
-export class RollsumMatches  {constructor(config?: properties);
-from_rollsums: GLib.HashTable;
-to_rollsums: GLib.HashTable;
-crcmatches: number;
-bufmatches: number;
-total: number;
-match_size: number;
-matches: object[];
-}
-export class SysrootWriteDeploymentsOpts  {constructor(config?: properties);
-do_postclean: boolean;
-unused_bools: boolean[];
-unused_ints: number[];
-unused_ptrs: object[];
-}
-export class TlsCertInteraction  {constructor(config?: properties);
-}
-export class TlsCertInteractionClass  {constructor(config?: properties);
+export class TlsCertInteractionClass  {
+    constructor(config?: properties);
 }
 export interface RepoFinder  {
-resolve_async(refs: CollectionRef[], parent_repo: Repo, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-resolve_finish(result: Gio.AsyncResult): RepoFinderResult[];
+    resolve_async(refs: CollectionRef[], parent_repo: Repo, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    resolve_finish(result: Gio.AsyncResult): RepoFinderResult[];
 }

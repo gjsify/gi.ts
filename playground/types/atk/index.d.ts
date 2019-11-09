@@ -7,6 +7,7 @@ import * as Atk from "atk";
  * atk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type EventListener = (obj: Object) => void;
 export type EventListenerInit = () => void;
 export type FocusHandler = (object: Object, focus_in: boolean) => void;
@@ -20,61 +21,10 @@ export const MICRO_VERSION: number;
 export const MINOR_VERSION: number;
 export const VERSION_MIN_REQUIRED: number;
 /**
- * Adds the specified function to the list of functions to be called
- * when an object receives focus.
- */
-export function add_focus_tracker(focus_tracker: EventListener): number;
-/**
- * Adds the specified function to the list of functions to be called
- * when an ATK event of type event_type occurs.
- * The format of event_type is the following:
- *  "ATK:&lt;atk_type&gt;:&lt;atk_event&gt;:&lt;atk_event_detail&gt;
- * Where "ATK" works as the namespace, &lt;atk_interface&gt; is the name 
- * of
- * the ATK type (interface or object), &lt;atk_event&gt; is the name of t
- * he
- * signal defined on that interface and &lt;atk_event_detail&gt; is the
- * gsignal detail of that signal. You can find more info about gsignal
- * details here:
- * http://developer.gnome.org/gobject/stable/gobject-Signals.html
- * The first three parameters are mandatory. The last one is optional.
- * For example:
- *   ATK:AtkObject:state-change
- *   ATK:AtkText:text-selection-changed
- *   ATK:AtkText:text-insert:system
- * Toolkit implementor note: ATK provides a default implementation for
- * this virtual method. ATK implementors are discouraged from
- * reimplementing this method.
- * Toolkit implementor note: this method is not intended to be used by
- * ATK implementors but by ATK consumers.
- * ATK consumers note: as this method adds a listener for a given ATK
- * type, that type should be already registered on the GType system
- * before calling this method. A simple way to do that is creating an
- * instance of #AtkNoOpObject. This class implements all ATK
- * interfaces, so creating the instance will register all ATK types as
- * a collateral effect.
- */
-export function add_global_event_listener(listener: GObject.SignalEmissionHook, event_type: string): number;
-/**
- * Adds the specified function to the list of functions to be called
- *        when a key event occurs.  The @data element will be passed to t
- * he
- *        #AtkKeySnoopFunc (@listener) as the @func_data param, on notifi
- * cation.
- */
-export function add_key_event_listener(listener: KeySnoopFunc, data: object | null): number;
-/**
  * Frees the memory used by an #AtkAttributeSet, including all its
  * #AtkAttributes.
  */
 export function attribute_set_free(attrib_set: AttributeSet): void;
-/**
- * Specifies the function to be called for focus tracker initialization.
- * This function should be called by an implementation of the
- * ATK interface if any specific work needs to be done to enable
- * focus tracking.
- */
-export function focus_tracker_init(init: EventListenerInit): void;
 /**
  * Cause the focus tracker functions which have been specified to be
  * executed for the object.
@@ -549,599 +499,354 @@ export type State = number;
 export enum HyperlinkStateFlags {
     INLINE = 1,
 }
-export class GObjectAccessible  {constructor(config?: properties);
-get_object(): GObject.Object;
-static for_object(obj: GObject.Object): Object;
+export class GObjectAccessible  {
+    constructor(config?: properties);
+    get_object(): GObject.Object;
+    static for_object(obj: GObject.Object): Object;
 }
-export class Hyperlink  {constructor(config?: properties);
-readonly end_index: number;
-readonly number_of_anchors: number;
-readonly selected_link: boolean;
-readonly start_index: number;
-get_end_index(): number;
-get_n_anchors(): number;
-get_object(i: number): Object;
-get_start_index(): number;
-get_uri(i: number): string;
-is_inline(): boolean;
-is_selected_link(): boolean;
-is_valid(): boolean;
+export class Hyperlink  {
+    constructor(config?: properties);
+    readonly end_index: number;
+    readonly number_of_anchors: number;
+    readonly selected_link: boolean;
+    readonly start_index: number;
+    get_end_index(): number;
+    get_n_anchors(): number;
+    get_object(i: number): Object;
+    get_start_index(): number;
+    get_uri(i: number): string;
+    is_inline(): boolean;
+    is_selected_link(): boolean;
+    is_valid(): boolean;
 }
-export class Misc  {constructor(config?: properties);
-threads_enter(): void;
-threads_leave(): void;
-static get_instance(): Misc;
+export class Misc  {
+    constructor(config?: properties);
+    threads_enter(): void;
+    threads_leave(): void;
+    static get_instance(): Misc;
 }
-export class NoOpObject extends Object {constructor(config?: properties);
+export class NoOpObject extends Object {
+    constructor(config?: properties);
 }
-export class NoOpObjectFactory extends ObjectFactory {constructor(config?: properties);
+export class NoOpObjectFactory extends ObjectFactory {
+    constructor(config?: properties);
 }
-export class Object  {constructor(config?: properties);
-readonly accessible_component_layer: number;
-readonly accessible_component_mdi_zorder: number;
-accessible_description: string;
-readonly accessible_hypertext_nlinks: number;
-accessible_name: string;
-accessible_parent: Object;
-accessible_role: Role;
-accessible_table_caption: string;
-accessible_table_caption_object: Object;
-accessible_table_column_description: string;
-accessible_table_column_header: Object;
-accessible_table_row_description: string;
-accessible_table_row_header: Object;
-accessible_table_summary: Object;
-accessible_value: number;
-readonly description: string;
-readonly name: string;
-readonly role: Role;
-readonly relation_set: RelationSet;
-readonly layer: Layer;
-add_relationship(relationship: RelationType, target: Object): boolean;
-connect_property_change_handler(handler: PropertyChangeHandler): number;
-get_accessible_id(): string;
-get_attributes(): AttributeSet;
-get_description(): string;
-get_index_in_parent(): number;
-get_layer(): Layer;
-get_mdi_zorder(): number;
-get_n_accessible_children(): number;
-get_name(): string;
-get_object_locale(): string;
-get_parent(): Object;
-get_role(): Role;
-initialize(data: object | null): void;
-notify_state_change(state: State, value: boolean): void;
-peek_parent(): Object;
-ref_accessible_child(i: number): Object;
-ref_relation_set(): RelationSet;
-ref_state_set(): StateSet;
-remove_property_change_handler(handler_id: number): void;
-remove_relationship(relationship: RelationType, target: Object): boolean;
-set_accessible_id(name: string): void;
-set_description(description: string): void;
-set_name(name: string): void;
-set_parent(parent: Object): void;
-set_role(role: Role): void;
+export class Object  {
+    constructor(config?: properties);
+    readonly accessible_component_layer: number;
+    readonly accessible_component_mdi_zorder: number;
+    accessible_description: string;
+    readonly accessible_hypertext_nlinks: number;
+    accessible_name: string;
+    accessible_parent: Object;
+    accessible_role: Role;
+    accessible_table_caption: string;
+    accessible_table_caption_object: Object;
+    accessible_table_column_description: string;
+    accessible_table_column_header: Object;
+    accessible_table_row_description: string;
+    accessible_table_row_header: Object;
+    accessible_table_summary: Object;
+    accessible_value: number;
+    readonly description: string;
+    readonly name: string;
+    readonly role: Role;
+    readonly relation_set: RelationSet;
+    readonly layer: Layer;
+    add_relationship(relationship: RelationType, target: Object): boolean;
+    get_accessible_id(): string;
+    get_attributes(): AttributeSet;
+    get_description(): string;
+    get_index_in_parent(): number;
+    get_layer(): Layer;
+    get_mdi_zorder(): number;
+    get_n_accessible_children(): number;
+    get_name(): string;
+    get_object_locale(): string;
+    get_parent(): Object;
+    get_role(): Role;
+    initialize(data: object | null): void;
+    notify_state_change(state: State, value: boolean): void;
+    peek_parent(): Object;
+    ref_accessible_child(i: number): Object;
+    ref_relation_set(): RelationSet;
+    ref_state_set(): StateSet;
+    remove_property_change_handler(handler_id: number): void;
+    remove_relationship(relationship: RelationType, target: Object): boolean;
+    set_accessible_id(name: string): void;
+    set_description(description: string): void;
+    set_name(name: string): void;
+    set_parent(parent: Object): void;
+    set_role(role: Role): void;
 }
-export class ObjectFactory  {constructor(config?: properties);
-create_accessible(obj: GObject.Object): Object;
-get_accessible_type(): unknown;
-invalidate(): void;
+export class ObjectFactory  {
+    constructor(config?: properties);
+    create_accessible(obj: GObject.Object): Object;
+    get_accessible_type(): GType;
+    invalidate(): void;
 }
-export class Plug extends Object {constructor(config?: properties);
-get_id(): string;
-vfunc_get_object_id(): string;
+export class Plug extends Object {
+    constructor(config?: properties);
+    get_id(): string;
+    vfunc_get_object_id(): string;
 }
-export class Registry  {constructor(config?: properties);
-readonly factory_type_registry: GLib.HashTable;
-readonly factory_singleton_cache: GLib.HashTable;
-get_factory(type: unknown): ObjectFactory;
-get_factory_type(type: unknown): unknown;
-set_factory_type(type: unknown, factory_type: unknown): void;
+export class Registry  {
+    constructor(config?: properties);
+    readonly factory_type_registry: GLib.HashTable;
+    readonly factory_singleton_cache: GLib.HashTable;
+    get_factory(type: GType): ObjectFactory;
+    get_factory_type(type: GType): GType;
+    set_factory_type(type: GType, factory_type: GType): void;
 }
-export class Relation extends GObject.Object {constructor(config?: properties);
-relation_type: RelationType;
-target: GObject.ValueArray;
-add_target(target: Object): void;
-get_relation_type(): RelationType;
-get_target(): Object[];
-remove_target(target: Object): boolean;
+export class Relation extends GObject.Object {
+    constructor(config?: properties);
+    relation_type: RelationType;
+    target: GObject.ValueArray;
+    add_target(target: Object): void;
+    get_relation_type(): RelationType;
+    get_target(): Object[];
+    remove_target(target: Object): boolean;
 }
-export class RelationSet extends GObject.Object {constructor(config?: properties);
-add(relation: Relation): void;
-add_relation_by_type(relationship: RelationType, target: Object): void;
-contains(relationship: RelationType): boolean;
-contains_target(relationship: RelationType, target: Object): boolean;
-get_n_relations(): number;
-get_relation(i: number): Relation;
-get_relation_by_type(relationship: RelationType): Relation;
-remove(relation: Relation): void;
+export class RelationSet extends GObject.Object {
+    constructor(config?: properties);
+    add(relation: Relation): void;
+    add_relation_by_type(relationship: RelationType, target: Object): void;
+    contains(relationship: RelationType): boolean;
+    contains_target(relationship: RelationType, target: Object): boolean;
+    get_n_relations(): number;
+    get_relation(i: number): Relation;
+    get_relation_by_type(relationship: RelationType): Relation;
+    remove(relation: Relation): void;
 }
-export class Socket extends Object {constructor(config?: properties);
-embed(plug_id: string): void;
-is_occupied(): boolean;
-vfunc_embed(plug_id: string): void;
+export class Socket extends Object {
+    constructor(config?: properties);
+    embed(plug_id: string): void;
+    is_occupied(): boolean;
+    vfunc_embed(plug_id: string): void;
 }
-export class StateSet extends GObject.Object {constructor(config?: properties);
-add_state(type: StateType): boolean;
-add_states(types: StateType[], n_types: number): void;
-and_sets(compare_set: StateSet): StateSet;
-clear_states(): void;
-contains_state(type: StateType): boolean;
-contains_states(types: StateType[], n_types: number): boolean;
-is_empty(): boolean;
-or_sets(compare_set: StateSet): StateSet | null;
-remove_state(type: StateType): boolean;
-xor_sets(compare_set: StateSet): StateSet;
+export class StateSet extends GObject.Object {
+    constructor(config?: properties);
+    add_state(type: StateType): boolean;
+    add_states(types: StateType[], n_types: number): void;
+    and_sets(compare_set: StateSet): StateSet;
+    clear_states(): void;
+    contains_state(type: StateType): boolean;
+    contains_states(types: StateType[], n_types: number): boolean;
+    is_empty(): boolean;
+    or_sets(compare_set: StateSet): StateSet | null;
+    remove_state(type: StateType): boolean;
+    xor_sets(compare_set: StateSet): StateSet;
 }
-export class Util  {constructor(config?: properties);
+export class Util  {
+    constructor(config?: properties);
 }
-export class ActionIface  {constructor(config?: properties);
-readonly do_action: unknown;
-readonly get_n_actions: unknown;
-readonly get_description: unknown;
-readonly get_name: unknown;
-readonly get_keybinding: unknown;
-readonly set_description: unknown;
-readonly get_localized_name: unknown;
+export class Attribute  {
+    constructor(config?: properties);
+    name: string;
+    value: string;
+    static set_free(attrib_set: AttributeSet): void;
 }
-export class Attribute  {constructor(config?: properties);
-name: string;
-value: string;
-static set_free(attrib_set: AttributeSet): void;
+export class Implementor  {
+    constructor(config?: properties);
+    ref_accessible(): Object;
 }
-export class ComponentIface  {constructor(config?: properties);
-readonly add_focus_handler: unknown;
-readonly contains: unknown;
-readonly ref_accessible_at_point: unknown;
-readonly get_extents: unknown;
-readonly get_position: unknown;
-readonly get_size: unknown;
-readonly grab_focus: unknown;
-readonly remove_focus_handler: unknown;
-readonly set_extents: unknown;
-readonly set_position: unknown;
-readonly set_size: unknown;
-readonly get_layer: unknown;
-readonly get_mdi_zorder: unknown;
-readonly bounds_changed: unknown;
-readonly get_alpha: unknown;
-readonly scroll_to: unknown;
-readonly scroll_to_point: unknown;
+export class KeyEventStruct  {
+    constructor(config?: properties);
+    type: number;
+    state: number;
+    keyval: number;
+    length: number;
+    string: string;
+    keycode: number;
+    timestamp: number;
 }
-export class DocumentIface  {constructor(config?: properties);
-readonly get_document_type: unknown;
-readonly get_document: unknown;
-readonly get_document_locale: unknown;
-readonly get_document_attributes: unknown;
-readonly get_document_attribute_value: unknown;
-readonly set_document_attribute: unknown;
-readonly get_current_page_number: unknown;
-readonly get_page_count: unknown;
+export class PropertyValues  {
+    constructor(config?: properties);
+    property_name: string;
+    old_value: GObject.Value;
+    new_value: GObject.Value;
 }
-export class EditableTextIface  {constructor(config?: properties);
-readonly parent_interface: GObject.TypeInterface;
-readonly set_run_attributes: unknown;
-readonly set_text_contents: unknown;
-readonly insert_text: unknown;
-readonly copy_text: unknown;
-readonly cut_text: unknown;
-readonly delete_text: unknown;
-readonly paste_text: unknown;
+export class Range  {
+    constructor(config?: properties);
+    copy(): Range;
+    free(): void;
+    get_description(): string;
+    get_lower_limit(): number;
+    get_upper_limit(): number;
 }
-export class GObjectAccessibleClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly pad1: Function;
-readonly pad2: Function;
+export class Rectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
-export class HyperlinkClass  {constructor(config?: properties);
-readonly get_uri: unknown;
-readonly get_object: unknown;
-readonly get_end_index: unknown;
-readonly get_start_index: unknown;
-readonly is_valid: unknown;
-readonly get_n_anchors: unknown;
-readonly link_state: unknown;
-readonly is_selected_link: unknown;
-readonly link_activated: unknown;
-readonly pad1: Function;
+export class TextRange  {
+    constructor(config?: properties);
+    bounds: TextRectangle;
+    start_offset: number;
+    end_offset: number;
+    content: string;
 }
-export class HyperlinkImplIface  {constructor(config?: properties);
-readonly get_hyperlink: unknown;
-}
-export class HypertextIface  {constructor(config?: properties);
-readonly get_link: unknown;
-readonly get_n_links: unknown;
-readonly get_link_index: unknown;
-readonly link_selected: unknown;
-}
-export class ImageIface  {constructor(config?: properties);
-readonly get_image_position: unknown;
-readonly get_image_description: unknown;
-readonly get_image_size: unknown;
-readonly set_image_description: unknown;
-readonly get_image_locale: unknown;
-}
-export class Implementor  {constructor(config?: properties);
-ref_accessible(): Object;
-}
-export class KeyEventStruct  {constructor(config?: properties);
-type: number;
-state: number;
-keyval: number;
-length: number;
-string: string;
-keycode: number;
-timestamp: number;
-}
-export class MiscClass  {constructor(config?: properties);
-readonly threads_enter: unknown;
-readonly threads_leave: unknown;
-readonly vfuncs: object[];
-}
-export class NoOpObjectClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-}
-export class NoOpObjectFactoryClass  {constructor(config?: properties);
-readonly parent_class: ObjectFactoryClass;
-}
-export class ObjectClass  {constructor(config?: properties);
-readonly get_name: unknown;
-readonly get_description: unknown;
-readonly get_parent: unknown;
-readonly get_n_children: unknown;
-readonly ref_child: unknown;
-readonly get_index_in_parent: unknown;
-readonly ref_relation_set: unknown;
-readonly get_role: unknown;
-readonly get_layer: unknown;
-readonly get_mdi_zorder: unknown;
-readonly ref_state_set: unknown;
-readonly set_name: unknown;
-readonly set_description: unknown;
-readonly set_parent: unknown;
-readonly set_role: unknown;
-readonly connect_property_change_handler: unknown;
-readonly remove_property_change_handler: unknown;
-readonly initialize: unknown;
-readonly children_changed: unknown;
-readonly focus_event: unknown;
-readonly property_change: unknown;
-readonly state_change: unknown;
-readonly visible_data_changed: unknown;
-readonly active_descendant_changed: unknown;
-readonly get_attributes: unknown;
-readonly get_object_locale: unknown;
-readonly pad1: Function;
-}
-export class ObjectFactoryClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly create_accessible: unknown;
-readonly invalidate: unknown;
-readonly get_accessible_type: unknown;
-readonly pad1: Function;
-readonly pad2: Function;
-}
-export class PlugClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly get_object_id: unknown;
-}
-export class PropertyValues  {constructor(config?: properties);
-property_name: string;
-old_value: GObject.Value;
-new_value: GObject.Value;
-}
-export class Range  {constructor(config?: properties);
-copy(): Range;
-free(): void;
-get_description(): string;
-get_lower_limit(): number;
-get_upper_limit(): number;
-}
-export class Rectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-}
-export class RegistryClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class RelationClass  {constructor(config?: properties);
-}
-export class RelationSetClass  {constructor(config?: properties);
-readonly pad1: Function;
-readonly pad2: Function;
-}
-export class SelectionIface  {constructor(config?: properties);
-readonly add_selection: unknown;
-readonly clear_selection: unknown;
-readonly ref_selection: unknown;
-readonly get_selection_count: unknown;
-readonly is_child_selected: unknown;
-readonly remove_selection: unknown;
-readonly select_all_selection: unknown;
-readonly selection_changed: unknown;
-}
-export class SocketClass  {constructor(config?: properties);
-readonly parent_class: ObjectClass;
-readonly embed: unknown;
-}
-export class StateSetClass  {constructor(config?: properties);
-}
-export class StreamableContentIface  {constructor(config?: properties);
-readonly get_n_mime_types: unknown;
-readonly get_mime_type: unknown;
-readonly get_stream: unknown;
-readonly get_uri: unknown;
-readonly pad1: Function;
-readonly pad2: Function;
-readonly pad3: Function;
-}
-export class TableCellIface  {constructor(config?: properties);
-readonly get_column_span: unknown;
-readonly get_column_header_cells: unknown;
-readonly get_position: unknown;
-readonly get_row_span: unknown;
-readonly get_row_header_cells: unknown;
-readonly get_row_column_span: unknown;
-readonly get_table: unknown;
-}
-export class TableIface  {constructor(config?: properties);
-readonly ref_at: unknown;
-readonly get_index_at: unknown;
-readonly get_column_at_index: unknown;
-readonly get_row_at_index: unknown;
-readonly get_n_columns: unknown;
-readonly get_n_rows: unknown;
-readonly get_column_extent_at: unknown;
-readonly get_row_extent_at: unknown;
-readonly get_caption: unknown;
-readonly get_column_description: unknown;
-readonly get_column_header: unknown;
-readonly get_row_description: unknown;
-readonly get_row_header: unknown;
-readonly get_summary: unknown;
-readonly set_caption: unknown;
-readonly set_column_description: unknown;
-readonly set_column_header: unknown;
-readonly set_row_description: unknown;
-readonly set_row_header: unknown;
-readonly set_summary: unknown;
-readonly get_selected_columns: unknown;
-readonly get_selected_rows: unknown;
-readonly is_column_selected: unknown;
-readonly is_row_selected: unknown;
-readonly is_selected: unknown;
-readonly add_row_selection: unknown;
-readonly remove_row_selection: unknown;
-readonly add_column_selection: unknown;
-readonly remove_column_selection: unknown;
-readonly row_inserted: unknown;
-readonly column_inserted: unknown;
-readonly row_deleted: unknown;
-readonly column_deleted: unknown;
-readonly row_reordered: unknown;
-readonly column_reordered: unknown;
-readonly model_changed: unknown;
-}
-export class TextIface  {constructor(config?: properties);
-readonly get_text: unknown;
-readonly get_text_after_offset: unknown;
-readonly get_text_at_offset: unknown;
-readonly get_character_at_offset: unknown;
-readonly get_text_before_offset: unknown;
-readonly get_caret_offset: unknown;
-readonly get_run_attributes: unknown;
-readonly get_default_attributes: unknown;
-readonly get_character_extents: unknown;
-readonly get_character_count: unknown;
-readonly get_offset_at_point: unknown;
-readonly get_n_selections: unknown;
-readonly get_selection: unknown;
-readonly add_selection: unknown;
-readonly remove_selection: unknown;
-readonly set_selection: unknown;
-readonly set_caret_offset: unknown;
-readonly text_changed: unknown;
-readonly text_caret_moved: unknown;
-readonly text_selection_changed: unknown;
-readonly text_attributes_changed: unknown;
-readonly get_range_extents: unknown;
-readonly get_bounded_ranges: unknown;
-readonly get_string_at_offset: unknown;
-readonly scroll_substring_to: unknown;
-readonly scroll_substring_to_point: unknown;
-}
-export class TextRange  {constructor(config?: properties);
-bounds: TextRectangle;
-start_offset: number;
-end_offset: number;
-content: string;
-}
-export class TextRectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-}
-export class UtilClass  {constructor(config?: properties);
-readonly add_global_event_listener: unknown;
-readonly remove_global_event_listener: unknown;
-readonly add_key_event_listener: unknown;
-readonly remove_key_event_listener: unknown;
-readonly get_root: unknown;
-readonly get_toolkit_name: unknown;
-readonly get_toolkit_version: unknown;
-}
-export class ValueIface  {constructor(config?: properties);
-readonly get_current_value: unknown;
-readonly get_maximum_value: unknown;
-readonly get_minimum_value: unknown;
-readonly set_current_value: unknown;
-readonly get_minimum_increment: unknown;
-readonly get_value_and_text: unknown;
-readonly get_range: unknown;
-readonly get_increment: unknown;
-readonly get_sub_ranges: unknown;
-readonly set_value: unknown;
-}
-export class WindowIface  {constructor(config?: properties);
+export class TextRectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
 export interface Action  {
-do_action(i: number): boolean;
-get_description(i: number): string | null;
-get_keybinding(i: number): string | null;
-get_localized_name(i: number): string | null;
-get_n_actions(): number;
-get_name(i: number): string | null;
-set_description(i: number, desc: string): boolean;
+    do_action(i: number): boolean;
+    get_description(i: number): string | null;
+    get_keybinding(i: number): string | null;
+    get_localized_name(i: number): string | null;
+    get_n_actions(): number;
+    get_name(i: number): string | null;
+    set_description(i: number, desc: string): boolean;
 }
 export interface Component  {
-add_focus_handler(handler: FocusHandler): number;
-contains(x: number, y: number, coord_type: CoordType): boolean;
-get_alpha(): number;
-get_extents(coord_type: CoordType): [number | null,number | null,number | null,number | null];
-get_layer(): Layer;
-get_mdi_zorder(): number;
-get_position(coord_type: CoordType): [number | null,number | null];
-get_size(): [number | null,number | null];
-grab_focus(): boolean;
-ref_accessible_at_point(x: number, y: number, coord_type: CoordType): Object | null;
-remove_focus_handler(handler_id: number): void;
-scroll_to(type: ScrollType): boolean;
-scroll_to_point(coords: CoordType, x: number, y: number): boolean;
-set_extents(x: number, y: number, width: number, height: number, coord_type: CoordType): boolean;
-set_position(x: number, y: number, coord_type: CoordType): boolean;
-set_size(width: number, height: number): boolean;
+    contains(x: number, y: number, coord_type: CoordType): boolean;
+    get_alpha(): number;
+    get_extents(coord_type: CoordType): [number | null,number | null,number | null,number | null];
+    get_layer(): Layer;
+    get_mdi_zorder(): number;
+    get_position(coord_type: CoordType): [number | null,number | null];
+    get_size(): [number | null,number | null];
+    grab_focus(): boolean;
+    ref_accessible_at_point(x: number, y: number, coord_type: CoordType): Object | null;
+    remove_focus_handler(handler_id: number): void;
+    scroll_to(type: ScrollType): boolean;
+    scroll_to_point(coords: CoordType, x: number, y: number): boolean;
+    set_extents(x: number, y: number, width: number, height: number, coord_type: CoordType): boolean;
+    set_position(x: number, y: number, coord_type: CoordType): boolean;
+    set_size(width: number, height: number): boolean;
 }
 export interface Document  {
-get_attribute_value(attribute_name: string): string | null;
-get_attributes(): AttributeSet;
-get_current_page_number(): number;
-get_document(): object | null;
-get_document_type(): string;
-get_locale(): string;
-get_page_count(): number;
-set_attribute_value(attribute_name: string, attribute_value: string): boolean;
+    get_attribute_value(attribute_name: string): string | null;
+    get_attributes(): AttributeSet;
+    get_current_page_number(): number;
+    get_document(): object | null;
+    get_document_type(): string;
+    get_locale(): string;
+    get_page_count(): number;
+    set_attribute_value(attribute_name: string, attribute_value: string): boolean;
 }
 export interface EditableText  {
-copy_text(start_pos: number, end_pos: number): void;
-cut_text(start_pos: number, end_pos: number): void;
-delete_text(start_pos: number, end_pos: number): void;
-insert_text(string: string, length: number, position: number): void;
-paste_text(position: number): void;
-set_run_attributes(attrib_set: AttributeSet, start_offset: number, end_offset: number): boolean;
-set_text_contents(string: string): void;
+    copy_text(start_pos: number, end_pos: number): void;
+    cut_text(start_pos: number, end_pos: number): void;
+    delete_text(start_pos: number, end_pos: number): void;
+    insert_text(string: string, length: number, position: number): void;
+    paste_text(position: number): void;
+    set_run_attributes(attrib_set: AttributeSet, start_offset: number, end_offset: number): boolean;
+    set_text_contents(string: string): void;
 }
 export interface HyperlinkImpl  {
-get_hyperlink(): Hyperlink;
+    get_hyperlink(): Hyperlink;
 }
 export interface Hypertext  {
-get_link(link_index: number): Hyperlink;
-get_link_index(char_index: number): number;
-get_n_links(): number;
+    get_link(link_index: number): Hyperlink;
+    get_link_index(char_index: number): number;
+    get_n_links(): number;
 }
 export interface Image  {
-get_image_description(): string;
-get_image_locale(): string | null;
-get_image_position(coord_type: CoordType): [number | null,number | null];
-get_image_size(): [number | null,number | null];
-set_image_description(description: string): boolean;
+    get_image_description(): string;
+    get_image_locale(): string | null;
+    get_image_position(coord_type: CoordType): [number | null,number | null];
+    get_image_size(): [number | null,number | null];
+    set_image_description(description: string): boolean;
 }
 export interface ImplementorIface  {
 }
 export interface Selection  {
-add_selection(i: number): boolean;
-clear_selection(): boolean;
-get_selection_count(): number;
-is_child_selected(i: number): boolean;
-ref_selection(i: number): Object | null;
-remove_selection(i: number): boolean;
-select_all_selection(): boolean;
+    add_selection(i: number): boolean;
+    clear_selection(): boolean;
+    get_selection_count(): number;
+    is_child_selected(i: number): boolean;
+    ref_selection(i: number): Object | null;
+    remove_selection(i: number): boolean;
+    select_all_selection(): boolean;
 }
 export interface StreamableContent  {
-get_mime_type(i: number): string;
-get_n_mime_types(): number;
-get_stream(mime_type: string): GLib.IOChannel;
-get_uri(mime_type: string): string | null;
+    get_mime_type(i: number): string;
+    get_n_mime_types(): number;
+    get_stream(mime_type: string): GLib.IOChannel;
+    get_uri(mime_type: string): string | null;
 }
 export interface Table  {
-add_column_selection(column: number): boolean;
-add_row_selection(row: number): boolean;
-get_caption(): Object | null;
-get_column_at_index(index_: number): number;
-get_column_description(column: number): string;
-get_column_extent_at(row: number, column: number): number;
-get_column_header(column: number): Object | null;
-get_index_at(row: number, column: number): number;
-get_n_columns(): number;
-get_n_rows(): number;
-get_row_at_index(index_: number): number;
-get_row_description(row: number): string | null;
-get_row_extent_at(row: number, column: number): number;
-get_row_header(row: number): Object | null;
-get_selected_columns(selected: number): number;
-get_selected_rows(selected: number): number;
-get_summary(): Object;
-is_column_selected(column: number): boolean;
-is_row_selected(row: number): boolean;
-is_selected(row: number, column: number): boolean;
-ref_at(row: number, column: number): Object;
-remove_column_selection(column: number): boolean;
-remove_row_selection(row: number): boolean;
-set_caption(caption: Object): void;
-set_column_description(column: number, description: string): void;
-set_column_header(column: number, header: Object): void;
-set_row_description(row: number, description: string): void;
-set_row_header(row: number, header: Object): void;
-set_summary(accessible: Object): void;
+    add_column_selection(column: number): boolean;
+    add_row_selection(row: number): boolean;
+    get_caption(): Object | null;
+    get_column_at_index(index_: number): number;
+    get_column_description(column: number): string;
+    get_column_extent_at(row: number, column: number): number;
+    get_column_header(column: number): Object | null;
+    get_index_at(row: number, column: number): number;
+    get_n_columns(): number;
+    get_n_rows(): number;
+    get_row_at_index(index_: number): number;
+    get_row_description(row: number): string | null;
+    get_row_extent_at(row: number, column: number): number;
+    get_row_header(row: number): Object | null;
+    get_selected_columns(selected: number): number;
+    get_selected_rows(selected: number): number;
+    get_summary(): Object;
+    is_column_selected(column: number): boolean;
+    is_row_selected(row: number): boolean;
+    is_selected(row: number, column: number): boolean;
+    ref_at(row: number, column: number): Object;
+    remove_column_selection(column: number): boolean;
+    remove_row_selection(row: number): boolean;
+    set_caption(caption: Object): void;
+    set_column_description(column: number, description: string): void;
+    set_column_header(column: number, header: Object): void;
+    set_row_description(row: number, description: string): void;
+    set_row_header(row: number, header: Object): void;
+    set_summary(accessible: Object): void;
 }
 export interface TableCell  {
-get_column_header_cells(): Object[];
-get_column_span(): number;
-get_position(): [boolean, number,number];
-get_row_column_span(): [boolean, number,number,number,number];
-get_row_header_cells(): Object[];
-get_row_span(): number;
-get_table(): Object;
+    get_column_header_cells(): Object[];
+    get_column_span(): number;
+    get_position(): [boolean, number,number];
+    get_row_column_span(): [boolean, number,number,number,number];
+    get_row_header_cells(): Object[];
+    get_row_span(): number;
+    get_table(): Object;
 }
 export interface Text  {
-add_selection(start_offset: number, end_offset: number): boolean;
-get_bounded_ranges(rect: TextRectangle, coord_type: CoordType, x_clip_type: TextClipType, y_clip_type: TextClipType): TextRange[];
-get_caret_offset(): number;
-get_character_at_offset(offset: number): number;
-get_character_count(): number;
-get_character_extents(offset: number, coords: CoordType): [number | null,number | null,number | null,number | null];
-get_default_attributes(): AttributeSet;
-get_n_selections(): number;
-get_offset_at_point(x: number, y: number, coords: CoordType): number;
-get_range_extents(start_offset: number, end_offset: number, coord_type: CoordType): [TextRectangle];
-get_run_attributes(offset: number): [AttributeSet, number,number];
-get_selection(selection_num: number): [string, number,number];
-get_string_at_offset(offset: number, granularity: TextGranularity): [string | null, number,number];
-get_text(start_offset: number, end_offset: number): string;
-get_text_after_offset(offset: number, boundary_type: TextBoundary): [string, number,number];
-get_text_at_offset(offset: number, boundary_type: TextBoundary): [string, number,number];
-get_text_before_offset(offset: number, boundary_type: TextBoundary): [string, number,number];
-remove_selection(selection_num: number): boolean;
-scroll_substring_to(start_offset: number, end_offset: number, type: ScrollType): boolean;
-scroll_substring_to_point(start_offset: number, end_offset: number, coords: CoordType, x: number, y: number): boolean;
-set_caret_offset(offset: number): boolean;
-set_selection(selection_num: number, start_offset: number, end_offset: number): boolean;
+    add_selection(start_offset: number, end_offset: number): boolean;
+    get_bounded_ranges(rect: TextRectangle, coord_type: CoordType, x_clip_type: TextClipType, y_clip_type: TextClipType): TextRange[];
+    get_caret_offset(): number;
+    get_character_at_offset(offset: number): number;
+    get_character_count(): number;
+    get_character_extents(offset: number, coords: CoordType): [number | null,number | null,number | null,number | null];
+    get_default_attributes(): AttributeSet;
+    get_n_selections(): number;
+    get_offset_at_point(x: number, y: number, coords: CoordType): number;
+    get_range_extents(start_offset: number, end_offset: number, coord_type: CoordType): [TextRectangle];
+    get_run_attributes(offset: number): [AttributeSet, number,number];
+    get_selection(selection_num: number): [string, number,number];
+    get_string_at_offset(offset: number, granularity: TextGranularity): [string | null, number,number];
+    get_text(start_offset: number, end_offset: number): string;
+    get_text_after_offset(offset: number, boundary_type: TextBoundary): [string, number,number];
+    get_text_at_offset(offset: number, boundary_type: TextBoundary): [string, number,number];
+    get_text_before_offset(offset: number, boundary_type: TextBoundary): [string, number,number];
+    remove_selection(selection_num: number): boolean;
+    scroll_substring_to(start_offset: number, end_offset: number, type: ScrollType): boolean;
+    scroll_substring_to_point(start_offset: number, end_offset: number, coords: CoordType, x: number, y: number): boolean;
+    set_caret_offset(offset: number): boolean;
+    set_selection(selection_num: number, start_offset: number, end_offset: number): boolean;
 }
 export interface Value  {
-get_current_value(): [GObject.Value];
-get_increment(): number;
-get_maximum_value(): [GObject.Value];
-get_minimum_increment(): [GObject.Value];
-get_minimum_value(): [GObject.Value];
-get_range(): Range | null;
-get_sub_ranges(): string[];
-get_value_and_text(): [number,string | null];
-set_current_value(value: GObject.Value): boolean;
-set_value(new_value: number): void;
+    get_current_value(): [GObject.Value];
+    get_increment(): number;
+    get_maximum_value(): [GObject.Value];
+    get_minimum_increment(): [GObject.Value];
+    get_minimum_value(): [GObject.Value];
+    get_range(): Range | null;
+    get_sub_ranges(): string[];
+    get_value_and_text(): [number,string | null];
+    set_current_value(value: GObject.Value): boolean;
+    set_value(new_value: number): void;
 }
 export interface Window  {
 }

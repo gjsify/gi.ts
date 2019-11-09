@@ -8,6 +8,7 @@ import * as Gtk from "gtk";
  * gnomeautoargtk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * Gets the selected archive format of the widget created by
  * autoar_gtk_chooser_advanced_new().

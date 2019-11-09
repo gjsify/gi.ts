@@ -8,6 +8,7 @@ import * as Farstream from "farstream";
  * farstream.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const CODEC_FORMAT: string;
 export const CODEC_ID_ANY: number;
 export const CODEC_ID_DISABLE: number;
@@ -17,10 +18,6 @@ export const RTP_HEADER_EXTENSION_FORMAT: string;
  */
 export function candidate_list_copy(candidate_list: GLib.List): GLib.List;
 /**
- * Deletes a GList of #FsCandidate and its contents
- */
-export function candidate_list_destroy(candidate_list: GLib.List): void;
-/**
  * Verifies if two glist of fscodecs are identical
  */
 export function codec_list_are_equal(list1: GLib.List | null, list2: GLib.List | null): boolean;
@@ -28,11 +25,6 @@ export function codec_list_are_equal(list1: GLib.List | null, list2: GLib.List |
  * Copies a list of #FsCodec structures.
  */
 export function codec_list_copy(codec_list: GLib.List): GLib.List;
-/**
- * Deletes a list of #FsCodec structures and the list itself.
- * Does nothing on %NULL lists.
- */
-export function codec_list_destroy(codec_list: GLib.List): void;
 /**
  * Reads the content of a #GKeyFile of the following format into
  * a #GList of #FsCodec structures.
@@ -70,10 +62,6 @@ export function parse_error(object: GObject.Object, message: Gst.Message): [bool
  */
 export function rtp_header_extension_list_copy(extensions: GLib.List): GLib.List;
 /**
- * Frees the passed #GList of #FsRtpHeaderExtension
- */
-export function rtp_header_extension_list_destroy(extensions: GLib.List): void;
-/**
  * Reads the content of a #GKeyFile of the following format into a
  * #GList of #FsRtpHeaderExtension structures.
  * The groups have a format "rtp-hdrext:audio:XXX" or
@@ -107,12 +95,6 @@ export function rtp_header_extension_list_from_keyfile(filename: string, media_t
  * .
  */
 export function utils_get_default_codec_preferences(element: Gst.Element): GLib.List;
-/**
- * This function produces a #GKeyFile that can be fed to
- * fs_element_added_notifier_set_properties_from_keyfile(). If no
- * default properties have been found, it will return %NULL.
- */
-export function utils_get_default_element_properties(element: Gst.Element): GLib.KeyFile;
 /**
  * These default rtp header extension preferences should work with the el
  * ements
@@ -210,219 +192,173 @@ export enum StreamDirection {
     RECV = 2,
     BOTH = 3,
 }
-export class Conference  {constructor(config?: properties);
-readonly _padding: object[];
-new_participant(): Participant;
-new_session(media_type: MediaType): Session;
+export class Conference  {
+    constructor(config?: properties);
+    new_participant(): Participant;
+    new_session(media_type: MediaType): Session;
 }
-export class ElementAddedNotifier extends GObject.Object {constructor(config?: properties);
-add(bin: Gst.Bin): void;
-remove(bin: Gst.Bin): boolean;
-set_default_properties(element: Gst.Element): number;
-set_properties_from_file(filename: string): boolean;
-set_properties_from_keyfile(keyfile: GLib.KeyFile): number;
+export class ElementAddedNotifier extends GObject.Object {
+    constructor(config?: properties);
+    add(bin: Gst.Bin): void;
+    remove(bin: Gst.Bin): boolean;
+    set_default_properties(element: Gst.Element): number;
+    set_properties_from_file(filename: string): boolean;
+    set_properties_from_keyfile(keyfile: GLib.KeyFile): number;
 }
-export class Participant  {constructor(config?: properties);
-readonly mutex: GLib.Mutex;
-readonly priv: ParticipantPrivate;
-readonly _padding: object[];
+export class Participant  {
+    constructor(config?: properties);
+    readonly mutex: GLib.Mutex;
+    readonly priv: ParticipantPrivate;
 }
-export class Plugin  {constructor(config?: properties);
-readonly type: unknown;
-readonly name: string;
-readonly priv: PluginPrivate;
-readonly unused: object[];
-static create(name: string, type_suffix: string, error: GLib.Error, first_property_name: string, ___: unknown[]): GObject.Object;
-static create_valist(name: string, type_suffix: string, error: GLib.Error, first_property_name: string, var_args: any): GObject.Object;
-static list_available(type_suffix: string): string[];
-static register_static(name: string, type_suffix: string, type: unknown): void;
+export class Plugin  {
+    constructor(config?: properties);
+    readonly type: GType;
+    readonly name: string;
+    readonly priv: PluginPrivate;
+    readonly unused: object[];
+    static list_available(type_suffix: string): string[];
+    static register_static(name: string, type_suffix: string, type: GType): void;
 }
-export class Session  {constructor(config?: properties);
-readonly allowed_sink_caps: Gst.Caps;
-readonly allowed_src_caps: Gst.Caps;
-readonly codec_preferences: GLib.List;
-readonly codecs: GLib.List;
-readonly codecs_without_config: GLib.List;
-conference: Conference;
-readonly current_send_codec: Codec;
-readonly encryption_parameters: Gst.Structure;
-id: number;
-media_type: MediaType;
-readonly sink_pad: Gst.Pad;
-tos: number;
-readonly priv: SessionPrivate;
-readonly _padding: object[];
-codecs_need_resend(old_codecs: GLib.List | null, new_codecs: GLib.List | null): GLib.List;
-destroy(): void;
-emit_error(error_no: number, error_msg: string): void;
-get_stream_transmitter_type(transmitter: string): unknown;
-list_transmitters(): string[];
-new_stream(participant: Participant, direction: StreamDirection): Stream;
-parse_codecs_changed(message: Gst.Message): boolean;
-parse_send_codec_changed(message: Gst.Message): [boolean, Codec,GLib.List];
-parse_telephony_event_started(message: Gst.Message): [boolean, DTMFMethod,DTMFEvent,number];
-parse_telephony_event_stopped(message: Gst.Message): [boolean, DTMFMethod];
-set_allowed_caps(sink_caps: Gst.Caps | null, src_caps: Gst.Caps | null): boolean;
-set_codec_preferences(codec_preferences: GLib.List | null): boolean;
-set_encryption_parameters(parameters: Gst.Structure | null): boolean;
-set_send_codec(send_codec: Codec): boolean;
-start_telephony_event(event: number, volume: number): boolean;
-stop_telephony_event(): boolean;
+export class Session  {
+    constructor(config?: properties);
+    readonly allowed_sink_caps: Gst.Caps;
+    readonly allowed_src_caps: Gst.Caps;
+    readonly codec_preferences: GLib.List;
+    readonly codecs: GLib.List;
+    readonly codecs_without_config: GLib.List;
+    conference: Conference;
+    readonly current_send_codec: Codec;
+    readonly encryption_parameters: Gst.Structure;
+    id: number;
+    media_type: MediaType;
+    readonly sink_pad: Gst.Pad;
+    tos: number;
+    readonly priv: SessionPrivate;
+    codecs_need_resend(old_codecs: GLib.List | null, new_codecs: GLib.List | null): GLib.List;
+    destroy(): void;
+    emit_error(error_no: number, error_msg: string): void;
+    get_stream_transmitter_type(transmitter: string): GType;
+    list_transmitters(): string[];
+    new_stream(participant: Participant, direction: StreamDirection): Stream;
+    parse_codecs_changed(message: Gst.Message): boolean;
+    parse_send_codec_changed(message: Gst.Message): [boolean, Codec,GLib.List];
+    parse_telephony_event_started(message: Gst.Message): [boolean, DTMFMethod,DTMFEvent,number];
+    parse_telephony_event_stopped(message: Gst.Message): [boolean, DTMFMethod];
+    set_allowed_caps(sink_caps: Gst.Caps | null, src_caps: Gst.Caps | null): boolean;
+    set_codec_preferences(codec_preferences: GLib.List | null): boolean;
+    set_encryption_parameters(parameters: Gst.Structure | null): boolean;
+    set_send_codec(send_codec: Codec): boolean;
+    start_telephony_event(event: number, volume: number): boolean;
+    stop_telephony_event(): boolean;
 }
-export class Stream  {constructor(config?: properties);
-readonly current_recv_codecs: GLib.List;
-readonly decryption_parameters: Gst.Structure;
-direction: StreamDirection;
-readonly negotiated_codecs: GLib.List;
-participant: Participant;
-readonly remote_codecs: GLib.List;
-require_encryption: boolean;
-session: Session;
-readonly priv: StreamPrivate;
-readonly _padding: object[];
-add_id(id: number): void;
-add_remote_candidates(candidates: GLib.List): boolean;
-destroy(): void;
-emit_error(error_no: number, error_msg: string): void;
-emit_src_pad_added(pad: Gst.Pad, codec: Codec): void;
-force_remote_candidates(remote_candidates: GLib.List): boolean;
-iterate_src_pads(): Gst.Iterator;
-parse_component_state_changed(message: Gst.Message): [boolean, number,StreamState];
-parse_local_candidates_prepared(message: Gst.Message): boolean;
-parse_new_active_candidate_pair(message: Gst.Message): [boolean, Candidate,Candidate];
-parse_new_local_candidate(message: Gst.Message): [boolean, Candidate];
-parse_recv_codecs_changed(message: Gst.Message): [boolean, GLib.List];
-set_decryption_parameters(parameters: Gst.Structure): boolean;
-set_remote_codecs(remote_codecs: GLib.List): boolean;
-set_transmitter(transmitter: string, stream_transmitter_parameters: GObject.Parameter[] | null, stream_transmitter_n_parameters: number): boolean;
-set_transmitter_ht(transmitter: string, stream_transmitter_parameters: GLib.HashTable | null): boolean;
+export class Stream  {
+    constructor(config?: properties);
+    readonly current_recv_codecs: GLib.List;
+    readonly decryption_parameters: Gst.Structure;
+    direction: StreamDirection;
+    readonly negotiated_codecs: GLib.List;
+    participant: Participant;
+    readonly remote_codecs: GLib.List;
+    require_encryption: boolean;
+    session: Session;
+    readonly priv: StreamPrivate;
+    add_id(id: number): void;
+    add_remote_candidates(candidates: GLib.List): boolean;
+    destroy(): void;
+    emit_error(error_no: number, error_msg: string): void;
+    emit_src_pad_added(pad: Gst.Pad, codec: Codec): void;
+    force_remote_candidates(remote_candidates: GLib.List): boolean;
+    iterate_src_pads(): Gst.Iterator;
+    parse_component_state_changed(message: Gst.Message): [boolean, number,StreamState];
+    parse_local_candidates_prepared(message: Gst.Message): boolean;
+    parse_new_active_candidate_pair(message: Gst.Message): [boolean, Candidate,Candidate];
+    parse_new_local_candidate(message: Gst.Message): [boolean, Candidate];
+    parse_recv_codecs_changed(message: Gst.Message): [boolean, GLib.List];
+    set_decryption_parameters(parameters: Gst.Structure): boolean;
+    set_remote_codecs(remote_codecs: GLib.List): boolean;
+    set_transmitter(transmitter: string, stream_transmitter_parameters: GObject.Parameter[] | null, stream_transmitter_n_parameters: number): boolean;
+    set_transmitter_ht(transmitter: string, stream_transmitter_parameters: GLib.HashTable | null): boolean;
 }
-export class StreamTransmitter  {constructor(config?: properties);
-associate_on_source: boolean;
-preferred_local_candidates: unknown;
-sending: boolean;
-readonly priv: StreamTransmitterPrivate;
-readonly _padding: object[];
-add_remote_candidates(candidates: GLib.List): boolean;
-emit_error(error_no: number, error_msg: string): void;
-force_remote_candidates(remote_candidates: GLib.List): boolean;
-gather_local_candidates(): boolean;
-stop(): void;
+export class StreamTransmitter  {
+    constructor(config?: properties);
+    associate_on_source: boolean;
+    preferred_local_candidates: unknown;
+    sending: boolean;
+    readonly priv: StreamTransmitterPrivate;
+    add_remote_candidates(candidates: GLib.List): boolean;
+    emit_error(error_no: number, error_msg: string): void;
+    force_remote_candidates(remote_candidates: GLib.List): boolean;
+    gather_local_candidates(): boolean;
+    stop(): void;
 }
-export class Transmitter extends GObject.Object {constructor(config?: properties);
-components: number;
-do_timestamp: boolean;
-readonly gst_sink: Gst.Element;
-readonly gst_src: Gst.Element;
-tos: number;
-emit_error(error_no: number, error_msg: string): void;
-get_stream_transmitter_type(): unknown;
-new_stream_transmitter(participant: Participant, n_parameters: number, parameters: GObject.Parameter): StreamTransmitter;
-vfunc_get_stream_transmitter_type(): unknown;
-vfunc_new_stream_transmitter(participant: Participant, n_parameters: number, parameters: GObject.Parameter): StreamTransmitter;
-static list_available(): string[];
+export class Transmitter extends GObject.Object {
+    constructor(config?: properties);
+    components: number;
+    do_timestamp: boolean;
+    readonly gst_sink: Gst.Element;
+    readonly gst_src: Gst.Element;
+    tos: number;
+    emit_error(error_no: number, error_msg: string): void;
+    get_stream_transmitter_type(): GType;
+    new_stream_transmitter(participant: Participant, n_parameters: number, parameters: GObject.Parameter): StreamTransmitter;
+    vfunc_get_stream_transmitter_type(): GType;
+    vfunc_new_stream_transmitter(participant: Participant, n_parameters: number, parameters: GObject.Parameter): StreamTransmitter;
+    static list_available(): string[];
 }
-export class Candidate  {constructor(config?: properties);
-static new_full(foundation: string, component_id: number, ip: string | null, port: number, base_ip: string | null, base_port: number, proto: NetworkProtocol, priority: number, type: CandidateType, username: string | null, password: string | null, ttl: number): Candidate;
-copy(): Candidate;
-destroy(): void;
+export class Candidate  {
+    constructor(config?: properties);
+    static new_full(foundation: string, component_id: number, ip: string | null, port: number, base_ip: string | null, base_port: number, proto: NetworkProtocol, priority: number, type: CandidateType, username: string | null, password: string | null, ttl: number): Candidate;
+    copy(): Candidate;
 }
-export class Codec  {constructor(config?: properties);
-add_feedback_parameter(type: string, subtype: string, extra_params: string): void;
-add_optional_parameter(name: string, value: string): void;
-are_equal(codec2: Codec): boolean;
-copy(): Codec;
-destroy(): void;
-get_feedback_parameter(type: string | null, subtype: string | null, extra_params: string | null): FeedbackParameter;
-get_optional_parameter(name: string, value: string | null): CodecParameter;
-remove_feedback_parameter(item: GLib.List): void;
-remove_optional_parameter(param: CodecParameter): void;
-to_string(): string;
+export class Codec  {
+    constructor(config?: properties);
+    add_feedback_parameter(type: string, subtype: string, extra_params: string): void;
+    add_optional_parameter(name: string, value: string): void;
+    are_equal(codec2: Codec): boolean;
+    copy(): Codec;
+    get_feedback_parameter(type: string | null, subtype: string | null, extra_params: string | null): FeedbackParameter;
+    get_optional_parameter(name: string, value: string | null): CodecParameter;
+    remove_feedback_parameter(item: GLib.List): void;
+    remove_optional_parameter(param: CodecParameter): void;
+    to_string(): string;
 }
-export class CodecParameter  {constructor(config?: properties);
-name: string;
-value: string;
-copy(): CodecParameter;
-free(): void;
+export class CodecParameter  {
+    constructor(config?: properties);
+    name: string;
+    value: string;
+    copy(): CodecParameter;
+    free(): void;
 }
-export class ConferenceClass  {constructor(config?: properties);
-readonly new_session: unknown;
-readonly new_participant: unknown;
-readonly _gst_reserved: object[];
+export class ElementAddedNotifierPrivate  {
+    constructor(config?: properties);
 }
-export class ElementAddedNotifierClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class FeedbackParameter  {
+    constructor(config?: properties);
+    type: string;
+    subtype: string;
+    extra_params: string;
+    copy(): FeedbackParameter;
+    free(): void;
 }
-export class ElementAddedNotifierPrivate  {constructor(config?: properties);
+export class ParticipantPrivate  {
+    constructor(config?: properties);
 }
-export class FeedbackParameter  {constructor(config?: properties);
-type: string;
-subtype: string;
-extra_params: string;
-copy(): FeedbackParameter;
-free(): void;
+export class PluginPrivate  {
+    constructor(config?: properties);
 }
-export class ParticipantClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly priv: ParticipantPrivate;
-readonly _padding: object[];
+export class RtpHeaderExtension  {
+    constructor(config?: properties);
+    are_equal(extension2: RtpHeaderExtension): boolean;
 }
-export class ParticipantPrivate  {constructor(config?: properties);
+export class SessionPrivate  {
+    constructor(config?: properties);
 }
-export class PluginClass  {constructor(config?: properties);
-readonly parent_class: GObject.TypeModuleClass;
-readonly unused: object[];
+export class StreamPrivate  {
+    constructor(config?: properties);
 }
-export class PluginPrivate  {constructor(config?: properties);
+export class StreamTransmitterPrivate  {
+    constructor(config?: properties);
 }
-export class RtpHeaderExtension  {constructor(config?: properties);
-are_equal(extension2: RtpHeaderExtension): boolean;
-copy(): RtpHeaderExtension;
-destroy(): void;
-}
-export class SessionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly new_stream: unknown;
-readonly start_telephony_event: unknown;
-readonly stop_telephony_event: unknown;
-readonly set_send_codec: unknown;
-readonly set_codec_preferences: unknown;
-readonly list_transmitters: unknown;
-readonly get_stream_transmitter_type: unknown;
-readonly codecs_need_resend: unknown;
-readonly set_allowed_caps: unknown;
-readonly set_encryption_parameters: unknown;
-readonly _padding: object[];
-}
-export class SessionPrivate  {constructor(config?: properties);
-}
-export class StreamClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly add_remote_candidates: unknown;
-readonly force_remote_candidates: unknown;
-readonly set_remote_codecs: unknown;
-readonly add_id: unknown;
-readonly set_transmitter: unknown;
-readonly set_decryption_parameters: unknown;
-readonly _padding: object[];
-}
-export class StreamPrivate  {constructor(config?: properties);
-}
-export class StreamTransmitterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly add_remote_candidates: unknown;
-readonly force_remote_candidates: unknown;
-readonly gather_local_candidates: unknown;
-readonly stop: unknown;
-readonly _padding: object[];
-}
-export class StreamTransmitterPrivate  {constructor(config?: properties);
-}
-export class TransmitterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly new_stream_transmitter: unknown;
-readonly get_stream_transmitter_type: unknown;
-readonly _padding: object[];
-}
-export class TransmitterPrivate  {constructor(config?: properties);
+export class TransmitterPrivate  {
+    constructor(config?: properties);
 }

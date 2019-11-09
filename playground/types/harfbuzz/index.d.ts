@@ -7,6 +7,7 @@ import * as HarfBuzz from "harfbuzz";
  * harfbuzz.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type buffer_message_func_t = (buffer: buffer_t, font: font_t, message: string, user_data: object | null) => bool_t;
 export type destroy_func_t = (user_data: object | null) => void;
 export type font_get_font_extents_func_t = (font: font_t, font_data: object | null, extents: font_extents_t, user_data: object | null) => bool_t;
@@ -55,12 +56,6 @@ export const VERSION_STRING: string;
  */
 export function blob_copy_writable_or_fail(blob: blob_t): blob_t;
 /**
- * Creates a new "blob" object wrapping @data.  The @mode parameter is us
- * ed
- * to negotiate ownership and lifecycle of @data.
- */
-export function blob_create(data: string, length: number, mode: memory_mode_t, user_data: object | null, destroy: destroy_func_t): blob_t;
-/**
  * 
  */
 export function blob_create_from_file(file_name: string): blob_t;
@@ -73,15 +68,6 @@ export function blob_create_from_file(file_name: string): blob_t;
  * Makes @parent immutable.
  */
 export function blob_create_sub_blob(parent: blob_t, offset: number, length: number): blob_t;
-/**
- * Decreases the reference count on @blob, and if it reaches zero, destro
- * ys
- * @blob, freeing all memory, possibly calling the destroy-callback the b
- * lob
- * was created for if it has not been called already.
- * See TODO:link object types for more information.
- */
-export function blob_destroy(blob: blob_t): void;
 /**
  * 
  */
@@ -105,24 +91,11 @@ export function blob_get_length(blob: blob_t): number;
 /**
  * 
  */
-export function blob_get_user_data(blob: blob_t, key: user_data_key_t): object | null;
-/**
- * 
- */
 export function blob_is_immutable(blob: blob_t): bool_t;
 /**
  * 
  */
 export function blob_make_immutable(blob: blob_t): void;
-/**
- * Increases the reference count on @blob.
- * See TODO:link object types for more information.
- */
-export function blob_reference(blob: blob_t): blob_t;
-/**
- * 
- */
-export function blob_set_user_data(blob: blob_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * Appends a character with the Unicode value of @codepoint to @buffer, a
  * nd
@@ -207,14 +180,6 @@ export function buffer_create(): buffer_t;
  */
 export function buffer_deserialize_glyphs(buffer: buffer_t, buf: string[], buf_len: number, font: font_t, format: buffer_serialize_format_t): [bool_t, string];
 /**
- * Deallocate the @buffer.
- * Decreases the reference count on @buffer by one. If the result is zero
- * , then
- * @buffer and all associated resources are freed. See hb_buffer_referenc
- * e().
- */
-export function buffer_destroy(buffer: buffer_t): void;
-/**
  * If dottedcircle_glyph is (hb_codepoint_t) -1 then %HB_BUFFER_DIFF_FLAG
  * _DOTTED_CIRCLE_PRESENT
  * and %HB_BUFFER_DIFF_FLAG_NOTDEF_PRESENT are never returned.  This shou
@@ -281,10 +246,6 @@ export function buffer_get_segment_properties(buffer: buffer_t): [segment_proper
  */
 export function buffer_get_unicode_funcs(buffer: buffer_t): unicode_funcs_t;
 /**
- * 
- */
-export function buffer_get_user_data(buffer: buffer_t, key: user_data_key_t): object | null;
-/**
  * Sets unset buffer segment properties based on buffer Unicode
  * contents.  If buffer is not empty, it must have content type
  * %HB_BUFFER_CONTENT_TYPE_UNICODE.
@@ -318,12 +279,6 @@ export function buffer_normalize_glyphs(buffer: buffer_t): void;
  * .
  */
 export function buffer_pre_allocate(buffer: buffer_t, size: number): bool_t;
-/**
- * Increases the reference count on @buffer by one. This prevents @buffer
- *  from
- * being destroyed until a matching call to hb_buffer_destroy() is made.
- */
-export function buffer_reference(buffer: buffer_t): buffer_t;
 /**
  * Resets the buffer to its initial status, as if it was just newly creat
  * ed
@@ -478,10 +433,6 @@ export function buffer_set_segment_properties(buffer: buffer_t, props: segment_p
  */
 export function buffer_set_unicode_funcs(buffer: buffer_t, unicode_funcs: unicode_funcs_t): void;
 /**
- * 
- */
-export function buffer_set_user_data(buffer: buffer_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
-/**
  * color: a #hb_color_t we are interested in its channels.
  */
 export function color_get_alpha(color: color_t): number;
@@ -545,10 +496,6 @@ export function face_create_for_tables(reference_table_func: reference_table_fun
 /**
  * 
  */
-export function face_destroy(face: face_t): void;
-/**
- * 
- */
 export function face_get_empty(): face_t;
 /**
  * 
@@ -569,19 +516,11 @@ export function face_get_upem(face: face_t): number;
 /**
  * 
  */
-export function face_get_user_data(face: face_t, key: user_data_key_t): object | null;
-/**
- * 
- */
 export function face_is_immutable(face: face_t): bool_t;
 /**
  * 
  */
 export function face_make_immutable(face: face_t): void;
-/**
- * 
- */
-export function face_reference(face: face_t): face_t;
 /**
  * 
  */
@@ -602,10 +541,6 @@ export function face_set_index(face: face_t, index: number): void;
  * 
  */
 export function face_set_upem(face: face_t, upem: number): void;
-/**
- * 
- */
-export function face_set_user_data(face: face_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * Parses a string into a #hb_feature_t.
  * The format for specifying feature strings follows. All valid CSS
@@ -681,23 +616,11 @@ export function font_create_sub_font(parent: font_t): font_t;
 /**
  * 
  */
-export function font_destroy(font: font_t): void;
-/**
- * 
- */
 export function font_funcs_create(): font_funcs_t;
 /**
  * 
  */
-export function font_funcs_destroy(ffuncs: font_funcs_t): void;
-/**
- * 
- */
 export function font_funcs_get_empty(): font_funcs_t;
-/**
- * 
- */
-export function font_funcs_get_user_data(ffuncs: font_funcs_t, key: user_data_key_t): object | null;
 /**
  * 
  */
@@ -706,10 +629,6 @@ export function font_funcs_is_immutable(ffuncs: font_funcs_t): bool_t;
  * 
  */
 export function font_funcs_make_immutable(ffuncs: font_funcs_t): void;
-/**
- * 
- */
-export function font_funcs_reference(ffuncs: font_funcs_t): font_funcs_t;
 /**
  * 
  */
@@ -779,10 +698,6 @@ export function font_funcs_set_nominal_glyph_func(ffuncs: font_funcs_t, func: fo
  * 
  */
 export function font_funcs_set_nominal_glyphs_func(ffuncs: font_funcs_t, func: font_get_nominal_glyphs_func_t, user_data: object | null, destroy: destroy_func_t): void;
-/**
- * 
- */
-export function font_funcs_set_user_data(ffuncs: font_funcs_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * 
  */
@@ -902,10 +817,6 @@ export function font_get_scale(font: font_t): [number,number];
 /**
  * 
  */
-export function font_get_user_data(font: font_t, key: user_data_key_t): object | null;
-/**
- * 
- */
 export function font_get_v_extents(font: font_t): [bool_t, font_extents_t];
 /**
  * Return value is valid as long as variation coordinates of the font
@@ -932,10 +843,6 @@ export function font_is_immutable(font: font_t): bool_t;
  * 
  */
 export function font_make_immutable(font: font_t): void;
-/**
- * 
- */
-export function font_reference(font: font_t): font_t;
 /**
  * Sets font-face of @font.
  */
@@ -968,10 +875,6 @@ export function font_set_scale(font: font_t, x_scale: number, y_scale: number): 
 /**
  * 
  */
-export function font_set_user_data(font: font_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
-/**
- * 
- */
 export function font_set_var_coords_design(font: font_t, coords: number, coords_length: number): void;
 /**
  * 
@@ -992,31 +895,7 @@ export function font_subtract_glyph_origin_for_direction(font: font_t, glyph: co
 /**
  * 
  */
-export function ft_face_create(ft_face: unknown, destroy: destroy_func_t): face_t;
-/**
- * 
- */
-export function ft_face_create_cached(ft_face: unknown): face_t;
-/**
- * 
- */
-export function ft_face_create_referenced(ft_face: unknown): face_t;
-/**
- * 
- */
 export function ft_font_changed(font: font_t): void;
-/**
- * 
- */
-export function ft_font_create(ft_face: unknown, destroy: destroy_func_t): font_t;
-/**
- * 
- */
-export function ft_font_create_referenced(ft_face: unknown): font_t;
-/**
- * 
- */
-export function ft_font_get_face(font: font_t): unknown;
 /**
  * 
  */
@@ -1049,14 +928,6 @@ export function glib_script_to_script(script: GLib.UnicodeScript): script_t;
  * Returns glyph flags encoded within a #hb_glyph_info_t.
  */
 export function glyph_info_get_glyph_flags(info: glyph_info_t): glyph_flags_t;
-/**
- * 
- */
-export function graphite2_face_get_gr_face(face: face_t): unknown;
-/**
- * 
- */
-export function graphite2_font_get_gr_font(font: font_t): unknown;
 /**
  * Converts @str representing a BCP 47 language tag to the corresponding
  * #hb_language_t.
@@ -1098,10 +969,6 @@ export function map_del(map: map_t, key: codepoint_t): void;
 /**
  * 
  */
-export function map_destroy(map: map_t): void;
-/**
- * 
- */
 export function map_get(map: map_t, key: codepoint_t): codepoint_t;
 /**
  * 
@@ -1114,10 +981,6 @@ export function map_get_population(map: map_t): number;
 /**
  * 
  */
-export function map_get_user_data(map: map_t, key: user_data_key_t): object | null;
-/**
- * 
- */
 export function map_has(map: map_t, key: codepoint_t): bool_t;
 /**
  * 
@@ -1126,15 +989,7 @@ export function map_is_empty(map: map_t): bool_t;
 /**
  * 
  */
-export function map_reference(map: map_t): map_t;
-/**
- * 
- */
 export function map_set(map: map_t, key: codepoint_t, value: codepoint_t): void;
-/**
- * 
- */
-export function map_set_user_data(map: map_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * Fetches a list of all color layers for the specified glyph index in th
  * e specified
@@ -1701,10 +1556,6 @@ export function set_del_range(set: set_t, first: codepoint_t, last: codepoint_t)
 /**
  * 
  */
-export function set_destroy(set: set_t): void;
-/**
- * 
- */
 export function set_get_empty(): set_t;
 /**
  * Finds the maximum number in the set.
@@ -1718,10 +1569,6 @@ export function set_get_min(set: set_t): codepoint_t;
  * Returns the number of numbers in the set.
  */
 export function set_get_population(set: set_t): number;
-/**
- * 
- */
-export function set_get_user_data(set: set_t, key: user_data_key_t): object | null;
 /**
  * 
  */
@@ -1773,15 +1620,7 @@ export function set_previous_range(set: set_t, first: codepoint_t): [bool_t, cod
 /**
  * 
  */
-export function set_reference(set: set_t): set_t;
-/**
- * 
- */
 export function set_set(set: set_t, other: set_t): void;
-/**
- * 
- */
-export function set_set_user_data(set: set_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * 
  */
@@ -1832,10 +1671,6 @@ export function shape_plan_create_cached2(face: face_t, props: segment_propertie
 /**
  * 
  */
-export function shape_plan_destroy(shape_plan: shape_plan_t): void;
-/**
- * 
- */
 export function shape_plan_execute(shape_plan: shape_plan_t, font: font_t, buffer: buffer_t, features: feature_t[], num_features: number): bool_t;
 /**
  * 
@@ -1845,18 +1680,6 @@ export function shape_plan_get_empty(): shape_plan_t;
  * 
  */
 export function shape_plan_get_shaper(shape_plan: shape_plan_t): string;
-/**
- * 
- */
-export function shape_plan_get_user_data(shape_plan: shape_plan_t, key: user_data_key_t): object | null;
-/**
- * 
- */
-export function shape_plan_reference(shape_plan: shape_plan_t): shape_plan_t;
-/**
- * 
- */
-export function shape_plan_set_user_data(shape_plan: shape_plan_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * 
  */
@@ -1892,10 +1715,6 @@ export function unicode_funcs_create(parent: unicode_funcs_t | null): unicode_fu
 /**
  * 
  */
-export function unicode_funcs_destroy(ufuncs: unicode_funcs_t): void;
-/**
- * 
- */
 export function unicode_funcs_get_default(): unicode_funcs_t;
 /**
  * 
@@ -1908,19 +1727,11 @@ export function unicode_funcs_get_parent(ufuncs: unicode_funcs_t): unicode_funcs
 /**
  * 
  */
-export function unicode_funcs_get_user_data(ufuncs: unicode_funcs_t, key: user_data_key_t): object | null;
-/**
- * 
- */
 export function unicode_funcs_is_immutable(ufuncs: unicode_funcs_t): bool_t;
 /**
  * 
  */
 export function unicode_funcs_make_immutable(ufuncs: unicode_funcs_t): void;
-/**
- * 
- */
-export function unicode_funcs_reference(ufuncs: unicode_funcs_t): unicode_funcs_t;
 /**
  * 
  */
@@ -1953,10 +1764,6 @@ export function unicode_funcs_set_mirroring_func(ufuncs: unicode_funcs_t, func: 
  * 
  */
 export function unicode_funcs_set_script_func(ufuncs: unicode_funcs_t, func: unicode_script_func_t, user_data: object | null, destroy: destroy_func_t): void;
-/**
- * 
- */
-export function unicode_funcs_set_user_data(ufuncs: unicode_funcs_t, key: user_data_key_t, data: object | null, destroy: destroy_func_t, replace: bool_t): bool_t;
 /**
  * 
  */
@@ -2734,125 +2541,150 @@ export enum ot_math_glyph_part_flags_t {
 export enum ot_var_axis_flags_t {
     HIDDEN = 1,
 }
-export class blob_t  {constructor(config?: properties);
+export class blob_t  {
+    constructor(config?: properties);
 }
-export class buffer_t  {constructor(config?: properties);
+export class buffer_t  {
+    constructor(config?: properties);
 }
-export class face_t  {constructor(config?: properties);
+export class face_t  {
+    constructor(config?: properties);
 }
-export class feature_t  {constructor(config?: properties);
-tag: tag_t;
-value: number;
-start: number;
-end: number;
-_string(): [string[],number];
+export class feature_t  {
+    constructor(config?: properties);
+    tag: tag_t;
+    value: number;
+    start: number;
+    end: number;
+    _string(): [string[],number];
 }
-export class font_extents_t  {constructor(config?: properties);
-ascender: position_t;
-descender: position_t;
-line_gap: position_t;
-readonly reserved9: position_t;
-readonly reserved8: position_t;
-readonly reserved7: position_t;
-readonly reserved6: position_t;
-readonly reserved5: position_t;
-readonly reserved4: position_t;
-readonly reserved3: position_t;
-readonly reserved2: position_t;
-readonly reserved1: position_t;
+export class font_extents_t  {
+    constructor(config?: properties);
+    ascender: position_t;
+    descender: position_t;
+    line_gap: position_t;
+    readonly reserved9: position_t;
+    readonly reserved8: position_t;
+    readonly reserved7: position_t;
+    readonly reserved6: position_t;
+    readonly reserved5: position_t;
+    readonly reserved4: position_t;
+    readonly reserved3: position_t;
+    readonly reserved2: position_t;
+    readonly reserved1: position_t;
 }
-export class font_funcs_t  {constructor(config?: properties);
+export class font_funcs_t  {
+    constructor(config?: properties);
 }
-export class font_t  {constructor(config?: properties);
+export class font_t  {
+    constructor(config?: properties);
 }
-export class glyph_extents_t  {constructor(config?: properties);
-x_bearing: position_t;
-y_bearing: position_t;
-width: position_t;
-height: position_t;
+export class glyph_extents_t  {
+    constructor(config?: properties);
+    x_bearing: position_t;
+    y_bearing: position_t;
+    width: position_t;
+    height: position_t;
 }
-export class glyph_info_t  {constructor(config?: properties);
-codepoint: codepoint_t;
-readonly mask: mask_t;
-cluster: number;
-readonly var1: var_int_t;
-readonly var2: var_int_t;
+export class glyph_info_t  {
+    constructor(config?: properties);
+    codepoint: codepoint_t;
+    readonly mask: mask_t;
+    cluster: number;
+    readonly var1: var_int_t;
+    readonly var2: var_int_t;
 }
-export class glyph_position_t  {constructor(config?: properties);
-x_advance: position_t;
-y_advance: position_t;
-x_offset: position_t;
-y_offset: position_t;
-readonly _var: var_int_t;
+export class glyph_position_t  {
+    constructor(config?: properties);
+    x_advance: position_t;
+    y_advance: position_t;
+    x_offset: position_t;
+    y_offset: position_t;
+    readonly _var: var_int_t;
 }
-export class language_t  {constructor(config?: properties);
-_string(): string;
+export class language_t  {
+    constructor(config?: properties);
+    _string(): string;
 }
-export class map_t  {constructor(config?: properties);
+export class map_t  {
+    constructor(config?: properties);
 }
-export class ot_color_layer_t  {constructor(config?: properties);
-glyph: codepoint_t;
-color_index: number;
+export class ot_color_layer_t  {
+    constructor(config?: properties);
+    glyph: codepoint_t;
+    color_index: number;
 }
-export class ot_math_glyph_part_t  {constructor(config?: properties);
-glyph: codepoint_t;
-start_connector_length: position_t;
-end_connector_length: position_t;
-full_advance: position_t;
-flags: ot_math_glyph_part_flags_t;
+export class ot_math_glyph_part_t  {
+    constructor(config?: properties);
+    glyph: codepoint_t;
+    start_connector_length: position_t;
+    end_connector_length: position_t;
+    full_advance: position_t;
+    flags: ot_math_glyph_part_flags_t;
 }
-export class ot_math_glyph_variant_t  {constructor(config?: properties);
-glyph: codepoint_t;
-advance: position_t;
+export class ot_math_glyph_variant_t  {
+    constructor(config?: properties);
+    glyph: codepoint_t;
+    advance: position_t;
 }
-export class ot_name_entry_t  {constructor(config?: properties);
-name_id: ot_name_id_t;
-readonly _var: var_int_t;
-language: language_t;
+export class ot_name_entry_t  {
+    constructor(config?: properties);
+    name_id: ot_name_id_t;
+    readonly _var: var_int_t;
+    language: language_t;
 }
-export class ot_var_axis_info_t  {constructor(config?: properties);
-axis_index: number;
-tag: tag_t;
-name_id: ot_name_id_t;
-flags: ot_var_axis_flags_t;
-min_value: number;
-default_value: number;
-max_value: number;
-readonly reserved: number;
+export class ot_var_axis_info_t  {
+    constructor(config?: properties);
+    axis_index: number;
+    tag: tag_t;
+    name_id: ot_name_id_t;
+    flags: ot_var_axis_flags_t;
+    min_value: number;
+    default_value: number;
+    max_value: number;
+    readonly reserved: number;
 }
-export class ot_var_axis_t  {constructor(config?: properties);
-tag: tag_t;
-name_id: ot_name_id_t;
-min_value: number;
-default_value: number;
-max_value: number;
+export class ot_var_axis_t  {
+    constructor(config?: properties);
+    tag: tag_t;
+    name_id: ot_name_id_t;
+    min_value: number;
+    default_value: number;
+    max_value: number;
 }
-export class segment_properties_t  {constructor(config?: properties);
-direction: direction_t;
-script: script_t;
-language: language_t;
-readonly reserved1: object;
-readonly reserved2: object;
+export class segment_properties_t  {
+    constructor(config?: properties);
+    direction: direction_t;
+    script: script_t;
+    language: language_t;
+    readonly reserved1: object;
+    readonly reserved2: object;
 }
-export class set_t  {constructor(config?: properties);
+export class set_t  {
+    constructor(config?: properties);
 }
-export class shape_plan_t  {constructor(config?: properties);
+export class shape_plan_t  {
+    constructor(config?: properties);
 }
-export class unicode_funcs_t  {constructor(config?: properties);
+export class unicode_funcs_t  {
+    constructor(config?: properties);
 }
-export class user_data_key_t  {constructor(config?: properties);
-readonly unused: number;
+export class user_data_key_t  {
+    constructor(config?: properties);
+    readonly unused: number;
 }
-export class variation_t  {constructor(config?: properties);
-tag: tag_t;
-value: number;
-_string(buf: string, size: number): void;
+export class variation_t  {
+    constructor(config?: properties);
+    tag: tag_t;
+    value: number;
+    _string(buf: string, size: number): void;
 }
-export class var_int_t  {constructor(config?: properties);
-u32: number;
-i32: number;
-u16: number[];
-i16: number[];
-u8: number[];
-i8: number[];
+export class var_int_t  {
+    constructor(config?: properties);
+    u32: number;
+    i32: number;
+    u16: number[];
+    i16: number[];
+    u8: number[];
+    i8: number[];
 }

@@ -10,6 +10,7 @@ import * as PangoOT from "pangoot";
  * pangoot.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export const ALL_GLYPHS: number;
 export const DEFAULT_LANGUAGE: number;
 export const NO_FEATURE: number;
@@ -50,59 +51,63 @@ export enum TableType {
     GPOS = 1,
 }
 export type Tag = number;
-export class Info  {constructor(config?: properties);
-find_feature(table_type: TableType, feature_tag: Tag, script_index: number, language_index: number): [boolean, number | null];
-find_language(table_type: TableType, script_index: number, language_tag: Tag): [boolean, number | null,number | null];
-find_script(table_type: TableType, script_tag: Tag): [boolean, number | null];
-list_features(table_type: TableType, tag: Tag, script_index: number, language_index: number): Tag;
-list_languages(table_type: TableType, script_index: number, language_tag: Tag): Tag;
-list_scripts(table_type: TableType): Tag;
-static get(face: freetype2.Face): Info;
+export class Info  {
+    constructor(config?: properties);
+    find_feature(table_type: TableType, feature_tag: Tag, script_index: number, language_index: number): [boolean, number | null];
+    find_language(table_type: TableType, script_index: number, language_tag: Tag): [boolean, number | null,number | null];
+    find_script(table_type: TableType, script_tag: Tag): [boolean, number | null];
+    list_features(table_type: TableType, tag: Tag, script_index: number, language_index: number): Tag;
+    list_languages(table_type: TableType, script_index: number, language_tag: Tag): Tag;
+    list_scripts(table_type: TableType): Tag;
+    static get(face: freetype2.Face): Info;
 }
-export class Ruleset extends GObject.Object {constructor(config?: properties);
-static new_for(info: Info, script: Pango.Script, language: Pango.Language): Ruleset;
-static new_from_description(info: Info, desc: RulesetDescription): Ruleset;
-add_feature(table_type: TableType, feature_index: number, property_bit: number): void;
-get_feature_count(): [number, number | null,number | null];
-maybe_add_feature(table_type: TableType, feature_tag: Tag, property_bit: number): boolean;
-maybe_add_features(table_type: TableType, features: FeatureMap, n_features: number): number;
-position(buffer: Buffer): void;
-substitute(buffer: Buffer): void;
-static get_for_description(info: Info, desc: RulesetDescription): Ruleset;
+export class Ruleset extends GObject.Object {
+    constructor(config?: properties);
+    static new_for(info: Info, script: Pango.Script, language: Pango.Language): Ruleset;
+    static new_from_description(info: Info, desc: RulesetDescription): Ruleset;
+    add_feature(table_type: TableType, feature_index: number, property_bit: number): void;
+    get_feature_count(): [number, number | null,number | null];
+    maybe_add_feature(table_type: TableType, feature_tag: Tag, property_bit: number): boolean;
+    maybe_add_features(table_type: TableType, features: FeatureMap, n_features: number): number;
+    position(buffer: Buffer): void;
+    substitute(buffer: Buffer): void;
+    static get_for_description(info: Info, desc: RulesetDescription): Ruleset;
 }
-export class Buffer  {constructor(config?: properties);
-add_glyph(glyph: number, properties: number, cluster: number): void;
-clear(): void;
-destroy(): void;
-get_glyphs(): [Glyph[] | null,number | null];
-output(glyphs: Pango.GlyphString): void;
-set_rtl(rtl: boolean): void;
-set_zero_width_marks(zero_width_marks: boolean): void;
-static _new(font: PangoFc.Font): Buffer;
+export class Buffer  {
+    constructor(config?: properties);
+    add_glyph(glyph: number, properties: number, cluster: number): void;
+    clear(): void;
+    destroy(): void;
+    get_glyphs(): [Glyph[] | null,number | null];
+    output(glyphs: Pango.GlyphString): void;
+    set_rtl(rtl: boolean): void;
+    set_zero_width_marks(zero_width_marks: boolean): void;
 }
-export class FeatureMap  {constructor(config?: properties);
-feature_name: number[];
-property_bit: number;
+export class FeatureMap  {
+    constructor(config?: properties);
+    feature_name: number[];
+    property_bit: number;
 }
-export class Glyph  {constructor(config?: properties);
-glyph: number;
-properties: number;
-cluster: number;
-component: number;
-ligID: number;
-internal: number;
+export class Glyph  {
+    constructor(config?: properties);
+    glyph: number;
+    properties: number;
+    cluster: number;
+    component: number;
+    ligID: number;
+    internal: number;
 }
-export class RulesetDescription  {constructor(config?: properties);
-script: Pango.Script;
-language: Pango.Language;
-static_gsub_features: FeatureMap;
-n_static_gsub_features: number;
-static_gpos_features: FeatureMap;
-n_static_gpos_features: number;
-other_features: FeatureMap;
-n_other_features: number;
-copy(): RulesetDescription;
-equal(desc2: RulesetDescription): boolean;
-free(): void;
-hash(): number;
+export class RulesetDescription  {
+    constructor(config?: properties);
+    script: Pango.Script;
+    language: Pango.Language;
+    static_gsub_features: FeatureMap;
+    n_static_gsub_features: number;
+    static_gpos_features: FeatureMap;
+    n_static_gpos_features: number;
+    other_features: FeatureMap;
+    n_other_features: number;
+    equal(desc2: RulesetDescription): boolean;
+    free(): void;
+    hash(): number;
 }

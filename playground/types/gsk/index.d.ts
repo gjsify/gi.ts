@@ -11,6 +11,7 @@ import * as Pango from "pango";
  * gsk.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ParseErrorFunc = (section: unknown, error: GLib.Error, user_data: object | null) => void;
 /**
  * 
@@ -440,96 +441,95 @@ export enum TransformCategory {
     Gjs_2D_TRANSLATE = 5,
     IDENTITY = 6,
 }
-export class BroadwayRenderer extends Renderer {constructor(config?: properties);
+export class BroadwayRenderer extends Renderer {
+    constructor(config?: properties);
 }
-export class CairoRenderer extends Renderer {constructor(config?: properties);
+export class CairoRenderer extends Renderer {
+    constructor(config?: properties);
 }
-export class GLRenderer extends Renderer {constructor(config?: properties);
+export class GLRenderer extends Renderer {
+    constructor(config?: properties);
 }
-export class Renderer extends GObject.Object {constructor(config?: properties);
-readonly realized: boolean;
-readonly surface: Gdk.Surface;static new_for_surface(surface: Gdk.Surface): Renderer | null;
-get_surface(): Gdk.Surface | null;
-is_realized(): boolean;
-realize(surface: Gdk.Surface): boolean;
-render(root: RenderNode, region: cairo.Region | null): void;
-render_texture(root: RenderNode, viewport: Graphene.Rect | null): Gdk.Texture;
-unrealize(): void;
+export class Renderer extends GObject.Object {
+    constructor(config?: properties);
+    readonly realized: boolean;
+    readonly surface: Gdk.Surface;static new_for_surface(surface: Gdk.Surface): Renderer | null;
+    get_surface(): Gdk.Surface | null;
+    is_realized(): boolean;
+    realize(surface: Gdk.Surface): boolean;
+    render(root: RenderNode, region: cairo.Region | null): void;
+    render_texture(root: RenderNode, viewport: Graphene.Rect | null): Gdk.Texture;
+    unrealize(): void;
 }
-export class VulkanRenderer extends Renderer {constructor(config?: properties);
+export class VulkanRenderer extends Renderer {
+    constructor(config?: properties);
 }
-export class BroadwayRendererClass  {constructor(config?: properties);
+export class ColorStop  {
+    constructor(config?: properties);
+    offset: number;
+    color: Gdk.RGBA;
 }
-export class CairoRendererClass  {constructor(config?: properties);
+export class RenderNode  {
+    constructor(config?: properties);
+    draw(cr: cairo.Context): void;
+    get_bounds(): [Graphene.Rect];
+    get_node_type(): RenderNodeType;
+    ref(): RenderNode;
+    serialize(): GLib.Bytes;
+    unref(): void;
+    write_to_file(filename: string): boolean;
 }
-export class ColorStop  {constructor(config?: properties);
-offset: number;
-color: Gdk.RGBA;
+export class RoundedRect  {
+    constructor(config?: properties);
+    bounds: Graphene.Rect;
+    corner: Graphene.Size[];
+    contains_point(point: Graphene.Point): boolean;
+    contains_rect(rect: Graphene.Rect): boolean;
+    init(bounds: Graphene.Rect, top_left: Graphene.Size, top_right: Graphene.Size, bottom_right: Graphene.Size, bottom_left: Graphene.Size): RoundedRect;
+    init_copy(src: RoundedRect): RoundedRect;
+    init_from_rect(bounds: Graphene.Rect, radius: number): RoundedRect;
+    intersects_rect(rect: Graphene.Rect): boolean;
+    is_rectilinear(): boolean;
+    normalize(): RoundedRect;
+    offset(dx: number, dy: number): RoundedRect;
+    shrink(top: number, right: number, bottom: number, left: number): RoundedRect;
 }
-export class GLRendererClass  {constructor(config?: properties);
+export class Shadow  {
+    constructor(config?: properties);
+    color: Gdk.RGBA;
+    dx: number;
+    dy: number;
+    radius: number;
+    static node_get_child(node: RenderNode): RenderNode;
+    static node_get_n_shadows(node: RenderNode): number;
+    static node_new(child: RenderNode, shadows: Shadow[], n_shadows: number): RenderNode;
+    static node_peek_shadow(node: RenderNode, i: number): Shadow;
 }
-export class RenderNode  {constructor(config?: properties);
-draw(cr: cairo.Context): void;
-get_bounds(): [Graphene.Rect];
-get_node_type(): RenderNodeType;
-ref(): RenderNode;
-serialize(): GLib.Bytes;
-unref(): void;
-write_to_file(filename: string): boolean;
-static deserialize(bytes: GLib.Bytes, error_func: ParseErrorFunc, user_data: object | null): RenderNode | null;
-}
-export class RendererClass  {constructor(config?: properties);
-}
-export class RoundedRect  {constructor(config?: properties);
-bounds: Graphene.Rect;
-corner: Graphene.Size[];
-contains_point(point: Graphene.Point): boolean;
-contains_rect(rect: Graphene.Rect): boolean;
-init(bounds: Graphene.Rect, top_left: Graphene.Size, top_right: Graphene.Size, bottom_right: Graphene.Size, bottom_left: Graphene.Size): RoundedRect;
-init_copy(src: RoundedRect): RoundedRect;
-init_from_rect(bounds: Graphene.Rect, radius: number): RoundedRect;
-intersects_rect(rect: Graphene.Rect): boolean;
-is_rectilinear(): boolean;
-normalize(): RoundedRect;
-offset(dx: number, dy: number): RoundedRect;
-shrink(top: number, right: number, bottom: number, left: number): RoundedRect;
-}
-export class Shadow  {constructor(config?: properties);
-color: Gdk.RGBA;
-dx: number;
-dy: number;
-radius: number;
-static node_get_child(node: RenderNode): RenderNode;
-static node_get_n_shadows(node: RenderNode): number;
-static node_new(child: RenderNode, shadows: Shadow[], n_shadows: number): RenderNode;
-static node_peek_shadow(node: RenderNode, i: number): Shadow;
-}
-export class Transform  {constructor(config?: properties);
-equal(second: Transform): boolean;
-get_category(): TransformCategory;
-invert(): Transform;
-matrix(matrix: Graphene.Matrix): Transform;
-perspective(depth: number): Transform;
-print(string: GLib.String): void;
-ref(): Transform;
-rotate(angle: number): Transform;
-rotate_3d(angle: number, axis: Graphene.Vec3): Transform;
-scale(factor_x: number, factor_y: number): Transform;
-scale_3d(factor_x: number, factor_y: number, factor_z: number): Transform;
-to_2d(): [number,number,number,number,number,number];
-to_affine(): [number,number,number,number];
-to_matrix(): [Graphene.Matrix];
-to_string(): string;
-to_translate(): [number,number];
-transform(other: Transform | null): Transform;
-transform_bounds(rect: Graphene.Rect): [Graphene.Rect];
-translate(point: Graphene.Point): Transform;
-translate_3d(point: Graphene.Point3D): Transform;
-unref(): void;
-static node_get_child(node: RenderNode): RenderNode;
-static node_get_transform(node: RenderNode): Transform;
-static node_new(child: RenderNode, transform: Transform): RenderNode;
-static parse(string: string): [boolean, Transform];
-}
-export class VulkanRendererClass  {constructor(config?: properties);
+export class Transform  {
+    constructor(config?: properties);
+    equal(second: Transform): boolean;
+    get_category(): TransformCategory;
+    invert(): Transform;
+    matrix(matrix: Graphene.Matrix): Transform;
+    perspective(depth: number): Transform;
+    print(string: GLib.String): void;
+    ref(): Transform;
+    rotate(angle: number): Transform;
+    rotate_3d(angle: number, axis: Graphene.Vec3): Transform;
+    scale(factor_x: number, factor_y: number): Transform;
+    scale_3d(factor_x: number, factor_y: number, factor_z: number): Transform;
+    to_2d(): [number,number,number,number,number,number];
+    to_affine(): [number,number,number,number];
+    to_matrix(): [Graphene.Matrix];
+    to_string(): string;
+    to_translate(): [number,number];
+    transform(other: Transform | null): Transform;
+    transform_bounds(rect: Graphene.Rect): [Graphene.Rect];
+    translate(point: Graphene.Point): Transform;
+    translate_3d(point: Graphene.Point3D): Transform;
+    unref(): void;
+    static node_get_child(node: RenderNode): RenderNode;
+    static node_get_transform(node: RenderNode): Transform;
+    static node_new(child: RenderNode, transform: Transform): RenderNode;
+    static parse(string: string): [boolean, Transform];
 }

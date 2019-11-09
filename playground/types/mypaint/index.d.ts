@@ -7,6 +7,7 @@ import * as MyPaint from "mypaint";
  * mypaint.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type SurfaceBeginAtomicFunction = (self: Surface) => void;
 export type SurfaceDestroyFunction = (self: Surface) => void;
 export type SurfaceDrawDabFunction = (self: Surface, x: number, y: number, radius: number, color_r: number, color_g: number, color_b: number, opaque: number, hardness: number, alpha_eraser: number, aspect_ratio: number, angle: number, lock_alpha: number, colorize: number) => number;
@@ -147,103 +148,98 @@ export enum BrushState {
     STATE_GRIDMAP_Y = 35,
     STATES_COUNT = 36,
 }
-export class Brush  {constructor(config?: properties);
-from_defaults(): void;
-from_string(string: string): boolean;
-get_base_value(id: BrushSetting): number;
-get_inputs_used_n(id: BrushSetting): number;
-get_mapping_n(id: BrushSetting, input: BrushInput): number;
-get_mapping_point(id: BrushSetting, input: BrushInput, index: number): [number,number];
-get_state(i: BrushState): number;
-get_total_stroke_painting_time(): number;
-is_constant(id: BrushSetting): boolean;
-new_stroke(): void;
-ref(): void;
-reset(): void;
-set_base_value(id: BrushSetting, value: number): void;
-set_mapping_n(id: BrushSetting, input: BrushInput, n: number): void;
-set_mapping_point(id: BrushSetting, input: BrushInput, index: number, x: number, y: number): void;
-set_print_inputs(enabled: boolean): void;
-set_state(i: BrushState, value: number): void;
-stroke_to(surface: Surface, x: number, y: number, pressure: number, xtilt: number, ytilt: number, dtime: number): number;
-unref(): void;
-static input_from_cname(cname: string): BrushInput;
-static _new(): Brush;
-static setting_from_cname(cname: string): BrushSetting;
+export class Brush  {
+    constructor(config?: properties);
+    from_defaults(): void;
+    from_string(string: string): boolean;
+    get_base_value(id: BrushSetting): number;
+    get_inputs_used_n(id: BrushSetting): number;
+    get_mapping_n(id: BrushSetting, input: BrushInput): number;
+    get_mapping_point(id: BrushSetting, input: BrushInput, index: number): [number,number];
+    get_state(i: BrushState): number;
+    get_total_stroke_painting_time(): number;
+    is_constant(id: BrushSetting): boolean;
+    new_stroke(): void;
+    reset(): void;
+    set_base_value(id: BrushSetting, value: number): void;
+    set_mapping_n(id: BrushSetting, input: BrushInput, n: number): void;
+    set_mapping_point(id: BrushSetting, input: BrushInput, index: number, x: number, y: number): void;
+    set_print_inputs(enabled: boolean): void;
+    set_state(i: BrushState, value: number): void;
+    stroke_to(surface: Surface, x: number, y: number, pressure: number, xtilt: number, ytilt: number, dtime: number): number;
+    static input_from_cname(cname: string): BrushInput;
+    static setting_from_cname(cname: string): BrushSetting;
 }
-export class BrushInputInfo  {constructor(config?: properties);
-cname: string;
-hard_min: number;
-soft_min: number;
-normal: number;
-soft_max: number;
-hard_max: number;
-name: string;
-tooltip: string;
-get_name(): string;
-get_tooltip(): string;
+export class BrushInputInfo  {
+    constructor(config?: properties);
+    cname: string;
+    hard_min: number;
+    soft_min: number;
+    normal: number;
+    soft_max: number;
+    hard_max: number;
+    name: string;
+    tooltip: string;
+    get_name(): string;
+    get_tooltip(): string;
 }
-export class BrushSettingInfo  {constructor(config?: properties);
-cname: string;
-name: string;
-constant: boolean;
-min: number;
-def: number;
-max: number;
-tooltip: string;
-get_name(): string;
-get_tooltip(): string;
+export class BrushSettingInfo  {
+    constructor(config?: properties);
+    cname: string;
+    name: string;
+    constant: boolean;
+    min: number;
+    def: number;
+    max: number;
+    tooltip: string;
+    get_name(): string;
+    get_tooltip(): string;
 }
-export class FixedTiledSurface  {constructor(config?: properties);
-get_height(): number;
-get_width(): number;
-_interface(): Surface;
-static _new(width: number, height: number): FixedTiledSurface;
+export class FixedTiledSurface  {
+    constructor(config?: properties);
+    get_height(): number;
+    get_width(): number;
 }
-export class Rectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-copy(): Rectangle;
-expand_to_include_point(x: number, y: number): void;
+export class Rectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    expand_to_include_point(x: number, y: number): void;
 }
-export class Surface  {constructor(config?: properties);
-destroy: SurfaceDestroyFunction;
-refcount: number;
-begin_atomic(): void;
-draw_dab(x: number, y: number, radius: number, color_r: number, color_g: number, color_b: number, opaque: number, hardness: number, alpha_eraser: number, aspect_ratio: number, angle: number, lock_alpha: number, colorize: number): number;
-end_atomic(): [Rectangle | null];
-get_alpha(x: number, y: number, radius: number): number;
-get_color(x: number, y: number, radius: number, color_r: number, color_g: number, color_b: number, color_a: number): void;
-init(): void;
-ref(): void;
-save_png(path: string, x: number, y: number, width: number, height: number): void;
-unref(): void;
+export class Surface  {
+    constructor(config?: properties);
+    destroy: SurfaceDestroyFunction;
+    refcount: number;
+    begin_atomic(): void;
+    draw_dab(x: number, y: number, radius: number, color_r: number, color_g: number, color_b: number, opaque: number, hardness: number, alpha_eraser: number, aspect_ratio: number, angle: number, lock_alpha: number, colorize: number): number;
+    end_atomic(): [Rectangle | null];
+    get_alpha(x: number, y: number, radius: number): number;
+    get_color(x: number, y: number, radius: number, color_r: number, color_g: number, color_b: number, color_a: number): void;
+    save_png(path: string, x: number, y: number, width: number, height: number): void;
 }
-export class TileRequest  {constructor(config?: properties);
-tx: number;
-ty: number;
-readonly: boolean;
-buffer: number;
-context: object;
-thread_id: number;
-mipmap_level: number;
-init(level: number, tx: number, ty: number, readonly: boolean): void;
+export class TileRequest  {
+    constructor(config?: properties);
+    tx: number;
+    ty: number;
+    readonly: boolean;
+    buffer: number;
+    context: object;
+    thread_id: number;
+    mipmap_level: number;
+    init(level: number, tx: number, ty: number, readonly: boolean): void;
 }
-export class TiledSurface  {constructor(config?: properties);
-surface_do_symmetry: boolean;
-surface_center_x: number;
-operation_queue: object;
-dirty_bbox: Rectangle;
-threadsafe_tile_requests: boolean;
-tile_size: number;
-begin_atomic(): void;
-destroy(): void;
-end_atomic(roi: Rectangle): void;
-get_alpha(x: number, y: number, radius: number): number;
-init(tile_request_start: TileRequestStartFunction, tile_request_end: TileRequestEndFunction): void;
-set_symmetry_state(active: boolean, center_x: number): void;
-tile_request_end(request: TileRequest): void;
-tile_request_start(request: TileRequest): void;
+export class TiledSurface  {
+    constructor(config?: properties);
+    surface_do_symmetry: boolean;
+    surface_center_x: number;
+    operation_queue: object;
+    dirty_bbox: Rectangle;
+    threadsafe_tile_requests: boolean;
+    tile_size: number;
+    get_alpha(x: number, y: number, radius: number): number;
+    set_symmetry_state(active: boolean, center_x: number): void;
+    tile_request_end(request: TileRequest): void;
+    tile_request_start(request: TileRequest): void;
 }

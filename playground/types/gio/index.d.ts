@@ -6,6 +6,7 @@ import * as Gio from "gio";
  * gio.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type AsyncReadyCallback = (source_object: GObject.Object | null, res: AsyncResult, user_data: object | null) => void;
 export type BusAcquiredCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
 export type BusNameAcquiredCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
@@ -17,7 +18,7 @@ export type DBusInterfaceGetPropertyFunc = (connection: DBusConnection, sender: 
 export type DBusInterfaceMethodCallFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant, invocation: DBusMethodInvocation, user_data: object | null) => void;
 export type DBusInterfaceSetPropertyFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, value: GLib.Variant, error: GLib.Error, user_data: object | null) => boolean;
 export type DBusMessageFilterFunction = (connection: DBusConnection, message: DBusMessage, incoming: boolean, user_data: object | null) => DBusMessage | null;
-export type DBusProxyTypeFunc = (manager: DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null) => unknown;
+export type DBusProxyTypeFunc = (manager: DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null) => GType;
 export type DBusSignalCallback = (connection: DBusConnection, sender_name: string, object_path: string, interface_name: string, signal_name: string, parameters: GLib.Variant, user_data: object | null) => void;
 export type DBusSubtreeDispatchFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, node: string, out_user_data: object, user_data: object | null) => DBusInterfaceVTable;
 export type DBusSubtreeEnumerateFunc = (connection: DBusConnection, sender: string, object_path: string, user_data: object | null) => string[];
@@ -197,7 +198,7 @@ export function action_print_detailed_name(action_name: string, target_value: GL
  * being swallowed by Exec key unquoting. See the specification for exact
  *  quoting rules.
  */
-export function app_info_create_from_commandline(commandline: unknown, application_name: string | null, flags: AppInfoCreateFlags): AppInfo;
+export function app_info_create_from_commandline(commandline: string, application_name: string | null, flags: AppInfoCreateFlags): AppInfo;
 /**
  * Gets a list of all of the applications currently registered
  * on this system.
@@ -286,7 +287,7 @@ export function app_info_reset_type_associations(content_type: string): void;
  * k
  * for any errors.
  */
-export function async_initable_newv_async(object_type: unknown, n_parameters: number, parameters: GObject.Parameter, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+export function async_initable_newv_async(object_type: GType, n_parameters: number, parameters: GObject.Parameter, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
 /**
  * Asynchronously connects to the message bus specified by @bus_type.
  * When the operation is finished, @callback will be invoked. You can
@@ -323,59 +324,6 @@ export function bus_get_finish(res: AsyncResult): DBusConnection;
  */
 export function bus_get_sync(bus_type: BusType, cancellable: Cancellable | null): DBusConnection;
 /**
- * Starts acquiring @name on the bus specified by @bus_type and calls
- * @name_acquired_handler and @name_lost_handler when the name is
- * acquired respectively lost. Callbacks will be invoked in the
- * [thread-default main context][g-main-context-push-thread-default]
- * of the thread you are calling this function from.
- * You are guaranteed that one of the @name_acquired_handler and @name_lo
- * st_handler
- * callbacks will be invoked after calling this function - there are thre
- * e
- * possible cases:
- * - @name_lost_handler with a %NULL connection (if a connection to the b
- * us
- *   can't be made).
- * - @bus_acquired_handler then @name_lost_handler (if the name can't be
- *   obtained)
- * - @bus_acquired_handler then @name_acquired_handler (if the name was
- *   obtained).
- * When you are done owning the name, just call g_bus_unown_name()
- * with the owner id this function returns.
- * If the name is acquired or lost (for example another application
- * could acquire the name if you allow replacement or the application
- * currently owning the name exits), the handlers are also invoked.
- * If the #GDBusConnection that is used for attempting to own the name
- * closes, then @name_lost_handler is invoked since it is no longer
- * possible for other processes to access the process.
- * You cannot use g_bus_own_name() several times for the same name (unles
- * s
- * interleaved with calls to g_bus_unown_name()) - only the first call
- * will work.
- * Another guarantee is that invocations of @name_acquired_handler
- * and @name_lost_handler are guaranteed to alternate; that
- * is, if @name_acquired_handler is invoked then you are
- * guaranteed that the next time one of the handlers is invoked, it
- * will be @name_lost_handler. The reverse is also true.
- * If you plan on exporting objects (using e.g.
- * g_dbus_connection_register_object()), note that it is generally too la
- * te
- * to export the objects in @name_acquired_handler. Instead, you can do t
- * his
- * in @bus_acquired_handler since you are guaranteed that this will run
- * before @name is requested from the bus.
- * This behavior makes it very simple to write applications that wants
- * to [own names][gdbus-owning-names] and export objects.
- * Simply register objects to be exported in @bus_acquired_handler and
- * unregister the objects (if any) in @name_lost_handler.
- */
-export function bus_own_name(bus_type: BusType, name: string, flags: BusNameOwnerFlags, bus_acquired_handler: BusAcquiredCallback | null, name_acquired_handler: BusNameAcquiredCallback | null, name_lost_handler: BusNameLostCallback | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify | null): number;
-/**
- * Like g_bus_own_name() but takes a #GDBusConnection instead of a
- * #GBusType.
- */
-export function bus_own_name_on_connection(connection: DBusConnection, name: string, flags: BusNameOwnerFlags, name_acquired_handler: BusNameAcquiredCallback | null, name_lost_handler: BusNameLostCallback | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify | null): number;
-/**
  * Version of g_bus_own_name_on_connection() using closures instead of
  * callbacks for easier binding in other languages.
  */
@@ -393,39 +341,6 @@ export function bus_unown_name(owner_id: number): void;
  * Stops watching a name.
  */
 export function bus_unwatch_name(watcher_id: number): void;
-/**
- * Starts watching @name on the bus specified by @bus_type and calls
- * @name_appeared_handler and @name_vanished_handler when the name is
- * known to have a owner respectively known to lose its
- * owner. Callbacks will be invoked in the
- * [thread-default main context][g-main-context-push-thread-default]
- * of the thread you are calling this function from.
- * You are guaranteed that one of the handlers will be invoked after
- * calling this function. When you are done watching the name, just
- * call g_bus_unwatch_name() with the watcher id this function
- * returns.
- * If the name vanishes or appears (for example the application owning
- * the name could restart), the handlers are also invoked. If the
- * #GDBusConnection that is used for watching the name disconnects, then
- * @name_vanished_handler is invoked since it is no longer
- * possible to access the name.
- * Another guarantee is that invocations of @name_appeared_handler
- * and @name_vanished_handler are guaranteed to alternate; that
- * is, if @name_appeared_handler is invoked then you are
- * guaranteed that the next time one of the handlers is invoked, it
- * will be @name_vanished_handler. The reverse is also true.
- * This behavior makes it very simple to write applications that want
- * to take action when a certain [name exists][gdbus-watching-names].
- * Basically, the application should create object proxies in
- * @name_appeared_handler and destroy them again (if any) in
- * @name_vanished_handler.
- */
-export function bus_watch_name(bus_type: BusType, name: string, flags: BusNameWatcherFlags, name_appeared_handler: BusNameAppearedCallback | null, name_vanished_handler: BusNameVanishedCallback | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify | null): number;
-/**
- * Like g_bus_watch_name() but takes a #GDBusConnection instead of a
- * #GBusType.
- */
-export function bus_watch_name_on_connection(connection: DBusConnection, name: string, flags: BusNameWatcherFlags, name_appeared_handler: BusNameAppearedCallback | null, name_vanished_handler: BusNameVanishedCallback | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify | null): number;
 /**
  * Version of g_bus_watch_name_on_connection() using closures instead of 
  * callbacks for
@@ -792,7 +707,7 @@ export function dtls_server_connection_new(base_socket: DatagramBased, certifica
  * for you there.  It is also always possible to use this function with
  * #GOptionContext arguments of type %G_OPTION_ARG_FILENAME.
  */
-export function file_new_for_commandline_arg(arg: unknown): File;
+export function file_new_for_commandline_arg(arg: string): File;
 /**
  * Creates a #GFile with the given argument from the command line.
  * This function is similar to g_file_new_for_commandline_arg() except
@@ -803,13 +718,13 @@ export function file_new_for_commandline_arg(arg: unknown): File;
  * other than the invocation of the current process.
  * See also g_application_command_line_create_file_for_arg().
  */
-export function file_new_for_commandline_arg_and_cwd(arg: unknown, cwd: unknown): File;
+export function file_new_for_commandline_arg_and_cwd(arg: string, cwd: string): File;
 /**
  * Constructs a #GFile for a given path. This operation never
  * fails, but the returned object might not support any I/O
  * operation if @path is malformed.
  */
-export function file_new_for_path(path: unknown): File;
+export function file_new_for_path(path: string): File;
 /**
  * Constructs a #GFile for a given URI. This operation never
  * fails, but the returned object might not support any I/O
@@ -827,7 +742,7 @@ export function file_new_for_uri(uri: string): File;
  * Unlike the other #GFile constructors, this will return %NULL if
  * a temporary file could not be created.
  */
-export function file_new_tmp(tmpl: unknown | null): [File, FileIOStream];
+export function file_new_tmp(tmpl: string | null): [File, FileIOStream];
 /**
  * Constructs a #GFile with the given @parse_name (i.e. something
  * given by g_file_get_parse_name()). This operation never fails,
@@ -856,7 +771,7 @@ export function icon_new_for_string(str: string): Icon;
  * similar to g_object_newv() but also initializes the object
  * and returns %NULL, setting an error on failure.
  */
-export function initable_newv(object_type: unknown, n_parameters: number, parameters: GObject.Parameter[], cancellable: Cancellable | null): GObject.Object;
+export function initable_newv(object_type: GType, n_parameters: number, parameters: GObject.Parameter[], cancellable: Cancellable | null): GObject.Object;
 /**
  * Converts errno.h error codes into GIO error codes. The fallback
  * value %G_IO_ERROR_FAILED is returned for error codes not currently
@@ -876,7 +791,7 @@ export function io_error_quark(): GLib.Quark;
  * If @type has already been registered as an extension for this
  * extension point, the existing #GIOExtension object is returned.
  */
-export function io_extension_point_implement(extension_point_name: string, type: unknown, extension_name: string, priority: number): IOExtension;
+export function io_extension_point_implement(extension_point_name: string, type: GType, extension_name: string, priority: number): IOExtension;
 /**
  * Looks up an existing extension point.
  */
@@ -891,14 +806,14 @@ export function io_extension_point_register(name: string): IOExtensionPoint;
  * all gtypes) then you can use g_io_modules_scan_all_in_directory()
  * which allows delayed/lazy loading of modules.
  */
-export function io_modules_load_all_in_directory(dirname: unknown): GLib.List;
+export function io_modules_load_all_in_directory(dirname: string): GLib.List;
 /**
  * Loads all the modules in the specified directory.
  * If don't require all modules to be initialized (and thus registering
  * all gtypes) then you can use g_io_modules_scan_all_in_directory()
  * which allows delayed/lazy loading of modules.
  */
-export function io_modules_load_all_in_directory_with_scope(dirname: unknown, scope: IOModuleScope): GLib.List;
+export function io_modules_load_all_in_directory_with_scope(dirname: string, scope: IOModuleScope): GLib.List;
 /**
  * Scans all the modules in the specified directory, ensuring that
  * any extension point implemented by a module is registered.
@@ -910,7 +825,7 @@ export function io_modules_load_all_in_directory_with_scope(dirname: unknown, sc
  * If you need to guarantee that all types are loaded in all the modules,
  * use g_io_modules_load_all_in_directory().
  */
-export function io_modules_scan_all_in_directory(dirname: unknown): void;
+export function io_modules_scan_all_in_directory(dirname: string): void;
 /**
  * Scans all the modules in the specified directory, ensuring that
  * any extension point implemented by a module is registered.
@@ -922,7 +837,7 @@ export function io_modules_scan_all_in_directory(dirname: unknown): void;
  * If you need to guarantee that all types are loaded in all the modules,
  * use g_io_modules_load_all_in_directory().
  */
-export function io_modules_scan_all_in_directory_with_scope(dirname: unknown, scope: IOModuleScope): void;
+export function io_modules_scan_all_in_directory_with_scope(dirname: string, scope: IOModuleScope): void;
 /**
  * Cancels all cancellable I/O jobs.
  * A job is cancellable if a #GCancellable was passed into
@@ -1093,7 +1008,7 @@ export function resource_error_quark(): GLib.Quark;
  * l be
  * returned.
  */
-export function resource_load(filename: unknown): Resource;
+export function resource_load(filename: string): Resource;
 /**
  * Returns all the names of children at the specified @path in the set of
  * globally registered resources.
@@ -1155,28 +1070,11 @@ export function resources_unregister(resource: Resource): void;
  */
 export function settings_schema_source_get_default(): SettingsSchemaSource | null;
 /**
- * Reports an error in an asynchronous function in an idle function by
- * directly setting the contents of the #GAsyncResult with the given erro
- * r
- * information.
- */
-export function simple_async_report_error_in_idle(object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, domain: GLib.Quark, code: number, format: string, ___: unknown[]): void;
-/**
  * Reports an error in an idle function. Similar to
  * g_simple_async_report_error_in_idle(), but takes a #GError rather
  * than building a new one.
  */
 export function simple_async_report_gerror_in_idle(object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): void;
-/**
- * Reports an error in an idle function. Similar to
- * g_simple_async_report_gerror_in_idle(), but takes over the caller's
- * ownership of @error, so the caller does not have to free it any more.
- */
-export function simple_async_report_take_gerror_in_idle(object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): void;
-/**
- * Sorts @targets in place according to the algorithm in RFC 2782.
- */
-export function srv_target_list_sort(targets: GLib.List): GLib.List;
 /**
  * Gets the default #GTlsBackend for the system.
  */
@@ -1202,7 +1100,7 @@ export function tls_error_quark(): GLib.Quark;
  * in @anchors to verify certificate chains.
  * The certificates in @anchors must be PEM encoded.
  */
-export function tls_file_database_new(anchors: unknown): TlsFileDatabase;
+export function tls_file_database_new(anchors: string): TlsFileDatabase;
 /**
  * Creates a new #GTlsServerConnection wrapping @base_io_stream (which
  * must have pollable input and output streams).
@@ -1219,7 +1117,7 @@ export function tls_server_connection_new(base_io_stream: IOStream, certificate:
  * that only are used in the OS and has little to no relevance to the
  * casual user.
  */
-export function unix_is_mount_path_system_internal(mount_path: unknown): boolean;
+export function unix_is_mount_path_system_internal(mount_path: string): boolean;
 /**
  * Determines if @device_path is considered a block device path which is 
  * only
@@ -1251,7 +1149,7 @@ export function unix_is_system_fs_type(fs_type: string): boolean;
  * is set, it will be filled with a unix timestamp for checking
  * if the mounts have changed since with g_unix_mounts_changed_since().
  */
-export function unix_mount_at(mount_path: unknown): [UnixMountEntry, number | null];
+export function unix_mount_at(mount_path: string): [UnixMountEntry, number | null];
 /**
  * Compares two unix mounts.
  */
@@ -1265,7 +1163,7 @@ export function unix_mount_copy(mount_entry: UnixMountEntry): UnixMountEntry;
  * is set, it will be filled with a unix timestamp for checking
  * if the mounts have changed since with g_unix_mounts_changed_since().
  */
-export function unix_mount_for(file_path: unknown): [UnixMountEntry, number | null];
+export function unix_mount_for(file_path: string): [UnixMountEntry, number | null];
 /**
  * Frees a unix mount.
  */
@@ -1273,7 +1171,7 @@ export function unix_mount_free(mount_entry: UnixMountEntry): void;
 /**
  * Gets the device path for a unix mount.
  */
-export function unix_mount_get_device_path(mount_entry: UnixMountEntry): unknown;
+export function unix_mount_get_device_path(mount_entry: UnixMountEntry): string;
 /**
  * Gets the filesystem type for the unix mount.
  */
@@ -1281,7 +1179,7 @@ export function unix_mount_get_fs_type(mount_entry: UnixMountEntry): string;
 /**
  * Gets the mount path for a unix mount.
  */
-export function unix_mount_get_mount_path(mount_entry: UnixMountEntry): unknown;
+export function unix_mount_get_mount_path(mount_entry: UnixMountEntry): string;
 /**
  * Gets a comma-separated list of mount options for the unix mount. For e
  * xample,
@@ -1910,3570 +1808,2585 @@ export enum TlsPasswordFlags {
     MANY_TRIES = 4,
     FINAL_TRY = 8,
 }
-export class AppInfoMonitor  {constructor(config?: properties);
-static get(): AppInfoMonitor;
-}
-export class AppLaunchContext extends GObject.Object {constructor(config?: properties);
-get_display(info: AppInfo, files: GLib.List): string;
-get_environment(): unknown[];
-get_startup_notify_id(info: AppInfo, files: GLib.List): string;
-launch_failed(startup_notify_id: string): void;
-setenv(variable: unknown, value: unknown): void;
-unsetenv(variable: unknown): void;
-vfunc_get_display(info: AppInfo, files: GLib.List): string;
-vfunc_get_startup_notify_id(info: AppInfo, files: GLib.List): string;
-vfunc_launch_failed(startup_notify_id: string): void;
-vfunc_launched(info: AppInfo, platform_data: GLib.Variant): void;
-}
-export class Application extends GObject.Object {constructor(config?: properties);
-action_group: ActionGroup;
-application_id: string;
-flags: ApplicationFlags;
-inactivity_timeout: number;
-readonly is_busy: boolean;
-readonly is_registered: boolean;
-readonly is_remote: boolean;
-resource_base_path: string;
-activate(): void;
-add_main_option(long_name: string, short_name: number, flags: GLib.OptionFlags, arg: GLib.OptionArg, description: string, arg_description: string | null): void;
-add_main_option_entries(entries: GLib.OptionEntry[]): void;
-add_option_group(group: GLib.OptionGroup): void;
-bind_busy_property(object: GObject.Object, property: string): void;
-get_application_id(): string;
-get_dbus_connection(): DBusConnection;
-get_dbus_object_path(): string;
-get_flags(): ApplicationFlags;
-get_inactivity_timeout(): number;
-get_is_busy(): boolean;
-get_is_registered(): boolean;
-get_is_remote(): boolean;
-get_resource_base_path(): string | null;
-hold(): void;
-mark_busy(): void;
-open(files: File[], n_files: number, hint: string): void;
-quit(): void;
-register(cancellable: Cancellable | null): boolean;
-release(): void;
-run(argc: number, argv: unknown[] | null): number;
-send_notification(id: string | null, notification: Notification): void;
-set_action_group(action_group: ActionGroup | null): void;
-set_application_id(application_id: string | null): void;
-set_default(): void;
-set_flags(flags: ApplicationFlags): void;
-set_inactivity_timeout(inactivity_timeout: number): void;
-set_option_context_description(description: string | null): void;
-set_option_context_parameter_string(parameter_string: string | null): void;
-set_option_context_summary(summary: string | null): void;
-set_resource_base_path(resource_path: string | null): void;
-unbind_busy_property(object: GObject.Object, property: string): void;
-unmark_busy(): void;
-withdraw_notification(id: string): void;
-vfunc_activate(): void;
-vfunc_add_platform_data(builder: GLib.VariantBuilder): void;
-vfunc_after_emit(platform_data: GLib.Variant): void;
-vfunc_before_emit(platform_data: GLib.Variant): void;
-vfunc_command_line(command_line: ApplicationCommandLine): number;
-vfunc_dbus_register(connection: DBusConnection, object_path: string): boolean;
-vfunc_dbus_unregister(connection: DBusConnection, object_path: string): void;
-vfunc_handle_local_options(options: GLib.VariantDict): number;
-vfunc_local_command_line(_arguments: string[]): [boolean, string[],number];
-vfunc_name_lost(): boolean;
-vfunc_open(files: File[], n_files: number, hint: string): void;
-vfunc_quit_mainloop(): void;
-vfunc_run_mainloop(): void;
-vfunc_shutdown(): void;
-vfunc_startup(): void;
-static get_default(): Application;
-static id_is_valid(application_id: string): boolean;
-}
-export class ApplicationCommandLine  {constructor(config?: properties);
-_arguments: GLib.Variant;
-readonly is_remote: boolean;
-options: GLib.Variant;
-platform_data: GLib.Variant;
-readonly priv: ApplicationCommandLinePrivate;
-create_file_for_arg(arg: unknown): File;
-get_arguments(): [unknown[], number | null];
-get_cwd(): unknown | null;
-get_environ(): unknown[];
-get_exit_status(): number;
-get_is_remote(): boolean;
-get_options_dict(): GLib.VariantDict;
-get_platform_data(): GLib.Variant | null;
-get_stdin(): InputStream;
-getenv(name: unknown): string;
-print(format: string, ___: unknown[]): void;
-printerr(format: string, ___: unknown[]): void;
-set_exit_status(exit_status: number): void;
-}
-export class BufferedInputStream extends FilterInputStream {constructor(config?: properties);
-buffer_size: number;static new_sized(base_stream: InputStream, size: number): InputStream;
-fill(count: number, cancellable: Cancellable | null): number;
-fill_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-fill_finish(result: AsyncResult): number;
-get_available(): number;
-get_buffer_size(): number;
-peek(buffer: number[], offset: number, count: number): number;
-peek_buffer(): [number[], number];
-read_byte(cancellable: Cancellable | null): number;
-set_buffer_size(size: number): void;
-vfunc_fill(count: number, cancellable: Cancellable | null): number;
-vfunc_fill_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-vfunc_fill_finish(result: AsyncResult): number;
-}
-export class BufferedOutputStream extends FilterOutputStream {constructor(config?: properties);
-auto_grow: boolean;
-buffer_size: number;static new_sized(base_stream: OutputStream, size: number): OutputStream;
-get_auto_grow(): boolean;
-get_buffer_size(): number;
-set_auto_grow(auto_grow: boolean): void;
-set_buffer_size(size: number): void;
-}
-export class BytesIcon extends GObject.Object {constructor(config?: properties);
-bytes: GLib.Bytes;
-get_bytes(): GLib.Bytes;
-}
-export class Cancellable extends GObject.Object {constructor(config?: properties);
-cancel(): void;
-connect(callback: GObject.Callback, data: object | null, data_destroy_func: GLib.DestroyNotify | null): number;
-connect(...args: never[]): never;
-disconnect(handler_id: number): void;
-disconnect(...args: never[]): never;
-get_fd(): number;
-is_cancelled(): boolean;
-make_pollfd(pollfd: GLib.PollFD): boolean;
-pop_current(): void;
-push_current(): void;
-release_fd(): void;
-reset(): void;
-set_error_if_cancelled(): boolean;
-source_new(): GLib.Source;
-vfunc_cancelled(): void;
-static get_current(): Cancellable | null;
-}
-export class CharsetConverter extends GObject.Object {constructor(config?: properties);
-from_charset: string;
-to_charset: string;
-use_fallback: boolean;
-get_num_fallbacks(): number;
-get_use_fallback(): boolean;
-set_use_fallback(use_fallback: boolean): void;
-}
-export class ConverterInputStream extends FilterInputStream {constructor(config?: properties);
-converter: Converter;
-get_converter(): Converter;
-}
-export class ConverterOutputStream extends FilterOutputStream {constructor(config?: properties);
-converter: Converter;
-get_converter(): Converter;
-}
-export class Credentials extends GObject.Object {constructor(config?: properties);
-get_native(native_type: CredentialsType): object | null;
-get_unix_pid(): number;
-get_unix_user(): number;
-is_same_user(other_credentials: Credentials): boolean;
-set_native(native_type: CredentialsType, _native: object): void;
-set_unix_user(uid: number): boolean;
-to_string(): string;
-}
-export class DBusActionGroup  {constructor(config?: properties);
-static get(connection: DBusConnection, bus_name: string | null, object_path: string): DBusActionGroup;
-}
-export class DBusAuthObserver extends GObject.Object {constructor(config?: properties);
-allow_mechanism(mechanism: string): boolean;
-authorize_authenticated_peer(stream: IOStream, credentials: Credentials | null): boolean;
-}
-export class DBusConnection extends GObject.Object {constructor(config?: properties);
-address: string;
-authentication_observer: DBusAuthObserver;
-readonly capabilities: DBusCapabilityFlags;
-readonly closed: boolean;
-exit_on_close: boolean;
-flags: DBusConnectionFlags;
-guid: string;
-stream: IOStream;
-readonly unique_name: string;static new_finish(res: AsyncResult): DBusConnection;
-static new_for_address_finish(res: AsyncResult): DBusConnection;
-static new_for_address_sync(address: string, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusConnection;
-static new_sync(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusConnection;
-add_filter(filter_function: DBusMessageFilterFunction, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
-call(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-call_finish(res: AsyncResult): GLib.Variant;
-call_sync(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null): GLib.Variant;
-call_with_unix_fd_list(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-call_with_unix_fd_list_finish(res: AsyncResult): [GLib.Variant, UnixFDList | null];
-call_with_unix_fd_list_sync(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null): [GLib.Variant, UnixFDList | null];
-close(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(res: AsyncResult): boolean;
-close_sync(cancellable: Cancellable | null): boolean;
-emit_signal(destination_bus_name: string | null, object_path: string, interface_name: string, signal_name: string, parameters: GLib.Variant | null): boolean;
-export_action_group(object_path: string, action_group: ActionGroup): number;
-export_menu_model(object_path: string, menu: MenuModel): number;
-flush(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-flush_finish(res: AsyncResult): boolean;
-flush_sync(cancellable: Cancellable | null): boolean;
-get_capabilities(): DBusCapabilityFlags;
-get_exit_on_close(): boolean;
-get_flags(): DBusConnectionFlags;
-get_guid(): string;
-get_last_serial(): number;
-get_peer_credentials(): Credentials | null;
-get_stream(): IOStream;
-get_unique_name(): string | null;
-is_closed(): boolean;
-register_object(object_path: string, interface_info: DBusInterfaceInfo, vtable: DBusInterfaceVTable | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
-register_object_with_closures(object_path: string, interface_info: DBusInterfaceInfo, method_call_closure: GObject.Closure | null, get_property_closure: GObject.Closure | null, set_property_closure: GObject.Closure | null): number;
-register_subtree(object_path: string, vtable: DBusSubtreeVTable, flags: DBusSubtreeFlags, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
-remove_filter(filter_id: number): void;
-send_message(message: DBusMessage, flags: DBusSendMessageFlags): [boolean, number | null];
-send_message_with_reply(message: DBusMessage, flags: DBusSendMessageFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): [number | null];
-send_message_with_reply_finish(res: AsyncResult): DBusMessage;
-send_message_with_reply_sync(message: DBusMessage, flags: DBusSendMessageFlags, timeout_msec: number, cancellable: Cancellable | null): [DBusMessage, number | null];
-set_exit_on_close(exit_on_close: boolean): void;
-signal_subscribe(sender: string | null, interface_name: string | null, member: string | null, object_path: string | null, arg0: string | null, flags: DBusSignalFlags, callback: DBusSignalCallback, user_data: object | null, user_data_free_func: GLib.DestroyNotify | null): number;
-signal_unsubscribe(subscription_id: number): void;
-start_message_processing(): void;
-unexport_action_group(export_id: number): void;
-unexport_menu_model(export_id: number): void;
-unregister_object(registration_id: number): boolean;
-unregister_subtree(registration_id: number): boolean;
-static _new(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-static new_for_address(address: string, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-}
-export class DBusInterfaceSkeleton  {constructor(config?: properties);
-g_flags: DBusInterfaceSkeletonFlags;
-readonly priv: DBusInterfaceSkeletonPrivate;
-_export(connection: DBusConnection, object_path: string): boolean;
-flush(): void;
-get_connection(): DBusConnection;
-get_connections(): GLib.List;
-get_flags(): DBusInterfaceSkeletonFlags;
-get_info(): DBusInterfaceInfo;
-get_object_path(): string;
-get_properties(): GLib.Variant;
-get_vtable(): DBusInterfaceVTable;
-has_connection(connection: DBusConnection): boolean;
-set_flags(flags: DBusInterfaceSkeletonFlags): void;
-unexport(): void;
-unexport_from_connection(connection: DBusConnection): void;
-}
-export class DBusMenuModel  {constructor(config?: properties);
-static get(connection: DBusConnection, bus_name: string | null, object_path: string): DBusMenuModel;
-}
-export class DBusMessage extends GObject.Object {constructor(config?: properties);
-readonly locked: boolean;static new_from_blob(blob: number[], blob_len: number, capabilities: DBusCapabilityFlags): DBusMessage;
-static new_method_call(name: string | null, path: string, interface_: string | null, method: string): DBusMessage;
-static new_signal(path: string, interface_: string, signal: string): DBusMessage;
-copy(): DBusMessage;
-get_arg0(): string;
-get_body(): GLib.Variant;
-get_byte_order(): DBusMessageByteOrder;
-get_destination(): string;
-get_error_name(): string;
-get_flags(): DBusMessageFlags;
-get_header(header_field: DBusMessageHeaderField): GLib.Variant | null;
-get_header_fields(): number[];
-get_interface(): string;
-get_locked(): boolean;
-get_member(): string;
-get_message_type(): DBusMessageType;
-get_num_unix_fds(): number;
-get_path(): string;
-get_reply_serial(): number;
-get_sender(): string;
-get_serial(): number;
-get_signature(): string;
-get_unix_fd_list(): UnixFDList;
-lock(): void;
-new_method_error(error_name: string, error_message_format: string, ___: unknown[]): DBusMessage;
-new_method_error_literal(error_name: string, error_message: string): DBusMessage;
-new_method_error_valist(error_name: string, error_message_format: string, var_args: any): DBusMessage;
-new_method_reply(): DBusMessage;
-print(indent: number): string;
-set_body(body: GLib.Variant): void;
-set_byte_order(byte_order: DBusMessageByteOrder): void;
-set_destination(value: string): void;
-set_error_name(value: string): void;
-set_flags(flags: DBusMessageFlags): void;
-set_header(header_field: DBusMessageHeaderField, value: GLib.Variant | null): void;
-set_interface(value: string): void;
-set_member(value: string): void;
-set_message_type(type: DBusMessageType): void;
-set_num_unix_fds(value: number): void;
-set_path(value: string): void;
-set_reply_serial(value: number): void;
-set_sender(value: string): void;
-set_serial(serial: number): void;
-set_signature(value: string): void;
-set_unix_fd_list(fd_list: UnixFDList | null): void;
-to_blob(capabilities: DBusCapabilityFlags): [number[], number];
-to_gerror(): boolean;
-static bytes_needed(blob: number[], blob_len: number): number;
-}
-export class DBusMethodInvocation  {constructor(config?: properties);
-get_connection(): DBusConnection;
-get_interface_name(): string;
-get_message(): DBusMessage;
-get_method_info(): DBusMethodInfo;
-get_method_name(): string;
-get_object_path(): string;
-get_parameters(): GLib.Variant;
-get_property_info(): DBusPropertyInfo;
-get_sender(): string;
-get_user_data(): object | null;
-return_dbus_error(error_name: string, error_message: string): void;
-return_error(domain: GLib.Quark, code: number, format: string, ___: unknown[]): void;
-return_error_literal(domain: GLib.Quark, code: number, message: string): void;
-return_error_valist(domain: GLib.Quark, code: number, format: string, var_args: any): void;
-return_gerror(error: GLib.Error): void;
-return_value(parameters: GLib.Variant | null): void;
-return_value_with_unix_fd_list(parameters: GLib.Variant | null, fd_list: UnixFDList | null): void;
-take_error(error: GLib.Error): void;
-}
-export class DBusObjectManagerClient extends GObject.Object {constructor(config?: properties);
-bus_type: BusType;
-connection: DBusConnection;
-flags: DBusObjectManagerClientFlags;
-get_proxy_type_destroy_notify: object;
-get_proxy_type_func: object;
-get_proxy_type_user_data: object;
-name: string;
-readonly name_owner: string;
-object_path: string;static new_finish(res: AsyncResult): DBusObjectManagerClient;
-static new_for_bus_finish(res: AsyncResult): DBusObjectManagerClient;
-static new_for_bus_sync(bus_type: BusType, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null): DBusObjectManagerClient;
-static new_sync(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string | null, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null): DBusObjectManagerClient;
-get_connection(): DBusConnection;
-get_flags(): DBusObjectManagerClientFlags;
-get_name(): string;
-get_name_owner(): string | null;
-vfunc_interface_proxy_properties_changed(object_proxy: DBusObjectProxy, interface_proxy: DBusProxy, changed_properties: GLib.Variant, invalidated_properties: string): void;
-vfunc_interface_proxy_signal(object_proxy: DBusObjectProxy, interface_proxy: DBusProxy, sender_name: string, signal_name: string, parameters: GLib.Variant): void;
-static _new(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-static new_for_bus(bus_type: BusType, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-}
-export class DBusObjectManagerServer extends GObject.Object {constructor(config?: properties);
-connection: DBusConnection;
-object_path: string;
-_export(object: DBusObjectSkeleton): void;
-export_uniquely(object: DBusObjectSkeleton): void;
-get_connection(): DBusConnection;
-is_exported(object: DBusObjectSkeleton): boolean;
-set_connection(connection: DBusConnection | null): void;
-unexport(object_path: string): boolean;
-}
-export class DBusObjectProxy extends GObject.Object {constructor(config?: properties);
-g_connection: DBusConnection;
-g_object_path: string;
-get_connection(): DBusConnection;
-}
-export class DBusObjectSkeleton extends GObject.Object {constructor(config?: properties);
-g_object_path: string;
-add_interface(interface_: DBusInterfaceSkeleton): void;
-flush(): void;
-remove_interface(interface_: DBusInterfaceSkeleton): void;
-remove_interface_by_name(interface_name: string): void;
-set_object_path(object_path: string): void;
-vfunc_authorize_method(interface_: DBusInterfaceSkeleton, invocation: DBusMethodInvocation): boolean;
-}
-export class DBusProxy extends GObject.Object {constructor(config?: properties);
-g_bus_type: BusType;
-g_connection: DBusConnection;
-g_default_timeout: number;
-g_flags: DBusProxyFlags;
-g_interface_info: DBusInterfaceInfo;
-g_interface_name: string;
-g_name: string;
-readonly g_name_owner: string;
-g_object_path: string;static new_finish(res: AsyncResult): DBusProxy;
-static new_for_bus_finish(res: AsyncResult): DBusProxy;
-static new_for_bus_sync(bus_type: BusType, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string, object_path: string, interface_name: string, cancellable: Cancellable | null): DBusProxy;
-static new_sync(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null): DBusProxy;
-call(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-call_finish(res: AsyncResult): GLib.Variant;
-call_sync(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null): GLib.Variant;
-call_with_unix_fd_list(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-call_with_unix_fd_list_finish(res: AsyncResult): [GLib.Variant, UnixFDList | null];
-call_with_unix_fd_list_sync(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null): [GLib.Variant, UnixFDList | null];
-get_cached_property(property_name: string): GLib.Variant | null;
-get_cached_property_names(): string[] | null;
-get_connection(): DBusConnection;
-get_default_timeout(): number;
-get_flags(): DBusProxyFlags;
-get_interface_info(): DBusInterfaceInfo | null;
-get_interface_name(): string;
-get_name(): string;
-get_name_owner(): string | null;
-get_object_path(): string;
-set_cached_property(property_name: string, value: GLib.Variant | null): void;
-set_default_timeout(timeout_msec: number): void;
-set_interface_info(info: DBusInterfaceInfo | null): void;
-vfunc_g_properties_changed(changed_properties: GLib.Variant, invalidated_properties: string): void;
-vfunc_g_signal(sender_name: string, signal_name: string, parameters: GLib.Variant): void;
-static _new(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-static new_for_bus(bus_type: BusType, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-}
-export class DBusServer extends GObject.Object {constructor(config?: properties);
-readonly active: boolean;
-address: string;
-authentication_observer: DBusAuthObserver;
-readonly client_address: string;
-flags: DBusServerFlags;
-guid: string;static new_sync(address: string, flags: DBusServerFlags, guid: string, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusServer;
-get_client_address(): string;
-get_flags(): DBusServerFlags;
-get_guid(): string;
-is_active(): boolean;
-start(): void;
-stop(): void;
-}
-export class DataInputStream extends BufferedInputStream {constructor(config?: properties);
-byte_order: DataStreamByteOrder;
-newline_type: DataStreamNewlineType;
-get_byte_order(): DataStreamByteOrder;
-get_newline_type(): DataStreamNewlineType;
-read_byte(cancellable: Cancellable | null): number;
-read_byte(...args: never[]): never;
-read_int16(cancellable: Cancellable | null): number;
-read_int32(cancellable: Cancellable | null): number;
-read_int64(cancellable: Cancellable | null): number;
-read_line(cancellable: Cancellable | null): [number[] | null, number | null];
-read_line_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_line_finish(result: AsyncResult): [number[] | null, number | null];
-read_line_finish_utf8(result: AsyncResult): [string | null, number | null];
-read_line_utf8(cancellable: Cancellable | null): [string | null, number | null];
-read_uint16(cancellable: Cancellable | null): number;
-read_uint32(cancellable: Cancellable | null): number;
-read_uint64(cancellable: Cancellable | null): number;
-read_until(stop_chars: string, cancellable: Cancellable | null): [string, number | null];
-read_until_async(stop_chars: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_until_finish(result: AsyncResult): [string, number | null];
-read_upto(stop_chars: string, stop_chars_len: number, cancellable: Cancellable | null): [string, number | null];
-read_upto_async(stop_chars: string, stop_chars_len: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_upto_finish(result: AsyncResult): [string, number | null];
-set_byte_order(order: DataStreamByteOrder): void;
-set_newline_type(type: DataStreamNewlineType): void;
-}
-export class DataOutputStream extends FilterOutputStream {constructor(config?: properties);
-byte_order: DataStreamByteOrder;
-get_byte_order(): DataStreamByteOrder;
-put_byte(data: number, cancellable: Cancellable | null): boolean;
-put_int16(data: number, cancellable: Cancellable | null): boolean;
-put_int32(data: number, cancellable: Cancellable | null): boolean;
-put_int64(data: number, cancellable: Cancellable | null): boolean;
-put_string(str: string, cancellable: Cancellable | null): boolean;
-put_uint16(data: number, cancellable: Cancellable | null): boolean;
-put_uint32(data: number, cancellable: Cancellable | null): boolean;
-put_uint64(data: number, cancellable: Cancellable | null): boolean;
-set_byte_order(order: DataStreamByteOrder): void;
-}
-export class DesktopAppInfo extends GObject.Object {constructor(config?: properties);
-filename: string;static new_from_filename(filename: unknown): DesktopAppInfo | null;
-static new_from_keyfile(key_file: GLib.KeyFile): DesktopAppInfo | null;
-get_action_name(action_name: string): string;
-get_boolean(key: string): boolean;
-get_categories(): string;
-get_filename(): unknown;
-get_generic_name(): string;
-get_is_hidden(): boolean;
-get_keywords(): string[];
-get_locale_string(key: string): string | null;
-get_nodisplay(): boolean;
-get_show_in(desktop_env: string | null): boolean;
-get_startup_wm_class(): string;
-get_string(key: string): string;
-get_string_list(key: string): [string[], number | null];
-has_key(key: string): boolean;
-launch_action(action_name: string, launch_context: AppLaunchContext | null): void;
-launch_uris_as_manager(uris: GLib.List, launch_context: AppLaunchContext | null, spawn_flags: GLib.SpawnFlags, user_setup: GLib.SpawnChildSetupFunc | null, user_setup_data: object | null, pid_callback: DesktopAppLaunchCallback | null, pid_callback_data: object | null): boolean;
-launch_uris_as_manager_with_fds(uris: GLib.List, launch_context: AppLaunchContext | null, spawn_flags: GLib.SpawnFlags, user_setup: GLib.SpawnChildSetupFunc | null, user_setup_data: object | null, pid_callback: DesktopAppLaunchCallback | null, pid_callback_data: object | null, stdin_fd: number, stdout_fd: number, stderr_fd: number): boolean;
-list_actions(): string[];
-static get_implementations(_interface: string): GLib.List;
-static search(search_string: string): unknown[];
-static set_desktop_env(desktop_env: string): void;
-}
-export class Emblem extends GObject.Object {constructor(config?: properties);
-icon: GObject.Object;
-origin: EmblemOrigin;static new_with_origin(icon: Icon, origin: EmblemOrigin): Emblem;
-get_icon(): Icon;
-get_origin(): EmblemOrigin;
-}
-export class EmblemedIcon extends GObject.Object {constructor(config?: properties);
-gicon: Icon;
-add_emblem(emblem: Emblem): void;
-clear_emblems(): void;
-get_emblems(): GLib.List;
-get_icon(): Icon;
-}
-export class FileEnumerator  {constructor(config?: properties);
-container: File;
-readonly priv: FileEnumeratorPrivate;
-close(cancellable: Cancellable | null): boolean;
-close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(result: AsyncResult): boolean;
-get_child(info: FileInfo): File;
-get_container(): File;
-has_pending(): boolean;
-is_closed(): boolean;
-iterate(cancellable: Cancellable | null): [boolean, FileInfo | null,File | null];
-next_file(cancellable: Cancellable | null): FileInfo | null;
-next_files_async(num_files: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-next_files_finish(result: AsyncResult): GLib.List;
-set_pending(pending: boolean): void;
-}
-export class FileIOStream  {constructor(config?: properties);
-readonly priv: FileIOStreamPrivate;
-get_etag(): string;
-query_info(attributes: string, cancellable: Cancellable | null): FileInfo;
-query_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-query_info_finish(result: AsyncResult): FileInfo;
-}
-export class FileIcon extends GObject.Object {constructor(config?: properties);
-file: File;
-get_file(): File;
-}
-export class FileInfo extends GObject.Object {constructor(config?: properties);
-clear_status(): void;
-copy_into(dest_info: FileInfo): void;
-dup(): FileInfo;
-get_attribute_as_string(attribute: string): string;
-get_attribute_boolean(attribute: string): boolean;
-get_attribute_byte_string(attribute: string): string;
-get_attribute_data(attribute: string): [boolean, FileAttributeType | null,object | null,FileAttributeStatus | null];
-get_attribute_int32(attribute: string): number;
-get_attribute_int64(attribute: string): number;
-get_attribute_object(attribute: string): GObject.Object;
-get_attribute_status(attribute: string): FileAttributeStatus;
-get_attribute_string(attribute: string): string;
-get_attribute_stringv(attribute: string): string[];
-get_attribute_type(attribute: string): FileAttributeType;
-get_attribute_uint32(attribute: string): number;
-get_attribute_uint64(attribute: string): number;
-get_content_type(): string;
-get_deletion_date(): GLib.DateTime;
-get_display_name(): string;
-get_edit_name(): string;
-get_etag(): string;
-get_file_type(): FileType;
-get_icon(): Icon;
-get_is_backup(): boolean;
-get_is_hidden(): boolean;
-get_is_symlink(): boolean;
-get_modification_time(): [GLib.TimeVal];
-get_name(): unknown;
-get_size(): number;
-get_sort_order(): number;
-get_symbolic_icon(): Icon;
-get_symlink_target(): string;
-has_attribute(attribute: string): boolean;
-has_namespace(name_space: string): boolean;
-list_attributes(name_space: string | null): string[] | null;
-remove_attribute(attribute: string): void;
-set_attribute(attribute: string, type: FileAttributeType, value_p: object): void;
-set_attribute_boolean(attribute: string, attr_value: boolean): void;
-set_attribute_byte_string(attribute: string, attr_value: string): void;
-set_attribute_int32(attribute: string, attr_value: number): void;
-set_attribute_int64(attribute: string, attr_value: number): void;
-set_attribute_mask(mask: FileAttributeMatcher): void;
-set_attribute_object(attribute: string, attr_value: GObject.Object): void;
-set_attribute_status(attribute: string, status: FileAttributeStatus): boolean;
-set_attribute_string(attribute: string, attr_value: string): void;
-set_attribute_stringv(attribute: string, attr_value: string[]): void;
-set_attribute_uint32(attribute: string, attr_value: number): void;
-set_attribute_uint64(attribute: string, attr_value: number): void;
-set_content_type(content_type: string): void;
-set_display_name(display_name: string): void;
-set_edit_name(edit_name: string): void;
-set_file_type(type: FileType): void;
-set_icon(icon: Icon): void;
-set_is_hidden(is_hidden: boolean): void;
-set_is_symlink(is_symlink: boolean): void;
-set_modification_time(mtime: GLib.TimeVal): void;
-set_name(name: unknown): void;
-set_size(size: number): void;
-set_sort_order(sort_order: number): void;
-set_symbolic_icon(icon: Icon): void;
-set_symlink_target(symlink_target: string): void;
-unset_attribute_mask(): void;
-}
-export class FileInputStream  {constructor(config?: properties);
-readonly priv: FileInputStreamPrivate;
-query_info(attributes: string, cancellable: Cancellable | null): FileInfo;
-query_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-query_info_finish(result: AsyncResult): FileInfo;
-}
-export class FileMonitor  {constructor(config?: properties);
-readonly cancelled: boolean;
-rate_limit: number;
-readonly priv: FileMonitorPrivate;
-cancel(): boolean;
-emit_event(child: File, other_file: File, event_type: FileMonitorEvent): void;
-is_cancelled(): boolean;
-set_rate_limit(limit_msecs: number): void;
-}
-export class FileOutputStream  {constructor(config?: properties);
-readonly priv: FileOutputStreamPrivate;
-get_etag(): string;
-query_info(attributes: string, cancellable: Cancellable | null): FileInfo;
-query_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-query_info_finish(result: AsyncResult): FileInfo;
-}
-export class FilenameCompleter extends GObject.Object {constructor(config?: properties);
-get_completion_suffix(initial_text: string): string;
-get_completions(initial_text: string): string[];
-set_dirs_only(dirs_only: boolean): void;
-vfunc_got_completion_data(): void;
-}
-export class FilterInputStream  {constructor(config?: properties);
-base_stream: InputStream;
-close_base_stream: boolean;
-get_base_stream(): InputStream;
-get_close_base_stream(): boolean;
-set_close_base_stream(close_base: boolean): void;
-}
-export class FilterOutputStream  {constructor(config?: properties);
-base_stream: OutputStream;
-close_base_stream: boolean;
-get_base_stream(): OutputStream;
-get_close_base_stream(): boolean;
-set_close_base_stream(close_base: boolean): void;
-}
-export class IOModule extends GObject.TypeModule {constructor(config?: properties);
-load(): void;
-unload(): void;
-static query(): string[];
-}
-export class IOStream  {constructor(config?: properties);
-readonly closed: boolean;
-readonly input_stream: InputStream;
-readonly output_stream: OutputStream;
-readonly priv: IOStreamPrivate;
-clear_pending(): void;
-close(cancellable: Cancellable | null): boolean;
-close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(result: AsyncResult): boolean;
-get_input_stream(): InputStream;
-get_output_stream(): OutputStream;
-has_pending(): boolean;
-is_closed(): boolean;
-set_pending(): boolean;
-splice_async(stream2: IOStream, flags: IOStreamSpliceFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-static splice_finish(result: AsyncResult): boolean;
-}
-export class InetAddress extends GObject.Object {constructor(config?: properties);
-bytes: object;
-family: SocketFamily;
-readonly is_any: boolean;
-readonly is_link_local: boolean;
-readonly is_loopback: boolean;
-readonly is_mc_global: boolean;
-readonly is_mc_link_local: boolean;
-readonly is_mc_node_local: boolean;
-readonly is_mc_org_local: boolean;
-readonly is_mc_site_local: boolean;
-readonly is_multicast: boolean;
-readonly is_site_local: boolean;static new_any(family: SocketFamily): InetAddress;
-static new_from_bytes(bytes: number[], family: SocketFamily): InetAddress;
-static new_from_string(string: string): InetAddress;
-static new_loopback(family: SocketFamily): InetAddress;
-equal(other_address: InetAddress): boolean;
-get_family(): SocketFamily;
-get_is_any(): boolean;
-get_is_link_local(): boolean;
-get_is_loopback(): boolean;
-get_is_mc_global(): boolean;
-get_is_mc_link_local(): boolean;
-get_is_mc_node_local(): boolean;
-get_is_mc_org_local(): boolean;
-get_is_mc_site_local(): boolean;
-get_is_multicast(): boolean;
-get_is_site_local(): boolean;
-get_native_size(): number;
-to_bytes(): number;
-to_string(): string;
-vfunc_to_bytes(): number;
-vfunc_to_string(): string;
-}
-export class InetAddressMask extends GObject.Object {constructor(config?: properties);
-address: InetAddress;
-readonly family: SocketFamily;
-length: number;static new_from_string(mask_string: string): InetAddressMask;
-equal(mask2: InetAddressMask): boolean;
-get_address(): InetAddress;
-get_family(): SocketFamily;
-get_length(): number;
-matches(address: InetAddress): boolean;
-to_string(): string;
-}
-export class InetSocketAddress extends SocketAddress {constructor(config?: properties);
-address: InetAddress;
-flowinfo: number;
-port: number;
-scope_id: number;static new_from_string(address: string, port: number): SocketAddress;
-get_address(): InetAddress;
-get_flowinfo(): number;
-get_port(): number;
-get_scope_id(): number;
-}
-export class InputStream  {constructor(config?: properties);
-readonly priv: InputStreamPrivate;
-clear_pending(): void;
-close(cancellable: Cancellable | null): boolean;
-close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(result: AsyncResult): boolean;
-has_pending(): boolean;
-is_closed(): boolean;
-read(buffer: number[], count: number, cancellable: Cancellable | null): number;
-read_all(buffer: number[], count: number, cancellable: Cancellable | null): [boolean, number];
-read_all_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_all_finish(result: AsyncResult): [boolean, number];
-read_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_bytes(count: number, cancellable: Cancellable | null): GLib.Bytes;
-read_bytes_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_bytes_finish(result: AsyncResult): GLib.Bytes;
-read_finish(result: AsyncResult): number;
-set_pending(): boolean;
-skip(count: number, cancellable: Cancellable | null): number;
-skip_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-skip_finish(result: AsyncResult): number;
-}
-export class ListStore extends GObject.Object {constructor(config?: properties);
-item_type: unknown;
-append(item: GObject.Object): void;
-insert(position: number, item: GObject.Object): void;
-insert_sorted(item: GObject.Object, compare_func: GLib.CompareDataFunc, user_data: object | null): number;
-remove(position: number): void;
-remove_all(): void;
-sort(compare_func: GLib.CompareDataFunc, user_data: object | null): void;
-splice(position: number, n_removals: number, additions: GObject.Object[], n_additions: number): void;
-}
-export class MemoryInputStream extends InputStream {constructor(config?: properties);
-static new_from_bytes(bytes: GLib.Bytes): InputStream;
-static new_from_data(data: number[], len: number, destroy: GLib.DestroyNotify | null): InputStream;
-add_bytes(bytes: GLib.Bytes): void;
-add_data(data: number[], len: number, destroy: GLib.DestroyNotify | null): void;
-}
-export class MemoryOutputStream extends OutputStream {constructor(config?: properties);
-data: object;
-readonly data_size: number;
-destroy_function: object;
-realloc_function: object;
-size: number;static new_resizable(): OutputStream;
-get_data(): object | null;
-get_data_size(): number;
-get_size(): number;
-steal_as_bytes(): GLib.Bytes;
-steal_data(): object | null;
-}
-export class Menu extends MenuModel {constructor(config?: properties);
-append(label: string | null, detailed_action: string | null): void;
-append_item(item: MenuItem): void;
-append_section(label: string | null, section: MenuModel): void;
-append_submenu(label: string | null, submenu: MenuModel): void;
-freeze(): void;
-insert(position: number, label: string | null, detailed_action: string | null): void;
-insert_item(position: number, item: MenuItem): void;
-insert_section(position: number, label: string | null, section: MenuModel): void;
-insert_submenu(position: number, label: string | null, submenu: MenuModel): void;
-prepend(label: string | null, detailed_action: string | null): void;
-prepend_item(item: MenuItem): void;
-prepend_section(label: string | null, section: MenuModel): void;
-prepend_submenu(label: string | null, submenu: MenuModel): void;
-remove(position: number): void;
-remove_all(): void;
-}
-export class MenuAttributeIter  {constructor(config?: properties);
-readonly priv: MenuAttributeIterPrivate;
-get_name(): string;
-get_next(): [boolean, string | null,GLib.Variant | null];
-get_value(): GLib.Variant;
-next(): boolean;
-}
-export class MenuItem extends GObject.Object {constructor(config?: properties);
-static new_from_model(model: MenuModel, item_index: number): MenuItem;
-static new_section(label: string | null, section: MenuModel): MenuItem;
-static new_submenu(label: string | null, submenu: MenuModel): MenuItem;
-get_attribute(attribute: string, format_string: string, ___: unknown[]): boolean;
-get_attribute_value(attribute: string, expected_type: GLib.VariantType | null): GLib.Variant;
-get_link(link: string): MenuModel;
-set_action_and_target(action: string | null, format_string: string | null, ___: unknown[]): void;
-set_action_and_target_value(action: string | null, target_value: GLib.Variant | null): void;
-set_attribute(attribute: string, format_string: string | null, ___: unknown[]): void;
-set_attribute_value(attribute: string, value: GLib.Variant | null): void;
-set_detailed_action(detailed_action: string): void;
-set_icon(icon: Icon): void;
-set_label(label: string | null): void;
-set_link(link: string, model: MenuModel | null): void;
-set_section(section: MenuModel | null): void;
-set_submenu(submenu: MenuModel | null): void;
-}
-export class MenuLinkIter  {constructor(config?: properties);
-readonly priv: MenuLinkIterPrivate;
-get_name(): string;
-get_next(): [boolean, string | null,MenuModel | null];
-get_value(): MenuModel;
-next(): boolean;
-}
-export class MenuModel  {constructor(config?: properties);
-readonly priv: MenuModelPrivate;
-get_item_attribute(item_index: number, attribute: string, format_string: string, ___: unknown[]): boolean;
-get_item_attribute_value(item_index: number, attribute: string, expected_type: GLib.VariantType | null): GLib.Variant;
-get_item_link(item_index: number, link: string): MenuModel;
-get_n_items(): number;
-is_mutable(): boolean;
-items_changed(position: number, removed: number, added: number): void;
-iterate_item_attributes(item_index: number): MenuAttributeIter;
-iterate_item_links(item_index: number): MenuLinkIter;
-}
-export class MountOperation extends GObject.Object {constructor(config?: properties);
-anonymous: boolean;
-choice: number;
-domain: string;
-is_tcrypt_hidden_volume: boolean;
-is_tcrypt_system_volume: boolean;
-password: string;
-password_save: PasswordSave;
-pim: number;
-username: string;
-get_anonymous(): boolean;
-get_choice(): number;
-get_domain(): string;
-get_is_tcrypt_hidden_volume(): boolean;
-get_is_tcrypt_system_volume(): boolean;
-get_password(): string;
-get_password_save(): PasswordSave;
-get_pim(): number;
-get_username(): string;
-reply(result: MountOperationResult): void;
-set_anonymous(anonymous: boolean): void;
-set_choice(choice: number): void;
-set_domain(domain: string): void;
-set_is_tcrypt_hidden_volume(hidden_volume: boolean): void;
-set_is_tcrypt_system_volume(system_volume: boolean): void;
-set_password(password: string): void;
-set_password_save(save: PasswordSave): void;
-set_pim(pim: number): void;
-set_username(username: string): void;
-vfunc_aborted(): void;
-vfunc_ask_password(message: string, default_user: string, default_domain: string, flags: AskPasswordFlags): void;
-vfunc_ask_question(message: string, choices: string[]): void;
-vfunc_reply(result: MountOperationResult): void;
-vfunc_show_processes(message: string, processes: GLib.Pid[], choices: string[]): void;
-vfunc_show_unmount_progress(message: string, time_left: number, bytes_left: number): void;
-}
-export class NativeVolumeMonitor  {constructor(config?: properties);
-}
-export class NetworkAddress extends GObject.Object {constructor(config?: properties);
-hostname: string;
-port: number;
-scheme: string;static new_loopback(port: number): NetworkAddress;
-get_hostname(): string;
-get_port(): number;
-get_scheme(): string;
-static parse(host_and_port: string, default_port: number): NetworkAddress;
-static parse_uri(uri: string, default_port: number): NetworkAddress;
-}
-export class NetworkService extends GObject.Object {constructor(config?: properties);
-domain: string;
-protocol: string;
-scheme: string;
-service: string;
-get_domain(): string;
-get_protocol(): string;
-get_scheme(): string;
-get_service(): string;
-set_scheme(scheme: string): void;
-}
-export class Notification extends GObject.Object {constructor(config?: properties);
-add_button(label: string, detailed_action: string): void;
-add_button_with_target(label: string, action: string, target_format: string | null, ___: unknown[]): void;
-add_button_with_target_value(label: string, action: string, target: GLib.Variant | null): void;
-set_body(body: string | null): void;
-set_default_action(detailed_action: string): void;
-set_default_action_and_target(action: string, target_format: string | null, ___: unknown[]): void;
-set_default_action_and_target_value(action: string, target: GLib.Variant | null): void;
-set_icon(icon: Icon): void;
-set_priority(priority: NotificationPriority): void;
-set_title(title: string): void;
-set_urgent(urgent: boolean): void;
-}
-export class OutputStream  {constructor(config?: properties);
-readonly priv: OutputStreamPrivate;
-clear_pending(): void;
-close(cancellable: Cancellable | null): boolean;
-close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(result: AsyncResult): boolean;
-flush(cancellable: Cancellable | null): boolean;
-flush_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-flush_finish(result: AsyncResult): boolean;
-has_pending(): boolean;
-is_closed(): boolean;
-is_closing(): boolean;
-printf(cancellable: Cancellable | null, error: GLib.Error, format: string, ___: unknown[]): [boolean, number | null];
-set_pending(): boolean;
-splice(source: InputStream, flags: OutputStreamSpliceFlags, cancellable: Cancellable | null): number;
-splice_async(source: InputStream, flags: OutputStreamSpliceFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-splice_finish(result: AsyncResult): number;
-vprintf(cancellable: Cancellable | null, error: GLib.Error, format: string, args: any): [boolean, number | null];
-write(buffer: number[], count: number, cancellable: Cancellable | null): number;
-write_all(buffer: number[], count: number, cancellable: Cancellable | null): [boolean, number | null];
-write_all_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-write_all_finish(result: AsyncResult): [boolean, number | null];
-write_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-write_bytes(bytes: GLib.Bytes, cancellable: Cancellable | null): number;
-write_bytes_async(bytes: GLib.Bytes, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-write_bytes_finish(result: AsyncResult): number;
-write_finish(result: AsyncResult): number;
-writev(vectors: OutputVector[], n_vectors: number, cancellable: Cancellable | null): [boolean, number | null];
-writev_all(vectors: OutputVector[], n_vectors: number, cancellable: Cancellable | null): [boolean, number | null];
-writev_all_async(vectors: OutputVector[], n_vectors: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-writev_all_finish(result: AsyncResult): [boolean, number | null];
-writev_async(vectors: OutputVector[], n_vectors: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-writev_finish(result: AsyncResult): [boolean, number | null];
-}
-export class Permission  {constructor(config?: properties);
-readonly allowed: boolean;
-readonly can_acquire: boolean;
-readonly can_release: boolean;
-readonly priv: PermissionPrivate;
-acquire(cancellable: Cancellable | null): boolean;
-acquire_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-acquire_finish(result: AsyncResult): boolean;
-get_allowed(): boolean;
-get_can_acquire(): boolean;
-get_can_release(): boolean;
-impl_update(allowed: boolean, can_acquire: boolean, can_release: boolean): void;
-release(cancellable: Cancellable | null): boolean;
-release_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-release_finish(result: AsyncResult): boolean;
-}
-export class PropertyAction extends GObject.Object {constructor(config?: properties);
-readonly enabled: boolean;
-invert_boolean: boolean;
-name: string;
-object: GObject.Object;
-readonly parameter_type: GLib.VariantType;
-property_name: string;
-readonly state: GLib.Variant;
-readonly state_type: GLib.VariantType;
-}
-export class ProxyAddress extends InetSocketAddress {constructor(config?: properties);
-destination_hostname: string;
-destination_port: number;
-destination_protocol: string;
-password: string;
-protocol: string;
-uri: string;
-username: string;
-get_destination_hostname(): string;
-get_destination_port(): number;
-get_destination_protocol(): string;
-get_password(): string;
-get_protocol(): string;
-get_uri(): string;
-get_username(): string;
-}
-export class ProxyAddressEnumerator  {constructor(config?: properties);
-connectable: SocketConnectable;
-default_port: number;
-proxy_resolver: ProxyResolver;
-uri: string;
-readonly priv: ProxyAddressEnumeratorPrivate;
-}
-export class Resolver  {constructor(config?: properties);
-readonly priv: ResolverPrivate;
-lookup_by_address(address: InetAddress, cancellable: Cancellable | null): string;
-lookup_by_address_async(address: InetAddress, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_by_address_finish(result: AsyncResult): string;
-lookup_by_name(hostname: string, cancellable: Cancellable | null): GLib.List;
-lookup_by_name_async(hostname: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_by_name_finish(result: AsyncResult): GLib.List;
-lookup_by_name_with_flags(hostname: string, flags: ResolverNameLookupFlags, cancellable: Cancellable | null): GLib.List;
-lookup_by_name_with_flags_async(hostname: string, flags: ResolverNameLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_by_name_with_flags_finish(result: AsyncResult): GLib.List;
-lookup_records(rrname: string, record_type: ResolverRecordType, cancellable: Cancellable | null): GLib.List;
-lookup_records_async(rrname: string, record_type: ResolverRecordType, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_records_finish(result: AsyncResult): GLib.List;
-lookup_service(service: string, protocol: string, domain: string, cancellable: Cancellable | null): GLib.List;
-lookup_service_async(service: string, protocol: string, domain: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_service_finish(result: AsyncResult): GLib.List;
-set_default(): void;
-static free_addresses(addresses: GLib.List): void;
-static free_targets(targets: GLib.List): void;
-static get_default(): Resolver;
-}
-export class Settings extends GObject.Object {constructor(config?: properties);
-backend: SettingsBackend;
-readonly delay_apply: boolean;
-readonly has_unapplied: boolean;
-path: string;
-schema: string;
-schema_id: string;
-settings_schema: SettingsSchema;static new_full(schema: SettingsSchema, backend: SettingsBackend | null, path: string | null): Settings;
-static new_with_backend(schema_id: string, backend: SettingsBackend): Settings;
-static new_with_backend_and_path(schema_id: string, backend: SettingsBackend, path: string): Settings;
-static new_with_path(schema_id: string, path: string): Settings;
-apply(): void;
-bind(key: string, object: GObject.Object, property: string, flags: SettingsBindFlags): void;
-bind_with_mapping(key: string, object: GObject.Object, property: string, flags: SettingsBindFlags, get_mapping: SettingsBindGetMapping, set_mapping: SettingsBindSetMapping, user_data: object | null, destroy: GLib.DestroyNotify): void;
-bind_writable(key: string, object: GObject.Object, property: string, inverted: boolean): void;
-create_action(key: string): Action;
-delay(): void;
-get(key: string, format: string, ___: unknown[]): void;
-get(...args: never[]): never;
-get_boolean(key: string): boolean;
-get_child(name: string): Settings;
-get_default_value(key: string): GLib.Variant | null;
-get_double(key: string): number;
-get_enum(key: string): number;
-get_flags(key: string): number;
-get_has_unapplied(): boolean;
-get_int(key: string): number;
-get_int64(key: string): number;
-get_mapped(key: string, mapping: SettingsGetMapping, user_data: object | null): object | null;
-get_range(key: string): GLib.Variant;
-get_string(key: string): string;
-get_strv(key: string): string[];
-get_uint(key: string): number;
-get_uint64(key: string): number;
-get_user_value(key: string): GLib.Variant | null;
-get_value(key: string): GLib.Variant;
-is_writable(name: string): boolean;
-list_children(): string[];
-list_keys(): string[];
-range_check(key: string, value: GLib.Variant): boolean;
-reset(key: string): void;
-revert(): void;
-set(key: string, format: string, ___: unknown[]): boolean;
-set(...args: never[]): never;
-set_boolean(key: string, value: boolean): boolean;
-set_double(key: string, value: number): boolean;
-set_enum(key: string, value: number): boolean;
-set_flags(key: string, value: number): boolean;
-set_int(key: string, value: number): boolean;
-set_int64(key: string, value: number): boolean;
-set_string(key: string, value: string): boolean;
-set_strv(key: string, value: string[] | null): boolean;
-set_uint(key: string, value: number): boolean;
-set_uint64(key: string, value: number): boolean;
-set_value(key: string, value: GLib.Variant): boolean;
-vfunc_change_event(keys: GLib.Quark, n_keys: number): boolean;
-vfunc_changed(key: string): void;
-vfunc_writable_change_event(key: GLib.Quark): boolean;
-vfunc_writable_changed(key: string): void;
-static list_relocatable_schemas(): string[];
-static list_schemas(): string[];
-static sync(): void;
-static unbind(object: GObject.Object, property: string): void;
-}
-export class SettingsBackend  {constructor(config?: properties);
-readonly priv: SettingsBackendPrivate;
-changed(key: string, origin_tag: object | null): void;
-changed_tree(tree: GLib.Tree, origin_tag: object | null): void;
-keys_changed(path: string, items: string[], origin_tag: object | null): void;
-path_changed(path: string, origin_tag: object | null): void;
-path_writable_changed(path: string): void;
-writable_changed(key: string): void;
-static flatten_tree(tree: GLib.Tree): [string,string[],GLib.Variant[] | null];
-static get_default(): SettingsBackend;
-}
-export class SimpleAction extends GObject.Object {constructor(config?: properties);
-enabled: boolean;
-name: string;
-parameter_type: GLib.VariantType;
-state: GLib.Variant;
-readonly state_type: GLib.VariantType;static new_stateful(name: string, parameter_type: GLib.VariantType | null, state: GLib.Variant): SimpleAction;
-set_enabled(enabled: boolean): void;
-set_state(value: GLib.Variant): void;
-set_state_hint(state_hint: GLib.Variant | null): void;
-}
-export class SimpleActionGroup extends GObject.Object {constructor(config?: properties);
-add_entries(entries: ActionEntry[], n_entries: number, user_data: object | null): void;
-insert(action: Action): void;
-lookup(action_name: string): Action;
-remove(action_name: string): void;
-}
-export class SimpleAsyncResult extends GObject.Object {constructor(config?: properties);
-static new_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, domain: GLib.Quark, code: number, format: string, ___: unknown[]): SimpleAsyncResult;
-static new_from_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
-static new_take_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
-complete(): void;
-complete_in_idle(): void;
-get_op_res_gboolean(): boolean;
-get_op_res_gpointer(): object | null;
-get_op_res_gssize(): number;
-get_source_tag(): object | null;
-propagate_error(): boolean;
-run_in_thread(func: SimpleAsyncThreadFunc, io_priority: number, cancellable: Cancellable | null): void;
-set_check_cancellable(check_cancellable: Cancellable | null): void;
-set_error(domain: GLib.Quark, code: number, format: string, ___: unknown[]): void;
-set_error_va(domain: GLib.Quark, code: number, format: string, args: any): void;
-set_from_error(error: GLib.Error): void;
-set_handle_cancellation(handle_cancellation: boolean): void;
-set_op_res_gboolean(op_res: boolean): void;
-set_op_res_gpointer(op_res: object | null, destroy_op_res: GLib.DestroyNotify): void;
-set_op_res_gssize(op_res: number): void;
-take_error(error: GLib.Error): void;
-static is_valid(result: AsyncResult, source: GObject.Object | null, source_tag: object | null): boolean;
-}
-export class SimpleIOStream extends IOStream {constructor(config?: properties);
-input_stream: InputStream;
-output_stream: OutputStream;
-}
-export class SimplePermission extends Permission {constructor(config?: properties);
-}
-export class SimpleProxyResolver  {constructor(config?: properties);
-default_proxy: string;
-ignore_hosts: string[];
-readonly priv: SimpleProxyResolverPrivate;
-set_default_proxy(default_proxy: string): void;
-set_ignore_hosts(ignore_hosts: string): void;
-set_uri_proxy(uri_scheme: string, proxy: string): void;
-static _new(default_proxy: string | null, ignore_hosts: string | null): ProxyResolver;
-}
-export class Socket extends GObject.Object {constructor(config?: properties);
-blocking: boolean;
-broadcast: boolean;
-family: SocketFamily;
-fd: number;
-keepalive: boolean;
-listen_backlog: number;
-readonly local_address: SocketAddress;
-multicast_loopback: boolean;
-multicast_ttl: number;
-protocol: SocketProtocol;
-readonly remote_address: SocketAddress;
-timeout: number;
-ttl: number;
-type: SocketType;static new_from_fd(fd: number): Socket;
-accept(cancellable: Cancellable | null): Socket;
-bind(address: SocketAddress, allow_reuse: boolean): boolean;
-check_connect_result(): boolean;
-close(): boolean;
-condition_check(condition: GLib.IOCondition): GLib.IOCondition;
-condition_timed_wait(condition: GLib.IOCondition, timeout_us: number, cancellable: Cancellable | null): boolean;
-condition_wait(condition: GLib.IOCondition, cancellable: Cancellable | null): boolean;
-connect(address: SocketAddress, cancellable: Cancellable | null): boolean;
-connect(...args: never[]): never;
-connection_factory_create_connection(): SocketConnection;
-create_source(condition: GLib.IOCondition, cancellable: Cancellable | null): GLib.Source;
-get_available_bytes(): number;
-get_blocking(): boolean;
-get_broadcast(): boolean;
-get_credentials(): Credentials;
-get_family(): SocketFamily;
-get_fd(): number;
-get_keepalive(): boolean;
-get_listen_backlog(): number;
-get_local_address(): SocketAddress;
-get_multicast_loopback(): boolean;
-get_multicast_ttl(): number;
-get_option(level: number, optname: number): [boolean, number];
-get_protocol(): SocketProtocol;
-get_remote_address(): SocketAddress;
-get_socket_type(): SocketType;
-get_timeout(): number;
-get_ttl(): number;
-is_closed(): boolean;
-is_connected(): boolean;
-join_multicast_group(group: InetAddress, source_specific: boolean, iface: string | null): boolean;
-join_multicast_group_ssm(group: InetAddress, source_specific: InetAddress | null, iface: string | null): boolean;
-leave_multicast_group(group: InetAddress, source_specific: boolean, iface: string | null): boolean;
-leave_multicast_group_ssm(group: InetAddress, source_specific: InetAddress | null, iface: string | null): boolean;
-listen(): boolean;
-receive(buffer: number[], size: number, cancellable: Cancellable | null): number;
-receive_from(buffer: number[], size: number, cancellable: Cancellable | null): [number, SocketAddress | null];
-receive_message(vectors: InputVector[], num_vectors: number, flags: SocketMsgFlags, cancellable: Cancellable | null): [number, SocketAddress | null,SocketControlMessage[] | null,number,SocketMsgFlags];
-receive_messages(messages: InputMessage[], num_messages: number, flags: SocketMsgFlags, cancellable: Cancellable | null): number;
-receive_with_blocking(buffer: number[], size: number, blocking: boolean, cancellable: Cancellable | null): number;
-send(buffer: number[], size: number, cancellable: Cancellable | null): number;
-send_message(address: SocketAddress | null, vectors: OutputVector[], num_vectors: number, messages: SocketControlMessage[] | null, num_messages: number, flags: SocketMsgFlags, cancellable: Cancellable | null): number;
-send_message_with_timeout(address: SocketAddress | null, vectors: OutputVector[], num_vectors: number, messages: SocketControlMessage[] | null, num_messages: number, flags: SocketMsgFlags, timeout_us: number, cancellable: Cancellable | null): [PollableReturn, number | null];
-send_messages(messages: OutputMessage[], num_messages: number, flags: SocketMsgFlags, cancellable: Cancellable | null): number;
-send_to(address: SocketAddress | null, buffer: number[], size: number, cancellable: Cancellable | null): number;
-send_with_blocking(buffer: number[], size: number, blocking: boolean, cancellable: Cancellable | null): number;
-set_blocking(blocking: boolean): void;
-set_broadcast(broadcast: boolean): void;
-set_keepalive(keepalive: boolean): void;
-set_listen_backlog(backlog: number): void;
-set_multicast_loopback(loopback: boolean): void;
-set_multicast_ttl(ttl: number): void;
-set_option(level: number, optname: number, value: number): boolean;
-set_timeout(timeout: number): void;
-set_ttl(ttl: number): void;
-shutdown(shutdown_read: boolean, shutdown_write: boolean): boolean;
-speaks_ipv4(): boolean;
-}
-export class SocketAddress extends GObject.Object {constructor(config?: properties);
-readonly family: SocketFamily;static new_from_native(_native: object, len: number): SocketAddress;
-get_family(): SocketFamily;
-get_native_size(): number;
-to_native(dest: object | null, destlen: number): boolean;
-vfunc_get_family(): SocketFamily;
-vfunc_get_native_size(): number;
-vfunc_to_native(dest: object | null, destlen: number): boolean;
-}
-export class SocketAddressEnumerator  {constructor(config?: properties);
-next(cancellable: Cancellable | null): SocketAddress;
-next_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-next_finish(result: AsyncResult): SocketAddress;
-}
-export class SocketClient extends GObject.Object {constructor(config?: properties);
-enable_proxy: boolean;
-family: SocketFamily;
-local_address: SocketAddress;
-protocol: SocketProtocol;
-proxy_resolver: ProxyResolver;
-timeout: number;
-tls: boolean;
-tls_validation_flags: TlsCertificateFlags;
-type: SocketType;
-add_application_proxy(protocol: string): void;
-connect(connectable: SocketConnectable, cancellable: Cancellable | null): SocketConnection;
-connect(...args: never[]): never;
-connect_async(connectable: SocketConnectable, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-connect_finish(result: AsyncResult): SocketConnection;
-connect_to_host(host_and_port: string, default_port: number, cancellable: Cancellable | null): SocketConnection;
-connect_to_host_async(host_and_port: string, default_port: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-connect_to_host_finish(result: AsyncResult): SocketConnection;
-connect_to_service(domain: string, service: string, cancellable: Cancellable | null): SocketConnection;
-connect_to_service_async(domain: string, service: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-connect_to_service_finish(result: AsyncResult): SocketConnection;
-connect_to_uri(uri: string, default_port: number, cancellable: Cancellable | null): SocketConnection;
-connect_to_uri_async(uri: string, default_port: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-connect_to_uri_finish(result: AsyncResult): SocketConnection;
-get_enable_proxy(): boolean;
-get_family(): SocketFamily;
-get_local_address(): SocketAddress;
-get_protocol(): SocketProtocol;
-get_proxy_resolver(): ProxyResolver;
-get_socket_type(): SocketType;
-get_timeout(): number;
-get_tls(): boolean;
-get_tls_validation_flags(): TlsCertificateFlags;
-set_enable_proxy(enable: boolean): void;
-set_family(family: SocketFamily): void;
-set_local_address(address: SocketAddress | null): void;
-set_protocol(protocol: SocketProtocol): void;
-set_proxy_resolver(proxy_resolver: ProxyResolver | null): void;
-set_socket_type(type: SocketType): void;
-set_timeout(timeout: number): void;
-set_tls(tls: boolean): void;
-set_tls_validation_flags(flags: TlsCertificateFlags): void;
-vfunc_event(event: SocketClientEvent, connectable: SocketConnectable, connection: IOStream): void;
-}
-export class SocketConnection  {constructor(config?: properties);
-socket: Socket;
-readonly priv: SocketConnectionPrivate;
-connect(address: SocketAddress, cancellable: Cancellable | null): boolean;
-connect_async(address: SocketAddress, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-connect_finish(result: AsyncResult): boolean;
-get_local_address(): SocketAddress;
-get_remote_address(): SocketAddress;
-get_socket(): Socket;
-is_connected(): boolean;
-static factory_lookup_type(family: SocketFamily, type: SocketType, protocol_id: number): unknown;
-static factory_register_type(g_type: unknown, family: SocketFamily, type: SocketType, protocol: number): void;
-}
-export class SocketControlMessage  {constructor(config?: properties);
-readonly priv: SocketControlMessagePrivate;
-get_level(): number;
-get_msg_type(): number;
-get_size(): number;
-serialize(data: object): void;
-static deserialize(level: number, type: number, size: number, data: number[]): SocketControlMessage;
-}
-export class SocketListener extends GObject.Object {constructor(config?: properties);
-listen_backlog: number;
-accept(cancellable: Cancellable | null): [SocketConnection, GObject.Object | null];
-accept_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-accept_finish(result: AsyncResult): [SocketConnection, GObject.Object | null];
-accept_socket(cancellable: Cancellable | null): [Socket, GObject.Object | null];
-accept_socket_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-accept_socket_finish(result: AsyncResult): [Socket, GObject.Object | null];
-add_address(address: SocketAddress, type: SocketType, protocol: SocketProtocol, source_object: GObject.Object | null): [boolean, SocketAddress | null];
-add_any_inet_port(source_object: GObject.Object | null): number;
-add_inet_port(port: number, source_object: GObject.Object | null): boolean;
-add_socket(socket: Socket, source_object: GObject.Object | null): boolean;
-close(): void;
-set_backlog(listen_backlog: number): void;
-vfunc_changed(): void;
-vfunc_event(event: SocketListenerEvent, socket: Socket): void;
-}
-export class SocketService extends SocketListener {constructor(config?: properties);
-active: boolean;
-is_active(): boolean;
-start(): void;
-stop(): void;
-vfunc_incoming(connection: SocketConnection, source_object: GObject.Object): boolean;
-}
-export class Subprocess extends GObject.Object {constructor(config?: properties);
-argv: string[];
-flags: SubprocessFlags;static newv(argv: unknown[], flags: SubprocessFlags): Subprocess;
-static newv(...args: never[]): Subprocess;
-communicate(stdin_buf: GLib.Bytes | null, cancellable: Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
-communicate_async(stdin_buf: GLib.Bytes | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-communicate_finish(result: AsyncResult): [boolean, GLib.Bytes | null,GLib.Bytes | null];
-communicate_utf8(stdin_buf: string | null, cancellable: Cancellable | null): [boolean, string | null,string | null];
-communicate_utf8_async(stdin_buf: string | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-communicate_utf8_finish(result: AsyncResult): [boolean, string | null,string | null];
-force_exit(): void;
-get_exit_status(): number;
-get_identifier(): string;
-get_if_exited(): boolean;
-get_if_signaled(): boolean;
-get_status(): number;
-get_stderr_pipe(): InputStream;
-get_stdin_pipe(): OutputStream;
-get_stdout_pipe(): InputStream;
-get_successful(): boolean;
-get_term_sig(): number;
-send_signal(signal_num: number): void;
-wait(cancellable: Cancellable | null): boolean;
-wait_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-wait_check(cancellable: Cancellable | null): boolean;
-wait_check_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-wait_check_finish(result: AsyncResult): boolean;
-wait_finish(result: AsyncResult): boolean;
-}
-export class SubprocessLauncher extends GObject.Object {constructor(config?: properties);
-flags: SubprocessFlags;
-getenv(variable: unknown): unknown;
-set_child_setup(child_setup: GLib.SpawnChildSetupFunc, user_data: object | null, destroy_notify: GLib.DestroyNotify): void;
-set_cwd(cwd: unknown): void;
-set_environ(env: unknown[]): void;
-set_flags(flags: SubprocessFlags): void;
-set_stderr_file_path(path: unknown | null): void;
-set_stdin_file_path(path: string): void;
-set_stdout_file_path(path: unknown | null): void;
-setenv(variable: unknown, value: unknown, overwrite: boolean): void;
-spawn(error: GLib.Error, argv0: string, ___: unknown[]): Subprocess;
-spawnv(argv: unknown[]): Subprocess;
-take_fd(source_fd: number, target_fd: number): void;
-take_stderr_fd(fd: number): void;
-take_stdin_fd(fd: number): void;
-take_stdout_fd(fd: number): void;
-unsetenv(variable: unknown): void;
-}
-export class Task extends GObject.Object {constructor(config?: properties);
-readonly completed: boolean;
-attach_source(source: GLib.Source, callback: GLib.SourceFunc): void;
-get_cancellable(): Cancellable;
-get_check_cancellable(): boolean;
-get_completed(): boolean;
-get_context(): GLib.MainContext;
-get_name(): string | null;
-get_priority(): number;
-get_return_on_cancel(): boolean;
-get_source_object(): GObject.Object | null;
-get_source_tag(): object | null;
-get_task_data(): object | null;
-had_error(): boolean;
-propagate_boolean(): boolean;
-propagate_int(): number;
-propagate_pointer(): object | null;
-return_boolean(result: boolean): void;
-return_error(error: GLib.Error): void;
-return_error_if_cancelled(): boolean;
-return_int(result: number): void;
-return_new_error(domain: GLib.Quark, code: number, format: string, ___: unknown[]): void;
-return_pointer(result: object | null, result_destroy: GLib.DestroyNotify | null): void;
-run_in_thread(task_func: TaskThreadFunc): void;
-run_in_thread_sync(task_func: TaskThreadFunc): void;
-set_check_cancellable(check_cancellable: boolean): void;
-set_name(name: string | null): void;
-set_priority(priority: number): void;
-set_return_on_cancel(return_on_cancel: boolean): boolean;
-set_source_tag(source_tag: object | null): void;
-set_task_data(task_data: object | null, task_data_destroy: GLib.DestroyNotify | null): void;
-static is_valid(result: AsyncResult, source_object: GObject.Object | null): boolean;
-static report_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, callback_data: object | null, source_tag: object | null, error: GLib.Error): void;
-static report_new_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, callback_data: object | null, source_tag: object | null, domain: GLib.Quark, code: number, format: string, ___: unknown[]): void;
-}
-export class TcpConnection  {constructor(config?: properties);
-graceful_disconnect: boolean;
-readonly priv: TcpConnectionPrivate;
-get_graceful_disconnect(): boolean;
-set_graceful_disconnect(graceful_disconnect: boolean): void;
-}
-export class TcpWrapperConnection extends TcpConnection {constructor(config?: properties);
-base_io_stream: IOStream;
-get_base_io_stream(): IOStream;
-}
-export class TestDBus extends GObject.Object {constructor(config?: properties);
-flags: TestDBusFlags;
-add_service_dir(path: string): void;
-down(): void;
-get_bus_address(): string | null;
-get_flags(): TestDBusFlags;
-stop(): void;
-up(): void;
-static unset(): void;
-}
-export class ThemedIcon extends GObject.Object {constructor(config?: properties);
-name: string;
-names: string[];
-use_default_fallbacks: boolean;static new_from_names(iconnames: string[], len: number): ThemedIcon;
-static new_with_default_fallbacks(iconname: string): ThemedIcon;
-append_name(iconname: string): void;
-get_names(): string[];
-prepend_name(iconname: string): void;
-}
-export class ThreadedSocketService extends SocketService {constructor(config?: properties);
-max_threads: number;
-vfunc_run(connection: SocketConnection, source_object: GObject.Object): boolean;
-}
-export class TlsCertificate extends GObject.Object {constructor(config?: properties);
-certificate: number[];
-certificate_pem: string;
-issuer: TlsCertificate;
-private_key: number[];
-private_key_pem: string;static new_from_file(file: unknown): TlsCertificate;
-static new_from_files(cert_file: unknown, key_file: unknown): TlsCertificate;
-static new_from_pem(data: string, length: number): TlsCertificate;
-get_issuer(): TlsCertificate;
-is_same(cert_two: TlsCertificate): boolean;
-verify(identity: SocketConnectable | null, trusted_ca: TlsCertificate | null): TlsCertificateFlags;
-vfunc_verify(identity: SocketConnectable | null, trusted_ca: TlsCertificate | null): TlsCertificateFlags;
-static list_new_from_file(file: unknown): GLib.List;
-}
-export class TlsConnection  {constructor(config?: properties);
-advertised_protocols: string[];
-base_io_stream: IOStream;
-certificate: TlsCertificate;
-database: TlsDatabase;
-interaction: TlsInteraction;
-readonly negotiated_protocol: string;
-readonly peer_certificate: TlsCertificate;
-readonly peer_certificate_errors: TlsCertificateFlags;
-rehandshake_mode: TlsRehandshakeMode;
-require_close_notify: boolean;
-use_system_certdb: boolean;
-readonly priv: TlsConnectionPrivate;
-emit_accept_certificate(peer_cert: TlsCertificate, errors: TlsCertificateFlags): boolean;
-get_certificate(): TlsCertificate;
-get_database(): TlsDatabase;
-get_interaction(): TlsInteraction;
-get_negotiated_protocol(): string | null;
-get_peer_certificate(): TlsCertificate;
-get_peer_certificate_errors(): TlsCertificateFlags;
-get_rehandshake_mode(): TlsRehandshakeMode;
-get_require_close_notify(): boolean;
-get_use_system_certdb(): boolean;
-handshake(cancellable: Cancellable | null): boolean;
-handshake_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-handshake_finish(result: AsyncResult): boolean;
-set_advertised_protocols(protocols: string[] | null): void;
-set_certificate(certificate: TlsCertificate): void;
-set_database(database: TlsDatabase): void;
-set_interaction(interaction: TlsInteraction | null): void;
-set_rehandshake_mode(mode: TlsRehandshakeMode): void;
-set_require_close_notify(require_close_notify: boolean): void;
-set_use_system_certdb(use_system_certdb: boolean): void;
-}
-export class TlsDatabase  {constructor(config?: properties);
-readonly priv: TlsDatabasePrivate;
-create_certificate_handle(certificate: TlsCertificate): string | null;
-lookup_certificate_for_handle(handle: string, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null): TlsCertificate | null;
-lookup_certificate_for_handle_async(handle: string, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_certificate_for_handle_finish(result: AsyncResult): TlsCertificate;
-lookup_certificate_issuer(certificate: TlsCertificate, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null): TlsCertificate;
-lookup_certificate_issuer_async(certificate: TlsCertificate, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_certificate_issuer_finish(result: AsyncResult): TlsCertificate;
-lookup_certificates_issued_by(issuer_raw_dn: number[], interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null): GLib.List;
-lookup_certificates_issued_by_async(issuer_raw_dn: number[], interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_certificates_issued_by_finish(result: AsyncResult): GLib.List;
-verify_chain(chain: TlsCertificate, purpose: string, identity: SocketConnectable | null, interaction: TlsInteraction | null, flags: TlsDatabaseVerifyFlags, cancellable: Cancellable | null): TlsCertificateFlags;
-verify_chain_async(chain: TlsCertificate, purpose: string, identity: SocketConnectable | null, interaction: TlsInteraction | null, flags: TlsDatabaseVerifyFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-verify_chain_finish(result: AsyncResult): TlsCertificateFlags;
-}
-export class TlsInteraction  {constructor(config?: properties);
-readonly priv: TlsInteractionPrivate;
-ask_password(password: TlsPassword, cancellable: Cancellable | null): TlsInteractionResult;
-ask_password_async(password: TlsPassword, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-ask_password_finish(result: AsyncResult): TlsInteractionResult;
-invoke_ask_password(password: TlsPassword, cancellable: Cancellable | null): TlsInteractionResult;
-invoke_request_certificate(connection: TlsConnection, flags: TlsCertificateRequestFlags, cancellable: Cancellable | null): TlsInteractionResult;
-request_certificate(connection: TlsConnection, flags: TlsCertificateRequestFlags, cancellable: Cancellable | null): TlsInteractionResult;
-request_certificate_async(connection: TlsConnection, flags: TlsCertificateRequestFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-request_certificate_finish(result: AsyncResult): TlsInteractionResult;
-}
-export class TlsPassword extends GObject.Object {constructor(config?: properties);
-description: string;
-flags: TlsPasswordFlags;
-warning: string;
-get_description(): string;
-get_flags(): TlsPasswordFlags;
-get_value(length: number | null): number;
-get_warning(): string;
-set_description(description: string): void;
-set_flags(flags: TlsPasswordFlags): void;
-set_value(value: number[], length: number): void;
-set_value_full(value: number[], length: number, destroy: GLib.DestroyNotify | null): void;
-set_warning(warning: string): void;
-vfunc_get_default_warning(): string;
-vfunc_get_value(length: number | null): number;
-vfunc_set_value(value: number[], length: number, destroy: GLib.DestroyNotify | null): void;
-}
-export class UnixConnection  {constructor(config?: properties);
-readonly priv: UnixConnectionPrivate;
-receive_credentials(cancellable: Cancellable | null): Credentials;
-receive_credentials_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-receive_credentials_finish(result: AsyncResult): Credentials;
-receive_fd(cancellable: Cancellable | null): number;
-send_credentials(cancellable: Cancellable | null): boolean;
-send_credentials_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-send_credentials_finish(result: AsyncResult): boolean;
-send_fd(fd: number, cancellable: Cancellable | null): boolean;
-}
-export class UnixCredentialsMessage extends SocketControlMessage {constructor(config?: properties);
-credentials: Credentials;static new_with_credentials(credentials: Credentials): SocketControlMessage;
-get_credentials(): Credentials;
-static is_supported(): boolean;
-}
-export class UnixFDList extends GObject.Object {constructor(config?: properties);
-static new_from_array(fds: number[], n_fds: number): UnixFDList;
-append(fd: number): number;
-get(index_: number): number;
-get(...args: never[]): never;
-get_length(): number;
-peek_fds(): [number[], number | null];
-steal_fds(): [number[], number | null];
-}
-export class UnixFDMessage extends SocketControlMessage {constructor(config?: properties);
-fd_list: UnixFDList;static new_with_fd_list(fd_list: UnixFDList): SocketControlMessage;
-append_fd(fd: number): boolean;
-get_fd_list(): UnixFDList;
-steal_fds(): [number[], number | null];
-}
-export class UnixInputStream extends InputStream {constructor(config?: properties);
-close_fd: boolean;
-fd: number;
-get_close_fd(): boolean;
-get_fd(): number;
-set_close_fd(close_fd: boolean): void;
-}
-export class UnixMountMonitor extends GObject.Object {constructor(config?: properties);
-set_rate_limit(limit_msec: number): void;
-static get(): UnixMountMonitor;
-get(...args: never[]): never;
-}
-export class UnixOutputStream extends OutputStream {constructor(config?: properties);
-close_fd: boolean;
-fd: number;
-get_close_fd(): boolean;
-get_fd(): number;
-set_close_fd(close_fd: boolean): void;
-}
-export class UnixSocketAddress extends SocketAddress {constructor(config?: properties);
-_abstract: boolean;
-address_type: UnixSocketAddressType;
-path: string;
-path_as_array: number[];static new_abstract(path: number[], path_len: number): SocketAddress;
-static new_with_type(path: number[], path_len: number, type: UnixSocketAddressType): SocketAddress;
-get_address_type(): UnixSocketAddressType;
-get_is_abstract(): boolean;
-get_path(): string;
-get_path_len(): number;
-static abstract_names_supported(): boolean;
-}
-export class Vfs  {constructor(config?: properties);
-get_file_for_path(path: string): File;
-get_file_for_uri(uri: string): File;
-get_supported_uri_schemes(): string[];
-is_active(): boolean;
-parse_name(parse_name: string): File;
-register_uri_scheme(scheme: string, uri_func: VfsFileLookupFunc | null, uri_data: object | null, uri_destroy: GLib.DestroyNotify | null, parse_name_func: VfsFileLookupFunc | null, parse_name_data: object | null, parse_name_destroy: GLib.DestroyNotify | null): boolean;
-unregister_uri_scheme(scheme: string): boolean;
-static get_default(): Vfs;
-static get_local(): Vfs;
-}
-export class VolumeMonitor  {constructor(config?: properties);
-readonly priv: object;
-get_connected_drives(): GLib.List;
-get_mount_for_uuid(uuid: string): Mount;
-get_mounts(): GLib.List;
-get_volume_for_uuid(uuid: string): Volume;
-get_volumes(): GLib.List;
-static adopt_orphan_mount(mount: Mount): Volume;
-static get(): VolumeMonitor;
-}
-export class ZlibCompressor extends GObject.Object {constructor(config?: properties);
-file_info: FileInfo;
-format: ZlibCompressorFormat;
-level: number;
-get_file_info(): FileInfo;
-set_file_info(file_info: FileInfo | null): void;
-}
-export class ZlibDecompressor extends GObject.Object {constructor(config?: properties);
-readonly file_info: FileInfo;
-format: ZlibCompressorFormat;
-get_file_info(): FileInfo;
-}
-export class ActionEntry  {constructor(config?: properties);
-name: string;
-readonly activate: unknown;
-parameter_type: string;
-state: string;
-readonly change_state: unknown;
-readonly padding: number[];
-}
-export class ActionGroupInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly has_action: unknown;
-readonly list_actions: unknown;
-readonly get_action_enabled: unknown;
-readonly get_action_parameter_type: unknown;
-readonly get_action_state_type: unknown;
-readonly get_action_state_hint: unknown;
-readonly get_action_state: unknown;
-readonly change_action_state: unknown;
-readonly activate_action: unknown;
-readonly action_added: unknown;
-readonly action_removed: unknown;
-readonly action_enabled_changed: unknown;
-readonly action_state_changed: unknown;
-readonly query_action: unknown;
-}
-export class ActionInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_name: unknown;
-readonly get_parameter_type: unknown;
-readonly get_state_type: unknown;
-readonly get_state_hint: unknown;
-readonly get_enabled: unknown;
-readonly get_state: unknown;
-readonly change_state: unknown;
-readonly activate: unknown;
-}
-export class ActionMapInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly lookup_action: unknown;
-readonly add_action: unknown;
-readonly remove_action: unknown;
-}
-export class AppInfoIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly dup: unknown;
-readonly equal: unknown;
-readonly get_id: unknown;
-readonly get_name: unknown;
-readonly get_description: unknown;
-readonly get_executable: unknown;
-readonly get_icon: unknown;
-readonly launch: unknown;
-readonly supports_uris: unknown;
-readonly supports_files: unknown;
-readonly launch_uris: unknown;
-readonly should_show: unknown;
-readonly set_as_default_for_type: unknown;
-readonly set_as_default_for_extension: unknown;
-readonly add_supports_type: unknown;
-readonly can_remove_supports_type: unknown;
-readonly remove_supports_type: unknown;
-readonly can_delete: unknown;
-readonly do_delete: unknown;
-readonly get_commandline: unknown;
-readonly get_display_name: unknown;
-readonly set_as_last_used_for_type: unknown;
-readonly get_supported_types: unknown;
-readonly launch_uris_async: unknown;
-readonly launch_uris_finish: unknown;
-}
-export class AppLaunchContextClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_display: unknown;
-readonly get_startup_notify_id: unknown;
-readonly launch_failed: unknown;
-readonly launched: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-}
-export class AppLaunchContextPrivate  {constructor(config?: properties);
-}
-export class ApplicationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly startup: unknown;
-readonly activate: unknown;
-readonly open: unknown;
-readonly command_line: unknown;
-readonly local_command_line: unknown;
-readonly before_emit: unknown;
-readonly after_emit: unknown;
-readonly add_platform_data: unknown;
-readonly quit_mainloop: unknown;
-readonly run_mainloop: unknown;
-readonly shutdown: unknown;
-readonly dbus_register: unknown;
-readonly dbus_unregister: unknown;
-readonly handle_local_options: unknown;
-readonly name_lost: unknown;
-readonly padding: object[];
-}
-export class ApplicationCommandLineClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly print_literal: unknown;
-readonly printerr_literal: unknown;
-readonly get_stdin: unknown;
-readonly padding: object[];
-}
-export class ApplicationCommandLinePrivate  {constructor(config?: properties);
-}
-export class ApplicationPrivate  {constructor(config?: properties);
-}
-export class AsyncInitableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly init_async: unknown;
-readonly init_finish: unknown;
-}
-export class AsyncResultIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_user_data: unknown;
-readonly get_source_object: unknown;
-readonly is_tagged: unknown;
-}
-export class BufferedInputStreamClass  {constructor(config?: properties);
-readonly parent_class: FilterInputStreamClass;
-readonly fill: unknown;
-readonly fill_async: unknown;
-readonly fill_finish: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class BufferedInputStreamPrivate  {constructor(config?: properties);
-}
-export class BufferedOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: FilterOutputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-}
-export class BufferedOutputStreamPrivate  {constructor(config?: properties);
-}
-export class CancellableClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly cancelled: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class CancellablePrivate  {constructor(config?: properties);
-}
-export class CharsetConverterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ConverterIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly convert: unknown;
-readonly reset: unknown;
-}
-export class ConverterInputStreamClass  {constructor(config?: properties);
-readonly parent_class: FilterInputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class ConverterInputStreamPrivate  {constructor(config?: properties);
-}
-export class ConverterOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: FilterOutputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class ConverterOutputStreamPrivate  {constructor(config?: properties);
-}
-export class CredentialsClass  {constructor(config?: properties);
-}
-export class DBusAnnotationInfo  {constructor(config?: properties);
-ref_count: number;
-key: string;
-value: string;
-annotations: DBusAnnotationInfo[];
-ref(): DBusAnnotationInfo;
-unref(): void;
-static lookup(annotations: DBusAnnotationInfo[] | null, name: string): string;
-}
-export class DBusArgInfo  {constructor(config?: properties);
-ref_count: number;
-name: string;
-signature: string;
-annotations: DBusAnnotationInfo[];
-ref(): DBusArgInfo;
-unref(): void;
-}
-export class DBusErrorEntry  {constructor(config?: properties);
-error_code: number;
-dbus_error_name: string;
-}
-export class DBusInterfaceIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly get_info: unknown;
-readonly get_object: unknown;
-readonly set_object: unknown;
-readonly dup_object: unknown;
-}
-export class DBusInterfaceInfo  {constructor(config?: properties);
-ref_count: number;
-name: string;
-methods: DBusMethodInfo[];
-signals: DBusSignalInfo[];
-properties: DBusPropertyInfo[];
-annotations: DBusAnnotationInfo[];
-cache_build(): void;
-cache_release(): void;
-generate_xml(indent: number, string_builder: GLib.String): void;
-lookup_method(name: string): DBusMethodInfo;
-lookup_property(name: string): DBusPropertyInfo;
-lookup_signal(name: string): DBusSignalInfo;
-ref(): DBusInterfaceInfo;
-unref(): void;
-}
-export class DBusInterfaceSkeletonClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_info: unknown;
-readonly get_vtable: unknown;
-readonly get_properties: unknown;
-readonly flush: unknown;
-readonly vfunc_padding: object[];
-readonly g_authorize_method: unknown;
-readonly signal_padding: object[];
-}
-export class DBusInterfaceSkeletonPrivate  {constructor(config?: properties);
-}
-export class DBusInterfaceVTable  {constructor(config?: properties);
-method_call: DBusInterfaceMethodCallFunc;
-get_property: DBusInterfaceGetPropertyFunc;
-set_property: DBusInterfaceSetPropertyFunc;
-readonly padding: object[];
-}
-export class DBusMethodInfo  {constructor(config?: properties);
-ref_count: number;
-name: string;
-in_args: DBusArgInfo[];
-out_args: DBusArgInfo[];
-annotations: DBusAnnotationInfo[];
-ref(): DBusMethodInfo;
-unref(): void;
-}
-export class DBusNodeInfo  {constructor(config?: properties);
-static new_for_xml(xml_data: string): DBusNodeInfo;
-generate_xml(indent: number, string_builder: GLib.String): void;
-lookup_interface(name: string): DBusInterfaceInfo;
-ref(): DBusNodeInfo;
-unref(): void;
-}
-export class DBusObjectIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly get_object_path: unknown;
-readonly get_interfaces: unknown;
-readonly get_interface: unknown;
-readonly interface_added: unknown;
-readonly interface_removed: unknown;
-}
-export class DBusObjectManagerClientClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly interface_proxy_signal: unknown;
-readonly interface_proxy_properties_changed: unknown;
-readonly padding: object[];
-}
-export class DBusObjectManagerClientPrivate  {constructor(config?: properties);
-}
-export class DBusObjectManagerIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly get_object_path: unknown;
-readonly get_objects: unknown;
-readonly get_object: unknown;
-readonly get_interface: unknown;
-readonly object_added: unknown;
-readonly object_removed: unknown;
-readonly interface_added: unknown;
-readonly interface_removed: unknown;
-}
-export class DBusObjectManagerServerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
-}
-export class DBusObjectManagerServerPrivate  {constructor(config?: properties);
-}
-export class DBusObjectProxyClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
-}
-export class DBusObjectProxyPrivate  {constructor(config?: properties);
-}
-export class DBusObjectSkeletonClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly authorize_method: unknown;
-readonly padding: object[];
-}
-export class DBusObjectSkeletonPrivate  {constructor(config?: properties);
-}
-export class DBusPropertyInfo  {constructor(config?: properties);
-ref_count: number;
-name: string;
-signature: string;
-flags: DBusPropertyInfoFlags;
-annotations: DBusAnnotationInfo[];
-ref(): DBusPropertyInfo;
-unref(): void;
-}
-export class DBusProxyClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly g_properties_changed: unknown;
-readonly g_signal: unknown;
-readonly padding: object[];
-}
-export class DBusProxyPrivate  {constructor(config?: properties);
-}
-export class DBusSignalInfo  {constructor(config?: properties);
-ref_count: number;
-name: string;
-args: DBusArgInfo[];
-annotations: DBusAnnotationInfo[];
-ref(): DBusSignalInfo;
-unref(): void;
-}
-export class DBusSubtreeVTable  {constructor(config?: properties);
-enumerate: DBusSubtreeEnumerateFunc;
-introspect: DBusSubtreeIntrospectFunc;
-dispatch: DBusSubtreeDispatchFunc;
-readonly padding: object[];
-}
-export class DataInputStreamClass  {constructor(config?: properties);
-readonly parent_class: BufferedInputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class DataInputStreamPrivate  {constructor(config?: properties);
-}
-export class DataOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: FilterOutputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class DataOutputStreamPrivate  {constructor(config?: properties);
-}
-export class DatagramBasedInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly receive_messages: unknown;
-readonly send_messages: unknown;
-readonly create_source: unknown;
-readonly condition_check: unknown;
-readonly condition_wait: unknown;
-}
-export class DesktopAppInfoClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class DesktopAppInfoLookupIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_default_for_uri_scheme: unknown;
-}
-export class DriveIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly changed: unknown;
-readonly disconnected: unknown;
-readonly eject_button: unknown;
-readonly get_name: unknown;
-readonly get_icon: unknown;
-readonly has_volumes: unknown;
-readonly get_volumes: unknown;
-readonly is_media_removable: unknown;
-readonly has_media: unknown;
-readonly is_media_check_automatic: unknown;
-readonly can_eject: unknown;
-readonly can_poll_for_media: unknown;
-readonly eject: unknown;
-readonly eject_finish: unknown;
-readonly poll_for_media: unknown;
-readonly poll_for_media_finish: unknown;
-readonly get_identifier: unknown;
-readonly enumerate_identifiers: unknown;
-readonly get_start_stop_type: unknown;
-readonly can_start: unknown;
-readonly can_start_degraded: unknown;
-readonly start: unknown;
-readonly start_finish: unknown;
-readonly can_stop: unknown;
-readonly stop: unknown;
-readonly stop_finish: unknown;
-readonly stop_button: unknown;
-readonly eject_with_operation: unknown;
-readonly eject_with_operation_finish: unknown;
-readonly get_sort_key: unknown;
-readonly get_symbolic_icon: unknown;
-readonly is_removable: unknown;
-}
-export class DtlsClientConnectionInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-}
-export class DtlsConnectionInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly accept_certificate: unknown;
-readonly handshake: unknown;
-readonly handshake_async: unknown;
-readonly handshake_finish: unknown;
-readonly shutdown: unknown;
-readonly shutdown_async: unknown;
-readonly shutdown_finish: unknown;
-readonly set_advertised_protocols: unknown;
-readonly get_negotiated_protocol: unknown;
-}
-export class DtlsServerConnectionInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-}
-export class EmblemClass  {constructor(config?: properties);
-}
-export class EmblemedIconClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class EmblemedIconPrivate  {constructor(config?: properties);
-}
-export class FileAttributeInfo  {constructor(config?: properties);
-name: string;
-type: FileAttributeType;
-flags: FileAttributeInfoFlags;
-}
-export class FileAttributeInfoList  {constructor(config?: properties);
-add(name: string, type: FileAttributeType, flags: FileAttributeInfoFlags): void;
-dup(): FileAttributeInfoList;
-lookup(name: string): FileAttributeInfo;
-ref(): FileAttributeInfoList;
-unref(): void;
-}
-export class FileAttributeMatcher  {constructor(config?: properties);
-enumerate_namespace(ns: string): boolean;
-enumerate_next(): string;
-matches(attribute: string): boolean;
-matches_only(attribute: string): boolean;
-ref(): FileAttributeMatcher;
-subtract(subtract: FileAttributeMatcher): FileAttributeMatcher;
-to_string(): string;
-unref(): void;
-}
-export class FileDescriptorBasedIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_fd: unknown;
-}
-export class FileEnumeratorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly next_file: unknown;
-readonly close_fn: unknown;
-readonly next_files_async: unknown;
-readonly next_files_finish: unknown;
-readonly close_async: unknown;
-readonly close_finish: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-readonly _g_reserved7: unknown;
-}
-export class FileEnumeratorPrivate  {constructor(config?: properties);
-}
-export class FileIOStreamClass  {constructor(config?: properties);
-readonly parent_class: IOStreamClass;
-readonly tell: unknown;
-readonly can_seek: unknown;
-readonly seek: unknown;
-readonly can_truncate: unknown;
-readonly truncate_fn: unknown;
-readonly query_info: unknown;
-readonly query_info_async: unknown;
-readonly query_info_finish: unknown;
-readonly get_etag: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class FileIOStreamPrivate  {constructor(config?: properties);
-}
-export class FileIconClass  {constructor(config?: properties);
-}
-export class FileIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly dup: unknown;
-readonly hash: unknown;
-readonly equal: unknown;
-readonly is_native: unknown;
-readonly has_uri_scheme: unknown;
-readonly get_uri_scheme: unknown;
-readonly get_basename: unknown;
-readonly get_path: unknown;
-readonly get_uri: unknown;
-readonly get_parse_name: unknown;
-readonly get_parent: unknown;
-readonly prefix_matches: unknown;
-readonly get_relative_path: unknown;
-readonly resolve_relative_path: unknown;
-readonly get_child_for_display_name: unknown;
-readonly enumerate_children: unknown;
-readonly enumerate_children_async: unknown;
-readonly enumerate_children_finish: unknown;
-readonly query_info: unknown;
-readonly query_info_async: unknown;
-readonly query_info_finish: unknown;
-readonly query_filesystem_info: unknown;
-readonly query_filesystem_info_async: unknown;
-readonly query_filesystem_info_finish: unknown;
-readonly find_enclosing_mount: unknown;
-readonly find_enclosing_mount_async: unknown;
-readonly find_enclosing_mount_finish: unknown;
-readonly set_display_name: unknown;
-readonly set_display_name_async: unknown;
-readonly set_display_name_finish: unknown;
-readonly query_settable_attributes: unknown;
-readonly _query_settable_attributes_async: unknown;
-readonly _query_settable_attributes_finish: unknown;
-readonly query_writable_namespaces: unknown;
-readonly _query_writable_namespaces_async: unknown;
-readonly _query_writable_namespaces_finish: unknown;
-readonly set_attribute: unknown;
-readonly set_attributes_from_info: unknown;
-readonly set_attributes_async: unknown;
-readonly set_attributes_finish: unknown;
-readonly read_fn: unknown;
-readonly read_async: unknown;
-readonly read_finish: unknown;
-readonly append_to: unknown;
-readonly append_to_async: unknown;
-readonly append_to_finish: unknown;
-readonly create: unknown;
-readonly create_async: unknown;
-readonly create_finish: unknown;
-readonly replace: unknown;
-readonly replace_async: unknown;
-readonly replace_finish: unknown;
-readonly delete_file: unknown;
-readonly delete_file_async: unknown;
-readonly delete_file_finish: unknown;
-readonly trash: unknown;
-readonly trash_async: unknown;
-readonly trash_finish: unknown;
-readonly make_directory: unknown;
-readonly make_directory_async: unknown;
-readonly make_directory_finish: unknown;
-readonly make_symbolic_link: unknown;
-readonly _make_symbolic_link_async: unknown;
-readonly _make_symbolic_link_finish: unknown;
-readonly copy: unknown;
-readonly copy_async: unknown;
-readonly copy_finish: unknown;
-readonly move: unknown;
-readonly _move_async: unknown;
-readonly _move_finish: unknown;
-readonly mount_mountable: unknown;
-readonly mount_mountable_finish: unknown;
-readonly unmount_mountable: unknown;
-readonly unmount_mountable_finish: unknown;
-readonly eject_mountable: unknown;
-readonly eject_mountable_finish: unknown;
-readonly mount_enclosing_volume: unknown;
-readonly mount_enclosing_volume_finish: unknown;
-readonly monitor_dir: unknown;
-readonly monitor_file: unknown;
-readonly open_readwrite: unknown;
-readonly open_readwrite_async: unknown;
-readonly open_readwrite_finish: unknown;
-readonly create_readwrite: unknown;
-readonly create_readwrite_async: unknown;
-readonly create_readwrite_finish: unknown;
-readonly replace_readwrite: unknown;
-readonly replace_readwrite_async: unknown;
-readonly replace_readwrite_finish: unknown;
-readonly start_mountable: unknown;
-readonly start_mountable_finish: unknown;
-readonly stop_mountable: unknown;
-readonly stop_mountable_finish: unknown;
-readonly supports_thread_contexts: boolean;
-readonly unmount_mountable_with_operation: unknown;
-readonly unmount_mountable_with_operation_finish: unknown;
-readonly eject_mountable_with_operation: unknown;
-readonly eject_mountable_with_operation_finish: unknown;
-readonly poll_mountable: unknown;
-readonly poll_mountable_finish: unknown;
-readonly measure_disk_usage: unknown;
-readonly measure_disk_usage_async: unknown;
-readonly measure_disk_usage_finish: unknown;
-}
-export class FileInfoClass  {constructor(config?: properties);
-}
-export class FileInputStreamClass  {constructor(config?: properties);
-readonly parent_class: InputStreamClass;
-readonly tell: unknown;
-readonly can_seek: unknown;
-readonly seek: unknown;
-readonly query_info: unknown;
-readonly query_info_async: unknown;
-readonly query_info_finish: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class FileInputStreamPrivate  {constructor(config?: properties);
-}
-export class FileMonitorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly cancel: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class FileMonitorPrivate  {constructor(config?: properties);
-}
-export class FileOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: OutputStreamClass;
-readonly tell: unknown;
-readonly can_seek: unknown;
-readonly seek: unknown;
-readonly can_truncate: unknown;
-readonly truncate_fn: unknown;
-readonly query_info: unknown;
-readonly query_info_async: unknown;
-readonly query_info_finish: unknown;
-readonly get_etag: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class FileOutputStreamPrivate  {constructor(config?: properties);
-}
-export class FilenameCompleterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly got_completion_data: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-}
-export class FilterInputStreamClass  {constructor(config?: properties);
-readonly parent_class: InputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-}
-export class FilterOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: OutputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-}
-export class IOExtension  {constructor(config?: properties);
-get_name(): string;
-get_priority(): number;
-get_type(): unknown;
-ref_class(): GObject.TypeClass;
-}
-export class IOExtensionPoint  {constructor(config?: properties);
-get_extension_by_name(name: string): IOExtension;
-get_extensions(): GLib.List;
-get_required_type(): unknown;
-set_required_type(type: unknown): void;
-static implement(extension_point_name: string, type: unknown, extension_name: string, priority: number): IOExtension;
-static lookup(name: string): IOExtensionPoint;
-static register(name: string): IOExtensionPoint;
-}
-export class IOModuleClass  {constructor(config?: properties);
-}
-export class IOModuleScope  {constructor(config?: properties);
-block(basename: string): void;
-free(): void;
-static _new(flags: IOModuleScopeFlags): IOModuleScope;
-}
-export class IOSchedulerJob  {constructor(config?: properties);
-send_to_mainloop(func: GLib.SourceFunc, user_data: object | null, notify: GLib.DestroyNotify | null): boolean;
-send_to_mainloop_async(func: GLib.SourceFunc, user_data: object | null, notify: GLib.DestroyNotify | null): void;
-}
-export class IOStreamAdapter  {constructor(config?: properties);
-}
-export class IOStreamClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_input_stream: unknown;
-readonly get_output_stream: unknown;
-readonly close_fn: unknown;
-readonly close_async: unknown;
-readonly close_finish: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-readonly _g_reserved7: unknown;
-readonly _g_reserved8: unknown;
-readonly _g_reserved9: unknown;
-readonly _g_reserved10: unknown;
-}
-export class IOStreamPrivate  {constructor(config?: properties);
-}
-export class IconIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly hash: unknown;
-readonly equal: unknown;
-readonly to_tokens: unknown;
-readonly from_tokens: unknown;
-readonly serialize: unknown;
-}
-export class InetAddressClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly to_string: unknown;
-readonly to_bytes: unknown;
-}
-export class InetAddressMaskClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class InetAddressMaskPrivate  {constructor(config?: properties);
-}
-export class InetAddressPrivate  {constructor(config?: properties);
-}
-export class InetSocketAddressClass  {constructor(config?: properties);
-readonly parent_class: SocketAddressClass;
-}
-export class InetSocketAddressPrivate  {constructor(config?: properties);
-}
-export class InitableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly init: unknown;
-}
-export class InputMessage  {constructor(config?: properties);
-address: SocketAddress;
-vectors: InputVector[];
-num_vectors: number;
-bytes_received: number;
-flags: number;
-control_messages: SocketControlMessage[];
-num_control_messages: number;
-}
-export class InputStreamClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly read_fn: unknown;
-readonly skip: unknown;
-readonly close_fn: unknown;
-readonly read_async: unknown;
-readonly read_finish: unknown;
-readonly skip_async: unknown;
-readonly skip_finish: unknown;
-readonly close_async: unknown;
-readonly close_finish: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class InputStreamPrivate  {constructor(config?: properties);
-}
-export class InputVector  {constructor(config?: properties);
-buffer: object;
-size: number;
-}
-export class ListModelInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly get_item_type: unknown;
-readonly get_n_items: unknown;
-readonly get_item: unknown;
-}
-export class ListStoreClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class LoadableIconIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly load: unknown;
-readonly load_async: unknown;
-readonly load_finish: unknown;
-}
-export class MemoryInputStreamClass  {constructor(config?: properties);
-readonly parent_class: InputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class MemoryInputStreamPrivate  {constructor(config?: properties);
-}
-export class MemoryOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: OutputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class MemoryOutputStreamPrivate  {constructor(config?: properties);
-}
-export class MenuAttributeIterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_next: unknown;
-}
-export class MenuAttributeIterPrivate  {constructor(config?: properties);
-}
-export class MenuLinkIterClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_next: unknown;
-}
-export class MenuLinkIterPrivate  {constructor(config?: properties);
-}
-export class MenuModelClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly is_mutable: unknown;
-readonly get_n_items: unknown;
-readonly get_item_attributes: unknown;
-readonly iterate_item_attributes: unknown;
-readonly get_item_attribute_value: unknown;
-readonly get_item_links: unknown;
-readonly iterate_item_links: unknown;
-readonly get_item_link: unknown;
-}
-export class MenuModelPrivate  {constructor(config?: properties);
-}
-export class MountIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly changed: unknown;
-readonly unmounted: unknown;
-readonly get_root: unknown;
-readonly get_name: unknown;
-readonly get_icon: unknown;
-readonly get_uuid: unknown;
-readonly get_volume: unknown;
-readonly get_drive: unknown;
-readonly can_unmount: unknown;
-readonly can_eject: unknown;
-readonly unmount: unknown;
-readonly unmount_finish: unknown;
-readonly eject: unknown;
-readonly eject_finish: unknown;
-readonly remount: unknown;
-readonly remount_finish: unknown;
-readonly guess_content_type: unknown;
-readonly guess_content_type_finish: unknown;
-readonly guess_content_type_sync: unknown;
-readonly pre_unmount: unknown;
-readonly unmount_with_operation: unknown;
-readonly unmount_with_operation_finish: unknown;
-readonly eject_with_operation: unknown;
-readonly eject_with_operation_finish: unknown;
-readonly get_default_location: unknown;
-readonly get_sort_key: unknown;
-readonly get_symbolic_icon: unknown;
-}
-export class MountOperationClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly ask_password: unknown;
-readonly ask_question: unknown;
-readonly reply: unknown;
-readonly aborted: unknown;
-readonly show_processes: unknown;
-readonly show_unmount_progress: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-readonly _g_reserved7: unknown;
-readonly _g_reserved8: unknown;
-readonly _g_reserved9: unknown;
-}
-export class MountOperationPrivate  {constructor(config?: properties);
-}
-export class NativeSocketAddress  {constructor(config?: properties);
-}
-export class NativeVolumeMonitorClass  {constructor(config?: properties);
-readonly parent_class: VolumeMonitorClass;
-readonly get_mount_for_mount_path: unknown;
-}
-export class NetworkAddressClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class NetworkAddressPrivate  {constructor(config?: properties);
-}
-export class NetworkMonitorInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly network_changed: unknown;
-readonly can_reach: unknown;
-readonly can_reach_async: unknown;
-readonly can_reach_finish: unknown;
-}
-export class NetworkServiceClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class NetworkServicePrivate  {constructor(config?: properties);
-}
-export class OutputMessage  {constructor(config?: properties);
-address: SocketAddress;
-vectors: OutputVector;
-num_vectors: number;
-bytes_sent: number;
-control_messages: SocketControlMessage[];
-num_control_messages: number;
-}
-export class OutputStreamClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly write_fn: unknown;
-readonly splice: unknown;
-readonly flush: unknown;
-readonly close_fn: unknown;
-readonly write_async: unknown;
-readonly write_finish: unknown;
-readonly splice_async: unknown;
-readonly splice_finish: unknown;
-readonly flush_async: unknown;
-readonly flush_finish: unknown;
-readonly close_async: unknown;
-readonly close_finish: unknown;
-readonly writev_fn: unknown;
-readonly writev_async: unknown;
-readonly writev_finish: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-readonly _g_reserved7: unknown;
-readonly _g_reserved8: unknown;
-}
-export class OutputStreamPrivate  {constructor(config?: properties);
-}
-export class OutputVector  {constructor(config?: properties);
-buffer: object;
-size: number;
-}
-export class PermissionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly acquire: unknown;
-readonly acquire_async: unknown;
-readonly acquire_finish: unknown;
-readonly release: unknown;
-readonly release_async: unknown;
-readonly release_finish: unknown;
-readonly reserved: object[];
-}
-export class PermissionPrivate  {constructor(config?: properties);
-}
-export class PollableInputStreamInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly can_poll: unknown;
-readonly is_readable: unknown;
-readonly create_source: unknown;
-readonly read_nonblocking: unknown;
-}
-export class PollableOutputStreamInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly can_poll: unknown;
-readonly is_writable: unknown;
-readonly create_source: unknown;
-readonly write_nonblocking: unknown;
-readonly writev_nonblocking: unknown;
-}
-export class ProxyAddressClass  {constructor(config?: properties);
-readonly parent_class: InetSocketAddressClass;
-}
-export class ProxyAddressEnumeratorClass  {constructor(config?: properties);
-readonly parent_class: SocketAddressEnumeratorClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-readonly _g_reserved7: unknown;
-}
-export class ProxyAddressEnumeratorPrivate  {constructor(config?: properties);
-}
-export class ProxyAddressPrivate  {constructor(config?: properties);
-}
-export class ProxyInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly connect: unknown;
-readonly connect_async: unknown;
-readonly connect_finish: unknown;
-readonly supports_hostname: unknown;
-}
-export class ProxyResolverInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly is_supported: unknown;
-readonly lookup: unknown;
-readonly lookup_async: unknown;
-readonly lookup_finish: unknown;
-}
-export class RemoteActionGroupInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly activate_action_full: unknown;
-readonly change_action_state_full: unknown;
-}
-export class ResolverClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly reload: unknown;
-readonly lookup_by_name: unknown;
-readonly lookup_by_name_async: unknown;
-readonly lookup_by_name_finish: unknown;
-readonly lookup_by_address: unknown;
-readonly lookup_by_address_async: unknown;
-readonly lookup_by_address_finish: unknown;
-readonly lookup_service: unknown;
-readonly lookup_service_async: unknown;
-readonly lookup_service_finish: unknown;
-readonly lookup_records: unknown;
-readonly lookup_records_async: unknown;
-readonly lookup_records_finish: unknown;
-readonly lookup_by_name_with_flags_async: unknown;
-readonly lookup_by_name_with_flags_finish: unknown;
-readonly lookup_by_name_with_flags: unknown;
-}
-export class ResolverPrivate  {constructor(config?: properties);
-}
-export class Resource  {constructor(config?: properties);
-static new_from_data(data: GLib.Bytes): Resource;
-_register(): void;
-_unregister(): void;
-enumerate_children(path: string, lookup_flags: ResourceLookupFlags): string[];
-get_info(path: string, lookup_flags: ResourceLookupFlags): [boolean, number | null,number | null];
-lookup_data(path: string, lookup_flags: ResourceLookupFlags): GLib.Bytes;
-open_stream(path: string, lookup_flags: ResourceLookupFlags): InputStream;
-ref(): Resource;
-unref(): void;
-static load(filename: unknown): Resource;
-}
-export class SeekableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly tell: unknown;
-readonly can_seek: unknown;
-readonly seek: unknown;
-readonly can_truncate: unknown;
-readonly truncate_fn: unknown;
-}
-export class SettingsBackendClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly read: unknown;
-readonly get_writable: unknown;
-readonly write: unknown;
-readonly write_tree: unknown;
-readonly reset: unknown;
-readonly subscribe: unknown;
-readonly unsubscribe: unknown;
-readonly sync: unknown;
-readonly get_permission: unknown;
-readonly read_user_value: unknown;
-readonly padding: object[];
-}
-export class SettingsBackendPrivate  {constructor(config?: properties);
-}
-export class SettingsClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly writable_changed: unknown;
-readonly changed: unknown;
-readonly writable_change_event: unknown;
-readonly change_event: unknown;
-readonly padding: object[];
-}
-export class SettingsPrivate  {constructor(config?: properties);
-}
-export class SettingsSchema  {constructor(config?: properties);
-get_id(): string;
-get_key(name: string): SettingsSchemaKey;
-get_path(): string;
-has_key(name: string): boolean;
-list_children(): string[];
-list_keys(): string[];
-ref(): SettingsSchema;
-unref(): void;
-}
-export class SettingsSchemaKey  {constructor(config?: properties);
-get_default_value(): GLib.Variant;
-get_description(): string;
-get_name(): string;
-get_range(): GLib.Variant;
-get_summary(): string;
-get_value_type(): GLib.VariantType;
-range_check(value: GLib.Variant): boolean;
-ref(): SettingsSchemaKey;
-unref(): void;
-}
-export class SettingsSchemaSource  {constructor(config?: properties);
-static new_from_directory(directory: unknown, parent: SettingsSchemaSource | null, trusted: boolean): SettingsSchemaSource;
-list_schemas(recursive: boolean): [string[],string[]];
-lookup(schema_id: string, recursive: boolean): SettingsSchema | null;
-ref(): SettingsSchemaSource;
-unref(): void;
-static get_default(): SettingsSchemaSource | null;
-}
-export class SimpleActionGroupClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly padding: object[];
-}
-export class SimpleActionGroupPrivate  {constructor(config?: properties);
-}
-export class SimpleAsyncResultClass  {constructor(config?: properties);
-}
-export class SimpleProxyResolverClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class SimpleProxyResolverPrivate  {constructor(config?: properties);
-}
-export class SocketAddressClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_family: unknown;
-readonly get_native_size: unknown;
-readonly to_native: unknown;
-}
-export class SocketAddressEnumeratorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly next: unknown;
-readonly next_async: unknown;
-readonly next_finish: unknown;
-}
-export class SocketClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-readonly _g_reserved7: unknown;
-readonly _g_reserved8: unknown;
-readonly _g_reserved9: unknown;
-readonly _g_reserved10: unknown;
-}
-export class SocketClientClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly event: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-}
-export class SocketClientPrivate  {constructor(config?: properties);
-}
-export class SocketConnectableIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly enumerate: unknown;
-readonly proxy_enumerate: unknown;
-readonly to_string: unknown;
-}
-export class SocketConnectionClass  {constructor(config?: properties);
-readonly parent_class: IOStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-}
-export class SocketConnectionPrivate  {constructor(config?: properties);
-}
-export class SocketControlMessageClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_size: unknown;
-readonly get_level: unknown;
-readonly get_type: unknown;
-readonly serialize: unknown;
-readonly deserialize: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class SocketControlMessagePrivate  {constructor(config?: properties);
-}
-export class SocketListenerClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly event: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-}
-export class SocketListenerPrivate  {constructor(config?: properties);
-}
-export class SocketPrivate  {constructor(config?: properties);
-}
-export class SocketServiceClass  {constructor(config?: properties);
-readonly parent_class: SocketListenerClass;
-readonly incoming: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-}
-export class SocketServicePrivate  {constructor(config?: properties);
-}
-export class SrvTarget  {constructor(config?: properties);
-copy(): SrvTarget;
-free(): void;
-get_hostname(): string;
-get_port(): number;
-get_priority(): number;
-get_weight(): number;
-static list_sort(targets: GLib.List): GLib.List;
-}
-export class StaticResource  {constructor(config?: properties);
-readonly data: number;
-readonly data_len: number;
-readonly resource: Resource;
-readonly next: StaticResource;
-readonly padding: object;
-fini(): void;
-get_resource(): Resource;
-init(): void;
-}
-export class TaskClass  {constructor(config?: properties);
-}
-export class TcpConnectionClass  {constructor(config?: properties);
-readonly parent_class: SocketConnectionClass;
-}
-export class TcpConnectionPrivate  {constructor(config?: properties);
-}
-export class TcpWrapperConnectionClass  {constructor(config?: properties);
-readonly parent_class: TcpConnectionClass;
-}
-export class TcpWrapperConnectionPrivate  {constructor(config?: properties);
-}
-export class ThemedIconClass  {constructor(config?: properties);
-}
-export class ThreadedSocketServiceClass  {constructor(config?: properties);
-readonly parent_class: SocketServiceClass;
-readonly run: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class ThreadedSocketServicePrivate  {constructor(config?: properties);
-}
-export class TlsBackendInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly supports_tls: unknown;
-readonly get_certificate_type: unknown;
-readonly get_client_connection_type: unknown;
-readonly get_server_connection_type: unknown;
-readonly get_file_database_type: unknown;
-readonly get_default_database: unknown;
-readonly supports_dtls: unknown;
-readonly get_dtls_client_connection_type: unknown;
-readonly get_dtls_server_connection_type: unknown;
-}
-export class TlsCertificateClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly verify: unknown;
-readonly padding: object[];
-}
-export class TlsCertificatePrivate  {constructor(config?: properties);
-}
-export class TlsClientConnectionInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly copy_session_state: unknown;
-}
-export class TlsConnectionClass  {constructor(config?: properties);
-readonly parent_class: IOStreamClass;
-readonly accept_certificate: unknown;
-readonly handshake: unknown;
-readonly handshake_async: unknown;
-readonly handshake_finish: unknown;
-readonly padding: object[];
-}
-export class TlsConnectionPrivate  {constructor(config?: properties);
-}
-export class TlsDatabaseClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly verify_chain: unknown;
-readonly verify_chain_async: unknown;
-readonly verify_chain_finish: unknown;
-readonly create_certificate_handle: unknown;
-readonly lookup_certificate_for_handle: unknown;
-readonly lookup_certificate_for_handle_async: unknown;
-readonly lookup_certificate_for_handle_finish: unknown;
-readonly lookup_certificate_issuer: unknown;
-readonly lookup_certificate_issuer_async: unknown;
-readonly lookup_certificate_issuer_finish: unknown;
-readonly lookup_certificates_issued_by: unknown;
-readonly lookup_certificates_issued_by_async: unknown;
-readonly lookup_certificates_issued_by_finish: unknown;
-readonly padding: object[];
-}
-export class TlsDatabasePrivate  {constructor(config?: properties);
-}
-export class TlsFileDatabaseInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly padding: object[];
-}
-export class TlsInteractionClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly ask_password: unknown;
-readonly ask_password_async: unknown;
-readonly ask_password_finish: unknown;
-readonly request_certificate: unknown;
-readonly request_certificate_async: unknown;
-readonly request_certificate_finish: unknown;
-readonly padding: object[];
-}
-export class TlsInteractionPrivate  {constructor(config?: properties);
-}
-export class TlsPasswordClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_value: unknown;
-readonly set_value: unknown;
-readonly get_default_warning: unknown;
-readonly padding: object[];
-}
-export class TlsPasswordPrivate  {constructor(config?: properties);
-}
-export class TlsServerConnectionInterface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-}
-export class UnixConnectionClass  {constructor(config?: properties);
-readonly parent_class: SocketConnectionClass;
-}
-export class UnixConnectionPrivate  {constructor(config?: properties);
-}
-export class UnixCredentialsMessageClass  {constructor(config?: properties);
-readonly parent_class: SocketControlMessageClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-}
-export class UnixCredentialsMessagePrivate  {constructor(config?: properties);
-}
-export class UnixFDListClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class UnixFDListPrivate  {constructor(config?: properties);
-}
-export class UnixFDMessageClass  {constructor(config?: properties);
-readonly parent_class: SocketControlMessageClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-}
-export class UnixFDMessagePrivate  {constructor(config?: properties);
-}
-export class UnixInputStreamClass  {constructor(config?: properties);
-readonly parent_class: InputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class UnixInputStreamPrivate  {constructor(config?: properties);
-}
-export class UnixMountEntry  {constructor(config?: properties);
-}
-export class UnixMountMonitorClass  {constructor(config?: properties);
-}
-export class UnixMountPoint  {constructor(config?: properties);
-compare(mount2: UnixMountPoint): number;
-copy(): UnixMountPoint;
-free(): void;
-get_device_path(): unknown;
-get_fs_type(): string;
-get_mount_path(): unknown;
-get_options(): string;
-guess_can_eject(): boolean;
-guess_icon(): Icon;
-guess_name(): string;
-guess_symbolic_icon(): Icon;
-is_loopback(): boolean;
-is_readonly(): boolean;
-is_user_mountable(): boolean;
-}
-export class UnixOutputStreamClass  {constructor(config?: properties);
-readonly parent_class: OutputStreamClass;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-}
-export class UnixOutputStreamPrivate  {constructor(config?: properties);
-}
-export class UnixSocketAddressClass  {constructor(config?: properties);
-readonly parent_class: SocketAddressClass;
-}
-export class UnixSocketAddressPrivate  {constructor(config?: properties);
-}
-export class VfsClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly is_active: unknown;
-readonly get_file_for_path: unknown;
-readonly get_file_for_uri: unknown;
-readonly get_supported_uri_schemes: unknown;
-readonly parse_name: unknown;
-readonly local_file_add_info: unknown;
-readonly add_writable_namespaces: unknown;
-readonly local_file_set_attributes: unknown;
-readonly local_file_removed: unknown;
-readonly local_file_moved: unknown;
-readonly deserialize_icon: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-}
-export class VolumeIface  {constructor(config?: properties);
-readonly g_iface: GObject.TypeInterface;
-readonly changed: unknown;
-readonly removed: unknown;
-readonly get_name: unknown;
-readonly get_icon: unknown;
-readonly get_uuid: unknown;
-readonly get_drive: unknown;
-readonly get_mount: unknown;
-readonly can_mount: unknown;
-readonly can_eject: unknown;
-readonly mount_fn: unknown;
-readonly mount_finish: unknown;
-readonly eject: unknown;
-readonly eject_finish: unknown;
-readonly get_identifier: unknown;
-readonly enumerate_identifiers: unknown;
-readonly should_automount: unknown;
-readonly get_activation_root: unknown;
-readonly eject_with_operation: unknown;
-readonly eject_with_operation_finish: unknown;
-readonly get_sort_key: unknown;
-readonly get_symbolic_icon: unknown;
-}
-export class VolumeMonitorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly volume_added: unknown;
-readonly volume_removed: unknown;
-readonly volume_changed: unknown;
-readonly mount_added: unknown;
-readonly mount_removed: unknown;
-readonly mount_pre_unmount: unknown;
-readonly mount_changed: unknown;
-readonly drive_connected: unknown;
-readonly drive_disconnected: unknown;
-readonly drive_changed: unknown;
-readonly is_supported: unknown;
-readonly get_connected_drives: unknown;
-readonly get_volumes: unknown;
-readonly get_mounts: unknown;
-readonly get_volume_for_uuid: unknown;
-readonly get_mount_for_uuid: unknown;
-readonly adopt_orphan_mount: unknown;
-readonly drive_eject_button: unknown;
-readonly drive_stop_button: unknown;
-readonly _g_reserved1: unknown;
-readonly _g_reserved2: unknown;
-readonly _g_reserved3: unknown;
-readonly _g_reserved4: unknown;
-readonly _g_reserved5: unknown;
-readonly _g_reserved6: unknown;
-}
-export class ZlibCompressorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ZlibDecompressorClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class AppInfoMonitor  {
+    constructor(config?: properties);
+    static get(): AppInfoMonitor;
+}
+export class AppLaunchContext extends GObject.Object {
+    constructor(config?: properties);
+    get_display(info: AppInfo, files: GLib.List): string;
+    get_environment(): string[];
+    get_startup_notify_id(info: AppInfo, files: GLib.List): string;
+    launch_failed(startup_notify_id: string): void;
+    setenv(variable: string, value: string): void;
+    unsetenv(variable: string): void;
+    vfunc_get_display(info: AppInfo, files: GLib.List): string;
+    vfunc_get_startup_notify_id(info: AppInfo, files: GLib.List): string;
+    vfunc_launch_failed(startup_notify_id: string): void;
+    vfunc_launched(info: AppInfo, platform_data: GLib.Variant): void;
+}
+export class Application extends GObject.Object {
+    constructor(config?: properties);
+    action_group: ActionGroup;
+    application_id: string;
+    flags: ApplicationFlags;
+    inactivity_timeout: number;
+    readonly is_busy: boolean;
+    readonly is_registered: boolean;
+    readonly is_remote: boolean;
+    resource_base_path: string;
+    activate(): void;
+    add_main_option(long_name: string, short_name: number, flags: GLib.OptionFlags, arg: GLib.OptionArg, description: string, arg_description: string | null): void;
+    add_main_option_entries(entries: GLib.OptionEntry[]): void;
+    add_option_group(group: GLib.OptionGroup): void;
+    bind_busy_property(object: GObject.Object, property: string): void;
+    get_application_id(): string;
+    get_dbus_connection(): DBusConnection;
+    get_dbus_object_path(): string;
+    get_flags(): ApplicationFlags;
+    get_inactivity_timeout(): number;
+    get_is_busy(): boolean;
+    get_is_registered(): boolean;
+    get_is_remote(): boolean;
+    get_resource_base_path(): string | null;
+    hold(): void;
+    mark_busy(): void;
+    open(files: File[], n_files: number, hint: string): void;
+    quit(): void;
+    register(cancellable: Cancellable | null): boolean;
+    release(): void;
+    run(argc: number, argv: string[] | null): number;
+    send_notification(id: string | null, notification: Notification): void;
+    set_action_group(action_group: ActionGroup | null): void;
+    set_application_id(application_id: string | null): void;
+    set_default(): void;
+    set_flags(flags: ApplicationFlags): void;
+    set_inactivity_timeout(inactivity_timeout: number): void;
+    set_option_context_description(description: string | null): void;
+    set_option_context_parameter_string(parameter_string: string | null): void;
+    set_option_context_summary(summary: string | null): void;
+    set_resource_base_path(resource_path: string | null): void;
+    unbind_busy_property(object: GObject.Object, property: string): void;
+    unmark_busy(): void;
+    withdraw_notification(id: string): void;
+    vfunc_activate(): void;
+    vfunc_add_platform_data(builder: GLib.VariantBuilder): void;
+    vfunc_after_emit(platform_data: GLib.Variant): void;
+    vfunc_before_emit(platform_data: GLib.Variant): void;
+    vfunc_command_line(command_line: ApplicationCommandLine): number;
+    vfunc_dbus_register(connection: DBusConnection, object_path: string): boolean;
+    vfunc_dbus_unregister(connection: DBusConnection, object_path: string): void;
+    vfunc_handle_local_options(options: GLib.VariantDict): number;
+    vfunc_local_command_line(_arguments: string[]): [boolean, string[],number];
+    vfunc_name_lost(): boolean;
+    vfunc_open(files: File[], n_files: number, hint: string): void;
+    vfunc_quit_mainloop(): void;
+    vfunc_run_mainloop(): void;
+    vfunc_shutdown(): void;
+    vfunc_startup(): void;
+    static get_default(): Application;
+    static id_is_valid(application_id: string): boolean;
+}
+export class ApplicationCommandLine  {
+    constructor(config?: properties);
+    _arguments: GLib.Variant;
+    readonly is_remote: boolean;
+    options: GLib.Variant;
+    platform_data: GLib.Variant;
+    readonly priv: ApplicationCommandLinePrivate;
+    create_file_for_arg(arg: string): File;
+    get_arguments(): [string[], number | null];
+    get_cwd(): string | null;
+    get_environ(): string[];
+    get_exit_status(): number;
+    get_is_remote(): boolean;
+    get_options_dict(): GLib.VariantDict;
+    get_platform_data(): GLib.Variant | null;
+    get_stdin(): InputStream;
+    getenv(name: string): string;
+    set_exit_status(exit_status: number): void;
+}
+export class BufferedInputStream extends FilterInputStream {
+    constructor(config?: properties);
+    buffer_size: number;static new_sized(base_stream: InputStream, size: number): InputStream;
+    fill(count: number, cancellable: Cancellable | null): number;
+    fill_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    fill_finish(result: AsyncResult): number;
+    get_available(): number;
+    get_buffer_size(): number;
+    peek(buffer: number[], offset: number, count: number): number;
+    peek_buffer(): [number[], number];
+    read_byte(cancellable: Cancellable | null): number;
+    set_buffer_size(size: number): void;
+    vfunc_fill(count: number, cancellable: Cancellable | null): number;
+    vfunc_fill_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    vfunc_fill_finish(result: AsyncResult): number;
+}
+export class BufferedOutputStream extends FilterOutputStream {
+    constructor(config?: properties);
+    auto_grow: boolean;
+    buffer_size: number;static new_sized(base_stream: OutputStream, size: number): OutputStream;
+    get_auto_grow(): boolean;
+    get_buffer_size(): number;
+    set_auto_grow(auto_grow: boolean): void;
+    set_buffer_size(size: number): void;
+}
+export class BytesIcon extends GObject.Object {
+    constructor(config?: properties);
+    bytes: GLib.Bytes;
+    get_bytes(): GLib.Bytes;
+}
+export class Cancellable extends GObject.Object {
+    constructor(config?: properties);
+    cancel(): void;
+    connect(callback: GObject.Callback, data: object | null, data_destroy_func: GLib.DestroyNotify | null): number;
+    disconnect(handler_id: number): void;
+    get_fd(): number;
+    is_cancelled(): boolean;
+    make_pollfd(pollfd: GLib.PollFD): boolean;
+    pop_current(): void;
+    push_current(): void;
+    release_fd(): void;
+    reset(): void;
+    set_error_if_cancelled(): boolean;
+    vfunc_cancelled(): void;
+    static get_current(): Cancellable | null;
+}
+export class CharsetConverter extends GObject.Object {
+    constructor(config?: properties);
+    from_charset: string;
+    to_charset: string;
+    use_fallback: boolean;
+    get_num_fallbacks(): number;
+    get_use_fallback(): boolean;
+    set_use_fallback(use_fallback: boolean): void;
+}
+export class ConverterInputStream extends FilterInputStream {
+    constructor(config?: properties);
+    converter: Converter;
+    get_converter(): Converter;
+}
+export class ConverterOutputStream extends FilterOutputStream {
+    constructor(config?: properties);
+    converter: Converter;
+    get_converter(): Converter;
+}
+export class Credentials extends GObject.Object {
+    constructor(config?: properties);
+    get_unix_pid(): number;
+    get_unix_user(): number;
+    is_same_user(other_credentials: Credentials): boolean;
+    set_native(native_type: CredentialsType, _native: object): void;
+    set_unix_user(uid: number): boolean;
+    to_string(): string;
+}
+export class DBusActionGroup  {
+    constructor(config?: properties);
+    static get(connection: DBusConnection, bus_name: string | null, object_path: string): DBusActionGroup;
+}
+export class DBusAuthObserver extends GObject.Object {
+    constructor(config?: properties);
+    allow_mechanism(mechanism: string): boolean;
+    authorize_authenticated_peer(stream: IOStream, credentials: Credentials | null): boolean;
+}
+export class DBusConnection extends GObject.Object {
+    constructor(config?: properties);
+    address: string;
+    authentication_observer: DBusAuthObserver;
+    readonly capabilities: DBusCapabilityFlags;
+    readonly closed: boolean;
+    exit_on_close: boolean;
+    flags: DBusConnectionFlags;
+    guid: string;
+    stream: IOStream;
+    readonly unique_name: string;static new_finish(res: AsyncResult): DBusConnection;
+    static new_for_address_finish(res: AsyncResult): DBusConnection;
+    static new_for_address_sync(address: string, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusConnection;
+    static new_sync(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusConnection;
+    add_filter(filter_function: DBusMessageFilterFunction, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
+    call(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    call_finish(res: AsyncResult): GLib.Variant;
+    call_sync(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null): GLib.Variant;
+    call_with_unix_fd_list(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    call_with_unix_fd_list_finish(res: AsyncResult): [GLib.Variant, UnixFDList | null];
+    call_with_unix_fd_list_sync(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null): [GLib.Variant, UnixFDList | null];
+    close(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(res: AsyncResult): boolean;
+    close_sync(cancellable: Cancellable | null): boolean;
+    emit_signal(destination_bus_name: string | null, object_path: string, interface_name: string, signal_name: string, parameters: GLib.Variant | null): boolean;
+    export_action_group(object_path: string, action_group: ActionGroup): number;
+    export_menu_model(object_path: string, menu: MenuModel): number;
+    flush(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    flush_finish(res: AsyncResult): boolean;
+    flush_sync(cancellable: Cancellable | null): boolean;
+    get_capabilities(): DBusCapabilityFlags;
+    get_exit_on_close(): boolean;
+    get_flags(): DBusConnectionFlags;
+    get_guid(): string;
+    get_last_serial(): number;
+    get_peer_credentials(): Credentials | null;
+    get_stream(): IOStream;
+    get_unique_name(): string | null;
+    is_closed(): boolean;
+    register_object(object_path: string, interface_info: DBusInterfaceInfo, vtable: DBusInterfaceVTable | null, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
+    register_object_with_closures(object_path: string, interface_info: DBusInterfaceInfo, method_call_closure: GObject.Closure | null, get_property_closure: GObject.Closure | null, set_property_closure: GObject.Closure | null): number;
+    register_subtree(object_path: string, vtable: DBusSubtreeVTable, flags: DBusSubtreeFlags, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
+    remove_filter(filter_id: number): void;
+    send_message(message: DBusMessage, flags: DBusSendMessageFlags): [boolean, number | null];
+    send_message_with_reply(message: DBusMessage, flags: DBusSendMessageFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): [number | null];
+    send_message_with_reply_finish(res: AsyncResult): DBusMessage;
+    send_message_with_reply_sync(message: DBusMessage, flags: DBusSendMessageFlags, timeout_msec: number, cancellable: Cancellable | null): [DBusMessage, number | null];
+    set_exit_on_close(exit_on_close: boolean): void;
+    signal_subscribe(sender: string | null, interface_name: string | null, member: string | null, object_path: string | null, arg0: string | null, flags: DBusSignalFlags, callback: DBusSignalCallback, user_data: object | null, user_data_free_func: GLib.DestroyNotify | null): number;
+    signal_unsubscribe(subscription_id: number): void;
+    start_message_processing(): void;
+    unexport_action_group(export_id: number): void;
+    unexport_menu_model(export_id: number): void;
+    unregister_object(registration_id: number): boolean;
+    unregister_subtree(registration_id: number): boolean;
+    static _new(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static new_for_address(address: string, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+}
+export class DBusInterfaceSkeleton  {
+    constructor(config?: properties);
+    g_flags: DBusInterfaceSkeletonFlags;
+    readonly priv: DBusInterfaceSkeletonPrivate;
+    _export(connection: DBusConnection, object_path: string): boolean;
+    flush(): void;
+    get_connection(): DBusConnection;
+    get_connections(): GLib.List;
+    get_flags(): DBusInterfaceSkeletonFlags;
+    get_info(): DBusInterfaceInfo;
+    get_object_path(): string;
+    get_properties(): GLib.Variant;
+    has_connection(connection: DBusConnection): boolean;
+    set_flags(flags: DBusInterfaceSkeletonFlags): void;
+    unexport(): void;
+    unexport_from_connection(connection: DBusConnection): void;
+}
+export class DBusMenuModel  {
+    constructor(config?: properties);
+    static get(connection: DBusConnection, bus_name: string | null, object_path: string): DBusMenuModel;
+}
+export class DBusMessage extends GObject.Object {
+    constructor(config?: properties);
+    readonly locked: boolean;static new_from_blob(blob: number[], blob_len: number, capabilities: DBusCapabilityFlags): DBusMessage;
+    static new_method_call(name: string | null, path: string, interface_: string | null, method: string): DBusMessage;
+    static new_signal(path: string, interface_: string, signal: string): DBusMessage;
+    copy(): DBusMessage;
+    get_arg0(): string;
+    get_body(): GLib.Variant;
+    get_byte_order(): DBusMessageByteOrder;
+    get_destination(): string;
+    get_error_name(): string;
+    get_flags(): DBusMessageFlags;
+    get_header(header_field: DBusMessageHeaderField): GLib.Variant | null;
+    get_header_fields(): number[];
+    get_interface(): string;
+    get_locked(): boolean;
+    get_member(): string;
+    get_message_type(): DBusMessageType;
+    get_num_unix_fds(): number;
+    get_path(): string;
+    get_reply_serial(): number;
+    get_sender(): string;
+    get_serial(): number;
+    get_signature(): string;
+    get_unix_fd_list(): UnixFDList;
+    lock(): void;
+    new_method_error_literal(error_name: string, error_message: string): DBusMessage;
+    new_method_reply(): DBusMessage;
+    print(indent: number): string;
+    set_body(body: GLib.Variant): void;
+    set_byte_order(byte_order: DBusMessageByteOrder): void;
+    set_destination(value: string): void;
+    set_error_name(value: string): void;
+    set_flags(flags: DBusMessageFlags): void;
+    set_header(header_field: DBusMessageHeaderField, value: GLib.Variant | null): void;
+    set_interface(value: string): void;
+    set_member(value: string): void;
+    set_message_type(type: DBusMessageType): void;
+    set_num_unix_fds(value: number): void;
+    set_path(value: string): void;
+    set_reply_serial(value: number): void;
+    set_sender(value: string): void;
+    set_serial(serial: number): void;
+    set_signature(value: string): void;
+    set_unix_fd_list(fd_list: UnixFDList | null): void;
+    to_blob(capabilities: DBusCapabilityFlags): [number[], number];
+    to_gerror(): boolean;
+    static bytes_needed(blob: number[], blob_len: number): number;
+}
+export class DBusMethodInvocation  {
+    constructor(config?: properties);
+    get_connection(): DBusConnection;
+    get_interface_name(): string;
+    get_message(): DBusMessage;
+    get_method_info(): DBusMethodInfo;
+    get_method_name(): string;
+    get_object_path(): string;
+    get_parameters(): GLib.Variant;
+    get_property_info(): DBusPropertyInfo;
+    get_sender(): string;
+    return_dbus_error(error_name: string, error_message: string): void;
+    return_error_literal(domain: GLib.Quark, code: number, message: string): void;
+    return_gerror(error: GLib.Error): void;
+    return_value(parameters: GLib.Variant | null): void;
+    return_value_with_unix_fd_list(parameters: GLib.Variant | null, fd_list: UnixFDList | null): void;
+}
+export class DBusObjectManagerClient extends GObject.Object {
+    constructor(config?: properties);
+    bus_type: BusType;
+    connection: DBusConnection;
+    flags: DBusObjectManagerClientFlags;
+    get_proxy_type_destroy_notify: object;
+    get_proxy_type_func: object;
+    get_proxy_type_user_data: object;
+    name: string;
+    readonly name_owner: string;
+    object_path: string;static new_finish(res: AsyncResult): DBusObjectManagerClient;
+    static new_for_bus_finish(res: AsyncResult): DBusObjectManagerClient;
+    static new_for_bus_sync(bus_type: BusType, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null): DBusObjectManagerClient;
+    static new_sync(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string | null, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null): DBusObjectManagerClient;
+    get_connection(): DBusConnection;
+    get_flags(): DBusObjectManagerClientFlags;
+    get_name(): string;
+    get_name_owner(): string | null;
+    vfunc_interface_proxy_properties_changed(object_proxy: DBusObjectProxy, interface_proxy: DBusProxy, changed_properties: GLib.Variant, invalidated_properties: string): void;
+    vfunc_interface_proxy_signal(object_proxy: DBusObjectProxy, interface_proxy: DBusProxy, sender_name: string, signal_name: string, parameters: GLib.Variant): void;
+    static _new(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static new_for_bus(bus_type: BusType, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+}
+export class DBusObjectManagerServer extends GObject.Object {
+    constructor(config?: properties);
+    connection: DBusConnection;
+    object_path: string;
+    _export(object: DBusObjectSkeleton): void;
+    export_uniquely(object: DBusObjectSkeleton): void;
+    get_connection(): DBusConnection;
+    is_exported(object: DBusObjectSkeleton): boolean;
+    set_connection(connection: DBusConnection | null): void;
+    unexport(object_path: string): boolean;
+}
+export class DBusObjectProxy extends GObject.Object {
+    constructor(config?: properties);
+    g_connection: DBusConnection;
+    g_object_path: string;
+    get_connection(): DBusConnection;
+}
+export class DBusObjectSkeleton extends GObject.Object {
+    constructor(config?: properties);
+    g_object_path: string;
+    add_interface(interface_: DBusInterfaceSkeleton): void;
+    flush(): void;
+    remove_interface(interface_: DBusInterfaceSkeleton): void;
+    remove_interface_by_name(interface_name: string): void;
+    set_object_path(object_path: string): void;
+    vfunc_authorize_method(interface_: DBusInterfaceSkeleton, invocation: DBusMethodInvocation): boolean;
+}
+export class DBusProxy extends GObject.Object {
+    constructor(config?: properties);
+    g_bus_type: BusType;
+    g_connection: DBusConnection;
+    g_default_timeout: number;
+    g_flags: DBusProxyFlags;
+    g_interface_info: DBusInterfaceInfo;
+    g_interface_name: string;
+    g_name: string;
+    readonly g_name_owner: string;
+    g_object_path: string;static new_finish(res: AsyncResult): DBusProxy;
+    static new_for_bus_finish(res: AsyncResult): DBusProxy;
+    static new_for_bus_sync(bus_type: BusType, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string, object_path: string, interface_name: string, cancellable: Cancellable | null): DBusProxy;
+    static new_sync(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null): DBusProxy;
+    call(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    call_finish(res: AsyncResult): GLib.Variant;
+    call_sync(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null): GLib.Variant;
+    call_with_unix_fd_list(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    call_with_unix_fd_list_finish(res: AsyncResult): [GLib.Variant, UnixFDList | null];
+    call_with_unix_fd_list_sync(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, fd_list: UnixFDList | null, cancellable: Cancellable | null): [GLib.Variant, UnixFDList | null];
+    get_cached_property(property_name: string): GLib.Variant | null;
+    get_cached_property_names(): string[] | null;
+    get_connection(): DBusConnection;
+    get_default_timeout(): number;
+    get_flags(): DBusProxyFlags;
+    get_interface_info(): DBusInterfaceInfo | null;
+    get_interface_name(): string;
+    get_name(): string;
+    get_name_owner(): string | null;
+    get_object_path(): string;
+    set_cached_property(property_name: string, value: GLib.Variant | null): void;
+    set_default_timeout(timeout_msec: number): void;
+    set_interface_info(info: DBusInterfaceInfo | null): void;
+    vfunc_g_properties_changed(changed_properties: GLib.Variant, invalidated_properties: string): void;
+    vfunc_g_signal(sender_name: string, signal_name: string, parameters: GLib.Variant): void;
+    static _new(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static new_for_bus(bus_type: BusType, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+}
+export class DBusServer extends GObject.Object {
+    constructor(config?: properties);
+    readonly active: boolean;
+    address: string;
+    authentication_observer: DBusAuthObserver;
+    readonly client_address: string;
+    flags: DBusServerFlags;
+    guid: string;static new_sync(address: string, flags: DBusServerFlags, guid: string, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusServer;
+    get_client_address(): string;
+    get_flags(): DBusServerFlags;
+    get_guid(): string;
+    is_active(): boolean;
+    start(): void;
+    stop(): void;
+}
+export class DataInputStream extends BufferedInputStream {
+    constructor(config?: properties);
+    byte_order: DataStreamByteOrder;
+    newline_type: DataStreamNewlineType;
+    get_byte_order(): DataStreamByteOrder;
+    get_newline_type(): DataStreamNewlineType;
+    read_byte(cancellable: Cancellable | null): number;
+    read_byte(...args: never[]): never;
+    read_int16(cancellable: Cancellable | null): number;
+    read_int32(cancellable: Cancellable | null): number;
+    read_int64(cancellable: Cancellable | null): number;
+    read_line(cancellable: Cancellable | null): [number[] | null, number | null];
+    read_line_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_line_finish(result: AsyncResult): [number[] | null, number | null];
+    read_line_finish_utf8(result: AsyncResult): [string | null, number | null];
+    read_line_utf8(cancellable: Cancellable | null): [string | null, number | null];
+    read_uint16(cancellable: Cancellable | null): number;
+    read_uint32(cancellable: Cancellable | null): number;
+    read_uint64(cancellable: Cancellable | null): number;
+    read_until(stop_chars: string, cancellable: Cancellable | null): [string, number | null];
+    read_until_async(stop_chars: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_until_finish(result: AsyncResult): [string, number | null];
+    read_upto(stop_chars: string, stop_chars_len: number, cancellable: Cancellable | null): [string, number | null];
+    read_upto_async(stop_chars: string, stop_chars_len: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_upto_finish(result: AsyncResult): [string, number | null];
+    set_byte_order(order: DataStreamByteOrder): void;
+    set_newline_type(type: DataStreamNewlineType): void;
+}
+export class DataOutputStream extends FilterOutputStream {
+    constructor(config?: properties);
+    byte_order: DataStreamByteOrder;
+    get_byte_order(): DataStreamByteOrder;
+    put_byte(data: number, cancellable: Cancellable | null): boolean;
+    put_int16(data: number, cancellable: Cancellable | null): boolean;
+    put_int32(data: number, cancellable: Cancellable | null): boolean;
+    put_int64(data: number, cancellable: Cancellable | null): boolean;
+    put_string(str: string, cancellable: Cancellable | null): boolean;
+    put_uint16(data: number, cancellable: Cancellable | null): boolean;
+    put_uint32(data: number, cancellable: Cancellable | null): boolean;
+    put_uint64(data: number, cancellable: Cancellable | null): boolean;
+    set_byte_order(order: DataStreamByteOrder): void;
+}
+export class DesktopAppInfo extends GObject.Object {
+    constructor(config?: properties);
+    filename: string;static new_from_filename(filename: string): DesktopAppInfo | null;
+    static new_from_keyfile(key_file: GLib.KeyFile): DesktopAppInfo | null;
+    get_action_name(action_name: string): string;
+    get_boolean(key: string): boolean;
+    get_categories(): string;
+    get_filename(): string;
+    get_generic_name(): string;
+    get_is_hidden(): boolean;
+    get_keywords(): string[];
+    get_locale_string(key: string): string | null;
+    get_nodisplay(): boolean;
+    get_show_in(desktop_env: string | null): boolean;
+    get_startup_wm_class(): string;
+    get_string(key: string): string;
+    get_string_list(key: string): [string[], number | null];
+    has_key(key: string): boolean;
+    launch_action(action_name: string, launch_context: AppLaunchContext | null): void;
+    launch_uris_as_manager(uris: GLib.List, launch_context: AppLaunchContext | null, spawn_flags: GLib.SpawnFlags, user_setup: GLib.SpawnChildSetupFunc | null, user_setup_data: object | null, pid_callback: DesktopAppLaunchCallback | null, pid_callback_data: object | null): boolean;
+    launch_uris_as_manager_with_fds(uris: GLib.List, launch_context: AppLaunchContext | null, spawn_flags: GLib.SpawnFlags, user_setup: GLib.SpawnChildSetupFunc | null, user_setup_data: object | null, pid_callback: DesktopAppLaunchCallback | null, pid_callback_data: object | null, stdin_fd: number, stdout_fd: number, stderr_fd: number): boolean;
+    list_actions(): string[];
+    static get_implementations(_interface: string): GLib.List;
+    static search(search_string: string): unknown[];
+    static set_desktop_env(desktop_env: string): void;
+}
+export class Emblem extends GObject.Object {
+    constructor(config?: properties);
+    icon: GObject.Object;
+    origin: EmblemOrigin;static new_with_origin(icon: Icon, origin: EmblemOrigin): Emblem;
+    get_icon(): Icon;
+    get_origin(): EmblemOrigin;
+}
+export class EmblemedIcon extends GObject.Object {
+    constructor(config?: properties);
+    gicon: Icon;
+    add_emblem(emblem: Emblem): void;
+    clear_emblems(): void;
+    get_emblems(): GLib.List;
+    get_icon(): Icon;
+}
+export class FileEnumerator  {
+    constructor(config?: properties);
+    container: File;
+    readonly priv: FileEnumeratorPrivate;
+    close(cancellable: Cancellable | null): boolean;
+    close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(result: AsyncResult): boolean;
+    get_child(info: FileInfo): File;
+    get_container(): File;
+    has_pending(): boolean;
+    is_closed(): boolean;
+    iterate(cancellable: Cancellable | null): [boolean, FileInfo | null,File | null];
+    next_file(cancellable: Cancellable | null): FileInfo | null;
+    next_files_async(num_files: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    next_files_finish(result: AsyncResult): GLib.List;
+    set_pending(pending: boolean): void;
+}
+export class FileIOStream  {
+    constructor(config?: properties);
+    readonly priv: FileIOStreamPrivate;
+    get_etag(): string;
+    query_info(attributes: string, cancellable: Cancellable | null): FileInfo;
+    query_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    query_info_finish(result: AsyncResult): FileInfo;
+}
+export class FileIcon extends GObject.Object {
+    constructor(config?: properties);
+    file: File;
+    get_file(): File;
+}
+export class FileInfo extends GObject.Object {
+    constructor(config?: properties);
+    clear_status(): void;
+    copy_into(dest_info: FileInfo): void;
+    dup(): FileInfo;
+    get_attribute_as_string(attribute: string): string;
+    get_attribute_boolean(attribute: string): boolean;
+    get_attribute_byte_string(attribute: string): string;
+    get_attribute_data(attribute: string): [boolean, FileAttributeType | null,object | null,FileAttributeStatus | null];
+    get_attribute_int32(attribute: string): number;
+    get_attribute_int64(attribute: string): number;
+    get_attribute_object(attribute: string): GObject.Object;
+    get_attribute_status(attribute: string): FileAttributeStatus;
+    get_attribute_string(attribute: string): string;
+    get_attribute_stringv(attribute: string): string[];
+    get_attribute_type(attribute: string): FileAttributeType;
+    get_attribute_uint32(attribute: string): number;
+    get_attribute_uint64(attribute: string): number;
+    get_content_type(): string;
+    get_deletion_date(): GLib.DateTime;
+    get_display_name(): string;
+    get_edit_name(): string;
+    get_etag(): string;
+    get_file_type(): FileType;
+    get_icon(): Icon;
+    get_is_backup(): boolean;
+    get_is_hidden(): boolean;
+    get_is_symlink(): boolean;
+    get_modification_time(): [GLib.TimeVal];
+    get_name(): string;
+    get_size(): number;
+    get_sort_order(): number;
+    get_symbolic_icon(): Icon;
+    get_symlink_target(): string;
+    has_attribute(attribute: string): boolean;
+    has_namespace(name_space: string): boolean;
+    list_attributes(name_space: string | null): string[] | null;
+    remove_attribute(attribute: string): void;
+    set_attribute(attribute: string, type: FileAttributeType, value_p: object): void;
+    set_attribute_boolean(attribute: string, attr_value: boolean): void;
+    set_attribute_byte_string(attribute: string, attr_value: string): void;
+    set_attribute_int32(attribute: string, attr_value: number): void;
+    set_attribute_int64(attribute: string, attr_value: number): void;
+    set_attribute_mask(mask: FileAttributeMatcher): void;
+    set_attribute_object(attribute: string, attr_value: GObject.Object): void;
+    set_attribute_status(attribute: string, status: FileAttributeStatus): boolean;
+    set_attribute_string(attribute: string, attr_value: string): void;
+    set_attribute_stringv(attribute: string, attr_value: string[]): void;
+    set_attribute_uint32(attribute: string, attr_value: number): void;
+    set_attribute_uint64(attribute: string, attr_value: number): void;
+    set_content_type(content_type: string): void;
+    set_display_name(display_name: string): void;
+    set_edit_name(edit_name: string): void;
+    set_file_type(type: FileType): void;
+    set_icon(icon: Icon): void;
+    set_is_hidden(is_hidden: boolean): void;
+    set_is_symlink(is_symlink: boolean): void;
+    set_modification_time(mtime: GLib.TimeVal): void;
+    set_name(name: string): void;
+    set_size(size: number): void;
+    set_sort_order(sort_order: number): void;
+    set_symbolic_icon(icon: Icon): void;
+    set_symlink_target(symlink_target: string): void;
+    unset_attribute_mask(): void;
+}
+export class FileInputStream  {
+    constructor(config?: properties);
+    readonly priv: FileInputStreamPrivate;
+    query_info(attributes: string, cancellable: Cancellable | null): FileInfo;
+    query_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    query_info_finish(result: AsyncResult): FileInfo;
+}
+export class FileMonitor  {
+    constructor(config?: properties);
+    readonly cancelled: boolean;
+    rate_limit: number;
+    readonly priv: FileMonitorPrivate;
+    cancel(): boolean;
+    emit_event(child: File, other_file: File, event_type: FileMonitorEvent): void;
+    is_cancelled(): boolean;
+    set_rate_limit(limit_msecs: number): void;
+}
+export class FileOutputStream  {
+    constructor(config?: properties);
+    readonly priv: FileOutputStreamPrivate;
+    get_etag(): string;
+    query_info(attributes: string, cancellable: Cancellable | null): FileInfo;
+    query_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    query_info_finish(result: AsyncResult): FileInfo;
+}
+export class FilenameCompleter extends GObject.Object {
+    constructor(config?: properties);
+    get_completion_suffix(initial_text: string): string;
+    get_completions(initial_text: string): string[];
+    set_dirs_only(dirs_only: boolean): void;
+    vfunc_got_completion_data(): void;
+}
+export class FilterInputStream  {
+    constructor(config?: properties);
+    base_stream: InputStream;
+    close_base_stream: boolean;
+    get_base_stream(): InputStream;
+    get_close_base_stream(): boolean;
+    set_close_base_stream(close_base: boolean): void;
+}
+export class FilterOutputStream  {
+    constructor(config?: properties);
+    base_stream: OutputStream;
+    close_base_stream: boolean;
+    get_base_stream(): OutputStream;
+    get_close_base_stream(): boolean;
+    set_close_base_stream(close_base: boolean): void;
+}
+export class IOModule extends GObject.TypeModule {
+    constructor(config?: properties);
+    load(): void;
+    unload(): void;
+    static query(): string[];
+}
+export class IOStream  {
+    constructor(config?: properties);
+    readonly closed: boolean;
+    readonly input_stream: InputStream;
+    readonly output_stream: OutputStream;
+    readonly priv: IOStreamPrivate;
+    clear_pending(): void;
+    close(cancellable: Cancellable | null): boolean;
+    close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(result: AsyncResult): boolean;
+    get_input_stream(): InputStream;
+    get_output_stream(): OutputStream;
+    has_pending(): boolean;
+    is_closed(): boolean;
+    set_pending(): boolean;
+    splice_async(stream2: IOStream, flags: IOStreamSpliceFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static splice_finish(result: AsyncResult): boolean;
+}
+export class InetAddress extends GObject.Object {
+    constructor(config?: properties);
+    bytes: object;
+    family: SocketFamily;
+    readonly is_any: boolean;
+    readonly is_link_local: boolean;
+    readonly is_loopback: boolean;
+    readonly is_mc_global: boolean;
+    readonly is_mc_link_local: boolean;
+    readonly is_mc_node_local: boolean;
+    readonly is_mc_org_local: boolean;
+    readonly is_mc_site_local: boolean;
+    readonly is_multicast: boolean;
+    readonly is_site_local: boolean;static new_any(family: SocketFamily): InetAddress;
+    static new_from_bytes(bytes: number[], family: SocketFamily): InetAddress;
+    static new_from_string(string: string): InetAddress;
+    static new_loopback(family: SocketFamily): InetAddress;
+    equal(other_address: InetAddress): boolean;
+    get_family(): SocketFamily;
+    get_is_any(): boolean;
+    get_is_link_local(): boolean;
+    get_is_loopback(): boolean;
+    get_is_mc_global(): boolean;
+    get_is_mc_link_local(): boolean;
+    get_is_mc_node_local(): boolean;
+    get_is_mc_org_local(): boolean;
+    get_is_mc_site_local(): boolean;
+    get_is_multicast(): boolean;
+    get_is_site_local(): boolean;
+    get_native_size(): number;
+    to_string(): string;
+    vfunc_to_string(): string;
+}
+export class InetAddressMask extends GObject.Object {
+    constructor(config?: properties);
+    address: InetAddress;
+    readonly family: SocketFamily;
+    length: number;static new_from_string(mask_string: string): InetAddressMask;
+    equal(mask2: InetAddressMask): boolean;
+    get_address(): InetAddress;
+    get_family(): SocketFamily;
+    get_length(): number;
+    matches(address: InetAddress): boolean;
+    to_string(): string;
+}
+export class InetSocketAddress extends SocketAddress {
+    constructor(config?: properties);
+    address: InetAddress;
+    flowinfo: number;
+    port: number;
+    scope_id: number;static new_from_string(address: string, port: number): SocketAddress;
+    get_address(): InetAddress;
+    get_flowinfo(): number;
+    get_port(): number;
+    get_scope_id(): number;
+}
+export class InputStream  {
+    constructor(config?: properties);
+    readonly priv: InputStreamPrivate;
+    clear_pending(): void;
+    close(cancellable: Cancellable | null): boolean;
+    close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(result: AsyncResult): boolean;
+    has_pending(): boolean;
+    is_closed(): boolean;
+    read(buffer: number[], count: number, cancellable: Cancellable | null): number;
+    read_all(buffer: number[], count: number, cancellable: Cancellable | null): [boolean, number];
+    read_all_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_all_finish(result: AsyncResult): [boolean, number];
+    read_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_bytes(count: number, cancellable: Cancellable | null): GLib.Bytes;
+    read_bytes_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_bytes_finish(result: AsyncResult): GLib.Bytes;
+    read_finish(result: AsyncResult): number;
+    set_pending(): boolean;
+    skip(count: number, cancellable: Cancellable | null): number;
+    skip_async(count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    skip_finish(result: AsyncResult): number;
+}
+export class ListStore extends GObject.Object {
+    constructor(config?: properties);
+    item_type: GType;
+    append(item: GObject.Object): void;
+    insert(position: number, item: GObject.Object): void;
+    insert_sorted(item: GObject.Object, compare_func: GLib.CompareDataFunc, user_data: object | null): number;
+    remove(position: number): void;
+    remove_all(): void;
+    sort(compare_func: GLib.CompareDataFunc, user_data: object | null): void;
+    splice(position: number, n_removals: number, additions: GObject.Object[], n_additions: number): void;
+}
+export class MemoryInputStream extends InputStream {
+    constructor(config?: properties);
+    static new_from_bytes(bytes: GLib.Bytes): InputStream;
+    static new_from_data(data: number[], len: number, destroy: GLib.DestroyNotify | null): InputStream;
+    add_bytes(bytes: GLib.Bytes): void;
+    add_data(data: number[], len: number, destroy: GLib.DestroyNotify | null): void;
+}
+export class MemoryOutputStream extends OutputStream {
+    constructor(config?: properties);
+    data: object;
+    readonly data_size: number;
+    size: number;static new_resizable(): OutputStream;
+    get_data(): object | null;
+    get_data_size(): number;
+    get_size(): number;
+    steal_as_bytes(): GLib.Bytes;
+    steal_data(): object | null;
+}
+export class Menu extends MenuModel {
+    constructor(config?: properties);
+    append(label: string | null, detailed_action: string | null): void;
+    append_item(item: MenuItem): void;
+    append_section(label: string | null, section: MenuModel): void;
+    append_submenu(label: string | null, submenu: MenuModel): void;
+    freeze(): void;
+    insert(position: number, label: string | null, detailed_action: string | null): void;
+    insert_item(position: number, item: MenuItem): void;
+    insert_section(position: number, label: string | null, section: MenuModel): void;
+    insert_submenu(position: number, label: string | null, submenu: MenuModel): void;
+    prepend(label: string | null, detailed_action: string | null): void;
+    prepend_item(item: MenuItem): void;
+    prepend_section(label: string | null, section: MenuModel): void;
+    prepend_submenu(label: string | null, submenu: MenuModel): void;
+    remove(position: number): void;
+    remove_all(): void;
+}
+export class MenuAttributeIter  {
+    constructor(config?: properties);
+    readonly priv: MenuAttributeIterPrivate;
+    get_name(): string;
+    get_next(): [boolean, string | null,GLib.Variant | null];
+    get_value(): GLib.Variant;
+    next(): boolean;
+}
+export class MenuItem extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_model(model: MenuModel, item_index: number): MenuItem;
+    static new_section(label: string | null, section: MenuModel): MenuItem;
+    static new_submenu(label: string | null, submenu: MenuModel): MenuItem;
+    get_attribute_value(attribute: string, expected_type: GLib.VariantType | null): GLib.Variant;
+    get_link(link: string): MenuModel;
+    set_action_and_target_value(action: string | null, target_value: GLib.Variant | null): void;
+    set_attribute_value(attribute: string, value: GLib.Variant | null): void;
+    set_detailed_action(detailed_action: string): void;
+    set_icon(icon: Icon): void;
+    set_label(label: string | null): void;
+    set_link(link: string, model: MenuModel | null): void;
+    set_section(section: MenuModel | null): void;
+    set_submenu(submenu: MenuModel | null): void;
+}
+export class MenuLinkIter  {
+    constructor(config?: properties);
+    readonly priv: MenuLinkIterPrivate;
+    get_name(): string;
+    get_next(): [boolean, string | null,MenuModel | null];
+    get_value(): MenuModel;
+    next(): boolean;
+}
+export class MenuModel  {
+    constructor(config?: properties);
+    readonly priv: MenuModelPrivate;
+    get_item_attribute_value(item_index: number, attribute: string, expected_type: GLib.VariantType | null): GLib.Variant;
+    get_item_link(item_index: number, link: string): MenuModel;
+    get_n_items(): number;
+    is_mutable(): boolean;
+    items_changed(position: number, removed: number, added: number): void;
+    iterate_item_attributes(item_index: number): MenuAttributeIter;
+    iterate_item_links(item_index: number): MenuLinkIter;
+}
+export class MountOperation extends GObject.Object {
+    constructor(config?: properties);
+    anonymous: boolean;
+    choice: number;
+    domain: string;
+    is_tcrypt_hidden_volume: boolean;
+    is_tcrypt_system_volume: boolean;
+    password: string;
+    password_save: PasswordSave;
+    pim: number;
+    username: string;
+    get_anonymous(): boolean;
+    get_choice(): number;
+    get_domain(): string;
+    get_is_tcrypt_hidden_volume(): boolean;
+    get_is_tcrypt_system_volume(): boolean;
+    get_password(): string;
+    get_password_save(): PasswordSave;
+    get_pim(): number;
+    get_username(): string;
+    reply(result: MountOperationResult): void;
+    set_anonymous(anonymous: boolean): void;
+    set_choice(choice: number): void;
+    set_domain(domain: string): void;
+    set_is_tcrypt_hidden_volume(hidden_volume: boolean): void;
+    set_is_tcrypt_system_volume(system_volume: boolean): void;
+    set_password(password: string): void;
+    set_password_save(save: PasswordSave): void;
+    set_pim(pim: number): void;
+    set_username(username: string): void;
+    vfunc_aborted(): void;
+    vfunc_ask_password(message: string, default_user: string, default_domain: string, flags: AskPasswordFlags): void;
+    vfunc_ask_question(message: string, choices: string[]): void;
+    vfunc_reply(result: MountOperationResult): void;
+    vfunc_show_processes(message: string, processes: GLib.Pid[], choices: string[]): void;
+    vfunc_show_unmount_progress(message: string, time_left: number, bytes_left: number): void;
+}
+export class NativeVolumeMonitor  {
+    constructor(config?: properties);
+}
+export class NetworkAddress extends GObject.Object {
+    constructor(config?: properties);
+    hostname: string;
+    port: number;
+    scheme: string;static new_loopback(port: number): NetworkAddress;
+    get_hostname(): string;
+    get_port(): number;
+    get_scheme(): string;
+    static parse(host_and_port: string, default_port: number): NetworkAddress;
+    static parse_uri(uri: string, default_port: number): NetworkAddress;
+}
+export class NetworkService extends GObject.Object {
+    constructor(config?: properties);
+    domain: string;
+    protocol: string;
+    scheme: string;
+    service: string;
+    get_domain(): string;
+    get_protocol(): string;
+    get_scheme(): string;
+    get_service(): string;
+    set_scheme(scheme: string): void;
+}
+export class Notification extends GObject.Object {
+    constructor(config?: properties);
+    add_button(label: string, detailed_action: string): void;
+    add_button_with_target_value(label: string, action: string, target: GLib.Variant | null): void;
+    set_body(body: string | null): void;
+    set_default_action(detailed_action: string): void;
+    set_default_action_and_target_value(action: string, target: GLib.Variant | null): void;
+    set_icon(icon: Icon): void;
+    set_priority(priority: NotificationPriority): void;
+    set_title(title: string): void;
+    set_urgent(urgent: boolean): void;
+}
+export class OutputStream  {
+    constructor(config?: properties);
+    readonly priv: OutputStreamPrivate;
+    clear_pending(): void;
+    close(cancellable: Cancellable | null): boolean;
+    close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(result: AsyncResult): boolean;
+    flush(cancellable: Cancellable | null): boolean;
+    flush_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    flush_finish(result: AsyncResult): boolean;
+    has_pending(): boolean;
+    is_closed(): boolean;
+    is_closing(): boolean;
+    set_pending(): boolean;
+    splice(source: InputStream, flags: OutputStreamSpliceFlags, cancellable: Cancellable | null): number;
+    splice_async(source: InputStream, flags: OutputStreamSpliceFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    splice_finish(result: AsyncResult): number;
+    write(buffer: number[], count: number, cancellable: Cancellable | null): number;
+    write_all(buffer: number[], count: number, cancellable: Cancellable | null): [boolean, number | null];
+    write_all_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    write_all_finish(result: AsyncResult): [boolean, number | null];
+    write_async(buffer: number[], count: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    write_bytes(bytes: GLib.Bytes, cancellable: Cancellable | null): number;
+    write_bytes_async(bytes: GLib.Bytes, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    write_bytes_finish(result: AsyncResult): number;
+    write_finish(result: AsyncResult): number;
+    writev(vectors: OutputVector[], n_vectors: number, cancellable: Cancellable | null): [boolean, number | null];
+    writev_all(vectors: OutputVector[], n_vectors: number, cancellable: Cancellable | null): [boolean, number | null];
+    writev_all_async(vectors: OutputVector[], n_vectors: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    writev_all_finish(result: AsyncResult): [boolean, number | null];
+    writev_async(vectors: OutputVector[], n_vectors: number, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    writev_finish(result: AsyncResult): [boolean, number | null];
+}
+export class Permission  {
+    constructor(config?: properties);
+    readonly allowed: boolean;
+    readonly can_acquire: boolean;
+    readonly can_release: boolean;
+    readonly priv: PermissionPrivate;
+    acquire(cancellable: Cancellable | null): boolean;
+    acquire_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    acquire_finish(result: AsyncResult): boolean;
+    get_allowed(): boolean;
+    get_can_acquire(): boolean;
+    get_can_release(): boolean;
+    impl_update(allowed: boolean, can_acquire: boolean, can_release: boolean): void;
+    release(cancellable: Cancellable | null): boolean;
+    release_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    release_finish(result: AsyncResult): boolean;
+}
+export class PropertyAction extends GObject.Object {
+    constructor(config?: properties);
+    readonly enabled: boolean;
+    invert_boolean: boolean;
+    name: string;
+    object: GObject.Object;
+    readonly parameter_type: GLib.VariantType;
+    property_name: string;
+    readonly state: GLib.Variant;
+    readonly state_type: GLib.VariantType;
+}
+export class ProxyAddress extends InetSocketAddress {
+    constructor(config?: properties);
+    destination_hostname: string;
+    destination_port: number;
+    destination_protocol: string;
+    password: string;
+    protocol: string;
+    uri: string;
+    username: string;
+    get_destination_hostname(): string;
+    get_destination_port(): number;
+    get_destination_protocol(): string;
+    get_password(): string;
+    get_protocol(): string;
+    get_uri(): string;
+    get_username(): string;
+}
+export class ProxyAddressEnumerator  {
+    constructor(config?: properties);
+    connectable: SocketConnectable;
+    default_port: number;
+    proxy_resolver: ProxyResolver;
+    uri: string;
+    readonly priv: ProxyAddressEnumeratorPrivate;
+}
+export class Resolver  {
+    constructor(config?: properties);
+    readonly priv: ResolverPrivate;
+    lookup_by_address(address: InetAddress, cancellable: Cancellable | null): string;
+    lookup_by_address_async(address: InetAddress, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_by_address_finish(result: AsyncResult): string;
+    lookup_by_name(hostname: string, cancellable: Cancellable | null): GLib.List;
+    lookup_by_name_async(hostname: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_by_name_finish(result: AsyncResult): GLib.List;
+    lookup_by_name_with_flags(hostname: string, flags: ResolverNameLookupFlags, cancellable: Cancellable | null): GLib.List;
+    lookup_by_name_with_flags_async(hostname: string, flags: ResolverNameLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_by_name_with_flags_finish(result: AsyncResult): GLib.List;
+    lookup_records(rrname: string, record_type: ResolverRecordType, cancellable: Cancellable | null): GLib.List;
+    lookup_records_async(rrname: string, record_type: ResolverRecordType, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_records_finish(result: AsyncResult): GLib.List;
+    lookup_service(service: string, protocol: string, domain: string, cancellable: Cancellable | null): GLib.List;
+    lookup_service_async(service: string, protocol: string, domain: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_service_finish(result: AsyncResult): GLib.List;
+    set_default(): void;
+    static get_default(): Resolver;
+}
+export class Settings extends GObject.Object {
+    constructor(config?: properties);
+    backend: SettingsBackend;
+    readonly delay_apply: boolean;
+    readonly has_unapplied: boolean;
+    path: string;
+    schema: string;
+    schema_id: string;
+    settings_schema: SettingsSchema;static new_full(schema: SettingsSchema, backend: SettingsBackend | null, path: string | null): Settings;
+    static new_with_backend(schema_id: string, backend: SettingsBackend): Settings;
+    static new_with_backend_and_path(schema_id: string, backend: SettingsBackend, path: string): Settings;
+    static new_with_path(schema_id: string, path: string): Settings;
+    apply(): void;
+    bind(key: string, object: GObject.Object, property: string, flags: SettingsBindFlags): void;
+    bind_writable(key: string, object: GObject.Object, property: string, inverted: boolean): void;
+    create_action(key: string): Action;
+    delay(): void;
+    get_boolean(key: string): boolean;
+    get_child(name: string): Settings;
+    get_default_value(key: string): GLib.Variant | null;
+    get_double(key: string): number;
+    get_enum(key: string): number;
+    get_flags(key: string): number;
+    get_has_unapplied(): boolean;
+    get_int(key: string): number;
+    get_int64(key: string): number;
+    get_mapped(key: string, mapping: SettingsGetMapping, user_data: object | null): object | null;
+    get_range(key: string): GLib.Variant;
+    get_string(key: string): string;
+    get_strv(key: string): string[];
+    get_uint(key: string): number;
+    get_uint64(key: string): number;
+    get_user_value(key: string): GLib.Variant | null;
+    get_value(key: string): GLib.Variant;
+    is_writable(name: string): boolean;
+    list_children(): string[];
+    list_keys(): string[];
+    range_check(key: string, value: GLib.Variant): boolean;
+    reset(key: string): void;
+    revert(): void;
+    set_boolean(key: string, value: boolean): boolean;
+    set_double(key: string, value: number): boolean;
+    set_enum(key: string, value: number): boolean;
+    set_flags(key: string, value: number): boolean;
+    set_int(key: string, value: number): boolean;
+    set_int64(key: string, value: number): boolean;
+    set_string(key: string, value: string): boolean;
+    set_strv(key: string, value: string[] | null): boolean;
+    set_uint(key: string, value: number): boolean;
+    set_uint64(key: string, value: number): boolean;
+    set_value(key: string, value: GLib.Variant): boolean;
+    vfunc_change_event(keys: GLib.Quark, n_keys: number): boolean;
+    vfunc_changed(key: string): void;
+    vfunc_writable_change_event(key: GLib.Quark): boolean;
+    vfunc_writable_changed(key: string): void;
+    static list_relocatable_schemas(): string[];
+    static list_schemas(): string[];
+    static sync(): void;
+    static unbind(object: GObject.Object, property: string): void;
+}
+export class SettingsBackend  {
+    constructor(config?: properties);
+    readonly priv: SettingsBackendPrivate;
+    changed(key: string, origin_tag: object | null): void;
+    changed_tree(tree: GLib.Tree, origin_tag: object | null): void;
+    keys_changed(path: string, items: string[], origin_tag: object | null): void;
+    path_changed(path: string, origin_tag: object | null): void;
+    path_writable_changed(path: string): void;
+    writable_changed(key: string): void;
+    static flatten_tree(tree: GLib.Tree): [string,string[],GLib.Variant[] | null];
+    static get_default(): SettingsBackend;
+}
+export class SimpleAction extends GObject.Object {
+    constructor(config?: properties);
+    enabled: boolean;
+    name: string;
+    parameter_type: GLib.VariantType;
+    state: GLib.Variant;
+    readonly state_type: GLib.VariantType;static new_stateful(name: string, parameter_type: GLib.VariantType | null, state: GLib.Variant): SimpleAction;
+    set_enabled(enabled: boolean): void;
+    set_state(value: GLib.Variant): void;
+    set_state_hint(state_hint: GLib.Variant | null): void;
+}
+export class SimpleActionGroup extends GObject.Object {
+    constructor(config?: properties);
+    add_entries(entries: ActionEntry[], n_entries: number, user_data: object | null): void;
+    insert(action: Action): void;
+    lookup(action_name: string): Action;
+    remove(action_name: string): void;
+}
+export class SimpleAsyncResult extends GObject.Object {
+    constructor(config?: properties);
+    static new_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, domain: GLib.Quark, code: number, format: string, ___: any): SimpleAsyncResult;
+    static new_from_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
+    static new_take_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
+    complete(): void;
+    complete_in_idle(): void;
+    get_op_res_gboolean(): boolean;
+    get_op_res_gssize(): number;
+    propagate_error(): boolean;
+    set_check_cancellable(check_cancellable: Cancellable | null): void;
+    set_from_error(error: GLib.Error): void;
+    set_handle_cancellation(handle_cancellation: boolean): void;
+    set_op_res_gboolean(op_res: boolean): void;
+    set_op_res_gssize(op_res: number): void;
+    static is_valid(result: AsyncResult, source: GObject.Object | null, source_tag: object | null): boolean;
+}
+export class SimpleIOStream extends IOStream {
+    constructor(config?: properties);
+    input_stream: InputStream;
+    output_stream: OutputStream;
+}
+export class SimplePermission extends Permission {
+    constructor(config?: properties);
+}
+export class SimpleProxyResolver  {
+    constructor(config?: properties);
+    default_proxy: string;
+    ignore_hosts: string[];
+    readonly priv: SimpleProxyResolverPrivate;
+    set_default_proxy(default_proxy: string): void;
+    set_ignore_hosts(ignore_hosts: string): void;
+    set_uri_proxy(uri_scheme: string, proxy: string): void;
+    static _new(default_proxy: string | null, ignore_hosts: string | null): ProxyResolver;
+}
+export class Socket extends GObject.Object {
+    constructor(config?: properties);
+    blocking: boolean;
+    broadcast: boolean;
+    family: SocketFamily;
+    fd: number;
+    keepalive: boolean;
+    listen_backlog: number;
+    readonly local_address: SocketAddress;
+    multicast_loopback: boolean;
+    multicast_ttl: number;
+    protocol: SocketProtocol;
+    readonly remote_address: SocketAddress;
+    timeout: number;
+    ttl: number;
+    type: SocketType;static new_from_fd(fd: number): Socket;
+    accept(cancellable: Cancellable | null): Socket;
+    bind(address: SocketAddress, allow_reuse: boolean): boolean;
+    check_connect_result(): boolean;
+    close(): boolean;
+    condition_check(condition: GLib.IOCondition): GLib.IOCondition;
+    condition_timed_wait(condition: GLib.IOCondition, timeout_us: number, cancellable: Cancellable | null): boolean;
+    condition_wait(condition: GLib.IOCondition, cancellable: Cancellable | null): boolean;
+    connect(address: SocketAddress, cancellable: Cancellable | null): boolean;
+    connection_factory_create_connection(): SocketConnection;
+    get_available_bytes(): number;
+    get_blocking(): boolean;
+    get_broadcast(): boolean;
+    get_credentials(): Credentials;
+    get_family(): SocketFamily;
+    get_fd(): number;
+    get_keepalive(): boolean;
+    get_listen_backlog(): number;
+    get_local_address(): SocketAddress;
+    get_multicast_loopback(): boolean;
+    get_multicast_ttl(): number;
+    get_option(level: number, optname: number): [boolean, number];
+    get_protocol(): SocketProtocol;
+    get_remote_address(): SocketAddress;
+    get_socket_type(): SocketType;
+    get_timeout(): number;
+    get_ttl(): number;
+    is_closed(): boolean;
+    is_connected(): boolean;
+    join_multicast_group(group: InetAddress, source_specific: boolean, iface: string | null): boolean;
+    join_multicast_group_ssm(group: InetAddress, source_specific: InetAddress | null, iface: string | null): boolean;
+    leave_multicast_group(group: InetAddress, source_specific: boolean, iface: string | null): boolean;
+    leave_multicast_group_ssm(group: InetAddress, source_specific: InetAddress | null, iface: string | null): boolean;
+    listen(): boolean;
+    receive(buffer: number[], size: number, cancellable: Cancellable | null): number;
+    receive_from(buffer: number[], size: number, cancellable: Cancellable | null): [number, SocketAddress | null];
+    receive_message(vectors: InputVector[], num_vectors: number, flags: SocketMsgFlags, cancellable: Cancellable | null): [number, SocketAddress | null,SocketControlMessage[] | null,number,SocketMsgFlags];
+    receive_messages(messages: InputMessage[], num_messages: number, flags: SocketMsgFlags, cancellable: Cancellable | null): number;
+    receive_with_blocking(buffer: number[], size: number, blocking: boolean, cancellable: Cancellable | null): number;
+    send(buffer: number[], size: number, cancellable: Cancellable | null): number;
+    send_message(address: SocketAddress | null, vectors: OutputVector[], num_vectors: number, messages: SocketControlMessage[] | null, num_messages: number, flags: SocketMsgFlags, cancellable: Cancellable | null): number;
+    send_message_with_timeout(address: SocketAddress | null, vectors: OutputVector[], num_vectors: number, messages: SocketControlMessage[] | null, num_messages: number, flags: SocketMsgFlags, timeout_us: number, cancellable: Cancellable | null): [PollableReturn, number | null];
+    send_messages(messages: OutputMessage[], num_messages: number, flags: SocketMsgFlags, cancellable: Cancellable | null): number;
+    send_to(address: SocketAddress | null, buffer: number[], size: number, cancellable: Cancellable | null): number;
+    send_with_blocking(buffer: number[], size: number, blocking: boolean, cancellable: Cancellable | null): number;
+    set_blocking(blocking: boolean): void;
+    set_broadcast(broadcast: boolean): void;
+    set_keepalive(keepalive: boolean): void;
+    set_listen_backlog(backlog: number): void;
+    set_multicast_loopback(loopback: boolean): void;
+    set_multicast_ttl(ttl: number): void;
+    set_option(level: number, optname: number, value: number): boolean;
+    set_timeout(timeout: number): void;
+    set_ttl(ttl: number): void;
+    shutdown(shutdown_read: boolean, shutdown_write: boolean): boolean;
+    speaks_ipv4(): boolean;
+}
+export class SocketAddress extends GObject.Object {
+    constructor(config?: properties);
+    readonly family: SocketFamily;static new_from_native(_native: object, len: number): SocketAddress;
+    get_family(): SocketFamily;
+    get_native_size(): number;
+    to_native(dest: object | null, destlen: number): boolean;
+    vfunc_get_family(): SocketFamily;
+    vfunc_get_native_size(): number;
+    vfunc_to_native(dest: object | null, destlen: number): boolean;
+}
+export class SocketAddressEnumerator  {
+    constructor(config?: properties);
+    next(cancellable: Cancellable | null): SocketAddress;
+    next_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    next_finish(result: AsyncResult): SocketAddress;
+}
+export class SocketClient extends GObject.Object {
+    constructor(config?: properties);
+    enable_proxy: boolean;
+    family: SocketFamily;
+    local_address: SocketAddress;
+    protocol: SocketProtocol;
+    proxy_resolver: ProxyResolver;
+    timeout: number;
+    tls: boolean;
+    tls_validation_flags: TlsCertificateFlags;
+    type: SocketType;
+    add_application_proxy(protocol: string): void;
+    connect(connectable: SocketConnectable, cancellable: Cancellable | null): SocketConnection;
+    connect_async(connectable: SocketConnectable, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    connect_finish(result: AsyncResult): SocketConnection;
+    connect_to_host(host_and_port: string, default_port: number, cancellable: Cancellable | null): SocketConnection;
+    connect_to_host_async(host_and_port: string, default_port: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    connect_to_host_finish(result: AsyncResult): SocketConnection;
+    connect_to_service(domain: string, service: string, cancellable: Cancellable | null): SocketConnection;
+    connect_to_service_async(domain: string, service: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    connect_to_service_finish(result: AsyncResult): SocketConnection;
+    connect_to_uri(uri: string, default_port: number, cancellable: Cancellable | null): SocketConnection;
+    connect_to_uri_async(uri: string, default_port: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    connect_to_uri_finish(result: AsyncResult): SocketConnection;
+    get_enable_proxy(): boolean;
+    get_family(): SocketFamily;
+    get_local_address(): SocketAddress;
+    get_protocol(): SocketProtocol;
+    get_proxy_resolver(): ProxyResolver;
+    get_socket_type(): SocketType;
+    get_timeout(): number;
+    get_tls(): boolean;
+    get_tls_validation_flags(): TlsCertificateFlags;
+    set_enable_proxy(enable: boolean): void;
+    set_family(family: SocketFamily): void;
+    set_local_address(address: SocketAddress | null): void;
+    set_protocol(protocol: SocketProtocol): void;
+    set_proxy_resolver(proxy_resolver: ProxyResolver | null): void;
+    set_socket_type(type: SocketType): void;
+    set_timeout(timeout: number): void;
+    set_tls(tls: boolean): void;
+    set_tls_validation_flags(flags: TlsCertificateFlags): void;
+    vfunc_event(event: SocketClientEvent, connectable: SocketConnectable, connection: IOStream): void;
+}
+export class SocketConnection  {
+    constructor(config?: properties);
+    socket: Socket;
+    readonly priv: SocketConnectionPrivate;
+    connect(address: SocketAddress, cancellable: Cancellable | null): boolean;
+    connect_async(address: SocketAddress, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    connect_finish(result: AsyncResult): boolean;
+    get_local_address(): SocketAddress;
+    get_remote_address(): SocketAddress;
+    get_socket(): Socket;
+    is_connected(): boolean;
+    static factory_lookup_type(family: SocketFamily, type: SocketType, protocol_id: number): GType;
+    static factory_register_type(g_type: GType, family: SocketFamily, type: SocketType, protocol: number): void;
+}
+export class SocketControlMessage  {
+    constructor(config?: properties);
+    readonly priv: SocketControlMessagePrivate;
+    get_level(): number;
+    get_msg_type(): number;
+    get_size(): number;
+    serialize(data: object): void;
+    static deserialize(level: number, type: number, size: number, data: number[]): SocketControlMessage;
+}
+export class SocketListener extends GObject.Object {
+    constructor(config?: properties);
+    listen_backlog: number;
+    accept(cancellable: Cancellable | null): [SocketConnection, GObject.Object | null];
+    accept_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    accept_finish(result: AsyncResult): [SocketConnection, GObject.Object | null];
+    accept_socket(cancellable: Cancellable | null): [Socket, GObject.Object | null];
+    accept_socket_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    accept_socket_finish(result: AsyncResult): [Socket, GObject.Object | null];
+    add_address(address: SocketAddress, type: SocketType, protocol: SocketProtocol, source_object: GObject.Object | null): [boolean, SocketAddress | null];
+    add_any_inet_port(source_object: GObject.Object | null): number;
+    add_inet_port(port: number, source_object: GObject.Object | null): boolean;
+    add_socket(socket: Socket, source_object: GObject.Object | null): boolean;
+    close(): void;
+    set_backlog(listen_backlog: number): void;
+    vfunc_changed(): void;
+    vfunc_event(event: SocketListenerEvent, socket: Socket): void;
+}
+export class SocketService extends SocketListener {
+    constructor(config?: properties);
+    active: boolean;
+    is_active(): boolean;
+    start(): void;
+    stop(): void;
+    vfunc_incoming(connection: SocketConnection, source_object: GObject.Object): boolean;
+}
+export class Subprocess extends GObject.Object {
+    constructor(config?: properties);
+    argv: string[];
+    flags: SubprocessFlags;static newv(argv: string[], flags: SubprocessFlags): Subprocess;
+    static newv(...args: never[]): Subprocess;
+    communicate(stdin_buf: GLib.Bytes | null, cancellable: Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
+    communicate_async(stdin_buf: GLib.Bytes | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    communicate_finish(result: AsyncResult): [boolean, GLib.Bytes | null,GLib.Bytes | null];
+    communicate_utf8(stdin_buf: string | null, cancellable: Cancellable | null): [boolean, string | null,string | null];
+    communicate_utf8_async(stdin_buf: string | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    communicate_utf8_finish(result: AsyncResult): [boolean, string | null,string | null];
+    force_exit(): void;
+    get_exit_status(): number;
+    get_identifier(): string;
+    get_if_exited(): boolean;
+    get_if_signaled(): boolean;
+    get_status(): number;
+    get_stderr_pipe(): InputStream;
+    get_stdin_pipe(): OutputStream;
+    get_stdout_pipe(): InputStream;
+    get_successful(): boolean;
+    get_term_sig(): number;
+    send_signal(signal_num: number): void;
+    wait(cancellable: Cancellable | null): boolean;
+    wait_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    wait_check(cancellable: Cancellable | null): boolean;
+    wait_check_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    wait_check_finish(result: AsyncResult): boolean;
+    wait_finish(result: AsyncResult): boolean;
+}
+export class SubprocessLauncher extends GObject.Object {
+    constructor(config?: properties);
+    flags: SubprocessFlags;
+    getenv(variable: string): string;
+    set_cwd(cwd: string): void;
+    set_environ(env: string[]): void;
+    set_flags(flags: SubprocessFlags): void;
+    set_stderr_file_path(path: string | null): void;
+    set_stdin_file_path(path: string): void;
+    set_stdout_file_path(path: string | null): void;
+    setenv(variable: string, value: string, overwrite: boolean): void;
+    spawnv(argv: string[]): Subprocess;
+    take_fd(source_fd: number, target_fd: number): void;
+    take_stderr_fd(fd: number): void;
+    take_stdin_fd(fd: number): void;
+    take_stdout_fd(fd: number): void;
+    unsetenv(variable: string): void;
+}
+export class Task extends GObject.Object {
+    constructor(config?: properties);
+    readonly completed: boolean;
+    get_cancellable(): Cancellable;
+    get_check_cancellable(): boolean;
+    get_completed(): boolean;
+    get_context(): GLib.MainContext;
+    get_name(): string | null;
+    get_priority(): number;
+    get_return_on_cancel(): boolean;
+    get_source_object(): GObject.Object | null;
+    get_source_tag(): object | null;
+    get_task_data(): object | null;
+    had_error(): boolean;
+    propagate_boolean(): boolean;
+    propagate_int(): number;
+    propagate_pointer(): object | null;
+    return_boolean(result: boolean): void;
+    return_error(error: GLib.Error): void;
+    return_error_if_cancelled(): boolean;
+    return_int(result: number): void;
+    return_pointer(result: object | null, result_destroy: GLib.DestroyNotify | null): void;
+    set_check_cancellable(check_cancellable: boolean): void;
+    set_name(name: string | null): void;
+    set_priority(priority: number): void;
+    set_return_on_cancel(return_on_cancel: boolean): boolean;
+    set_source_tag(source_tag: object | null): void;
+    set_task_data(task_data: object | null, task_data_destroy: GLib.DestroyNotify | null): void;
+    static is_valid(result: AsyncResult, source_object: GObject.Object | null): boolean;
+    static report_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, callback_data: object | null, source_tag: object | null, error: GLib.Error): void;
+}
+export class TcpConnection  {
+    constructor(config?: properties);
+    graceful_disconnect: boolean;
+    readonly priv: TcpConnectionPrivate;
+    get_graceful_disconnect(): boolean;
+    set_graceful_disconnect(graceful_disconnect: boolean): void;
+}
+export class TcpWrapperConnection extends TcpConnection {
+    constructor(config?: properties);
+    base_io_stream: IOStream;
+    get_base_io_stream(): IOStream;
+}
+export class TestDBus extends GObject.Object {
+    constructor(config?: properties);
+    flags: TestDBusFlags;
+    add_service_dir(path: string): void;
+    down(): void;
+    get_bus_address(): string | null;
+    get_flags(): TestDBusFlags;
+    stop(): void;
+    up(): void;
+    static unset(): void;
+}
+export class ThemedIcon extends GObject.Object {
+    constructor(config?: properties);
+    name: string;
+    names: string[];
+    use_default_fallbacks: boolean;static new_from_names(iconnames: string[], len: number): ThemedIcon;
+    static new_with_default_fallbacks(iconname: string): ThemedIcon;
+    append_name(iconname: string): void;
+    get_names(): string[];
+    prepend_name(iconname: string): void;
+}
+export class ThreadedSocketService extends SocketService {
+    constructor(config?: properties);
+    max_threads: number;
+    vfunc_run(connection: SocketConnection, source_object: GObject.Object): boolean;
+}
+export class TlsCertificate extends GObject.Object {
+    constructor(config?: properties);
+    certificate: number[];
+    certificate_pem: string;
+    issuer: TlsCertificate;
+    private_key: number[];
+    private_key_pem: string;static new_from_file(file: string): TlsCertificate;
+    static new_from_files(cert_file: string, key_file: string): TlsCertificate;
+    static new_from_pem(data: string, length: number): TlsCertificate;
+    get_issuer(): TlsCertificate;
+    is_same(cert_two: TlsCertificate): boolean;
+    verify(identity: SocketConnectable | null, trusted_ca: TlsCertificate | null): TlsCertificateFlags;
+    vfunc_verify(identity: SocketConnectable | null, trusted_ca: TlsCertificate | null): TlsCertificateFlags;
+    static list_new_from_file(file: string): GLib.List;
+}
+export class TlsConnection  {
+    constructor(config?: properties);
+    advertised_protocols: string[];
+    base_io_stream: IOStream;
+    certificate: TlsCertificate;
+    database: TlsDatabase;
+    interaction: TlsInteraction;
+    readonly negotiated_protocol: string;
+    readonly peer_certificate: TlsCertificate;
+    readonly peer_certificate_errors: TlsCertificateFlags;
+    rehandshake_mode: TlsRehandshakeMode;
+    require_close_notify: boolean;
+    use_system_certdb: boolean;
+    readonly priv: TlsConnectionPrivate;
+    emit_accept_certificate(peer_cert: TlsCertificate, errors: TlsCertificateFlags): boolean;
+    get_certificate(): TlsCertificate;
+    get_database(): TlsDatabase;
+    get_interaction(): TlsInteraction;
+    get_negotiated_protocol(): string | null;
+    get_peer_certificate(): TlsCertificate;
+    get_peer_certificate_errors(): TlsCertificateFlags;
+    get_rehandshake_mode(): TlsRehandshakeMode;
+    get_require_close_notify(): boolean;
+    get_use_system_certdb(): boolean;
+    handshake(cancellable: Cancellable | null): boolean;
+    handshake_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    handshake_finish(result: AsyncResult): boolean;
+    set_advertised_protocols(protocols: string[] | null): void;
+    set_certificate(certificate: TlsCertificate): void;
+    set_database(database: TlsDatabase): void;
+    set_interaction(interaction: TlsInteraction | null): void;
+    set_rehandshake_mode(mode: TlsRehandshakeMode): void;
+    set_require_close_notify(require_close_notify: boolean): void;
+    set_use_system_certdb(use_system_certdb: boolean): void;
+}
+export class TlsDatabase  {
+    constructor(config?: properties);
+    readonly priv: TlsDatabasePrivate;
+    create_certificate_handle(certificate: TlsCertificate): string | null;
+    lookup_certificate_for_handle(handle: string, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null): TlsCertificate | null;
+    lookup_certificate_for_handle_async(handle: string, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_certificate_for_handle_finish(result: AsyncResult): TlsCertificate;
+    lookup_certificate_issuer(certificate: TlsCertificate, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null): TlsCertificate;
+    lookup_certificate_issuer_async(certificate: TlsCertificate, interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_certificate_issuer_finish(result: AsyncResult): TlsCertificate;
+    lookup_certificates_issued_by(issuer_raw_dn: number[], interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null): GLib.List;
+    lookup_certificates_issued_by_async(issuer_raw_dn: number[], interaction: TlsInteraction | null, flags: TlsDatabaseLookupFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_certificates_issued_by_finish(result: AsyncResult): GLib.List;
+    verify_chain(chain: TlsCertificate, purpose: string, identity: SocketConnectable | null, interaction: TlsInteraction | null, flags: TlsDatabaseVerifyFlags, cancellable: Cancellable | null): TlsCertificateFlags;
+    verify_chain_async(chain: TlsCertificate, purpose: string, identity: SocketConnectable | null, interaction: TlsInteraction | null, flags: TlsDatabaseVerifyFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    verify_chain_finish(result: AsyncResult): TlsCertificateFlags;
+}
+export class TlsInteraction  {
+    constructor(config?: properties);
+    readonly priv: TlsInteractionPrivate;
+    ask_password(password: TlsPassword, cancellable: Cancellable | null): TlsInteractionResult;
+    ask_password_async(password: TlsPassword, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    ask_password_finish(result: AsyncResult): TlsInteractionResult;
+    invoke_ask_password(password: TlsPassword, cancellable: Cancellable | null): TlsInteractionResult;
+    invoke_request_certificate(connection: TlsConnection, flags: TlsCertificateRequestFlags, cancellable: Cancellable | null): TlsInteractionResult;
+    request_certificate(connection: TlsConnection, flags: TlsCertificateRequestFlags, cancellable: Cancellable | null): TlsInteractionResult;
+    request_certificate_async(connection: TlsConnection, flags: TlsCertificateRequestFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    request_certificate_finish(result: AsyncResult): TlsInteractionResult;
+}
+export class TlsPassword extends GObject.Object {
+    constructor(config?: properties);
+    description: string;
+    flags: TlsPasswordFlags;
+    warning: string;
+    get_description(): string;
+    get_flags(): TlsPasswordFlags;
+    get_value(length: number | null): number;
+    get_warning(): string;
+    set_description(description: string): void;
+    set_flags(flags: TlsPasswordFlags): void;
+    set_value(value: number[], length: number): void;
+    set_value_full(value: number[], length: number, destroy: GLib.DestroyNotify | null): void;
+    set_warning(warning: string): void;
+    vfunc_get_default_warning(): string;
+    vfunc_get_value(length: number | null): number;
+    vfunc_set_value(value: number[], length: number, destroy: GLib.DestroyNotify | null): void;
+}
+export class UnixConnection  {
+    constructor(config?: properties);
+    readonly priv: UnixConnectionPrivate;
+    receive_credentials(cancellable: Cancellable | null): Credentials;
+    receive_credentials_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    receive_credentials_finish(result: AsyncResult): Credentials;
+    receive_fd(cancellable: Cancellable | null): number;
+    send_credentials(cancellable: Cancellable | null): boolean;
+    send_credentials_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    send_credentials_finish(result: AsyncResult): boolean;
+    send_fd(fd: number, cancellable: Cancellable | null): boolean;
+}
+export class UnixCredentialsMessage extends SocketControlMessage {
+    constructor(config?: properties);
+    credentials: Credentials;static new_with_credentials(credentials: Credentials): SocketControlMessage;
+    get_credentials(): Credentials;
+    static is_supported(): boolean;
+}
+export class UnixFDList extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_array(fds: number[], n_fds: number): UnixFDList;
+    append(fd: number): number;
+    get(index_: number): number;
+    get_length(): number;
+    peek_fds(): [number[], number | null];
+    steal_fds(): [number[], number | null];
+}
+export class UnixFDMessage extends SocketControlMessage {
+    constructor(config?: properties);
+    fd_list: UnixFDList;static new_with_fd_list(fd_list: UnixFDList): SocketControlMessage;
+    append_fd(fd: number): boolean;
+    get_fd_list(): UnixFDList;
+    steal_fds(): [number[], number | null];
+}
+export class UnixInputStream extends InputStream {
+    constructor(config?: properties);
+    close_fd: boolean;
+    fd: number;
+    get_close_fd(): boolean;
+    get_fd(): number;
+    set_close_fd(close_fd: boolean): void;
+}
+export class UnixMountMonitor extends GObject.Object {
+    constructor(config?: properties);
+    set_rate_limit(limit_msec: number): void;
+    static get(): UnixMountMonitor;
+}
+export class UnixOutputStream extends OutputStream {
+    constructor(config?: properties);
+    close_fd: boolean;
+    fd: number;
+    get_close_fd(): boolean;
+    get_fd(): number;
+    set_close_fd(close_fd: boolean): void;
+}
+export class UnixSocketAddress extends SocketAddress {
+    constructor(config?: properties);
+    _abstract: boolean;
+    address_type: UnixSocketAddressType;
+    path: string;
+    path_as_array: number[];static new_abstract(path: number[], path_len: number): SocketAddress;
+    static new_with_type(path: number[], path_len: number, type: UnixSocketAddressType): SocketAddress;
+    get_address_type(): UnixSocketAddressType;
+    get_is_abstract(): boolean;
+    get_path(): string;
+    get_path_len(): number;
+    static abstract_names_supported(): boolean;
+}
+export class Vfs  {
+    constructor(config?: properties);
+    get_file_for_path(path: string): File;
+    get_file_for_uri(uri: string): File;
+    get_supported_uri_schemes(): string[];
+    is_active(): boolean;
+    parse_name(parse_name: string): File;
+    register_uri_scheme(scheme: string, uri_func: VfsFileLookupFunc | null, uri_data: object | null, uri_destroy: GLib.DestroyNotify | null, parse_name_func: VfsFileLookupFunc | null, parse_name_data: object | null, parse_name_destroy: GLib.DestroyNotify | null): boolean;
+    unregister_uri_scheme(scheme: string): boolean;
+    static get_default(): Vfs;
+    static get_local(): Vfs;
+}
+export class VolumeMonitor  {
+    constructor(config?: properties);
+    readonly priv: object;
+    get_connected_drives(): GLib.List;
+    get_mount_for_uuid(uuid: string): Mount;
+    get_mounts(): GLib.List;
+    get_volume_for_uuid(uuid: string): Volume;
+    get_volumes(): GLib.List;
+    static adopt_orphan_mount(mount: Mount): Volume;
+    static get(): VolumeMonitor;
+}
+export class ZlibCompressor extends GObject.Object {
+    constructor(config?: properties);
+    file_info: FileInfo;
+    format: ZlibCompressorFormat;
+    level: number;
+    get_file_info(): FileInfo;
+    set_file_info(file_info: FileInfo | null): void;
+}
+export class ZlibDecompressor extends GObject.Object {
+    constructor(config?: properties);
+    readonly file_info: FileInfo;
+    format: ZlibCompressorFormat;
+    get_file_info(): FileInfo;
+}
+export class ActionEntry  {
+    constructor(config?: properties);
+    name: string;
+    parameter_type: string;
+    state: string;
+    readonly padding: number[];
+}
+export class AppLaunchContextPrivate  {
+    constructor(config?: properties);
+}
+export class ApplicationCommandLinePrivate  {
+    constructor(config?: properties);
+}
+export class ApplicationPrivate  {
+    constructor(config?: properties);
+}
+export class BufferedInputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class BufferedOutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class CancellablePrivate  {
+    constructor(config?: properties);
+}
+export class ConverterInputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class ConverterOutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class DBusAnnotationInfo  {
+    constructor(config?: properties);
+    ref_count: number;
+    key: string;
+    value: string;
+    annotations: DBusAnnotationInfo[];
+    ref(): DBusAnnotationInfo;
+    unref(): void;
+    static lookup(annotations: DBusAnnotationInfo[] | null, name: string): string;
+}
+export class DBusArgInfo  {
+    constructor(config?: properties);
+    ref_count: number;
+    name: string;
+    signature: string;
+    annotations: DBusAnnotationInfo[];
+    ref(): DBusArgInfo;
+    unref(): void;
+}
+export class DBusErrorEntry  {
+    constructor(config?: properties);
+    error_code: number;
+    dbus_error_name: string;
+}
+export class DBusInterfaceInfo  {
+    constructor(config?: properties);
+    ref_count: number;
+    name: string;
+    methods: DBusMethodInfo[];
+    signals: DBusSignalInfo[];
+    properties: DBusPropertyInfo[];
+    annotations: DBusAnnotationInfo[];
+    cache_build(): void;
+    cache_release(): void;
+    generate_xml(indent: number, string_builder: GLib.String): void;
+    lookup_method(name: string): DBusMethodInfo;
+    lookup_property(name: string): DBusPropertyInfo;
+    lookup_signal(name: string): DBusSignalInfo;
+    ref(): DBusInterfaceInfo;
+    unref(): void;
+}
+export class DBusInterfaceSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class DBusInterfaceVTable  {
+    constructor(config?: properties);
+    method_call: DBusInterfaceMethodCallFunc;
+    get_property: DBusInterfaceGetPropertyFunc;
+    set_property: DBusInterfaceSetPropertyFunc;
+    readonly padding: object[];
+}
+export class DBusMethodInfo  {
+    constructor(config?: properties);
+    ref_count: number;
+    name: string;
+    in_args: DBusArgInfo[];
+    out_args: DBusArgInfo[];
+    annotations: DBusAnnotationInfo[];
+    ref(): DBusMethodInfo;
+    unref(): void;
+}
+export class DBusNodeInfo  {
+    constructor(config?: properties);
+    static new_for_xml(xml_data: string): DBusNodeInfo;
+    generate_xml(indent: number, string_builder: GLib.String): void;
+    lookup_interface(name: string): DBusInterfaceInfo;
+    ref(): DBusNodeInfo;
+    unref(): void;
+}
+export class DBusObjectManagerClientPrivate  {
+    constructor(config?: properties);
+}
+export class DBusObjectManagerServerPrivate  {
+    constructor(config?: properties);
+}
+export class DBusObjectProxyPrivate  {
+    constructor(config?: properties);
+}
+export class DBusObjectSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class DBusPropertyInfo  {
+    constructor(config?: properties);
+    ref_count: number;
+    name: string;
+    signature: string;
+    flags: DBusPropertyInfoFlags;
+    annotations: DBusAnnotationInfo[];
+    ref(): DBusPropertyInfo;
+    unref(): void;
+}
+export class DBusProxyPrivate  {
+    constructor(config?: properties);
+}
+export class DBusSignalInfo  {
+    constructor(config?: properties);
+    ref_count: number;
+    name: string;
+    args: DBusArgInfo[];
+    annotations: DBusAnnotationInfo[];
+    ref(): DBusSignalInfo;
+    unref(): void;
+}
+export class DBusSubtreeVTable  {
+    constructor(config?: properties);
+    introspect: DBusSubtreeIntrospectFunc;
+    dispatch: DBusSubtreeDispatchFunc;
+    readonly padding: object[];
+}
+export class DataInputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class DataOutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class EmblemedIconPrivate  {
+    constructor(config?: properties);
+}
+export class FileAttributeInfo  {
+    constructor(config?: properties);
+    name: string;
+    type: FileAttributeType;
+    flags: FileAttributeInfoFlags;
+}
+export class FileAttributeInfoList  {
+    constructor(config?: properties);
+    add(name: string, type: FileAttributeType, flags: FileAttributeInfoFlags): void;
+    dup(): FileAttributeInfoList;
+    lookup(name: string): FileAttributeInfo;
+    ref(): FileAttributeInfoList;
+    unref(): void;
+}
+export class FileAttributeMatcher  {
+    constructor(config?: properties);
+    enumerate_namespace(ns: string): boolean;
+    enumerate_next(): string;
+    matches(attribute: string): boolean;
+    matches_only(attribute: string): boolean;
+    ref(): FileAttributeMatcher;
+    subtract(subtract: FileAttributeMatcher): FileAttributeMatcher;
+    to_string(): string;
+    unref(): void;
+}
+export class FileEnumeratorPrivate  {
+    constructor(config?: properties);
+}
+export class FileIOStreamPrivate  {
+    constructor(config?: properties);
+}
+export class FileInputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class FileMonitorPrivate  {
+    constructor(config?: properties);
+}
+export class FileOutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class IOExtension  {
+    constructor(config?: properties);
+    get_name(): string;
+    get_priority(): number;
+    get_type(): GType;
+}
+export class IOExtensionPoint  {
+    constructor(config?: properties);
+    get_extension_by_name(name: string): IOExtension;
+    get_extensions(): GLib.List;
+    get_required_type(): GType;
+    set_required_type(type: GType): void;
+    static implement(extension_point_name: string, type: GType, extension_name: string, priority: number): IOExtension;
+    static lookup(name: string): IOExtensionPoint;
+    static register(name: string): IOExtensionPoint;
+}
+export class IOModuleScope  {
+    constructor(config?: properties);
+    block(basename: string): void;
+    free(): void;
+}
+export class IOSchedulerJob  {
+    constructor(config?: properties);
+    send_to_mainloop(func: GLib.SourceFunc, user_data: object | null, notify: GLib.DestroyNotify | null): boolean;
+    send_to_mainloop_async(func: GLib.SourceFunc, user_data: object | null, notify: GLib.DestroyNotify | null): void;
+}
+export class IOStreamAdapter  {
+    constructor(config?: properties);
+}
+export class IOStreamPrivate  {
+    constructor(config?: properties);
+}
+export class InetAddressMaskPrivate  {
+    constructor(config?: properties);
+}
+export class InetAddressPrivate  {
+    constructor(config?: properties);
+}
+export class InetSocketAddressPrivate  {
+    constructor(config?: properties);
+}
+export class InputMessage  {
+    constructor(config?: properties);
+    address: SocketAddress;
+    vectors: InputVector[];
+    num_vectors: number;
+    bytes_received: number;
+    flags: number;
+    control_messages: SocketControlMessage[];
+    num_control_messages: number;
+}
+export class InputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class InputVector  {
+    constructor(config?: properties);
+    buffer: object;
+    size: number;
+}
+export class MemoryInputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class MemoryOutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class MenuAttributeIterPrivate  {
+    constructor(config?: properties);
+}
+export class MenuLinkIterPrivate  {
+    constructor(config?: properties);
+}
+export class MenuModelPrivate  {
+    constructor(config?: properties);
+}
+export class MountOperationPrivate  {
+    constructor(config?: properties);
+}
+export class NativeSocketAddress  {
+    constructor(config?: properties);
+}
+export class NetworkAddressPrivate  {
+    constructor(config?: properties);
+}
+export class NetworkServicePrivate  {
+    constructor(config?: properties);
+}
+export class OutputMessage  {
+    constructor(config?: properties);
+    address: SocketAddress;
+    vectors: OutputVector;
+    num_vectors: number;
+    bytes_sent: number;
+    control_messages: SocketControlMessage[];
+    num_control_messages: number;
+}
+export class OutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class OutputVector  {
+    constructor(config?: properties);
+    buffer: object;
+    size: number;
+}
+export class PermissionPrivate  {
+    constructor(config?: properties);
+}
+export class ProxyAddressEnumeratorPrivate  {
+    constructor(config?: properties);
+}
+export class ProxyAddressPrivate  {
+    constructor(config?: properties);
+}
+export class ResolverPrivate  {
+    constructor(config?: properties);
+}
+export class Resource  {
+    constructor(config?: properties);
+    static new_from_data(data: GLib.Bytes): Resource;
+    _register(): void;
+    _unregister(): void;
+    enumerate_children(path: string, lookup_flags: ResourceLookupFlags): string[];
+    get_info(path: string, lookup_flags: ResourceLookupFlags): [boolean, number | null,number | null];
+    lookup_data(path: string, lookup_flags: ResourceLookupFlags): GLib.Bytes;
+    open_stream(path: string, lookup_flags: ResourceLookupFlags): InputStream;
+    ref(): Resource;
+    unref(): void;
+    static load(filename: string): Resource;
+}
+export class SettingsBackendPrivate  {
+    constructor(config?: properties);
+}
+export class SettingsPrivate  {
+    constructor(config?: properties);
+}
+export class SettingsSchema  {
+    constructor(config?: properties);
+    get_id(): string;
+    get_key(name: string): SettingsSchemaKey;
+    get_path(): string;
+    has_key(name: string): boolean;
+    list_children(): string[];
+    list_keys(): string[];
+    ref(): SettingsSchema;
+    unref(): void;
+}
+export class SettingsSchemaKey  {
+    constructor(config?: properties);
+    get_default_value(): GLib.Variant;
+    get_description(): string;
+    get_name(): string;
+    get_range(): GLib.Variant;
+    get_summary(): string;
+    get_value_type(): GLib.VariantType;
+    range_check(value: GLib.Variant): boolean;
+    ref(): SettingsSchemaKey;
+    unref(): void;
+}
+export class SettingsSchemaSource  {
+    constructor(config?: properties);
+    static new_from_directory(directory: string, parent: SettingsSchemaSource | null, trusted: boolean): SettingsSchemaSource;
+    list_schemas(recursive: boolean): [string[],string[]];
+    lookup(schema_id: string, recursive: boolean): SettingsSchema | null;
+    ref(): SettingsSchemaSource;
+    unref(): void;
+    static get_default(): SettingsSchemaSource | null;
+}
+export class SimpleActionGroupPrivate  {
+    constructor(config?: properties);
+}
+export class SimpleProxyResolverPrivate  {
+    constructor(config?: properties);
+}
+export class SocketClientPrivate  {
+    constructor(config?: properties);
+}
+export class SocketConnectionPrivate  {
+    constructor(config?: properties);
+}
+export class SocketControlMessagePrivate  {
+    constructor(config?: properties);
+}
+export class SocketListenerPrivate  {
+    constructor(config?: properties);
+}
+export class SocketPrivate  {
+    constructor(config?: properties);
+}
+export class SocketServicePrivate  {
+    constructor(config?: properties);
+}
+export class SrvTarget  {
+    constructor(config?: properties);
+    copy(): SrvTarget;
+    free(): void;
+    get_hostname(): string;
+    get_port(): number;
+    get_priority(): number;
+    get_weight(): number;
+}
+export class StaticResource  {
+    constructor(config?: properties);
+    readonly data: number;
+    readonly data_len: number;
+    readonly resource: Resource;
+    readonly next: StaticResource;
+    readonly padding: object;
+    fini(): void;
+    get_resource(): Resource;
+    init(): void;
+}
+export class TcpConnectionPrivate  {
+    constructor(config?: properties);
+}
+export class TcpWrapperConnectionPrivate  {
+    constructor(config?: properties);
+}
+export class ThreadedSocketServicePrivate  {
+    constructor(config?: properties);
+}
+export class TlsCertificatePrivate  {
+    constructor(config?: properties);
+}
+export class TlsConnectionPrivate  {
+    constructor(config?: properties);
+}
+export class TlsDatabasePrivate  {
+    constructor(config?: properties);
+}
+export class TlsInteractionPrivate  {
+    constructor(config?: properties);
+}
+export class TlsPasswordPrivate  {
+    constructor(config?: properties);
+}
+export class UnixConnectionPrivate  {
+    constructor(config?: properties);
+}
+export class UnixCredentialsMessagePrivate  {
+    constructor(config?: properties);
+}
+export class UnixFDListPrivate  {
+    constructor(config?: properties);
+}
+export class UnixFDMessagePrivate  {
+    constructor(config?: properties);
+}
+export class UnixInputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class UnixMountEntry  {
+    constructor(config?: properties);
+}
+export class UnixMountPoint  {
+    constructor(config?: properties);
+    compare(mount2: UnixMountPoint): number;
+    copy(): UnixMountPoint;
+    free(): void;
+    get_device_path(): string;
+    get_fs_type(): string;
+    get_mount_path(): string;
+    get_options(): string;
+    guess_can_eject(): boolean;
+    guess_icon(): Icon;
+    guess_name(): string;
+    guess_symbolic_icon(): Icon;
+    is_loopback(): boolean;
+    is_readonly(): boolean;
+    is_user_mountable(): boolean;
+}
+export class UnixOutputStreamPrivate  {
+    constructor(config?: properties);
+}
+export class UnixSocketAddressPrivate  {
+    constructor(config?: properties);
 }
 export interface Action  {
-readonly enabled: boolean;
-readonly name: string;
-readonly parameter_type: GLib.VariantType;
-readonly state: GLib.Variant;
-readonly state_type: GLib.VariantType;
-activate(parameter: GLib.Variant | null): void;
-change_state(value: GLib.Variant): void;
-get_enabled(): boolean;
-get_name(): string;
-get_parameter_type(): GLib.VariantType | null;
-get_state(): GLib.Variant;
-get_state_hint(): GLib.Variant | null;
-get_state_type(): GLib.VariantType | null;
+    readonly enabled: boolean;
+    readonly name: string;
+    readonly parameter_type: GLib.VariantType;
+    readonly state: GLib.Variant;
+    readonly state_type: GLib.VariantType;
+    activate(parameter: GLib.Variant | null): void;
+    change_state(value: GLib.Variant): void;
+    get_enabled(): boolean;
+    get_name(): string;
+    get_parameter_type(): GLib.VariantType | null;
+    get_state(): GLib.Variant;
+    get_state_hint(): GLib.Variant | null;
+    get_state_type(): GLib.VariantType | null;
 }
 export interface ActionGroup  {
-action_added(action_name: string): void;
-action_enabled_changed(action_name: string, enabled: boolean): void;
-action_removed(action_name: string): void;
-action_state_changed(action_name: string, state: GLib.Variant): void;
-activate_action(action_name: string, parameter: GLib.Variant | null): void;
-change_action_state(action_name: string, value: GLib.Variant): void;
-get_action_enabled(action_name: string): boolean;
-get_action_parameter_type(action_name: string): GLib.VariantType | null;
-get_action_state(action_name: string): GLib.Variant | null;
-get_action_state_hint(action_name: string): GLib.Variant | null;
-get_action_state_type(action_name: string): GLib.VariantType | null;
-has_action(action_name: string): boolean;
-list_actions(): string[];
-query_action(action_name: string): [boolean, boolean,GLib.VariantType | null,GLib.VariantType | null,GLib.Variant | null,GLib.Variant | null];
+    action_added(action_name: string): void;
+    action_enabled_changed(action_name: string, enabled: boolean): void;
+    action_removed(action_name: string): void;
+    action_state_changed(action_name: string, state: GLib.Variant): void;
+    activate_action(action_name: string, parameter: GLib.Variant | null): void;
+    change_action_state(action_name: string, value: GLib.Variant): void;
+    get_action_enabled(action_name: string): boolean;
+    get_action_parameter_type(action_name: string): GLib.VariantType | null;
+    get_action_state(action_name: string): GLib.Variant | null;
+    get_action_state_hint(action_name: string): GLib.Variant | null;
+    get_action_state_type(action_name: string): GLib.VariantType | null;
+    has_action(action_name: string): boolean;
+    list_actions(): string[];
+    query_action(action_name: string): [boolean, boolean,GLib.VariantType | null,GLib.VariantType | null,GLib.Variant | null,GLib.Variant | null];
 }
 export interface ActionMap  {
-add_action(action: Action): void;
-add_action_entries(entries: ActionEntry[], n_entries: number, user_data: object | null): void;
-lookup_action(action_name: string): Action;
-remove_action(action_name: string): void;
+    add_action(action: Action): void;
+    add_action_entries(entries: ActionEntry[], n_entries: number, user_data: object | null): void;
+    lookup_action(action_name: string): Action;
+    remove_action(action_name: string): void;
 }
 export interface AppInfo  {
-add_supports_type(content_type: string): boolean;
-can_delete(): boolean;
-can_remove_supports_type(): boolean;
-_delete(): boolean;
-dup(): AppInfo;
-equal(appinfo2: AppInfo): boolean;
-get_commandline(): unknown;
-get_description(): string;
-get_display_name(): string;
-get_executable(): unknown;
-get_icon(): Icon;
-get_id(): string;
-get_name(): string;
-get_supported_types(): string[];
-launch(files: GLib.List | null, context: AppLaunchContext | null): boolean;
-launch_uris(uris: GLib.List | null, context: AppLaunchContext | null): boolean;
-launch_uris_async(uris: GLib.List | null, context: AppLaunchContext | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-launch_uris_finish(result: AsyncResult): boolean;
-remove_supports_type(content_type: string): boolean;
-set_as_default_for_extension(extension: unknown): boolean;
-set_as_default_for_type(content_type: string): boolean;
-set_as_last_used_for_type(content_type: string): boolean;
-should_show(): boolean;
-supports_files(): boolean;
-supports_uris(): boolean;
+    add_supports_type(content_type: string): boolean;
+    can_delete(): boolean;
+    can_remove_supports_type(): boolean;
+    _delete(): boolean;
+    dup(): AppInfo;
+    equal(appinfo2: AppInfo): boolean;
+    get_commandline(): string;
+    get_description(): string;
+    get_display_name(): string;
+    get_executable(): string;
+    get_icon(): Icon;
+    get_id(): string;
+    get_name(): string;
+    get_supported_types(): string[];
+    launch(files: GLib.List | null, context: AppLaunchContext | null): boolean;
+    launch_uris(uris: GLib.List | null, context: AppLaunchContext | null): boolean;
+    launch_uris_async(uris: GLib.List | null, context: AppLaunchContext | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    launch_uris_finish(result: AsyncResult): boolean;
+    remove_supports_type(content_type: string): boolean;
+    set_as_default_for_extension(extension: string): boolean;
+    set_as_default_for_type(content_type: string): boolean;
+    set_as_last_used_for_type(content_type: string): boolean;
+    should_show(): boolean;
+    supports_files(): boolean;
+    supports_uris(): boolean;
 }
 export interface AsyncInitable  {
-init_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-init_finish(res: AsyncResult): boolean;
-new_finish(res: AsyncResult): GObject.Object;
+    init_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    init_finish(res: AsyncResult): boolean;
+    new_finish(res: AsyncResult): GObject.Object;
 }
 export interface AsyncResult  {
-get_source_object(): GObject.Object | null;
-get_user_data(): object | null;
-is_tagged(source_tag: object | null): boolean;
-legacy_propagate_error(): boolean;
+    get_source_object(): GObject.Object | null;
+    get_user_data(): object | null;
+    is_tagged(source_tag: object | null): boolean;
+    legacy_propagate_error(): boolean;
 }
 export interface Converter  {
-convert(inbuf: number[], inbuf_size: number, outbuf: number[], outbuf_size: number, flags: ConverterFlags): [ConverterResult, number,number];
-reset(): void;
+    convert(inbuf: number[], inbuf_size: number, outbuf: number[], outbuf_size: number, flags: ConverterFlags): [ConverterResult, number,number];
+    reset(): void;
 }
 export interface DBusInterface  {
-dup_object(): DBusObject;
-get_info(): DBusInterfaceInfo;
-get_object(): DBusObject;
-set_object(object: DBusObject | null): void;
+    dup_object(): DBusObject;
+    get_info(): DBusInterfaceInfo;
+    set_object(object: DBusObject | null): void;
 }
 export interface DBusObject  {
-get_interface(interface_name: string): DBusInterface;
-get_interfaces(): GLib.List;
-get_object_path(): string;
+    get_interface(interface_name: string): DBusInterface;
+    get_interfaces(): GLib.List;
+    get_object_path(): string;
 }
 export interface DBusObjectManager  {
-get_interface(object_path: string, interface_name: string): DBusInterface;
-get_object(object_path: string): DBusObject;
-get_object_path(): string;
-get_objects(): GLib.List;
+    get_interface(object_path: string, interface_name: string): DBusInterface;
+    get_object(object_path: string): DBusObject;
+    get_object_path(): string;
+    get_objects(): GLib.List;
 }
 export interface DatagramBased  {
-condition_check(condition: GLib.IOCondition): GLib.IOCondition;
-condition_wait(condition: GLib.IOCondition, timeout: number, cancellable: Cancellable | null): boolean;
-create_source(condition: GLib.IOCondition, cancellable: Cancellable | null): GLib.Source;
-receive_messages(messages: InputMessage[], num_messages: number, flags: number, timeout: number, cancellable: Cancellable | null): number;
-send_messages(messages: OutputMessage[], num_messages: number, flags: number, timeout: number, cancellable: Cancellable | null): number;
+    condition_check(condition: GLib.IOCondition): GLib.IOCondition;
+    condition_wait(condition: GLib.IOCondition, timeout: number, cancellable: Cancellable | null): boolean;
+    create_source(condition: GLib.IOCondition, cancellable: Cancellable | null): GLib.Source;
+    receive_messages(messages: InputMessage[], num_messages: number, flags: number, timeout: number, cancellable: Cancellable | null): number;
+    send_messages(messages: OutputMessage[], num_messages: number, flags: number, timeout: number, cancellable: Cancellable | null): number;
 }
 export interface DesktopAppInfoLookup  {
-get_default_for_uri_scheme(uri_scheme: string): AppInfo;
+    get_default_for_uri_scheme(uri_scheme: string): AppInfo;
 }
 export interface Drive  {
-can_eject(): boolean;
-can_poll_for_media(): boolean;
-can_start(): boolean;
-can_start_degraded(): boolean;
-can_stop(): boolean;
-eject(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_finish(result: AsyncResult): boolean;
-eject_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_with_operation_finish(result: AsyncResult): boolean;
-enumerate_identifiers(): string[];
-get_icon(): Icon;
-get_identifier(kind: string): string | null;
-get_name(): string;
-get_sort_key(): string | null;
-get_start_stop_type(): DriveStartStopType;
-get_symbolic_icon(): Icon;
-get_volumes(): GLib.List;
-has_media(): boolean;
-has_volumes(): boolean;
-is_media_check_automatic(): boolean;
-is_media_removable(): boolean;
-is_removable(): boolean;
-poll_for_media(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-poll_for_media_finish(result: AsyncResult): boolean;
-start(flags: DriveStartFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-start_finish(result: AsyncResult): boolean;
-stop(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-stop_finish(result: AsyncResult): boolean;
+    can_eject(): boolean;
+    can_poll_for_media(): boolean;
+    can_start(): boolean;
+    can_start_degraded(): boolean;
+    can_stop(): boolean;
+    eject(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_finish(result: AsyncResult): boolean;
+    eject_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_with_operation_finish(result: AsyncResult): boolean;
+    enumerate_identifiers(): string[];
+    get_icon(): Icon;
+    get_identifier(kind: string): string | null;
+    get_name(): string;
+    get_sort_key(): string | null;
+    get_start_stop_type(): DriveStartStopType;
+    get_symbolic_icon(): Icon;
+    get_volumes(): GLib.List;
+    has_media(): boolean;
+    has_volumes(): boolean;
+    is_media_check_automatic(): boolean;
+    is_media_removable(): boolean;
+    is_removable(): boolean;
+    poll_for_media(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    poll_for_media_finish(result: AsyncResult): boolean;
+    start(flags: DriveStartFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    start_finish(result: AsyncResult): boolean;
+    stop(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    stop_finish(result: AsyncResult): boolean;
 }
 export interface DtlsClientConnection  {
-readonly accepted_cas: GLib.List;
-server_identity: SocketConnectable;
-validation_flags: TlsCertificateFlags;
-get_accepted_cas(): GLib.List;
-get_server_identity(): SocketConnectable;
-get_validation_flags(): TlsCertificateFlags;
-set_server_identity(identity: SocketConnectable): void;
-set_validation_flags(flags: TlsCertificateFlags): void;
+    readonly accepted_cas: GLib.List;
+    server_identity: SocketConnectable;
+    validation_flags: TlsCertificateFlags;
+    get_accepted_cas(): GLib.List;
+    get_server_identity(): SocketConnectable;
+    get_validation_flags(): TlsCertificateFlags;
+    set_server_identity(identity: SocketConnectable): void;
+    set_validation_flags(flags: TlsCertificateFlags): void;
 }
 export interface DtlsConnection  {
-advertised_protocols: string[];
-base_socket: DatagramBased;
-certificate: TlsCertificate;
-database: TlsDatabase;
-interaction: TlsInteraction;
-readonly negotiated_protocol: string;
-readonly peer_certificate: TlsCertificate;
-readonly peer_certificate_errors: TlsCertificateFlags;
-rehandshake_mode: TlsRehandshakeMode;
-require_close_notify: boolean;
-close(cancellable: Cancellable | null): boolean;
-close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-close_finish(result: AsyncResult): boolean;
-emit_accept_certificate(peer_cert: TlsCertificate, errors: TlsCertificateFlags): boolean;
-get_certificate(): TlsCertificate;
-get_database(): TlsDatabase;
-get_interaction(): TlsInteraction;
-get_negotiated_protocol(): string | null;
-get_peer_certificate(): TlsCertificate;
-get_peer_certificate_errors(): TlsCertificateFlags;
-get_rehandshake_mode(): TlsRehandshakeMode;
-get_require_close_notify(): boolean;
-handshake(cancellable: Cancellable | null): boolean;
-handshake_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-handshake_finish(result: AsyncResult): boolean;
-set_advertised_protocols(protocols: string[] | null): void;
-set_certificate(certificate: TlsCertificate): void;
-set_database(database: TlsDatabase): void;
-set_interaction(interaction: TlsInteraction | null): void;
-set_rehandshake_mode(mode: TlsRehandshakeMode): void;
-set_require_close_notify(require_close_notify: boolean): void;
-shutdown(shutdown_read: boolean, shutdown_write: boolean, cancellable: Cancellable | null): boolean;
-shutdown_async(shutdown_read: boolean, shutdown_write: boolean, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-shutdown_finish(result: AsyncResult): boolean;
+    advertised_protocols: string[];
+    base_socket: DatagramBased;
+    certificate: TlsCertificate;
+    database: TlsDatabase;
+    interaction: TlsInteraction;
+    readonly negotiated_protocol: string;
+    readonly peer_certificate: TlsCertificate;
+    readonly peer_certificate_errors: TlsCertificateFlags;
+    rehandshake_mode: TlsRehandshakeMode;
+    require_close_notify: boolean;
+    close(cancellable: Cancellable | null): boolean;
+    close_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    close_finish(result: AsyncResult): boolean;
+    emit_accept_certificate(peer_cert: TlsCertificate, errors: TlsCertificateFlags): boolean;
+    get_certificate(): TlsCertificate;
+    get_database(): TlsDatabase;
+    get_interaction(): TlsInteraction;
+    get_negotiated_protocol(): string | null;
+    get_peer_certificate(): TlsCertificate;
+    get_peer_certificate_errors(): TlsCertificateFlags;
+    get_rehandshake_mode(): TlsRehandshakeMode;
+    get_require_close_notify(): boolean;
+    handshake(cancellable: Cancellable | null): boolean;
+    handshake_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    handshake_finish(result: AsyncResult): boolean;
+    set_advertised_protocols(protocols: string[] | null): void;
+    set_certificate(certificate: TlsCertificate): void;
+    set_database(database: TlsDatabase): void;
+    set_interaction(interaction: TlsInteraction | null): void;
+    set_rehandshake_mode(mode: TlsRehandshakeMode): void;
+    set_require_close_notify(require_close_notify: boolean): void;
+    shutdown(shutdown_read: boolean, shutdown_write: boolean, cancellable: Cancellable | null): boolean;
+    shutdown_async(shutdown_read: boolean, shutdown_write: boolean, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    shutdown_finish(result: AsyncResult): boolean;
 }
 export interface DtlsServerConnection  {
-authentication_mode: TlsAuthenticationMode;
+    authentication_mode: TlsAuthenticationMode;
 }
 export interface File  {
-append_to(flags: FileCreateFlags, cancellable: Cancellable | null): FileOutputStream;
-append_to_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-append_to_finish(res: AsyncResult): FileOutputStream;
-copy(destination: File, flags: FileCopyFlags, cancellable: Cancellable | null, progress_callback: FileProgressCallback | null, progress_callback_data: object | null): boolean;
-copy_async(destination: File, flags: FileCopyFlags, io_priority: number, cancellable: Cancellable | null, progress_callback: FileProgressCallback | null, progress_callback_data: object | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-copy_attributes(destination: File, flags: FileCopyFlags, cancellable: Cancellable | null): boolean;
-copy_finish(res: AsyncResult): boolean;
-create(flags: FileCreateFlags, cancellable: Cancellable | null): FileOutputStream;
-create_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-create_finish(res: AsyncResult): FileOutputStream;
-create_readwrite(flags: FileCreateFlags, cancellable: Cancellable | null): FileIOStream;
-create_readwrite_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-create_readwrite_finish(res: AsyncResult): FileIOStream;
-_delete(cancellable: Cancellable | null): boolean;
-delete_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-delete_finish(result: AsyncResult): boolean;
-dup(): File;
-eject_mountable(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_mountable_finish(result: AsyncResult): boolean;
-eject_mountable_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_mountable_with_operation_finish(result: AsyncResult): boolean;
-enumerate_children(attributes: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): FileEnumerator;
-enumerate_children_async(attributes: string, flags: FileQueryInfoFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-enumerate_children_finish(res: AsyncResult): FileEnumerator;
-equal(file2: File): boolean;
-find_enclosing_mount(cancellable: Cancellable | null): Mount;
-find_enclosing_mount_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-find_enclosing_mount_finish(res: AsyncResult): Mount;
-get_basename(): unknown | null;
-get_child(name: unknown): File;
-get_child_for_display_name(display_name: string): File;
-get_parent(): File | null;
-get_parse_name(): string;
-get_path(): unknown | null;
-get_relative_path(descendant: File): unknown | null;
-get_uri(): string;
-get_uri_scheme(): string;
-has_parent(parent: File | null): boolean;
-has_prefix(prefix: File): boolean;
-has_uri_scheme(uri_scheme: string): boolean;
-hash(): number;
-is_native(): boolean;
-load_bytes(cancellable: Cancellable | null): [GLib.Bytes, string | null];
-load_bytes_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-load_bytes_finish(result: AsyncResult): [GLib.Bytes, string | null];
-load_contents(cancellable: Cancellable | null): [boolean, number[],number | null,string | null];
-load_contents_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-load_contents_finish(res: AsyncResult): [boolean, number[],number | null,string | null];
-load_partial_contents_async(cancellable: Cancellable | null, read_more_callback: FileReadMoreCallback, callback: AsyncReadyCallback | null, user_data: object | null): void;
-load_partial_contents_finish(res: AsyncResult): [boolean, number[],number | null,string | null];
-make_directory(cancellable: Cancellable | null): boolean;
-make_directory_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-make_directory_finish(result: AsyncResult): boolean;
-make_directory_with_parents(cancellable: Cancellable | null): boolean;
-make_symbolic_link(symlink_value: unknown, cancellable: Cancellable | null): boolean;
-measure_disk_usage(flags: FileMeasureFlags, cancellable: Cancellable | null, progress_callback: FileMeasureProgressCallback | null, progress_data: object | null): [boolean, number | null,number | null,number | null];
-measure_disk_usage_async(flags: FileMeasureFlags, io_priority: number, cancellable: Cancellable | null, progress_callback: FileMeasureProgressCallback | null, progress_data: object | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-measure_disk_usage_finish(result: AsyncResult): [boolean, number | null,number | null,number | null];
-monitor(flags: FileMonitorFlags, cancellable: Cancellable | null): FileMonitor;
-monitor_directory(flags: FileMonitorFlags, cancellable: Cancellable | null): FileMonitor;
-monitor_file(flags: FileMonitorFlags, cancellable: Cancellable | null): FileMonitor;
-mount_enclosing_volume(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-mount_enclosing_volume_finish(result: AsyncResult): boolean;
-mount_mountable(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-mount_mountable_finish(result: AsyncResult): File;
-move(destination: File, flags: FileCopyFlags, cancellable: Cancellable | null, progress_callback: FileProgressCallback | null, progress_callback_data: object | null): boolean;
-open_readwrite(cancellable: Cancellable | null): FileIOStream;
-open_readwrite_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-open_readwrite_finish(res: AsyncResult): FileIOStream;
-peek_path(): unknown | null;
-poll_mountable(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-poll_mountable_finish(result: AsyncResult): boolean;
-query_default_handler(cancellable: Cancellable | null): AppInfo;
-query_default_handler_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-query_default_handler_finish(result: AsyncResult): AppInfo;
-query_exists(cancellable: Cancellable | null): boolean;
-query_file_type(flags: FileQueryInfoFlags, cancellable: Cancellable | null): FileType;
-query_filesystem_info(attributes: string, cancellable: Cancellable | null): FileInfo;
-query_filesystem_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-query_filesystem_info_finish(res: AsyncResult): FileInfo;
-query_info(attributes: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): FileInfo;
-query_info_async(attributes: string, flags: FileQueryInfoFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-query_info_finish(res: AsyncResult): FileInfo;
-query_settable_attributes(cancellable: Cancellable | null): FileAttributeInfoList;
-query_writable_namespaces(cancellable: Cancellable | null): FileAttributeInfoList;
-read(cancellable: Cancellable | null): FileInputStream;
-read_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-read_finish(res: AsyncResult): FileInputStream;
-replace(etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null): FileOutputStream;
-replace_async(etag: string | null, make_backup: boolean, flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-replace_contents(contents: number[], length: number, etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null): [boolean, string | null];
-replace_contents_async(contents: number[], length: number, etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-replace_contents_bytes_async(contents: GLib.Bytes, etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-replace_contents_finish(res: AsyncResult): [boolean, string | null];
-replace_finish(res: AsyncResult): FileOutputStream;
-replace_readwrite(etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null): FileIOStream;
-replace_readwrite_async(etag: string | null, make_backup: boolean, flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-replace_readwrite_finish(res: AsyncResult): FileIOStream;
-resolve_relative_path(relative_path: unknown): File;
-set_attribute(attribute: string, type: FileAttributeType, value_p: object | null, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attribute_byte_string(attribute: string, value: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attribute_int32(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attribute_int64(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attribute_string(attribute: string, value: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attribute_uint32(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attribute_uint64(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_attributes_async(info: FileInfo, flags: FileQueryInfoFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-set_attributes_finish(result: AsyncResult): [boolean, FileInfo];
-set_attributes_from_info(info: FileInfo, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
-set_display_name(display_name: string, cancellable: Cancellable | null): File;
-set_display_name_async(display_name: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-set_display_name_finish(res: AsyncResult): File;
-start_mountable(flags: DriveStartFlags, start_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-start_mountable_finish(result: AsyncResult): boolean;
-stop_mountable(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-stop_mountable_finish(result: AsyncResult): boolean;
-supports_thread_contexts(): boolean;
-trash(cancellable: Cancellable | null): boolean;
-trash_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-trash_finish(result: AsyncResult): boolean;
-unmount_mountable(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-unmount_mountable_finish(result: AsyncResult): boolean;
-unmount_mountable_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-unmount_mountable_with_operation_finish(result: AsyncResult): boolean;
+    append_to(flags: FileCreateFlags, cancellable: Cancellable | null): FileOutputStream;
+    append_to_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    append_to_finish(res: AsyncResult): FileOutputStream;
+    copy(destination: File, flags: FileCopyFlags, cancellable: Cancellable | null, progress_callback: FileProgressCallback | null, progress_callback_data: object | null): boolean;
+    copy_async(destination: File, flags: FileCopyFlags, io_priority: number, cancellable: Cancellable | null, progress_callback: FileProgressCallback | null, progress_callback_data: object | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    copy_attributes(destination: File, flags: FileCopyFlags, cancellable: Cancellable | null): boolean;
+    copy_finish(res: AsyncResult): boolean;
+    create(flags: FileCreateFlags, cancellable: Cancellable | null): FileOutputStream;
+    create_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    create_finish(res: AsyncResult): FileOutputStream;
+    create_readwrite(flags: FileCreateFlags, cancellable: Cancellable | null): FileIOStream;
+    create_readwrite_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    create_readwrite_finish(res: AsyncResult): FileIOStream;
+    _delete(cancellable: Cancellable | null): boolean;
+    delete_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    delete_finish(result: AsyncResult): boolean;
+    dup(): File;
+    eject_mountable(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_mountable_finish(result: AsyncResult): boolean;
+    eject_mountable_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_mountable_with_operation_finish(result: AsyncResult): boolean;
+    enumerate_children(attributes: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): FileEnumerator;
+    enumerate_children_async(attributes: string, flags: FileQueryInfoFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    enumerate_children_finish(res: AsyncResult): FileEnumerator;
+    equal(file2: File): boolean;
+    find_enclosing_mount(cancellable: Cancellable | null): Mount;
+    find_enclosing_mount_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    find_enclosing_mount_finish(res: AsyncResult): Mount;
+    get_basename(): string | null;
+    get_child(name: string): File;
+    get_child_for_display_name(display_name: string): File;
+    get_parent(): File | null;
+    get_parse_name(): string;
+    get_path(): string | null;
+    get_relative_path(descendant: File): string | null;
+    get_uri(): string;
+    get_uri_scheme(): string;
+    has_parent(parent: File | null): boolean;
+    has_prefix(prefix: File): boolean;
+    has_uri_scheme(uri_scheme: string): boolean;
+    hash(): number;
+    is_native(): boolean;
+    load_bytes(cancellable: Cancellable | null): [GLib.Bytes, string | null];
+    load_bytes_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    load_bytes_finish(result: AsyncResult): [GLib.Bytes, string | null];
+    load_contents(cancellable: Cancellable | null): [boolean, number[],number | null,string | null];
+    load_contents_async(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    load_contents_finish(res: AsyncResult): [boolean, number[],number | null,string | null];
+    load_partial_contents_finish(res: AsyncResult): [boolean, number[],number | null,string | null];
+    make_directory(cancellable: Cancellable | null): boolean;
+    make_directory_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    make_directory_finish(result: AsyncResult): boolean;
+    make_directory_with_parents(cancellable: Cancellable | null): boolean;
+    make_symbolic_link(symlink_value: string, cancellable: Cancellable | null): boolean;
+    measure_disk_usage_finish(result: AsyncResult): [boolean, number | null,number | null,number | null];
+    monitor(flags: FileMonitorFlags, cancellable: Cancellable | null): FileMonitor;
+    monitor_directory(flags: FileMonitorFlags, cancellable: Cancellable | null): FileMonitor;
+    monitor_file(flags: FileMonitorFlags, cancellable: Cancellable | null): FileMonitor;
+    mount_enclosing_volume(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    mount_enclosing_volume_finish(result: AsyncResult): boolean;
+    mount_mountable(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    mount_mountable_finish(result: AsyncResult): File;
+    move(destination: File, flags: FileCopyFlags, cancellable: Cancellable | null, progress_callback: FileProgressCallback | null, progress_callback_data: object | null): boolean;
+    open_readwrite(cancellable: Cancellable | null): FileIOStream;
+    open_readwrite_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    open_readwrite_finish(res: AsyncResult): FileIOStream;
+    peek_path(): string | null;
+    poll_mountable(cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    poll_mountable_finish(result: AsyncResult): boolean;
+    query_default_handler(cancellable: Cancellable | null): AppInfo;
+    query_default_handler_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    query_default_handler_finish(result: AsyncResult): AppInfo;
+    query_exists(cancellable: Cancellable | null): boolean;
+    query_file_type(flags: FileQueryInfoFlags, cancellable: Cancellable | null): FileType;
+    query_filesystem_info(attributes: string, cancellable: Cancellable | null): FileInfo;
+    query_filesystem_info_async(attributes: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    query_filesystem_info_finish(res: AsyncResult): FileInfo;
+    query_info(attributes: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): FileInfo;
+    query_info_async(attributes: string, flags: FileQueryInfoFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    query_info_finish(res: AsyncResult): FileInfo;
+    query_settable_attributes(cancellable: Cancellable | null): FileAttributeInfoList;
+    query_writable_namespaces(cancellable: Cancellable | null): FileAttributeInfoList;
+    read(cancellable: Cancellable | null): FileInputStream;
+    read_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    read_finish(res: AsyncResult): FileInputStream;
+    replace(etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null): FileOutputStream;
+    replace_async(etag: string | null, make_backup: boolean, flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    replace_contents(contents: number[], length: number, etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null): [boolean, string | null];
+    replace_contents_async(contents: number[], length: number, etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    replace_contents_bytes_async(contents: GLib.Bytes, etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    replace_contents_finish(res: AsyncResult): [boolean, string | null];
+    replace_finish(res: AsyncResult): FileOutputStream;
+    replace_readwrite(etag: string | null, make_backup: boolean, flags: FileCreateFlags, cancellable: Cancellable | null): FileIOStream;
+    replace_readwrite_async(etag: string | null, make_backup: boolean, flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    replace_readwrite_finish(res: AsyncResult): FileIOStream;
+    resolve_relative_path(relative_path: string): File;
+    set_attribute(attribute: string, type: FileAttributeType, value_p: object | null, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attribute_byte_string(attribute: string, value: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attribute_int32(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attribute_int64(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attribute_string(attribute: string, value: string, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attribute_uint32(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attribute_uint64(attribute: string, value: number, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_attributes_async(info: FileInfo, flags: FileQueryInfoFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    set_attributes_finish(result: AsyncResult): [boolean, FileInfo];
+    set_attributes_from_info(info: FileInfo, flags: FileQueryInfoFlags, cancellable: Cancellable | null): boolean;
+    set_display_name(display_name: string, cancellable: Cancellable | null): File;
+    set_display_name_async(display_name: string, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    set_display_name_finish(res: AsyncResult): File;
+    start_mountable(flags: DriveStartFlags, start_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    start_mountable_finish(result: AsyncResult): boolean;
+    stop_mountable(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    stop_mountable_finish(result: AsyncResult): boolean;
+    supports_thread_contexts(): boolean;
+    trash(cancellable: Cancellable | null): boolean;
+    trash_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    trash_finish(result: AsyncResult): boolean;
+    unmount_mountable(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    unmount_mountable_finish(result: AsyncResult): boolean;
+    unmount_mountable_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    unmount_mountable_with_operation_finish(result: AsyncResult): boolean;
 }
 export interface FileDescriptorBased  {
-get_fd(): number;
+    get_fd(): number;
 }
 export interface Icon  {
-equal(icon2: Icon | null): boolean;
-serialize(): GLib.Variant;
-to_string(): string | null;
+    equal(icon2: Icon | null): boolean;
+    serialize(): GLib.Variant;
+    to_string(): string | null;
 }
 export interface Initable  {
-init(cancellable: Cancellable | null): boolean;
+    init(cancellable: Cancellable | null): boolean;
 }
 export interface ListModel  {
-get_item(position: number): object | null;
-get_item_type(): unknown;
-get_n_items(): number;
-get_object(position: number): GObject.Object | null;
-items_changed(position: number, removed: number, added: number): void;
+    get_item_type(): GType;
+    get_n_items(): number;
+    get_object(position: number): GObject.Object | null;
+    items_changed(position: number, removed: number, added: number): void;
 }
 export interface LoadableIcon  {
-load(size: number, cancellable: Cancellable | null): [InputStream, string | null];
-load_async(size: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-load_finish(res: AsyncResult): [InputStream, string | null];
+    load(size: number, cancellable: Cancellable | null): [InputStream, string | null];
+    load_async(size: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    load_finish(res: AsyncResult): [InputStream, string | null];
 }
 export interface Mount  {
-can_eject(): boolean;
-can_unmount(): boolean;
-eject(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_finish(result: AsyncResult): boolean;
-eject_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_with_operation_finish(result: AsyncResult): boolean;
-get_default_location(): File;
-get_drive(): Drive | null;
-get_icon(): Icon;
-get_name(): string;
-get_root(): File;
-get_sort_key(): string | null;
-get_symbolic_icon(): Icon;
-get_uuid(): string | null;
-get_volume(): Volume | null;
-guess_content_type(force_rescan: boolean, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-guess_content_type_finish(result: AsyncResult): string[];
-guess_content_type_sync(force_rescan: boolean, cancellable: Cancellable | null): string[];
-is_shadowed(): boolean;
-remount(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-remount_finish(result: AsyncResult): boolean;
-shadow(): void;
-unmount(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-unmount_finish(result: AsyncResult): boolean;
-unmount_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-unmount_with_operation_finish(result: AsyncResult): boolean;
-unshadow(): void;
+    can_eject(): boolean;
+    can_unmount(): boolean;
+    eject(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_finish(result: AsyncResult): boolean;
+    eject_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_with_operation_finish(result: AsyncResult): boolean;
+    get_default_location(): File;
+    get_drive(): Drive | null;
+    get_icon(): Icon;
+    get_name(): string;
+    get_root(): File;
+    get_sort_key(): string | null;
+    get_symbolic_icon(): Icon;
+    get_uuid(): string | null;
+    get_volume(): Volume | null;
+    guess_content_type(force_rescan: boolean, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    guess_content_type_finish(result: AsyncResult): string[];
+    guess_content_type_sync(force_rescan: boolean, cancellable: Cancellable | null): string[];
+    is_shadowed(): boolean;
+    remount(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    remount_finish(result: AsyncResult): boolean;
+    shadow(): void;
+    unmount(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    unmount_finish(result: AsyncResult): boolean;
+    unmount_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    unmount_with_operation_finish(result: AsyncResult): boolean;
+    unshadow(): void;
 }
 export interface NetworkMonitor  {
-readonly connectivity: NetworkConnectivity;
-readonly network_available: boolean;
-readonly network_metered: boolean;
-can_reach(connectable: SocketConnectable, cancellable: Cancellable | null): boolean;
-can_reach_async(connectable: SocketConnectable, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-can_reach_finish(result: AsyncResult): boolean;
-get_connectivity(): NetworkConnectivity;
-get_network_available(): boolean;
-get_network_metered(): boolean;
+    readonly connectivity: NetworkConnectivity;
+    readonly network_available: boolean;
+    readonly network_metered: boolean;
+    can_reach(connectable: SocketConnectable, cancellable: Cancellable | null): boolean;
+    can_reach_async(connectable: SocketConnectable, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    can_reach_finish(result: AsyncResult): boolean;
+    get_connectivity(): NetworkConnectivity;
+    get_network_available(): boolean;
+    get_network_metered(): boolean;
 }
 export interface PollableInputStream  {
-can_poll(): boolean;
-create_source(cancellable: Cancellable | null): GLib.Source;
-is_readable(): boolean;
-read_nonblocking(buffer: number[], count: number, cancellable: Cancellable | null): number;
+    can_poll(): boolean;
+    create_source(cancellable: Cancellable | null): GLib.Source;
+    is_readable(): boolean;
+    read_nonblocking(buffer: number[], count: number, cancellable: Cancellable | null): number;
 }
 export interface PollableOutputStream  {
-can_poll(): boolean;
-create_source(cancellable: Cancellable | null): GLib.Source;
-is_writable(): boolean;
-write_nonblocking(buffer: number[], count: number, cancellable: Cancellable | null): number;
-writev_nonblocking(vectors: OutputVector[], n_vectors: number, cancellable: Cancellable | null): [PollableReturn, number | null];
+    can_poll(): boolean;
+    create_source(cancellable: Cancellable | null): GLib.Source;
+    is_writable(): boolean;
+    write_nonblocking(buffer: number[], count: number, cancellable: Cancellable | null): number;
+    writev_nonblocking(vectors: OutputVector[], n_vectors: number, cancellable: Cancellable | null): [PollableReturn, number | null];
 }
 export interface Proxy  {
-connect(connection: IOStream, proxy_address: ProxyAddress, cancellable: Cancellable | null): IOStream;
-connect_async(connection: IOStream, proxy_address: ProxyAddress, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-connect_finish(result: AsyncResult): IOStream;
-supports_hostname(): boolean;
+    connect(connection: IOStream, proxy_address: ProxyAddress, cancellable: Cancellable | null): IOStream;
+    connect_async(connection: IOStream, proxy_address: ProxyAddress, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    connect_finish(result: AsyncResult): IOStream;
+    supports_hostname(): boolean;
 }
 export interface ProxyResolver  {
-is_supported(): boolean;
-lookup(uri: string, cancellable: Cancellable | null): string[];
-lookup_async(uri: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-lookup_finish(result: AsyncResult): string[];
+    is_supported(): boolean;
+    lookup(uri: string, cancellable: Cancellable | null): string[];
+    lookup_async(uri: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    lookup_finish(result: AsyncResult): string[];
 }
 export interface RemoteActionGroup  {
-activate_action_full(action_name: string, parameter: GLib.Variant | null, platform_data: GLib.Variant): void;
-change_action_state_full(action_name: string, value: GLib.Variant, platform_data: GLib.Variant): void;
+    activate_action_full(action_name: string, parameter: GLib.Variant | null, platform_data: GLib.Variant): void;
+    change_action_state_full(action_name: string, value: GLib.Variant, platform_data: GLib.Variant): void;
 }
 export interface Seekable  {
-can_seek(): boolean;
-can_truncate(): boolean;
-seek(offset: number, type: GLib.SeekType, cancellable: Cancellable | null): boolean;
-tell(): number;
-truncate(offset: number, cancellable: Cancellable | null): boolean;
+    can_seek(): boolean;
+    can_truncate(): boolean;
+    seek(offset: number, type: GLib.SeekType, cancellable: Cancellable | null): boolean;
+    tell(): number;
+    truncate(offset: number, cancellable: Cancellable | null): boolean;
 }
 export interface SocketConnectable  {
-enumerate(): SocketAddressEnumerator;
-proxy_enumerate(): SocketAddressEnumerator;
-to_string(): string;
+    enumerate(): SocketAddressEnumerator;
+    proxy_enumerate(): SocketAddressEnumerator;
+    to_string(): string;
 }
 export interface TlsBackend  {
-get_certificate_type(): unknown;
-get_client_connection_type(): unknown;
-get_default_database(): TlsDatabase;
-get_dtls_client_connection_type(): unknown;
-get_dtls_server_connection_type(): unknown;
-get_file_database_type(): unknown;
-get_server_connection_type(): unknown;
-set_default_database(database: TlsDatabase | null): void;
-supports_dtls(): boolean;
-supports_tls(): boolean;
+    get_certificate_type(): GType;
+    get_client_connection_type(): GType;
+    get_default_database(): TlsDatabase;
+    get_dtls_client_connection_type(): GType;
+    get_dtls_server_connection_type(): GType;
+    get_file_database_type(): GType;
+    get_server_connection_type(): GType;
+    set_default_database(database: TlsDatabase | null): void;
+    supports_dtls(): boolean;
+    supports_tls(): boolean;
 }
 export interface TlsClientConnection  {
-readonly accepted_cas: GLib.List;
-server_identity: SocketConnectable;
-use_ssl3: boolean;
-validation_flags: TlsCertificateFlags;
-copy_session_state(source: TlsClientConnection): void;
-get_accepted_cas(): GLib.List;
-get_server_identity(): SocketConnectable;
-get_use_ssl3(): boolean;
-get_validation_flags(): TlsCertificateFlags;
-set_server_identity(identity: SocketConnectable): void;
-set_use_ssl3(use_ssl3: boolean): void;
-set_validation_flags(flags: TlsCertificateFlags): void;
+    readonly accepted_cas: GLib.List;
+    server_identity: SocketConnectable;
+    use_ssl3: boolean;
+    validation_flags: TlsCertificateFlags;
+    copy_session_state(source: TlsClientConnection): void;
+    get_accepted_cas(): GLib.List;
+    get_server_identity(): SocketConnectable;
+    get_use_ssl3(): boolean;
+    get_validation_flags(): TlsCertificateFlags;
+    set_server_identity(identity: SocketConnectable): void;
+    set_use_ssl3(use_ssl3: boolean): void;
+    set_validation_flags(flags: TlsCertificateFlags): void;
 }
 export interface TlsFileDatabase  {
-anchors: string;
+    anchors: string;
 }
 export interface TlsServerConnection  {
-authentication_mode: TlsAuthenticationMode;
+    authentication_mode: TlsAuthenticationMode;
 }
 export interface Volume  {
-can_eject(): boolean;
-can_mount(): boolean;
-eject(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_finish(result: AsyncResult): boolean;
-eject_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-eject_with_operation_finish(result: AsyncResult): boolean;
-enumerate_identifiers(): string[];
-get_activation_root(): File | null;
-get_drive(): Drive | null;
-get_icon(): Icon;
-get_identifier(kind: string): string | null;
-get_mount(): Mount | null;
-get_name(): string;
-get_sort_key(): string | null;
-get_symbolic_icon(): Icon;
-get_uuid(): string | null;
-mount(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
-mount_finish(result: AsyncResult): boolean;
-should_automount(): boolean;
+    can_eject(): boolean;
+    can_mount(): boolean;
+    eject(flags: MountUnmountFlags, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_finish(result: AsyncResult): boolean;
+    eject_with_operation(flags: MountUnmountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    eject_with_operation_finish(result: AsyncResult): boolean;
+    enumerate_identifiers(): string[];
+    get_activation_root(): File | null;
+    get_drive(): Drive | null;
+    get_icon(): Icon;
+    get_identifier(kind: string): string | null;
+    get_mount(): Mount | null;
+    get_name(): string;
+    get_sort_key(): string | null;
+    get_symbolic_icon(): Icon;
+    get_uuid(): string | null;
+    mount(flags: MountMountFlags, mount_operation: MountOperation | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    mount_finish(result: AsyncResult): boolean;
+    should_automount(): boolean;
 }

@@ -9,17 +9,12 @@ import * as xft from "xft";
 import * as xlib from "xlib";
 import * as fontconfig from "fontconfig";
 import * as PangoXft from "pangoxft";
-import * as freetype2 from "freetype2";
 /**
  * pangoxft.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type SubstituteFunc = (pattern: fontconfig.Pattern, data: object | null) => void;
-/**
- * Retrieves a #PangoContext appropriate for rendering with
- * Xft fonts on the given screen of the given display.
- */
-export function get_context(display: xlib.Display, screen: number): Pango.Context;
 /**
  * Returns the #PangoXftFontMap for the given display and screen.
  * The fontmap is owned by Pango and will be valid until
@@ -75,29 +70,25 @@ export function shutdown_display(display: xlib.Display, screen: number): void;
  * results for the same input pattern, you must call this function.
  */
 export function substitute_changed(display: xlib.Display, screen: number): void;
-export class Font  {constructor(config?: properties);
-static get_display(font: Pango.Font): xlib.Display;
-static get_font(font: Pango.Font | null): xft.Font | null;
-static get_glyph(font: Pango.Font, wc: number): number;
-static get_unknown_glyph(font: Pango.Font, wc: number): Pango.Glyph;
-static has_char(font: Pango.Font, wc: number): boolean;
-static lock_face(font: Pango.Font): freetype2.Face;
-static unlock_face(font: Pango.Font): void;
+export class Font  {
+    constructor(config?: properties);
+    static get_glyph(font: Pango.Font, wc: number): number;
+    static get_unknown_glyph(font: Pango.Font, wc: number): Pango.Glyph;
+    static has_char(font: Pango.Font, wc: number): boolean;
+    static unlock_face(font: Pango.Font): void;
 }
-export class FontMap  {constructor(config?: properties);
+export class FontMap  {
+    constructor(config?: properties);
 }
-export class Renderer extends Pango.Renderer {constructor(config?: properties);
-display: object;
-screen: number;
-set_default_color(default_color: Pango.Color): void;
-set_draw(draw: xft.Draw): void;
-vfunc_composite_glyphs(xft_font: xft.Font, glyphs: xft.GlyphSpec, n_glyphs: number): void;
-vfunc_composite_trapezoids(part: Pango.RenderPart, trapezoids: xlib.XTrapezoid, n_trapezoids: number): void;
+export class Renderer extends Pango.Renderer {
+    constructor(config?: properties);
+    display: object;
+    screen: number;
+    set_default_color(default_color: Pango.Color): void;
+    set_draw(draw: xft.Draw): void;
+    vfunc_composite_glyphs(xft_font: xft.Font, glyphs: xft.GlyphSpec, n_glyphs: number): void;
+    vfunc_composite_trapezoids(part: Pango.RenderPart, trapezoids: xlib.XTrapezoid, n_trapezoids: number): void;
 }
-export class RendererClass  {constructor(config?: properties);
-readonly parent_class: Pango.RendererClass;
-readonly composite_trapezoids: unknown;
-readonly composite_glyphs: unknown;
-}
-export class RendererPrivate  {constructor(config?: properties);
+export class RendererPrivate  {
+    constructor(config?: properties);
 }

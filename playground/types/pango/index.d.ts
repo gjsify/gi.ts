@@ -8,6 +8,7 @@ import * as Pango from "pango";
  * pango.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type AttrDataCopyFunc = (user_data: object | null) => object | null;
 export type AttrFilterFunc = (attribute: Attribute, user_data: object | null) => boolean;
 export type FontsetForeachFunc = (fontset: Fontset, font: Font, user_data: object | null) => boolean;
@@ -223,10 +224,6 @@ export function extents_to_pixels(inclusive: Rectangle | null, nearest: Rectangl
  */
 export function find_base_dir(text: string, length: number): Direction;
 /**
- * Do not use.  Does not do anything.
- */
-export function find_map(language: Language, engine_type_id: number, render_type_id: number): Map | null;
-/**
  * Locates a paragraph boundary in @text. A boundary is caused by
  * delimiter characters, such as a newline, carriage return, carriage
  * return-newline pair, or Unicode paragraph separator character.  The
@@ -440,10 +437,6 @@ export function markup_parser_finish(context: GLib.MarkupParseContext): [boolean
  */
 export function markup_parser_new(accel_marker: number): GLib.MarkupParseContext;
 /**
- * Do not use.  Does not do anything.
- */
-export function module_register(module: IncludedModule): void;
-/**
  * Parses an enum type and stores the result in @value.
  * If @str does not match the nick name of any of the possible values for
  *  the
@@ -454,7 +447,7 @@ export function module_register(module: IncludedModule): void;
  * "none/start/middle/end".  If failed and @possible_values is not %NULL,
  * returned string should be freed using g_free().
  */
-export function parse_enum(type: unknown, str: string | null, warn: boolean): [boolean, number | null,string | null];
+export function parse_enum(type: GType, str: string | null, warn: boolean): [boolean, number | null,string | null];
 /**
  * Parses marked-up text (see
  * <link linkend="PangoMarkupFormat">markup format</link>) to create
@@ -978,602 +971,561 @@ export enum ShowFlags {
     LINE_BREAKS = 2,
     IGNORABLES = 4,
 }
-export class Context extends GObject.Object {constructor(config?: properties);
-changed(): void;
-get_base_dir(): Direction;
-get_base_gravity(): Gravity;
-get_font_description(): FontDescription;
-get_font_map(): FontMap;
-get_gravity(): Gravity;
-get_gravity_hint(): GravityHint;
-get_language(): Language;
-get_matrix(): Matrix | null;
-get_metrics(desc: FontDescription | null, language: Language | null): FontMetrics;
-get_round_glyph_positions(): boolean;
-get_serial(): number;
-list_families(): [FontFamily[],number];
-load_font(desc: FontDescription): Font | null;
-load_fontset(desc: FontDescription, language: Language): Fontset | null;
-set_base_dir(direction: Direction): void;
-set_base_gravity(gravity: Gravity): void;
-set_font_description(desc: FontDescription): void;
-set_font_map(font_map: FontMap): void;
-set_gravity_hint(hint: GravityHint): void;
-set_language(language: Language): void;
-set_matrix(matrix: Matrix | null): void;
-set_round_glyph_positions(round_positions: boolean): void;
+export class Context extends GObject.Object {
+    constructor(config?: properties);
+    changed(): void;
+    get_base_dir(): Direction;
+    get_base_gravity(): Gravity;
+    get_font_description(): FontDescription;
+    get_font_map(): FontMap;
+    get_gravity(): Gravity;
+    get_gravity_hint(): GravityHint;
+    get_language(): Language;
+    get_matrix(): Matrix | null;
+    get_metrics(desc: FontDescription | null, language: Language | null): FontMetrics;
+    get_round_glyph_positions(): boolean;
+    get_serial(): number;
+    list_families(): [FontFamily[],number];
+    load_font(desc: FontDescription): Font | null;
+    load_fontset(desc: FontDescription, language: Language): Fontset | null;
+    set_base_dir(direction: Direction): void;
+    set_base_gravity(gravity: Gravity): void;
+    set_font_description(desc: FontDescription): void;
+    set_font_map(font_map: FontMap): void;
+    set_gravity_hint(hint: GravityHint): void;
+    set_language(language: Language): void;
+    set_matrix(matrix: Matrix | null): void;
+    set_round_glyph_positions(round_positions: boolean): void;
 }
-export class Coverage extends GObject.Object {constructor(config?: properties);
-copy(): Coverage;
-get(index_: number): CoverageLevel;
-get(...args: never[]): never;
-max(other: Coverage): void;
-ref(): Coverage;
-ref(...args: never[]): never;
-set(index_: number, level: CoverageLevel): void;
-set(...args: never[]): never;
-to_bytes(): [number[],number];
-unref(): void;
-static from_bytes(bytes: number[], n_bytes: number): Coverage | null;
+export class Coverage extends GObject.Object {
+    constructor(config?: properties);
+    copy(): Coverage;
+    get(index_: number): CoverageLevel;
+    max(other: Coverage): void;
+    ref(): Coverage;
+    ref(...args: never[]): never;
+    set(index_: number, level: CoverageLevel): void;
+    to_bytes(): [number[],number];
+    unref(): void;
+    static from_bytes(bytes: number[], n_bytes: number): Coverage | null;
 }
-export class Engine  {constructor(config?: properties);
+export class Engine  {
+    constructor(config?: properties);
 }
-export class EngineLang  {constructor(config?: properties);
+export class EngineLang  {
+    constructor(config?: properties);
 }
-export class EngineShape  {constructor(config?: properties);
+export class EngineShape  {
+    constructor(config?: properties);
 }
-export class Font  {constructor(config?: properties);
-describe(): FontDescription;
-describe_with_absolute_size(): FontDescription;
-find_shaper(language: Language, ch: number): EngineShape;
-get_coverage(language: Language): Coverage;
+export class Font  {
+    constructor(config?: properties);
+    describe(): FontDescription;
+    describe_with_absolute_size(): FontDescription;
+    find_shaper(language: Language, ch: number): EngineShape;
+    get_coverage(language: Language): Coverage;
+    get_font_map(): FontMap | null;
+    get_glyph_extents(glyph: Glyph): [Rectangle | null,Rectangle | null];
+    get_metrics(language: Language | null): FontMetrics;
+    has_char(wc: number): boolean;
+    static descriptions_free(descs: FontDescription[] | null, n_descs: number): void;
 }
-export class FontFace  {constructor(config?: properties);
-describe(): FontDescription;
-get_face_name(): string;
-is_synthesized(): boolean;
-list_sizes(): [number[] | null,number];
+export class FontFace  {
+    constructor(config?: properties);
+    describe(): FontDescription;
+    get_face_name(): string;
+    is_synthesized(): boolean;
+    list_sizes(): [number[] | null,number];
 }
-export class FontFamily  {constructor(config?: properties);
-get_name(): string;
-is_monospace(): boolean;
-is_variable(): boolean;
-list_faces(): [FontFace[] | null,number];
+export class FontFamily  {
+    constructor(config?: properties);
+    get_name(): string;
+    is_monospace(): boolean;
+    is_variable(): boolean;
+    list_faces(): [FontFace[] | null,number];
 }
-export class FontMap  {constructor(config?: properties);
-changed(): void;
-create_context(): Context;
-get_serial(): number;
-list_families(): [FontFamily[],number];
-load_font(context: Context, desc: FontDescription): Font | null;
-load_fontset(context: Context, desc: FontDescription, language: Language): Fontset | null;
+export class FontMap  {
+    constructor(config?: properties);
+    changed(): void;
+    create_context(): Context;
+    get_serial(): number;
+    list_families(): [FontFamily[],number];
+    load_font(context: Context, desc: FontDescription): Font | null;
+    load_fontset(context: Context, desc: FontDescription, language: Language): Fontset | null;
 }
-export class Fontset  {constructor(config?: properties);
-foreach(func: FontsetForeachFunc, data: object | null): void;
-get_font(wc: number): Font;
-get_metrics(): FontMetrics;
+export class Fontset  {
+    constructor(config?: properties);
+    foreach(func: FontsetForeachFunc, data: object | null): void;
+    get_font(wc: number): Font;
+    get_metrics(): FontMetrics;
 }
-export class FontsetSimple extends Fontset {constructor(config?: properties);
-append(font: Font): void;
-size(): number;
+export class FontsetSimple extends Fontset {
+    constructor(config?: properties);
+    append(font: Font): void;
+    size(): number;
 }
-export class Layout extends GObject.Object {constructor(config?: properties);
-context_changed(): void;
-copy(): Layout;
-get_alignment(): Alignment;
-get_attributes(): AttrList;
-get_auto_dir(): boolean;
-get_baseline(): number;
-get_character_count(): number;
-get_context(): Context;
-get_cursor_pos(index_: number): [Rectangle | null,Rectangle | null];
-get_ellipsize(): EllipsizeMode;
-get_extents(): [Rectangle | null,Rectangle | null];
-get_font_description(): FontDescription | null;
-get_height(): number;
-get_indent(): number;
-get_iter(): LayoutIter;
-get_justify(): boolean;
-get_line(line: number): LayoutLine | null;
-get_line_count(): number;
-get_line_readonly(line: number): LayoutLine | null;
-get_line_spacing(): number;
-get_lines(): string[];
-get_lines_readonly(): string[];
-get_log_attrs(): [LogAttr[],number];
-get_log_attrs_readonly(): [LogAttr[], number];
-get_pixel_extents(): [Rectangle | null,Rectangle | null];
-get_pixel_size(): [number | null,number | null];
-get_serial(): number;
-get_single_paragraph_mode(): boolean;
-get_size(): [number | null,number | null];
-get_spacing(): number;
-get_tabs(): TabArray | null;
-get_text(): string;
-get_unknown_glyphs_count(): number;
-get_width(): number;
-get_wrap(): WrapMode;
-index_to_line_x(index_: number, trailing: boolean): [number | null,number | null];
-index_to_pos(index_: number): [Rectangle];
-is_ellipsized(): boolean;
-is_wrapped(): boolean;
-move_cursor_visually(strong: boolean, old_index: number, old_trailing: number, direction: number): [number,number];
-set_alignment(alignment: Alignment): void;
-set_attributes(attrs: AttrList | null): void;
-set_auto_dir(auto_dir: boolean): void;
-set_ellipsize(ellipsize: EllipsizeMode): void;
-set_font_description(desc: FontDescription | null): void;
-set_height(height: number): void;
-set_indent(indent: number): void;
-set_justify(justify: boolean): void;
-set_line_spacing(factor: number): void;
-set_markup(markup: string, length: number): void;
-set_markup_with_accel(markup: string, length: number, accel_marker: number): [number | null];
-set_single_paragraph_mode(setting: boolean): void;
-set_spacing(spacing: number): void;
-set_tabs(tabs: TabArray | null): void;
-set_text(text: string, length: number): void;
-set_width(width: number): void;
-set_wrap(wrap: WrapMode): void;
-xy_to_index(x: number, y: number): [boolean, number,number];
+export class Layout extends GObject.Object {
+    constructor(config?: properties);
+    context_changed(): void;
+    copy(): Layout;
+    get_alignment(): Alignment;
+    get_attributes(): AttrList;
+    get_auto_dir(): boolean;
+    get_baseline(): number;
+    get_character_count(): number;
+    get_context(): Context;
+    get_cursor_pos(index_: number): [Rectangle | null,Rectangle | null];
+    get_ellipsize(): EllipsizeMode;
+    get_extents(): [Rectangle | null,Rectangle | null];
+    get_font_description(): FontDescription | null;
+    get_height(): number;
+    get_indent(): number;
+    get_iter(): LayoutIter;
+    get_justify(): boolean;
+    get_line(line: number): LayoutLine | null;
+    get_line_count(): number;
+    get_line_readonly(line: number): LayoutLine | null;
+    get_line_spacing(): number;
+    get_lines(): string[];
+    get_lines_readonly(): string[];
+    get_log_attrs(): [LogAttr[],number];
+    get_log_attrs_readonly(): [LogAttr[], number];
+    get_pixel_extents(): [Rectangle | null,Rectangle | null];
+    get_pixel_size(): [number | null,number | null];
+    get_serial(): number;
+    get_single_paragraph_mode(): boolean;
+    get_size(): [number | null,number | null];
+    get_spacing(): number;
+    get_tabs(): TabArray | null;
+    get_text(): string;
+    get_unknown_glyphs_count(): number;
+    get_width(): number;
+    get_wrap(): WrapMode;
+    index_to_line_x(index_: number, trailing: boolean): [number | null,number | null];
+    index_to_pos(index_: number): [Rectangle];
+    is_ellipsized(): boolean;
+    is_wrapped(): boolean;
+    move_cursor_visually(strong: boolean, old_index: number, old_trailing: number, direction: number): [number,number];
+    set_alignment(alignment: Alignment): void;
+    set_attributes(attrs: AttrList | null): void;
+    set_auto_dir(auto_dir: boolean): void;
+    set_ellipsize(ellipsize: EllipsizeMode): void;
+    set_font_description(desc: FontDescription | null): void;
+    set_height(height: number): void;
+    set_indent(indent: number): void;
+    set_justify(justify: boolean): void;
+    set_line_spacing(factor: number): void;
+    set_markup(markup: string, length: number): void;
+    set_markup_with_accel(markup: string, length: number, accel_marker: number): [number | null];
+    set_single_paragraph_mode(setting: boolean): void;
+    set_spacing(spacing: number): void;
+    set_tabs(tabs: TabArray | null): void;
+    set_text(text: string, length: number): void;
+    set_width(width: number): void;
+    set_wrap(wrap: WrapMode): void;
+    xy_to_index(x: number, y: number): [boolean, number,number];
 }
-export class Renderer  {constructor(config?: properties);
-readonly underline: Underline;
-readonly strikethrough: boolean;
-readonly active_count: number;
-readonly matrix: Matrix;
-readonly priv: RendererPrivate;
-activate(): void;
-deactivate(): void;
-draw_error_underline(x: number, y: number, width: number, height: number): void;
-draw_glyph(font: Font, glyph: Glyph, x: number, y: number): void;
-draw_glyph_item(text: string | null, glyph_item: GlyphItem, x: number, y: number): void;
-draw_glyphs(font: Font, glyphs: GlyphString, x: number, y: number): void;
-draw_layout(layout: Layout, x: number, y: number): void;
-draw_layout_line(line: LayoutLine, x: number, y: number): void;
-draw_rectangle(part: RenderPart, x: number, y: number, width: number, height: number): void;
-draw_trapezoid(part: RenderPart, y1_: number, x11: number, x21: number, y2: number, x12: number, x22: number): void;
-get_alpha(part: RenderPart): number;
-get_color(part: RenderPart): Color | null;
-get_layout(): Layout | null;
-get_layout_line(): LayoutLine | null;
-get_matrix(): Matrix | null;
-part_changed(part: RenderPart): void;
-set_alpha(part: RenderPart, alpha: number): void;
-set_color(part: RenderPart, color: Color | null): void;
-set_matrix(matrix: Matrix | null): void;
+export class Renderer  {
+    constructor(config?: properties);
+    readonly underline: Underline;
+    readonly strikethrough: boolean;
+    readonly active_count: number;
+    readonly matrix: Matrix;
+    readonly priv: RendererPrivate;
+    activate(): void;
+    deactivate(): void;
+    draw_error_underline(x: number, y: number, width: number, height: number): void;
+    draw_glyph(font: Font, glyph: Glyph, x: number, y: number): void;
+    draw_glyph_item(text: string | null, glyph_item: GlyphItem, x: number, y: number): void;
+    draw_glyphs(font: Font, glyphs: GlyphString, x: number, y: number): void;
+    draw_layout(layout: Layout, x: number, y: number): void;
+    draw_layout_line(line: LayoutLine, x: number, y: number): void;
+    draw_rectangle(part: RenderPart, x: number, y: number, width: number, height: number): void;
+    draw_trapezoid(part: RenderPart, y1_: number, x11: number, x21: number, y2: number, x12: number, x22: number): void;
+    get_alpha(part: RenderPart): number;
+    get_color(part: RenderPart): Color | null;
+    get_layout(): Layout | null;
+    get_layout_line(): LayoutLine | null;
+    get_matrix(): Matrix | null;
+    part_changed(part: RenderPart): void;
+    set_alpha(part: RenderPart, alpha: number): void;
+    set_color(part: RenderPart, color: Color | null): void;
+    set_matrix(matrix: Matrix | null): void;
 }
-export class Analysis  {constructor(config?: properties);
-shape_engine: EngineShape;
-lang_engine: EngineLang;
-font: Font;
-level: number;
-gravity: number;
-flags: number;
-script: number;
-language: Language;
-extra_attrs: string[];
+export class Analysis  {
+    constructor(config?: properties);
+    shape_engine: EngineShape;
+    lang_engine: EngineLang;
+    font: Font;
+    level: number;
+    gravity: number;
+    flags: number;
+    script: number;
+    language: Language;
+    extra_attrs: string[];
 }
-export class AttrClass  {constructor(config?: properties);
-type: AttrType;
-readonly copy: unknown;
-readonly destroy: unknown;
-readonly equal: unknown;
+export class AttrClass  {
+    constructor(config?: properties);
+    type: AttrType;
 }
-export class AttrColor  {constructor(config?: properties);
-attr: Attribute;
-color: Color;
+export class AttrColor  {
+    constructor(config?: properties);
+    attr: Attribute;
+    color: Color;
 }
-export class AttrFloat  {constructor(config?: properties);
-attr: Attribute;
-value: number;
+export class AttrFloat  {
+    constructor(config?: properties);
+    attr: Attribute;
+    value: number;
 }
-export class AttrFontDesc  {constructor(config?: properties);
-attr: Attribute;
-desc: FontDescription;
-static _new(desc: FontDescription): Attribute;
+export class AttrFontDesc  {
+    constructor(config?: properties);
+    attr: Attribute;
+    desc: FontDescription;
+    static _new(desc: FontDescription): Attribute;
 }
-export class AttrFontFeatures  {constructor(config?: properties);
-attr: Attribute;
-features: string;
-static _new(features: string): Attribute;
+export class AttrFontFeatures  {
+    constructor(config?: properties);
+    attr: Attribute;
+    features: string;
+    static _new(features: string): Attribute;
 }
-export class AttrInt  {constructor(config?: properties);
-attr: Attribute;
-value: number;
+export class AttrInt  {
+    constructor(config?: properties);
+    attr: Attribute;
+    value: number;
 }
-export class AttrIterator  {constructor(config?: properties);
-copy(): AttrIterator;
-destroy(): void;
-get(type: AttrType): Attribute | null;
-get_attrs(): string[];
-get_font(desc: FontDescription, language: Language | null, extra_attrs: string[]): void;
-next(): boolean;
-range(): [number,number];
+export class AttrIterator  {
+    constructor(config?: properties);
+    copy(): AttrIterator;
+    destroy(): void;
+    get(type: AttrType): Attribute | null;
+    get_attrs(): string[];
+    get_font(desc: FontDescription, language: Language | null, extra_attrs: string[]): void;
+    next(): boolean;
+    range(): [number,number];
 }
-export class AttrLanguage  {constructor(config?: properties);
-attr: Attribute;
-value: Language;
-static _new(language: Language): Attribute;
+export class AttrLanguage  {
+    constructor(config?: properties);
+    attr: Attribute;
+    value: Language;
+    static _new(language: Language): Attribute;
 }
-export class AttrList  {constructor(config?: properties);
-change(attr: Attribute): void;
-copy(): AttrList | null;
-filter(func: AttrFilterFunc, data: object | null): AttrList | null;
-get_attributes(): string[];
-get_iterator(): AttrIterator;
-insert(attr: Attribute): void;
-insert_before(attr: Attribute): void;
-ref(): AttrList;
-splice(other: AttrList, pos: number, len: number): void;
-unref(): void;
-update(pos: number, remove: number, add: number): void;
+export class AttrList  {
+    constructor(config?: properties);
+    change(attr: Attribute): void;
+    copy(): AttrList | null;
+    filter(func: AttrFilterFunc, data: object | null): AttrList | null;
+    get_attributes(): string[];
+    get_iterator(): AttrIterator;
+    insert(attr: Attribute): void;
+    insert_before(attr: Attribute): void;
+    ref(): AttrList;
+    splice(other: AttrList, pos: number, len: number): void;
+    unref(): void;
+    update(pos: number, remove: number, add: number): void;
 }
-export class AttrShape  {constructor(config?: properties);
-attr: Attribute;
-ink_rect: Rectangle;
-logical_rect: Rectangle;
-data: object;
-copy_func: AttrDataCopyFunc;
-destroy_func: GLib.DestroyNotify;
-static _new(ink_rect: Rectangle, logical_rect: Rectangle): Attribute;
-static new_with_data(ink_rect: Rectangle, logical_rect: Rectangle, data: object | null, copy_func: AttrDataCopyFunc | null, destroy_func: GLib.DestroyNotify | null): Attribute;
+export class AttrShape  {
+    constructor(config?: properties);
+    attr: Attribute;
+    ink_rect: Rectangle;
+    logical_rect: Rectangle;
+    data: object;
+    copy_func: AttrDataCopyFunc;
+    destroy_func: GLib.DestroyNotify;
+    static _new(ink_rect: Rectangle, logical_rect: Rectangle): Attribute;
+    static new_with_data(ink_rect: Rectangle, logical_rect: Rectangle, data: object | null, copy_func: AttrDataCopyFunc | null, destroy_func: GLib.DestroyNotify | null): Attribute;
 }
-export class AttrSize  {constructor(config?: properties);
-attr: Attribute;
-size: number;
-absolute: number;
-static _new(size: number): Attribute;
-static new_absolute(size: number): Attribute;
+export class AttrSize  {
+    constructor(config?: properties);
+    attr: Attribute;
+    size: number;
+    absolute: number;
+    static _new(size: number): Attribute;
+    static new_absolute(size: number): Attribute;
 }
-export class AttrString  {constructor(config?: properties);
-attr: Attribute;
-value: string;
+export class AttrString  {
+    constructor(config?: properties);
+    attr: Attribute;
+    value: string;
 }
-export class Attribute  {constructor(config?: properties);
-klass: AttrClass;
-start_index: number;
-end_index: number;
-copy(): Attribute;
-destroy(): void;
-equal(attr2: Attribute): boolean;
-init(klass: AttrClass): void;
+export class Attribute  {
+    constructor(config?: properties);
+    klass: AttrClass;
+    start_index: number;
+    end_index: number;
+    copy(): Attribute;
+    destroy(): void;
+    equal(attr2: Attribute): boolean;
+    init(klass: AttrClass): void;
 }
-export class Color  {constructor(config?: properties);
-red: number;
-green: number;
-blue: number;
-copy(): Color | null;
-free(): void;
-parse(spec: string): boolean;
-to_string(): string;
+export class Color  {
+    constructor(config?: properties);
+    red: number;
+    green: number;
+    blue: number;
+    copy(): Color | null;
+    free(): void;
+    parse(spec: string): boolean;
+    to_string(): string;
 }
-export class ContextClass  {constructor(config?: properties);
+export class EngineInfo  {
+    constructor(config?: properties);
+    id: string;
+    engine_type: string;
+    render_type: string;
+    scripts: EngineScriptInfo;
+    n_scripts: number;
 }
-export class EngineClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class EngineScriptInfo  {
+    constructor(config?: properties);
+    script: Script;
+    langs: string;
 }
-export class EngineInfo  {constructor(config?: properties);
-id: string;
-engine_type: string;
-render_type: string;
-scripts: EngineScriptInfo;
-n_scripts: number;
+export class FontDescription  {
+    constructor(config?: properties);
+    better_match(old_match: FontDescription | null, new_match: FontDescription): boolean;
+    copy(): FontDescription | null;
+    copy_static(): FontDescription | null;
+    equal(desc2: FontDescription): boolean;
+    free(): void;
+    get_family(): string | null;
+    get_gravity(): Gravity;
+    get_set_fields(): FontMask;
+    get_size(): number;
+    get_size_is_absolute(): boolean;
+    get_stretch(): Stretch;
+    get_style(): Style;
+    get_variant(): Variant;
+    get_variations(): string | null;
+    get_weight(): Weight;
+    hash(): number;
+    merge(desc_to_merge: FontDescription | null, replace_existing: boolean): void;
+    merge_static(desc_to_merge: FontDescription, replace_existing: boolean): void;
+    set_absolute_size(size: number): void;
+    set_family(family: string): void;
+    set_family_static(family: string): void;
+    set_gravity(gravity: Gravity): void;
+    set_size(size: number): void;
+    set_stretch(stretch: Stretch): void;
+    set_style(style: Style): void;
+    set_variant(variant: Variant): void;
+    set_variations(variations: string): void;
+    set_variations_static(variations: string): void;
+    set_weight(weight: Weight): void;
+    to_filename(): string;
+    to_string(): string;
+    unset_fields(to_unset: FontMask): void;
+    static from_string(str: string): FontDescription;
 }
-export class EngineLangClass  {constructor(config?: properties);
-readonly parent_class: EngineClass;
-readonly script_break: unknown;
+export class FontMetrics  {
+    constructor(config?: properties);
+    readonly ref_count: number;
+    readonly ascent: number;
+    readonly descent: number;
+    readonly height: number;
+    readonly approximate_char_width: number;
+    readonly approximate_digit_width: number;
+    readonly underline_position: number;
+    readonly underline_thickness: number;
+    readonly strikethrough_position: number;
+    readonly strikethrough_thickness: number;
+    get_approximate_char_width(): number;
+    get_approximate_digit_width(): number;
+    get_ascent(): number;
+    get_descent(): number;
+    get_height(): number;
+    get_strikethrough_position(): number;
+    get_strikethrough_thickness(): number;
+    get_underline_position(): number;
+    get_underline_thickness(): number;
+    ref(): FontMetrics | null;
+    unref(): void;
 }
-export class EngineScriptInfo  {constructor(config?: properties);
-script: Script;
-langs: string;
+export class GlyphGeometry  {
+    constructor(config?: properties);
+    width: GlyphUnit;
+    x_offset: GlyphUnit;
+    y_offset: GlyphUnit;
 }
-export class EngineShapeClass  {constructor(config?: properties);
-readonly parent_class: EngineClass;
-readonly script_shape: unknown;
-readonly covers: unknown;
+export class GlyphInfo  {
+    constructor(config?: properties);
+    glyph: Glyph;
+    geometry: GlyphGeometry;
+    attr: GlyphVisAttr;
 }
-export class FontClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly describe: unknown;
-readonly get_coverage: unknown;
-readonly get_glyph_extents: unknown;
-readonly get_metrics: unknown;
-readonly get_font_map: unknown;
-readonly describe_absolute: unknown;
-readonly get_features: unknown;
-readonly create_hb_font: unknown;
+export class GlyphItem  {
+    constructor(config?: properties);
+    item: Item;
+    glyphs: GlyphString;
+    apply_attrs(text: string, list: AttrList): string[];
+    copy(): GlyphItem | null;
+    free(): void;
+    get_logical_widths(text: string, logical_widths: number[]): void;
+    letter_space(text: string, log_attrs: LogAttr[], letter_spacing: number): void;
+    split(text: string, split_index: number): GlyphItem;
 }
-export class FontDescription  {constructor(config?: properties);
-better_match(old_match: FontDescription | null, new_match: FontDescription): boolean;
-copy(): FontDescription | null;
-copy_static(): FontDescription | null;
-equal(desc2: FontDescription): boolean;
-free(): void;
-get_family(): string | null;
-get_gravity(): Gravity;
-get_set_fields(): FontMask;
-get_size(): number;
-get_size_is_absolute(): boolean;
-get_stretch(): Stretch;
-get_style(): Style;
-get_variant(): Variant;
-get_variations(): string | null;
-get_weight(): Weight;
-hash(): number;
-merge(desc_to_merge: FontDescription | null, replace_existing: boolean): void;
-merge_static(desc_to_merge: FontDescription, replace_existing: boolean): void;
-set_absolute_size(size: number): void;
-set_family(family: string): void;
-set_family_static(family: string): void;
-set_gravity(gravity: Gravity): void;
-set_size(size: number): void;
-set_stretch(stretch: Stretch): void;
-set_style(style: Style): void;
-set_variant(variant: Variant): void;
-set_variations(variations: string): void;
-set_variations_static(variations: string): void;
-set_weight(weight: Weight): void;
-to_filename(): string;
-to_string(): string;
-unset_fields(to_unset: FontMask): void;
-static from_string(str: string): FontDescription;
+export class GlyphItemIter  {
+    constructor(config?: properties);
+    glyph_item: GlyphItem;
+    text: string;
+    start_glyph: number;
+    start_index: number;
+    start_char: number;
+    end_glyph: number;
+    end_index: number;
+    end_char: number;
+    copy(): GlyphItemIter | null;
+    free(): void;
+    init_end(glyph_item: GlyphItem, text: string): boolean;
+    init_start(glyph_item: GlyphItem, text: string): boolean;
+    next_cluster(): boolean;
+    prev_cluster(): boolean;
 }
-export class FontFaceClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_face_name: unknown;
-readonly describe: unknown;
-readonly list_sizes: unknown;
-readonly is_synthesized: unknown;
-readonly _pango_reserved3: unknown;
-readonly _pango_reserved4: unknown;
+export class GlyphString  {
+    constructor(config?: properties);
+    copy(): GlyphString | null;
+    extents(font: Font): [Rectangle | null,Rectangle | null];
+    extents_range(start: number, end: number, font: Font): [Rectangle | null,Rectangle | null];
+    free(): void;
+    get_logical_widths(text: string, length: number, embedding_level: number, logical_widths: number[]): void;
+    get_width(): number;
+    index_to_x(text: string, length: number, analysis: Analysis, index_: number, trailing: boolean): [number];
+    set_size(new_len: number): void;
+    x_to_index(text: string, length: number, analysis: Analysis, x_pos: number): [number,number];
 }
-export class FontFamilyClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly list_faces: unknown;
-readonly get_name: unknown;
-readonly is_monospace: unknown;
-readonly is_variable: unknown;
-readonly _pango_reserved2: unknown;
-readonly _pango_reserved3: unknown;
+export class GlyphVisAttr  {
+    constructor(config?: properties);
+    is_cluster_start: number;
 }
-export class FontMapClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly load_font: unknown;
-readonly list_families: unknown;
-readonly load_fontset: unknown;
-readonly shape_engine_type: string;
-readonly get_serial: unknown;
-readonly changed: unknown;
-readonly _pango_reserved1: unknown;
-readonly _pango_reserved2: unknown;
+export class IncludedModule  {
+    constructor(config?: properties);
 }
-export class FontMetrics  {constructor(config?: properties);
-readonly ref_count: number;
-readonly ascent: number;
-readonly descent: number;
-readonly height: number;
-readonly approximate_char_width: number;
-readonly approximate_digit_width: number;
-readonly underline_position: number;
-readonly underline_thickness: number;
-readonly strikethrough_position: number;
-readonly strikethrough_thickness: number;
-get_approximate_char_width(): number;
-get_approximate_digit_width(): number;
-get_ascent(): number;
-get_descent(): number;
-get_height(): number;
-get_strikethrough_position(): number;
-get_strikethrough_thickness(): number;
-get_underline_position(): number;
-get_underline_thickness(): number;
-ref(): FontMetrics | null;
-unref(): void;
+export class Item  {
+    constructor(config?: properties);
+    apply_attrs(iter: AttrIterator): void;
+    copy(): Item | null;
+    free(): void;
+    split(split_index: number, split_offset: number): Item;
 }
-export class FontsetClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly get_font: unknown;
-readonly get_metrics: unknown;
-readonly get_language: unknown;
-readonly foreach: unknown;
-readonly _pango_reserved1: unknown;
-readonly _pango_reserved2: unknown;
-readonly _pango_reserved3: unknown;
-readonly _pango_reserved4: unknown;
+export class Language  {
+    constructor(config?: properties);
+    get_sample_string(): string;
+    get_scripts(): [Script[] | null, number | null];
+    includes_script(script: Script): boolean;
+    matches(range_list: string): boolean;
+    to_string(): string;
+    static from_string(language: string | null): Language | null;
+    static get_default(): Language;
 }
-export class FontsetSimpleClass  {constructor(config?: properties);
+export class LayoutIter  {
+    constructor(config?: properties);
+    at_last_line(): boolean;
+    copy(): LayoutIter | null;
+    free(): void;
+    get_baseline(): number;
+    get_char_extents(): [Rectangle];
+    get_cluster_extents(): [Rectangle | null,Rectangle | null];
+    get_index(): number;
+    get_layout(): Layout;
+    get_layout_extents(): [Rectangle | null,Rectangle | null];
+    get_line(): LayoutLine;
+    get_line_extents(): [Rectangle | null,Rectangle | null];
+    get_line_readonly(): LayoutLine;
+    get_line_yrange(): [number | null,number | null];
+    get_run(): LayoutRun | null;
+    get_run_extents(): [Rectangle | null,Rectangle | null];
+    get_run_readonly(): LayoutRun | null;
+    next_char(): boolean;
+    next_cluster(): boolean;
+    next_line(): boolean;
+    next_run(): boolean;
 }
-export class GlyphGeometry  {constructor(config?: properties);
-width: GlyphUnit;
-x_offset: GlyphUnit;
-y_offset: GlyphUnit;
+export class LayoutLine  {
+    constructor(config?: properties);
+    layout: Layout;
+    start_index: number;
+    length: number;
+    runs: string[];
+    is_paragraph_start: number;
+    resolved_dir: number;
+    get_extents(): [Rectangle | null,Rectangle | null];
+    get_height(): [number | null];
+    get_pixel_extents(): [Rectangle | null,Rectangle | null];
+    get_x_ranges(start_index: number, end_index: number): [number[],number];
+    index_to_x(index_: number, trailing: boolean): [number];
+    ref(): LayoutLine;
+    unref(): void;
+    x_to_index(x_pos: number): [boolean, number,number];
 }
-export class GlyphInfo  {constructor(config?: properties);
-glyph: Glyph;
-geometry: GlyphGeometry;
-attr: GlyphVisAttr;
+export class LogAttr  {
+    constructor(config?: properties);
+    is_line_break: number;
+    is_mandatory_break: number;
+    is_char_break: number;
+    is_white: number;
+    is_cursor_position: number;
+    is_word_start: number;
+    is_word_end: number;
+    is_sentence_boundary: number;
+    is_sentence_start: number;
+    is_sentence_end: number;
+    backspace_deletes_character: number;
+    is_expandable_space: number;
+    is_word_boundary: number;
 }
-export class GlyphItem  {constructor(config?: properties);
-item: Item;
-glyphs: GlyphString;
-apply_attrs(text: string, list: AttrList): string[];
-copy(): GlyphItem | null;
-free(): void;
-get_logical_widths(text: string, logical_widths: number[]): void;
-letter_space(text: string, log_attrs: LogAttr[], letter_spacing: number): void;
-split(text: string, split_index: number): GlyphItem;
+export class Map  {
+    constructor(config?: properties);
 }
-export class GlyphItemIter  {constructor(config?: properties);
-glyph_item: GlyphItem;
-text: string;
-start_glyph: number;
-start_index: number;
-start_char: number;
-end_glyph: number;
-end_index: number;
-end_char: number;
-copy(): GlyphItemIter | null;
-free(): void;
-init_end(glyph_item: GlyphItem, text: string): boolean;
-init_start(glyph_item: GlyphItem, text: string): boolean;
-next_cluster(): boolean;
-prev_cluster(): boolean;
+export class MapEntry  {
+    constructor(config?: properties);
 }
-export class GlyphString  {constructor(config?: properties);
-copy(): GlyphString | null;
-extents(font: Font): [Rectangle | null,Rectangle | null];
-extents_range(start: number, end: number, font: Font): [Rectangle | null,Rectangle | null];
-free(): void;
-get_logical_widths(text: string, length: number, embedding_level: number, logical_widths: number[]): void;
-get_width(): number;
-index_to_x(text: string, length: number, analysis: Analysis, index_: number, trailing: boolean): [number];
-set_size(new_len: number): void;
-x_to_index(text: string, length: number, analysis: Analysis, x_pos: number): [number,number];
+export class Matrix  {
+    constructor(config?: properties);
+    xx: number;
+    xy: number;
+    yx: number;
+    yy: number;
+    x0: number;
+    y0: number;
+    concat(new_matrix: Matrix): void;
+    copy(): Matrix | null;
+    free(): void;
+    get_font_scale_factor(): number;
+    get_font_scale_factors(): [number | null,number | null];
+    rotate(degrees: number): void;
+    scale(scale_x: number, scale_y: number): void;
+    transform_distance(dx: number, dy: number): [number,number];
+    transform_pixel_rectangle(rect: Rectangle | null): [Rectangle | null];
+    transform_point(x: number, y: number): [number,number];
+    transform_rectangle(rect: Rectangle | null): [Rectangle | null];
+    translate(tx: number, ty: number): void;
 }
-export class GlyphVisAttr  {constructor(config?: properties);
-is_cluster_start: number;
+export class Rectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    width: number;
+    height: number;
 }
-export class IncludedModule  {constructor(config?: properties);
-readonly list: unknown;
-readonly init: unknown;
-readonly exit: unknown;
-readonly create: unknown;
+export class RendererPrivate  {
+    constructor(config?: properties);
 }
-export class Item  {constructor(config?: properties);
-apply_attrs(iter: AttrIterator): void;
-copy(): Item | null;
-free(): void;
-split(split_index: number, split_offset: number): Item;
+export class ScriptIter  {
+    constructor(config?: properties);
+    free(): void;
+    get_range(): [string | null,string | null,Script | null];
+    next(): boolean;
 }
-export class Language  {constructor(config?: properties);
-get_sample_string(): string;
-get_scripts(): [Script[] | null, number | null];
-includes_script(script: Script): boolean;
-matches(range_list: string): boolean;
-to_string(): string;
-static from_string(language: string | null): Language | null;
-static get_default(): Language;
-}
-export class LayoutClass  {constructor(config?: properties);
-}
-export class LayoutIter  {constructor(config?: properties);
-at_last_line(): boolean;
-copy(): LayoutIter | null;
-free(): void;
-get_baseline(): number;
-get_char_extents(): [Rectangle];
-get_cluster_extents(): [Rectangle | null,Rectangle | null];
-get_index(): number;
-get_layout(): Layout;
-get_layout_extents(): [Rectangle | null,Rectangle | null];
-get_line(): LayoutLine;
-get_line_extents(): [Rectangle | null,Rectangle | null];
-get_line_readonly(): LayoutLine;
-get_line_yrange(): [number | null,number | null];
-get_run(): LayoutRun | null;
-get_run_extents(): [Rectangle | null,Rectangle | null];
-get_run_readonly(): LayoutRun | null;
-next_char(): boolean;
-next_cluster(): boolean;
-next_line(): boolean;
-next_run(): boolean;
-}
-export class LayoutLine  {constructor(config?: properties);
-layout: Layout;
-start_index: number;
-length: number;
-runs: string[];
-is_paragraph_start: number;
-resolved_dir: number;
-get_extents(): [Rectangle | null,Rectangle | null];
-get_height(): [number | null];
-get_pixel_extents(): [Rectangle | null,Rectangle | null];
-get_x_ranges(start_index: number, end_index: number): [number[],number];
-index_to_x(index_: number, trailing: boolean): [number];
-ref(): LayoutLine;
-unref(): void;
-x_to_index(x_pos: number): [boolean, number,number];
-}
-export class LogAttr  {constructor(config?: properties);
-is_line_break: number;
-is_mandatory_break: number;
-is_char_break: number;
-is_white: number;
-is_cursor_position: number;
-is_word_start: number;
-is_word_end: number;
-is_sentence_boundary: number;
-is_sentence_start: number;
-is_sentence_end: number;
-backspace_deletes_character: number;
-is_expandable_space: number;
-is_word_boundary: number;
-}
-export class Map  {constructor(config?: properties);
-get_engine(script: Script): Engine | null;
-get_engines(script: Script, exact_engines: string[], fallback_engines: string[]): void;
-}
-export class MapEntry  {constructor(config?: properties);
-}
-export class Matrix  {constructor(config?: properties);
-xx: number;
-xy: number;
-yx: number;
-yy: number;
-x0: number;
-y0: number;
-concat(new_matrix: Matrix): void;
-copy(): Matrix | null;
-free(): void;
-get_font_scale_factor(): number;
-get_font_scale_factors(): [number | null,number | null];
-rotate(degrees: number): void;
-scale(scale_x: number, scale_y: number): void;
-transform_distance(dx: number, dy: number): [number,number];
-transform_pixel_rectangle(rect: Rectangle | null): [Rectangle | null];
-transform_point(x: number, y: number): [number,number];
-transform_rectangle(rect: Rectangle | null): [Rectangle | null];
-translate(tx: number, ty: number): void;
-}
-export class Rectangle  {constructor(config?: properties);
-x: number;
-y: number;
-width: number;
-height: number;
-}
-export class RendererClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly draw_glyphs: unknown;
-readonly draw_rectangle: unknown;
-readonly draw_error_underline: unknown;
-readonly draw_shape: unknown;
-readonly draw_trapezoid: unknown;
-readonly draw_glyph: unknown;
-readonly part_changed: unknown;
-readonly begin: unknown;
-readonly end: unknown;
-readonly prepare_run: unknown;
-readonly draw_glyph_item: unknown;
-readonly _pango_reserved2: unknown;
-readonly _pango_reserved3: unknown;
-readonly _pango_reserved4: unknown;
-}
-export class RendererPrivate  {constructor(config?: properties);
-}
-export class ScriptIter  {constructor(config?: properties);
-free(): void;
-get_range(): [string | null,string | null,Script | null];
-next(): boolean;
-}
-export class TabArray  {constructor(config?: properties);
-static new_with_positions(size: number, positions_in_pixels: boolean, first_alignment: TabAlign, first_position: number, ___: unknown[]): TabArray;
-copy(): TabArray;
-free(): void;
-get_positions_in_pixels(): boolean;
-get_size(): number;
-get_tab(tab_index: number): [TabAlign | null,number | null];
-get_tabs(): [TabAlign | null,number[] | null];
-resize(new_size: number): void;
-set_tab(tab_index: number, alignment: TabAlign, location: number): void;
+export class TabArray  {
+    constructor(config?: properties);
+    static new_with_positions(size: number, positions_in_pixels: boolean, first_alignment: TabAlign, first_position: number, ___: any): TabArray;
+    copy(): TabArray;
+    free(): void;
+    get_positions_in_pixels(): boolean;
+    get_size(): number;
+    get_tab(tab_index: number): [TabAlign | null,number | null];
+    get_tabs(): [TabAlign | null,number[] | null];
+    resize(new_size: number): void;
+    set_tab(tab_index: number, alignment: TabAlign, location: number): void;
 }

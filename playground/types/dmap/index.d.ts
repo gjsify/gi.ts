@@ -8,6 +8,7 @@ import * as DMAP from "dmap";
  * dmap.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type ConnectionCallback = (connection: Connection, result: boolean, reason: string, user_data: object | null) => boolean;
 export type ResponseHandler = (connection: Connection, status: number, structure: GLib.Node, user_data: object | null) => void;
 export const HASH_SIZE: number;
@@ -39,7 +40,7 @@ export function content_codes(number: number): ContentCodeDefinition;
 /**
  * 
  */
-export function hash_generate(version_major: unknown, url: number, hash_select: number, out: number, request_id: number): void;
+export function hash_generate(version_major: number, url: number, hash_select: number, out: number, request_id: number): void;
 /**
  * 
  */
@@ -71,19 +72,7 @@ export function mime_to_format(transcode_mimetype: string): string;
 /**
  * 
  */
-export function structure_add(parent: GLib.Node, cc: ContentCode, ___: unknown[]): GLib.Node;
-/**
- * 
- */
 export function structure_destroy(structure: GLib.Node): void;
-/**
- * 
- */
-export function structure_find_item(structure: GLib.Node, code: ContentCode): StructureItem;
-/**
- * 
- */
-export function structure_find_node(structure: GLib.Node, code: ContentCode): GLib.Node;
 /**
  * 
  */
@@ -92,10 +81,6 @@ export function structure_get_size(structure: GLib.Node): number;
  * 
  */
 export function structure_increase_by_predicted_size(structure: GLib.Node, size: number): void;
-/**
- * 
- */
-export function structure_parse(buf: string, buf_length: number): GLib.Node;
 /**
  * 
  */
@@ -310,209 +295,141 @@ export enum Type {
     CONTAINER = 12,
     POINTER = 42,
 }
-export class Connection  {constructor(config?: properties);
-base_uri: object;
-database_id: number;
-db: object;
-dmap_version: number;
-factory: object;
-host: string;
-name: string;
-password: string;
-port: number;
-revision_number: number;
-session_id: number;
-username: string;
-readonly priv: ConnectionPrivate;
-authenticate_message(session: Soup.Session, message: Soup.Message, auth: Soup.Auth, password: string): void;
-build_message(path: string, need_hash: boolean, version: number, req_id: number, send_close: boolean): Soup.Message;
-connect(callback: ConnectionCallback, user_data: object | null): void;
-disconnect(callback: ConnectionCallback, user_data: object | null): void;
-get(path: string, need_hash: boolean, handler: ResponseHandler, user_data: object | null): boolean;
-get_headers(uri: string): Soup.MessageHeaders;
-get_playlists(): string[];
-is_connected(): boolean;
-setup(): void;
+export class Connection  {
+    constructor(config?: properties);
+    base_uri: object;
+    database_id: number;
+    db: object;
+    dmap_version: number;
+    factory: object;
+    host: string;
+    name: string;
+    password: string;
+    port: number;
+    revision_number: number;
+    session_id: number;
+    username: string;
+    readonly priv: ConnectionPrivate;
+    authenticate_message(session: Soup.Session, message: Soup.Message, auth: Soup.Auth, password: string): void;
+    get_headers(uri: string): Soup.MessageHeaders;
+    is_connected(): boolean;
+    setup(): void;
 }
-export class GstInputStream extends Gio.InputStream {constructor(config?: properties);
-vfunc_kill_pipeline(): void;
+export class GstInputStream extends Gio.InputStream {
+    constructor(config?: properties);
+    vfunc_kill_pipeline(): void;
 }
-export class MdnsBrowser extends GObject.Object {constructor(config?: properties);
-get_service_type(): MdnsBrowserServiceType;
-get_services(): string[];
-start(): boolean;
-stop(): boolean;
-vfunc_service_added(service: MdnsBrowserService): void;
-vfunc_service_removed(service: MdnsBrowserService): void;
+export class MdnsBrowser extends GObject.Object {
+    constructor(config?: properties);
+    get_service_type(): MdnsBrowserServiceType;
+    start(): boolean;
+    stop(): boolean;
+    vfunc_service_added(service: MdnsBrowserService): void;
+    vfunc_service_removed(service: MdnsBrowserService): void;
 }
-export class MdnsPublisher extends GObject.Object {constructor(config?: properties);
-publish(name: string, port: number, type_of_service: string, password_required: boolean, txt_records: string): boolean;
-rename_at_port(port: number, name: string): boolean;
-withdraw(port: number): boolean;
-vfunc_name_collision(name: string): void;
-vfunc_published(name: string): void;
+export class MdnsPublisher extends GObject.Object {
+    constructor(config?: properties);
+    publish(name: string, port: number, type_of_service: string, password_required: boolean, txt_records: string): boolean;
+    rename_at_port(port: number, name: string): boolean;
+    withdraw(port: number): boolean;
+    vfunc_name_collision(name: string): void;
+    vfunc_published(name: string): void;
 }
-export class Share  {constructor(config?: properties);
-auth_method: number;
-container_db: object;
-db: object;
-name: string;
-password: string;
-revision_number: number;
-readonly server: Soup.Server;
-transcode_mimetype: string;
-txt_records: string[];
-readonly priv: SharePrivate;
-static free_filter(filter: string[]): void;
+export class Share  {
+    constructor(config?: properties);
+    auth_method: number;
+    container_db: object;
+    db: object;
+    name: string;
+    password: string;
+    revision_number: number;
+    readonly server: Soup.Server;
+    transcode_mimetype: string;
+    txt_records: string[];
+    readonly priv: SharePrivate;
 }
-export class ConnectionClass  {constructor(config?: properties);
-readonly get_protocol_version_cc: unknown;
-readonly get_query_metadata: unknown;
-readonly handle_mlcl: unknown;
-readonly build_message: unknown;
-readonly connected: unknown;
-readonly disconnected: unknown;
-readonly authenticate: unknown;
-readonly connecting: unknown;
-readonly operation_done: unknown;
+export class ConnectionPrivate  {
+    constructor(config?: properties);
 }
-export class ConnectionPrivate  {constructor(config?: properties);
+export class ContentCodeDefinition  {
+    constructor(config?: properties);
+    code: ContentCode;
+    int_code: number;
+    name: string;
+    string: string;
+    type: Type;
 }
-export class ContainerDbIface  {constructor(config?: properties);
-readonly add: unknown;
-readonly lookup_by_id: unknown;
-readonly foreach: unknown;
-readonly count: unknown;
+export class DbFilterDefinition  {
+    constructor(config?: properties);
+    key: string;
+    value: string;
+    negate: boolean;
 }
-export class ContainerRecordIface  {constructor(config?: properties);
-readonly get_id: unknown;
-readonly add_entry: unknown;
-readonly get_entry_count: unknown;
-readonly get_entries: unknown;
+export class GstInputStreamPrivate  {
+    constructor(config?: properties);
 }
-export class ContentCodeDefinition  {constructor(config?: properties);
-code: ContentCode;
-int_code: number;
-name: string;
-string: string;
-type: Type;
+export class HashContext  {
+    constructor(config?: properties);
+    buf: number[];
+    bits: number[];
+    _in: number[];
+    version: number;
 }
-export class DbFilterDefinition  {constructor(config?: properties);
-key: string;
-value: string;
-negate: boolean;
+export class MdnsBrowserPrivate  {
+    constructor(config?: properties);
 }
-export class DbIface  {constructor(config?: properties);
-readonly add: unknown;
-readonly add_with_id: unknown;
-readonly add_path: unknown;
-readonly lookup_by_id: unknown;
-readonly lookup_id_by_location: unknown;
-readonly foreach: unknown;
-readonly count: unknown;
+export class MdnsBrowserService  {
+    constructor(config?: properties);
+    service_name: string;
+    name: string;
+    host: string;
+    port: number;
+    password_protected: boolean;
+    pair: string;
+    transport_protocol: MdnsBrowserTransportProtocol;
 }
-export class GstInputStreamClass  {constructor(config?: properties);
-readonly kill_pipeline: unknown;
+export class MdnsPublisherPrivate  {
+    constructor(config?: properties);
 }
-export class GstInputStreamPrivate  {constructor(config?: properties);
+export class MetaDataMap  {
+    constructor(config?: properties);
+    tag: string;
+    md: number;
 }
-export class HashContext  {constructor(config?: properties);
-buf: number[];
-bits: number[];
-_in: number[];
-version: number;
+export class Playlist  {
+    constructor(config?: properties);
+    name: string;
+    id: number;
+    uris: GLib.List;
 }
-export class MdnsBrowserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly service_added: unknown;
-readonly service_removed: unknown;
+export class SharePrivate  {
+    constructor(config?: properties);
 }
-export class MdnsBrowserPrivate  {constructor(config?: properties);
-}
-export class MdnsBrowserService  {constructor(config?: properties);
-service_name: string;
-name: string;
-host: string;
-port: number;
-password_protected: boolean;
-pair: string;
-transport_protocol: MdnsBrowserTransportProtocol;
-}
-export class MdnsPublisherClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly published: unknown;
-readonly name_collision: unknown;
-}
-export class MdnsPublisherPrivate  {constructor(config?: properties);
-}
-export class MetaDataMap  {constructor(config?: properties);
-tag: string;
-md: number;
-}
-export class Playlist  {constructor(config?: properties);
-name: string;
-id: number;
-uris: GLib.List;
-}
-export class RecordFactoryIface  {constructor(config?: properties);
-readonly create: unknown;
-}
-export class RecordIface  {constructor(config?: properties);
-readonly to_blob: unknown;
-readonly set_from_blob: unknown;
-}
-export class ShareClass  {constructor(config?: properties);
-readonly get_desired_port: unknown;
-readonly get_type_of_service: unknown;
-readonly message_add_standard_headers: unknown;
-readonly get_meta_data_map: unknown;
-readonly add_entry_to_mlcl: unknown;
-readonly databases_browse_xxx: unknown;
-readonly databases_items_xxx: unknown;
-readonly server_info: unknown;
-readonly content_codes: unknown;
-readonly login: unknown;
-readonly logout: unknown;
-readonly update: unknown;
-readonly ctrl_int: unknown;
-readonly published: unknown;
-readonly name_collision: unknown;
-readonly databases: unknown;
-}
-export class SharePrivate  {constructor(config?: properties);
-}
-export class StructureItem  {constructor(config?: properties);
-content_code: ContentCode;
-content: GObject.Value;
-size: number;
+export class StructureItem  {
+    constructor(config?: properties);
+    content_code: ContentCode;
+    content: GObject.Value;
+    size: number;
 }
 export interface ContainerDb  {
-add(record: ContainerRecord): void;
-count(): number;
-foreach(func: GLib.HFunc, data: object | null): void;
-lookup_by_id(id: number): ContainerRecord;
+    add(record: ContainerRecord): void;
+    count(): number;
 }
 export interface ContainerRecord  {
-name: string;
-add_entry(record: Record, id: number): void;
-get_entries(): Db;
-get_entry_count(): number;
-get_id(): number;
+    name: string;
+    add_entry(record: Record, id: number): void;
+    get_entry_count(): number;
+    get_id(): number;
 }
 export interface Db  {
-add(record: Record): number;
-add_path(path: string): number;
-add_with_id(record: Record, id: number): number;
-apply_filter(filter_def: string[]): GLib.HashTable;
-count(): number;
-foreach(func: GLib.HFunc, data: object | null): void;
-lookup_by_id(id: number): Record;
-lookup_id_by_location(location: string): number;
+    add(record: Record): number;
+    add_path(path: string): number;
+    add_with_id(record: Record, id: number): number;
+    count(): number;
+    lookup_id_by_location(location: string): number;
 }
 export interface Record  {
-set_from_blob(blob: number[]): boolean;
-to_blob(): number[];
+    set_from_blob(blob: number[]): boolean;
 }
 export interface RecordFactory  {
-create(user_data: object | null): Record;
 }

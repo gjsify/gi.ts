@@ -6,15 +6,7 @@ import * as GLib from "glib";
  * libvirtglib.d.ts
  */
 type properties = { [key: string]: any };
-/**
- * 
- */
-export function critical(format: string, ___: unknown[]): void;
-/**
- * Creates a new #GError with the given @domain and @code,
- * and a message formatted with @format.
- */
-export function error_new(domain: GLib.Quark, code: number, format: string, ___: unknown[]): GLib.Error;
+type GType = object;
 /**
  * Creates a new #GError; unlike gvir_error_new(), @message is
  * not a printf()-style format string. Use this function if
@@ -22,11 +14,6 @@ export function error_new(domain: GLib.Quark, code: number, format: string, ___:
  * that could include printf() escape sequences.
  */
 export function error_new_literal(domain: GLib.Quark, code: number, message: string): GLib.Error;
-/**
- * Creates a new #GError with the given @domain and @code,
- * and a message formatted with @format.
- */
-export function error_new_valist(domain: GLib.Quark, code: number, format: string, args: any): GLib.Error;
 /**
  * Registers a libvirt event loop implementation that is backed
  * by the default <code>GMain</code> context. If invoked more
@@ -74,13 +61,6 @@ export function init(argc: number, argv: string[] | null): [number,string[] | nu
 export function init_check(argc: number, argv: string[] | null): [boolean, number,string[] | null];
 /**
  * If @error is NULL this does nothing. Otherwise it
- * creates a new #GError with the given @domain and @code,
- * and a message formatted with @format, and stores it
- * in @error.
- */
-export function set_error(error: GLib.Error, domain: GLib.Quark, code: number, format: string, ___: unknown[]): void;
-/**
- * If @error is NULL this does nothing. Otherwise it
  * creates a new #GError and stores it in @error; unlike
  * gvir_set_error(), @message is not a printf()-style
  * format string. Use this function if @message contains
@@ -88,14 +68,3 @@ export function set_error(error: GLib.Error, domain: GLib.Quark, code: number, f
  * printf() escape sequences.
  */
 export function set_error_literal(error: GLib.Error, domain: GLib.Quark, code: number, message: string): void;
-/**
- * If @error is NULL this does nothing. Otherwise it
- * creates a new #GError with the given @domain and @code,
- * and a message formatted with @format, and stores it
- * in @error.
- */
-export function set_error_valist(error: GLib.Error, domain: GLib.Quark, code: number, format: string, args: any): void;
-/**
- * 
- */
-export function warning(format: string, ___: unknown[]): void;

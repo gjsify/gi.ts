@@ -7,6 +7,7 @@ import * as PackageKitGlib from "packagekitglib";
  * packagekitglib.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type PackageSackFilterFunc = (_package: Package, user_data: object | null) => boolean;
 export type ProgressCallback = (progress: Progress, type: ProgressType, user_data: object | null) => void;
 export const DBUS_INTERFACE: string;
@@ -36,15 +37,6 @@ export function authorize_type_enum_from_string(authorize_type: string): Authori
  */
 export function authorize_type_enum_to_string(authorize_type: AuthorizeEnum): string;
 /**
- * Finds elements in a list, but with priority going to the preceeding en
- * try
- */
-export function bitfield_contain_priority(values: Bitfield, value: number, ___: unknown[]): number;
-/**
- * Create a bitfield with the suppied values set.
- */
-export function bitfield_from_enums(value: number, ___: unknown[]): Bitfield;
-/**
  * An error quark for #PkClientError.
  */
 export function client_error_quark(): GLib.Quark;
@@ -56,13 +48,6 @@ export function control_error_quark(): GLib.Quark;
  * Add a log domain to the debug output.
  */
 export function debug_add_log_domain(log_domain: string): void;
-/**
- * Returns a #GOptionGroup for the commandline arguments recognized
- * by debugging. You should add this group to your #GOptionContext
- * with g_option_context_add_group(), if you are using
- * g_option_context_parse() to parse your commandline arguments.
- */
-export function debug_get_option_group(): GLib.OptionGroup;
 /**
  * Check if verbose debugging is enabled.
  */
@@ -165,14 +150,6 @@ export function iso8601_from_date(date: GLib.Date): string;
  * Get the current date / time as an ISO8601 string.
  */
 export function iso8601_present(): string;
-/**
- * Convert an ISO8601 date string to a #GDate.
- */
-export function iso8601_to_date(iso_date: string): GLib.Date;
-/**
- * Convert an ISO8601 date string to a #GDateTime.
- */
-export function iso8601_to_datetime(iso_date: string): GLib.DateTime;
 /**
  * Converts a text enumerated type to its unsigned integer representation
  */
@@ -788,795 +765,646 @@ export enum UpgradeKindEnum {
     LAST = 4,
 }
 export type Bitfield = number;
-export class Category extends Source {constructor(config?: properties);
-cat_id: string;
-icon: string;
-name: string;
-parent_id: string;
-summary: string;
-get_icon(): string;
-get_id(): string;
-get_name(): string;
-get_parent_id(): string;
-get_summary(): string;
-set_icon(icon: string): void;
-set_id(cat_id: string): void;
-set_name(name: string): void;
-set_parent_id(parent_id: string): void;
-set_summary(summary: string): void;
-}
-export class Client extends GObject.Object {constructor(config?: properties);
-background: boolean;
-cache_age: number;
-readonly idle: boolean;
-interactive: boolean;
-locale: string;
-accept_eula(eula_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-accept_eula_async(eula_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-adopt(transaction_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-adopt_async(transaction_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-depends_on(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-depends_on_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-download_packages(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-download_packages_async(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-generic_finish(res: Gio.AsyncResult): Results;
-get_background(): boolean;
-get_cache_age(): number;
-get_categories(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_categories_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_details(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_details_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_details_local(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_details_local_async(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_distro_upgrades(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_distro_upgrades_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_files(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_files_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_files_local(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_files_local_async(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_idle(): boolean;
-get_interactive(): boolean;
-get_locale(): string;
-get_old_transactions(number: number, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_old_transactions_async(number: number, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_packages(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_packages_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_progress(transaction_id: string, cancellable: Gio.Cancellable | null): Progress;
-get_progress_async(transaction_id: string, cancellable: Gio.Cancellable | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_progress_finish(res: Gio.AsyncResult): Progress;
-get_repo_list(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_repo_list_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_update_detail(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_update_detail_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_updates(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_updates_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-install_files(transaction_flags: Bitfield, files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-install_files_async(transaction_flags: Bitfield, files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-install_packages(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-install_packages_async(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-install_signature(type: SigTypeEnum, key_id: string, package_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-install_signature_async(type: SigTypeEnum, key_id: string, package_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-refresh_cache(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-refresh_cache_async(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-remove_packages(transaction_flags: Bitfield, package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-remove_packages_async(transaction_flags: Bitfield, package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-repair_system(transaction_flags: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-repair_system_async(transaction_flags: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-repo_enable(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-repo_enable_async(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-repo_remove(transaction_flags: Bitfield, repo_id: string, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-repo_remove_async(transaction_flags: Bitfield, repo_id: string, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-repo_set_data(repo_id: string, parameter: string, value: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-repo_set_data_async(repo_id: string, parameter: string, value: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-required_by(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-required_by_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-resolve(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-resolve_async(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_details(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_details_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_files(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_files_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_groups(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_groups_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_names(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_names_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_background(background: boolean): void;
-set_cache_age(cache_age: number): void;
-set_interactive(interactive: boolean): void;
-set_locale(locale: string): void;
-update_packages(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-update_packages_async(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-upgrade_system(transaction_flags: Bitfield, distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-upgrade_system_async(transaction_flags: Bitfield, distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-what_provides(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-what_provides_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-vfunc_changed(): void;
-}
-export class ClientHelper extends GObject.Object {constructor(config?: properties);
-start(socket_filename: string, argv: string, envp: string): boolean;
-stop(): boolean;
-}
-export class Control extends GObject.Object {constructor(config?: properties);
-backend_author: string;
-backend_description: string;
-backend_name: string;
-connected: boolean;
-distro_id: string;
-filters: number;
-groups: number;
-mime_types: string[];
-network_state: NetworkEnum;
-provides: number;
-roles: number;
-readonly version_major: number;
-readonly version_micro: number;
-readonly version_minor: number;
-can_authorize_async(action_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-can_authorize_finish(res: Gio.AsyncResult): AuthorizeEnum;
-get_daemon_state_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_daemon_state_finish(res: Gio.AsyncResult): string;
-get_properties(cancellable: Gio.Cancellable | null): boolean;
-get_properties_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_properties_finish(res: Gio.AsyncResult): boolean;
-get_tid_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_tid_finish(res: Gio.AsyncResult): string;
-get_time_since_action_async(role: RoleEnum, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_time_since_action_finish(res: Gio.AsyncResult): number;
-get_transaction_list(cancellable: Gio.Cancellable | null): string[];
-get_transaction_list_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_transaction_list_finish(res: Gio.AsyncResult): string[];
-set_proxy(proxy_http: string, proxy_ftp: string, cancellable: Gio.Cancellable | null): boolean;
-set_proxy2(proxy_http: string, proxy_https: string, proxy_ftp: string, proxy_socks: string, no_proxy: string, pac: string, cancellable: Gio.Cancellable | null): boolean;
-set_proxy2_async(proxy_http: string, proxy_https: string, proxy_ftp: string, proxy_socks: string, no_proxy: string, pac: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_proxy_async(proxy_http: string, proxy_ftp: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_proxy_finish(res: Gio.AsyncResult): boolean;
-suggest_daemon_quit(cancellable: Gio.Cancellable | null): boolean;
-suggest_daemon_quit_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-suggest_daemon_quit_finish(res: Gio.AsyncResult): boolean;
-vfunc_connection_changed(connected: boolean): void;
-vfunc_locked(is_locked: boolean): void;
-vfunc_network_state_changed(): void;
-vfunc_repo_list_changed(): void;
-vfunc_restart_schedule(): void;
-vfunc_transaction_list_changed(transaction_ids: string): void;
-vfunc_updates_changed(): void;
-}
-export class Desktop extends GObject.Object {constructor(config?: properties);
-get_files_for_package(_package: string): string[];
-get_package_for_file(filename: string): string;
-get_shown_for_package(_package: string): string[];
-open_database(): boolean;
-}
-export class Details extends Source {constructor(config?: properties);
-description: string;
-group: GroupEnum;
-license: string;
-package_id: string;
-size: number;
-summary: string;
-url: string;
-get_description(): string;
-get_group(): GroupEnum;
-get_license(): string;
-get_package_id(): string;
-get_size(): number;
-get_summary(): string;
-get_url(): string;
-}
-export class DistroUpgrade extends Source {constructor(config?: properties);
-name: string;
-state: DistroUpgradeEnum;
-summary: string;
-get_id(): string;
-get_state(): DistroUpgradeEnum;
-get_summary(): string;
-}
-export class Error extends Source {constructor(config?: properties);
-code: ErrorEnum;
-details: string;
-get_code(): ErrorEnum;
-get_details(): string;
-}
-export class EulaRequired extends Source {constructor(config?: properties);
-eula_id: string;
-license_agreement: string;
-package_id: string;
-vendor_name: string;
-get_eula_id(): string;
-get_license_agreement(): string;
-get_package_id(): string;
-get_vendor_name(): string;
-}
-export class Files extends Source {constructor(config?: properties);
-files: string[];
-package_id: string;
-get_files(): string[];
-get_package_id(): string;
-}
-export class ItemProgress extends Source {constructor(config?: properties);
-package_id: string;
-percentage: number;
-status: number;
-get_package_id(): string;
-get_percentage(): number;
-get_status(): StatusEnum;
-}
-export class MediaChangeRequired extends Source {constructor(config?: properties);
-media_id: string;
-media_text: string;
-media_type: MediaTypeEnum;
-}
-export class Package extends Source {constructor(config?: properties);
-description: string;
-group: GroupEnum;
-info: InfoEnum;
-license: string;
-readonly package_id: string;
-size: number;
-summary: string;
-update_bugzilla_urls: string[];
-update_changelog: string;
-update_cve_urls: string[];
-update_issued: string;
-update_obsoletes: string;
-update_restart: RestartEnum;
-update_state: UpdateStateEnum;
-update_text: string;
-update_updated: string;
-update_updates: string;
-update_vendor_urls: string[];
-url: string;
-equal(package2: Package): boolean;
-equal_id(package2: Package): boolean;
-get_arch(): string;
-get_data(): string;
-get_data(...args: never[]): never;
-get_id(): string;
-get_info(): InfoEnum;
-get_name(): string;
-get_summary(): string;
-get_version(): string;
-parse(data: string): boolean;
-print(): void;
-set_id(package_id: string): boolean;
-set_info(info: InfoEnum): void;
-set_summary(summary: string): void;
-vfunc_changed(): void;
-static id_build(name: string, version: string, arch: string, data: string): string;
-static id_check(package_id: string): boolean;
-static id_equal_fuzzy_arch(package_id1: string, package_id2: string): boolean;
-static id_split(package_id: string): string[];
-static id_to_printable(package_id: string): string;
-static ids_add_id(package_ids: string, package_id: string): string[];
-static ids_add_ids(package_ids: string, package_ids_new: string): string[];
-static ids_check(package_ids: string): boolean;
-static ids_from_id(package_id: string): string[];
-static ids_from_string(package_id: string): string[];
-static ids_present_id(package_ids: string, package_id: string): boolean;
-static ids_remove_id(package_ids: string, package_id: string): string[];
-static ids_to_string(package_ids: string): string;
-}
-export class PackageSack extends GObject.Object {constructor(config?: properties);
-add_package(_package: Package): boolean;
-add_package_by_id(package_id: string): boolean;
-add_packages_from_file(file: Gio.File): boolean;
-clear(): void;
-filter(filter_cb: PackageSackFilterFunc, user_data: object | null): PackageSack;
-filter_by_info(info: InfoEnum): PackageSack;
-find_by_id(package_id: string): Package;
-find_by_id_name_arch(package_id: string): Package;
-get_array(): Package[];
-get_details(cancellable: Gio.Cancellable | null): boolean;
-get_details_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_ids(): string[];
-get_size(): number;
-get_total_bytes(): number;
-get_update_detail(cancellable: Gio.Cancellable | null): boolean;
-get_update_detail_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-merge_generic_finish(res: Gio.AsyncResult): boolean;
-remove_by_filter(filter_cb: PackageSackFilterFunc, user_data: object | null): boolean;
-remove_package(_package: Package): boolean;
-remove_package_by_id(package_id: string): boolean;
-resolve(cancellable: Gio.Cancellable | null): boolean;
-resolve_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-sort(type: PackageSackSortType): void;
-to_file(file: Gio.File): boolean;
-vfunc_changed(): void;
-}
-export class Progress extends GObject.Object {constructor(config?: properties);
-allow_cancel: boolean;
-caller_active: boolean;
-download_size_remaining: number;
-elapsed_time: number;
-item_progress: ItemProgress;
-_package: Package;
-package_id: string;
-percentage: number;
-remaining_time: number;
-role: number;
-speed: number;
-status: number;
-transaction_flags: number;
-transaction_id: string;
-uid: number;
-get_allow_cancel(): boolean;
-get_caller_active(): boolean;
-get_download_size_remaining(): number;
-get_elapsed_time(): number;
-get_item_progress(): ItemProgress;
-get_package(): Package;
-get_package_id(): string;
-get_percentage(): number;
-get_remaining_time(): number;
-get_role(): RoleEnum;
-get_speed(): number;
-get_status(): StatusEnum;
-get_transaction_flags(): number;
-get_transaction_id(): string;
-get_uid(): number;
-set_allow_cancel(allow_cancel: boolean): boolean;
-set_caller_active(caller_active: boolean): boolean;
-set_download_size_remaining(download_size_remaining: number): boolean;
-set_elapsed_time(elapsed_time: number): boolean;
-set_item_progress(item_progress: ItemProgress): boolean;
-set_package(_package: Package): boolean;
-set_package_id(package_id: string): boolean;
-set_percentage(percentage: number): boolean;
-set_remaining_time(remaining_time: number): boolean;
-set_role(role: RoleEnum): boolean;
-set_speed(speed: number): boolean;
-set_status(status: StatusEnum): boolean;
-set_transaction_flags(transaction_flags: number): boolean;
-set_transaction_id(transaction_id: string): boolean;
-set_uid(uid: number): boolean;
-}
-export class RepoDetail extends Source {constructor(config?: properties);
-description: string;
-enabled: boolean;
-repo_id: string;
-get_description(): string;
-get_enabled(): boolean;
-get_id(): string;
-}
-export class RepoSignatureRequired extends Source {constructor(config?: properties);
-key_fingerprint: string;
-key_id: string;
-key_timestamp: string;
-key_url: string;
-key_userid: string;
-package_id: string;
-repository_name: string;
-type: SigTypeEnum;
-}
-export class RequireRestart extends Source {constructor(config?: properties);
-package_id: string;
-restart: RestartEnum;
-}
-export class Results extends GObject.Object {constructor(config?: properties);
-inputs: number;
-progress: Progress;
-role: RoleEnum;
-transaction_flags: number;
-add_category(item: Category): boolean;
-add_details(item: Details): boolean;
-add_distro_upgrade(item: DistroUpgrade): boolean;
-add_eula_required(item: EulaRequired): boolean;
-add_files(item: Files): boolean;
-add_media_change_required(item: MediaChangeRequired): boolean;
-add_package(item: Package): boolean;
-add_repo_detail(item: RepoDetail): boolean;
-add_repo_signature_required(item: RepoSignatureRequired): boolean;
-add_require_restart(item: RequireRestart): boolean;
-add_transaction(item: TransactionPast): boolean;
-add_update_detail(item: UpdateDetail): boolean;
-get_category_array(): Category[];
-get_details_array(): Details[];
-get_distro_upgrade_array(): DistroUpgrade[];
-get_error_code(): Error;
-get_eula_required_array(): EulaRequired[];
-get_exit_code(): ExitEnum;
-get_files_array(): Files[];
-get_media_change_required_array(): MediaChangeRequired[];
-get_package_array(): Package[];
-get_package_sack(): PackageSack;
-get_repo_detail_array(): RepoDetail[];
-get_repo_signature_required_array(): RepoSignatureRequired[];
-get_require_restart_array(): RequireRestart[];
-get_require_restart_worst(): RestartEnum;
-get_role(): RoleEnum;
-get_transaction_array(): TransactionPast[];
-get_transaction_flags(): Bitfield;
-get_update_detail_array(): UpdateDetail[];
-set_error_code(item: Error): boolean;
-set_exit_code(exit_enum: ExitEnum): boolean;
-set_role(role: RoleEnum): boolean;
-}
-export class Source extends GObject.Object {constructor(config?: properties);
-role: RoleEnum;
-transaction_id: string;
-}
-export class Task extends Client {constructor(config?: properties);
-allow_downgrade: boolean;
-allow_reinstall: boolean;
-only_download: boolean;
-only_trusted: boolean;
-simulate: boolean;
-depends_on_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-depends_on_sync(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-download_packages_async(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-download_packages_sync(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-generic_finish(res: Gio.AsyncResult): Results;
-get_allow_downgrade(): boolean;
-get_allow_reinstall(): boolean;
-get_categories_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_categories_sync(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_details_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_details_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_files_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_files_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_only_download(): boolean;
-get_only_trusted(): boolean;
-get_packages_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_packages_sync(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_repo_list_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_repo_list_sync(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_simulate(): boolean;
-get_update_detail_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_update_detail_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-get_updates_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_updates_sync(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-install_files_async(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-install_files_async(...args: never[]): never;
-install_files_sync(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-install_packages_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-install_packages_async(...args: never[]): never;
-install_packages_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-refresh_cache_async(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-refresh_cache_sync(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-remove_packages_async(package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-remove_packages_async(...args: never[]): never;
-remove_packages_sync(package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-repair_system_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-repair_system_async(...args: never[]): never;
-repair_system_sync(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-repo_enable_async(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-repo_enable_sync(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-required_by_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-required_by_sync(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-resolve_async(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-resolve_sync(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_details_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_details_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_files_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_files_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_groups_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_groups_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-search_names_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-search_names_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-set_allow_downgrade(allow_downgrade: boolean): void;
-set_allow_reinstall(allow_reinstall: boolean): void;
-set_only_download(only_download: boolean): void;
-set_only_trusted(only_trusted: boolean): void;
-set_simulate(simulate: boolean): void;
-update_packages_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-update_packages_async(...args: never[]): never;
-update_packages_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-upgrade_system_async(distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-upgrade_system_async(...args: never[]): never;
-upgrade_system_sync(distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-user_accepted(request: number): boolean;
-user_declined(request: number): boolean;
-what_provides_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-what_provides_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
-vfunc_eula_question(request: number, results: Results): void;
-vfunc_key_question(request: number, results: Results): void;
-vfunc_media_change_question(request: number, results: Results): void;
-vfunc_repair_question(request: number, results: Results): void;
-vfunc_simulate_question(request: number, results: Results): void;
-vfunc_untrusted_question(request: number, results: Results): void;
-}
-export class TransactionList extends GObject.Object {constructor(config?: properties);
-get_ids(): string[];
-vfunc_added(tid: string): void;
-vfunc_removed(tid: string): void;
-}
-export class TransactionPast extends Source {constructor(config?: properties);
-cmdline: string;
-data: string;
-duration: number;
-role: RoleEnum;
-succeeded: boolean;
-tid: string;
-timespec: string;
-uid: number;
-get_cmdline(): string;
-get_data(): string;
-get_data(...args: never[]): never;
-get_datetime(): GLib.DateTime;
-get_duration(): number;
-get_id(): string;
-get_role(): RoleEnum;
-get_succeeded(): boolean;
-get_timespec(): string;
-get_timestamp(): number;
-get_uid(): number;
-}
-export class UpdateDetail extends Source {constructor(config?: properties);
-bugzilla_urls: string[];
-changelog: string;
-cve_urls: string[];
-issued: string;
-obsoletes: string[];
-package_id: string;
-restart: RestartEnum;
-state: UpdateStateEnum;
-update_text: string;
-updated: string;
-updates: string[];
-vendor_urls: string[];
-get_bugzilla_urls(): string[];
-get_changelog(): string;
-get_cve_urls(): string[];
-get_issued(): string;
-get_obsoletes(): string[];
-get_package_id(): string;
-get_restart(): RestartEnum;
-get_state(): UpdateStateEnum;
-get_update_text(): string;
-get_updated(): string;
-get_updates(): string[];
-get_vendor_urls(): string[];
-}
-export class CategoryClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class CategoryPrivate  {constructor(config?: properties);
-}
-export class ClientClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ClientHelperClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ClientHelperPrivate  {constructor(config?: properties);
-}
-export class ClientPrivate  {constructor(config?: properties);
-}
-export class ControlClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly transaction_list_changed: unknown;
-readonly updates_changed: unknown;
-readonly repo_list_changed: unknown;
-readonly network_state_changed: unknown;
-readonly restart_schedule: unknown;
-readonly locked: unknown;
-readonly connection_changed: unknown;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ControlPrivate  {constructor(config?: properties);
-}
-export class DesktopClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class DesktopPrivate  {constructor(config?: properties);
-}
-export class DetailsClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class DetailsPrivate  {constructor(config?: properties);
-}
-export class DistroUpgradeClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class DistroUpgradePrivate  {constructor(config?: properties);
-}
-export class EnumMatch  {constructor(config?: properties);
-value: number;
-string: string;
-}
-export class ErrorClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ErrorPrivate  {constructor(config?: properties);
-}
-export class EulaRequiredClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class EulaRequiredPrivate  {constructor(config?: properties);
-}
-export class FilesClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class FilesPrivate  {constructor(config?: properties);
-}
-export class ItemProgressClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ItemProgressPrivate  {constructor(config?: properties);
-}
-export class MediaChangeRequiredClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class MediaChangeRequiredPrivate  {constructor(config?: properties);
-}
-export class PackageClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly changed: unknown;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class PackagePrivate  {constructor(config?: properties);
-}
-export class PackageSackClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly changed: unknown;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class PackageSackPrivate  {constructor(config?: properties);
-}
-export class PackageSackResults  {constructor(config?: properties);
-}
-export class ProgressClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ProgressPrivate  {constructor(config?: properties);
-}
-export class RepoDetailClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class RepoDetailPrivate  {constructor(config?: properties);
-}
-export class RepoSignatureRequiredClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class RepoSignatureRequiredPrivate  {constructor(config?: properties);
-}
-export class RequireRestartClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class RequireRestartPrivate  {constructor(config?: properties);
-}
-export class ResultsClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class ResultsPrivate  {constructor(config?: properties);
-}
-export class SourceClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class SourcePrivate  {constructor(config?: properties);
-}
-export class TaskClass  {constructor(config?: properties);
-readonly parent_class: ClientClass;
-readonly untrusted_question: unknown;
-readonly key_question: unknown;
-readonly eula_question: unknown;
-readonly media_change_question: unknown;
-readonly simulate_question: unknown;
-readonly repair_question: unknown;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-}
-export class TaskPrivate  {constructor(config?: properties);
-}
-export class TransactionListClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-readonly added: unknown;
-readonly removed: unknown;
-}
-export class TransactionListPrivate  {constructor(config?: properties);
-}
-export class TransactionPastClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class TransactionPastPrivate  {constructor(config?: properties);
-}
-export class UpdateDetailClass  {constructor(config?: properties);
-readonly parent_class: SourceClass;
-readonly _pk_reserved1: unknown;
-readonly _pk_reserved2: unknown;
-readonly _pk_reserved3: unknown;
-readonly _pk_reserved4: unknown;
-readonly _pk_reserved5: unknown;
-}
-export class UpdateDetailPrivate  {constructor(config?: properties);
+export class Category extends Source {
+    constructor(config?: properties);
+    cat_id: string;
+    icon: string;
+    name: string;
+    parent_id: string;
+    summary: string;
+    get_icon(): string;
+    get_id(): string;
+    get_name(): string;
+    get_parent_id(): string;
+    get_summary(): string;
+    set_icon(icon: string): void;
+    set_id(cat_id: string): void;
+    set_name(name: string): void;
+    set_parent_id(parent_id: string): void;
+    set_summary(summary: string): void;
+}
+export class Client extends GObject.Object {
+    constructor(config?: properties);
+    background: boolean;
+    cache_age: number;
+    readonly idle: boolean;
+    interactive: boolean;
+    locale: string;
+    accept_eula(eula_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    accept_eula_async(eula_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    adopt(transaction_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    adopt_async(transaction_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    depends_on(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    depends_on_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    download_packages(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    download_packages_async(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    generic_finish(res: Gio.AsyncResult): Results;
+    get_background(): boolean;
+    get_cache_age(): number;
+    get_categories(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_categories_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_details(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_details_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_details_local(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_details_local_async(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_distro_upgrades(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_distro_upgrades_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_files(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_files_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_files_local(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_files_local_async(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_idle(): boolean;
+    get_interactive(): boolean;
+    get_locale(): string;
+    get_old_transactions(number: number, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_old_transactions_async(number: number, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_packages(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_packages_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_progress(transaction_id: string, cancellable: Gio.Cancellable | null): Progress;
+    get_progress_async(transaction_id: string, cancellable: Gio.Cancellable | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_progress_finish(res: Gio.AsyncResult): Progress;
+    get_repo_list(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_repo_list_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_update_detail(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_update_detail_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_updates(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_updates_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    install_files(transaction_flags: Bitfield, files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    install_files_async(transaction_flags: Bitfield, files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    install_packages(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    install_packages_async(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    install_signature(type: SigTypeEnum, key_id: string, package_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    install_signature_async(type: SigTypeEnum, key_id: string, package_id: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    refresh_cache(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    refresh_cache_async(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    remove_packages(transaction_flags: Bitfield, package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    remove_packages_async(transaction_flags: Bitfield, package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    repair_system(transaction_flags: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    repair_system_async(transaction_flags: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    repo_enable(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    repo_enable_async(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    repo_remove(transaction_flags: Bitfield, repo_id: string, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    repo_remove_async(transaction_flags: Bitfield, repo_id: string, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    repo_set_data(repo_id: string, parameter: string, value: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    repo_set_data_async(repo_id: string, parameter: string, value: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    required_by(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    required_by_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    resolve(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    resolve_async(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_details(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_details_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_files(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_files_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_groups(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_groups_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_names(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_names_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_background(background: boolean): void;
+    set_cache_age(cache_age: number): void;
+    set_interactive(interactive: boolean): void;
+    set_locale(locale: string): void;
+    update_packages(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    update_packages_async(transaction_flags: Bitfield, package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    upgrade_system(transaction_flags: Bitfield, distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    upgrade_system_async(transaction_flags: Bitfield, distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    what_provides(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    what_provides_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    vfunc_changed(): void;
+}
+export class ClientHelper extends GObject.Object {
+    constructor(config?: properties);
+    start(socket_filename: string, argv: string, envp: string): boolean;
+    stop(): boolean;
+}
+export class Control extends GObject.Object {
+    constructor(config?: properties);
+    backend_author: string;
+    backend_description: string;
+    backend_name: string;
+    connected: boolean;
+    distro_id: string;
+    filters: number;
+    groups: number;
+    mime_types: string[];
+    network_state: NetworkEnum;
+    provides: number;
+    roles: number;
+    readonly version_major: number;
+    readonly version_micro: number;
+    readonly version_minor: number;
+    can_authorize_async(action_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    can_authorize_finish(res: Gio.AsyncResult): AuthorizeEnum;
+    get_daemon_state_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_daemon_state_finish(res: Gio.AsyncResult): string;
+    get_properties(cancellable: Gio.Cancellable | null): boolean;
+    get_properties_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_properties_finish(res: Gio.AsyncResult): boolean;
+    get_tid_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_tid_finish(res: Gio.AsyncResult): string;
+    get_time_since_action_async(role: RoleEnum, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_time_since_action_finish(res: Gio.AsyncResult): number;
+    get_transaction_list(cancellable: Gio.Cancellable | null): string[];
+    get_transaction_list_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_transaction_list_finish(res: Gio.AsyncResult): string[];
+    set_proxy(proxy_http: string, proxy_ftp: string, cancellable: Gio.Cancellable | null): boolean;
+    set_proxy2(proxy_http: string, proxy_https: string, proxy_ftp: string, proxy_socks: string, no_proxy: string, pac: string, cancellable: Gio.Cancellable | null): boolean;
+    set_proxy2_async(proxy_http: string, proxy_https: string, proxy_ftp: string, proxy_socks: string, no_proxy: string, pac: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_proxy_async(proxy_http: string, proxy_ftp: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_proxy_finish(res: Gio.AsyncResult): boolean;
+    suggest_daemon_quit(cancellable: Gio.Cancellable | null): boolean;
+    suggest_daemon_quit_async(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    suggest_daemon_quit_finish(res: Gio.AsyncResult): boolean;
+    vfunc_connection_changed(connected: boolean): void;
+    vfunc_locked(is_locked: boolean): void;
+    vfunc_network_state_changed(): void;
+    vfunc_repo_list_changed(): void;
+    vfunc_restart_schedule(): void;
+    vfunc_transaction_list_changed(transaction_ids: string): void;
+    vfunc_updates_changed(): void;
+}
+export class Desktop extends GObject.Object {
+    constructor(config?: properties);
+    get_files_for_package(_package: string): string[];
+    get_package_for_file(filename: string): string;
+    get_shown_for_package(_package: string): string[];
+    open_database(): boolean;
+}
+export class Details extends Source {
+    constructor(config?: properties);
+    description: string;
+    group: GroupEnum;
+    license: string;
+    package_id: string;
+    size: number;
+    summary: string;
+    url: string;
+    get_description(): string;
+    get_group(): GroupEnum;
+    get_license(): string;
+    get_package_id(): string;
+    get_size(): number;
+    get_summary(): string;
+    get_url(): string;
+}
+export class DistroUpgrade extends Source {
+    constructor(config?: properties);
+    name: string;
+    state: DistroUpgradeEnum;
+    summary: string;
+    get_id(): string;
+    get_state(): DistroUpgradeEnum;
+    get_summary(): string;
+}
+export class Error extends Source {
+    constructor(config?: properties);
+    code: ErrorEnum;
+    details: string;
+    get_code(): ErrorEnum;
+    get_details(): string;
+}
+export class EulaRequired extends Source {
+    constructor(config?: properties);
+    eula_id: string;
+    license_agreement: string;
+    package_id: string;
+    vendor_name: string;
+    get_eula_id(): string;
+    get_license_agreement(): string;
+    get_package_id(): string;
+    get_vendor_name(): string;
+}
+export class Files extends Source {
+    constructor(config?: properties);
+    files: string[];
+    package_id: string;
+    get_files(): string[];
+    get_package_id(): string;
+}
+export class ItemProgress extends Source {
+    constructor(config?: properties);
+    package_id: string;
+    percentage: number;
+    status: number;
+    get_package_id(): string;
+    get_percentage(): number;
+    get_status(): StatusEnum;
+}
+export class MediaChangeRequired extends Source {
+    constructor(config?: properties);
+    media_id: string;
+    media_text: string;
+    media_type: MediaTypeEnum;
+}
+export class Package extends Source {
+    constructor(config?: properties);
+    description: string;
+    group: GroupEnum;
+    info: InfoEnum;
+    license: string;
+    readonly package_id: string;
+    size: number;
+    summary: string;
+    update_bugzilla_urls: string[];
+    update_changelog: string;
+    update_cve_urls: string[];
+    update_issued: string;
+    update_obsoletes: string;
+    update_restart: RestartEnum;
+    update_state: UpdateStateEnum;
+    update_text: string;
+    update_updated: string;
+    update_updates: string;
+    update_vendor_urls: string[];
+    url: string;
+    equal(package2: Package): boolean;
+    equal_id(package2: Package): boolean;
+    get_arch(): string;
+    get_data(): string;
+    get_data(...args: never[]): never;
+    get_id(): string;
+    get_info(): InfoEnum;
+    get_name(): string;
+    get_summary(): string;
+    get_version(): string;
+    parse(data: string): boolean;
+    print(): void;
+    set_id(package_id: string): boolean;
+    set_info(info: InfoEnum): void;
+    set_summary(summary: string): void;
+    vfunc_changed(): void;
+    static id_build(name: string, version: string, arch: string, data: string): string;
+    static id_check(package_id: string): boolean;
+    static id_equal_fuzzy_arch(package_id1: string, package_id2: string): boolean;
+    static id_split(package_id: string): string[];
+    static id_to_printable(package_id: string): string;
+    static ids_add_id(package_ids: string, package_id: string): string[];
+    static ids_add_ids(package_ids: string, package_ids_new: string): string[];
+    static ids_check(package_ids: string): boolean;
+    static ids_from_id(package_id: string): string[];
+    static ids_from_string(package_id: string): string[];
+    static ids_present_id(package_ids: string, package_id: string): boolean;
+    static ids_remove_id(package_ids: string, package_id: string): string[];
+    static ids_to_string(package_ids: string): string;
+}
+export class PackageSack extends GObject.Object {
+    constructor(config?: properties);
+    add_package(_package: Package): boolean;
+    add_package_by_id(package_id: string): boolean;
+    add_packages_from_file(file: Gio.File): boolean;
+    clear(): void;
+    filter(filter_cb: PackageSackFilterFunc, user_data: object | null): PackageSack;
+    filter_by_info(info: InfoEnum): PackageSack;
+    find_by_id(package_id: string): Package;
+    find_by_id_name_arch(package_id: string): Package;
+    get_array(): Package[];
+    get_details(cancellable: Gio.Cancellable | null): boolean;
+    get_details_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_ids(): string[];
+    get_size(): number;
+    get_total_bytes(): number;
+    get_update_detail(cancellable: Gio.Cancellable | null): boolean;
+    get_update_detail_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    merge_generic_finish(res: Gio.AsyncResult): boolean;
+    remove_by_filter(filter_cb: PackageSackFilterFunc, user_data: object | null): boolean;
+    remove_package(_package: Package): boolean;
+    remove_package_by_id(package_id: string): boolean;
+    resolve(cancellable: Gio.Cancellable | null): boolean;
+    resolve_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    sort(type: PackageSackSortType): void;
+    to_file(file: Gio.File): boolean;
+    vfunc_changed(): void;
+}
+export class Progress extends GObject.Object {
+    constructor(config?: properties);
+    allow_cancel: boolean;
+    caller_active: boolean;
+    download_size_remaining: number;
+    elapsed_time: number;
+    item_progress: ItemProgress;
+    _package: Package;
+    package_id: string;
+    percentage: number;
+    remaining_time: number;
+    role: number;
+    speed: number;
+    status: number;
+    transaction_flags: number;
+    transaction_id: string;
+    uid: number;
+    get_allow_cancel(): boolean;
+    get_caller_active(): boolean;
+    get_download_size_remaining(): number;
+    get_elapsed_time(): number;
+    get_item_progress(): ItemProgress;
+    get_package(): Package;
+    get_package_id(): string;
+    get_percentage(): number;
+    get_remaining_time(): number;
+    get_role(): RoleEnum;
+    get_speed(): number;
+    get_status(): StatusEnum;
+    get_transaction_flags(): number;
+    get_transaction_id(): string;
+    get_uid(): number;
+    set_allow_cancel(allow_cancel: boolean): boolean;
+    set_caller_active(caller_active: boolean): boolean;
+    set_download_size_remaining(download_size_remaining: number): boolean;
+    set_elapsed_time(elapsed_time: number): boolean;
+    set_item_progress(item_progress: ItemProgress): boolean;
+    set_package(_package: Package): boolean;
+    set_package_id(package_id: string): boolean;
+    set_percentage(percentage: number): boolean;
+    set_remaining_time(remaining_time: number): boolean;
+    set_role(role: RoleEnum): boolean;
+    set_speed(speed: number): boolean;
+    set_status(status: StatusEnum): boolean;
+    set_transaction_flags(transaction_flags: number): boolean;
+    set_transaction_id(transaction_id: string): boolean;
+    set_uid(uid: number): boolean;
+}
+export class RepoDetail extends Source {
+    constructor(config?: properties);
+    description: string;
+    enabled: boolean;
+    repo_id: string;
+    get_description(): string;
+    get_enabled(): boolean;
+    get_id(): string;
+}
+export class RepoSignatureRequired extends Source {
+    constructor(config?: properties);
+    key_fingerprint: string;
+    key_id: string;
+    key_timestamp: string;
+    key_url: string;
+    key_userid: string;
+    package_id: string;
+    repository_name: string;
+    type: SigTypeEnum;
+}
+export class RequireRestart extends Source {
+    constructor(config?: properties);
+    package_id: string;
+    restart: RestartEnum;
+}
+export class Results extends GObject.Object {
+    constructor(config?: properties);
+    inputs: number;
+    progress: Progress;
+    role: RoleEnum;
+    transaction_flags: number;
+    add_category(item: Category): boolean;
+    add_details(item: Details): boolean;
+    add_distro_upgrade(item: DistroUpgrade): boolean;
+    add_eula_required(item: EulaRequired): boolean;
+    add_files(item: Files): boolean;
+    add_media_change_required(item: MediaChangeRequired): boolean;
+    add_package(item: Package): boolean;
+    add_repo_detail(item: RepoDetail): boolean;
+    add_repo_signature_required(item: RepoSignatureRequired): boolean;
+    add_require_restart(item: RequireRestart): boolean;
+    add_transaction(item: TransactionPast): boolean;
+    add_update_detail(item: UpdateDetail): boolean;
+    get_category_array(): Category[];
+    get_details_array(): Details[];
+    get_distro_upgrade_array(): DistroUpgrade[];
+    get_error_code(): Error;
+    get_eula_required_array(): EulaRequired[];
+    get_exit_code(): ExitEnum;
+    get_files_array(): Files[];
+    get_media_change_required_array(): MediaChangeRequired[];
+    get_package_array(): Package[];
+    get_package_sack(): PackageSack;
+    get_repo_detail_array(): RepoDetail[];
+    get_repo_signature_required_array(): RepoSignatureRequired[];
+    get_require_restart_array(): RequireRestart[];
+    get_require_restart_worst(): RestartEnum;
+    get_role(): RoleEnum;
+    get_transaction_array(): TransactionPast[];
+    get_transaction_flags(): Bitfield;
+    get_update_detail_array(): UpdateDetail[];
+    set_error_code(item: Error): boolean;
+    set_exit_code(exit_enum: ExitEnum): boolean;
+    set_role(role: RoleEnum): boolean;
+}
+export class Source extends GObject.Object {
+    constructor(config?: properties);
+    role: RoleEnum;
+    transaction_id: string;
+}
+export class Task extends Client {
+    constructor(config?: properties);
+    allow_downgrade: boolean;
+    allow_reinstall: boolean;
+    only_download: boolean;
+    only_trusted: boolean;
+    simulate: boolean;
+    depends_on_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    depends_on_sync(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    download_packages_async(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    download_packages_sync(package_ids: string[], directory: string, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    generic_finish(res: Gio.AsyncResult): Results;
+    get_allow_downgrade(): boolean;
+    get_allow_reinstall(): boolean;
+    get_categories_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_categories_sync(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_details_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_details_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_files_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_files_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_only_download(): boolean;
+    get_only_trusted(): boolean;
+    get_packages_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_packages_sync(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_repo_list_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_repo_list_sync(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_simulate(): boolean;
+    get_update_detail_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_update_detail_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    get_updates_async(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_updates_sync(filters: Bitfield, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    install_files_async(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    install_files_async(...args: never[]): never;
+    install_files_sync(files: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    install_packages_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    install_packages_async(...args: never[]): never;
+    install_packages_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    refresh_cache_async(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    refresh_cache_sync(force: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    remove_packages_async(package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    remove_packages_async(...args: never[]): never;
+    remove_packages_sync(package_ids: string[], allow_deps: boolean, autoremove: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    repair_system_async(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    repair_system_async(...args: never[]): never;
+    repair_system_sync(cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    repo_enable_async(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    repo_enable_sync(repo_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    required_by_async(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    required_by_sync(filters: Bitfield, package_ids: string[], recursive: boolean, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    resolve_async(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    resolve_sync(filters: Bitfield, packages: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_details_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_details_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_files_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_files_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_groups_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_groups_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    search_names_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    search_names_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    set_allow_downgrade(allow_downgrade: boolean): void;
+    set_allow_reinstall(allow_reinstall: boolean): void;
+    set_only_download(only_download: boolean): void;
+    set_only_trusted(only_trusted: boolean): void;
+    set_simulate(simulate: boolean): void;
+    update_packages_async(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    update_packages_async(...args: never[]): never;
+    update_packages_sync(package_ids: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    upgrade_system_async(distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    upgrade_system_async(...args: never[]): never;
+    upgrade_system_sync(distro_id: string, upgrade_kind: UpgradeKindEnum, cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    user_accepted(request: number): boolean;
+    user_declined(request: number): boolean;
+    what_provides_async(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null, callback_ready: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    what_provides_sync(filters: Bitfield, values: string[], cancellable: Gio.Cancellable | null, progress_callback: ProgressCallback, progress_user_data: object | null): Results;
+    vfunc_eula_question(request: number, results: Results): void;
+    vfunc_key_question(request: number, results: Results): void;
+    vfunc_media_change_question(request: number, results: Results): void;
+    vfunc_repair_question(request: number, results: Results): void;
+    vfunc_simulate_question(request: number, results: Results): void;
+    vfunc_untrusted_question(request: number, results: Results): void;
+}
+export class TransactionList extends GObject.Object {
+    constructor(config?: properties);
+    get_ids(): string[];
+    vfunc_added(tid: string): void;
+    vfunc_removed(tid: string): void;
+}
+export class TransactionPast extends Source {
+    constructor(config?: properties);
+    cmdline: string;
+    data: string;
+    duration: number;
+    role: RoleEnum;
+    succeeded: boolean;
+    tid: string;
+    timespec: string;
+    uid: number;
+    get_cmdline(): string;
+    get_data(): string;
+    get_data(...args: never[]): never;
+    get_datetime(): GLib.DateTime;
+    get_duration(): number;
+    get_id(): string;
+    get_role(): RoleEnum;
+    get_succeeded(): boolean;
+    get_timespec(): string;
+    get_timestamp(): number;
+    get_uid(): number;
+}
+export class UpdateDetail extends Source {
+    constructor(config?: properties);
+    bugzilla_urls: string[];
+    changelog: string;
+    cve_urls: string[];
+    issued: string;
+    obsoletes: string[];
+    package_id: string;
+    restart: RestartEnum;
+    state: UpdateStateEnum;
+    update_text: string;
+    updated: string;
+    updates: string[];
+    vendor_urls: string[];
+    get_bugzilla_urls(): string[];
+    get_changelog(): string;
+    get_cve_urls(): string[];
+    get_issued(): string;
+    get_obsoletes(): string[];
+    get_package_id(): string;
+    get_restart(): RestartEnum;
+    get_state(): UpdateStateEnum;
+    get_update_text(): string;
+    get_updated(): string;
+    get_updates(): string[];
+    get_vendor_urls(): string[];
+}
+export class CategoryPrivate  {
+    constructor(config?: properties);
+}
+export class ClientHelperPrivate  {
+    constructor(config?: properties);
+}
+export class ClientPrivate  {
+    constructor(config?: properties);
+}
+export class ControlPrivate  {
+    constructor(config?: properties);
+}
+export class DesktopPrivate  {
+    constructor(config?: properties);
+}
+export class DetailsPrivate  {
+    constructor(config?: properties);
+}
+export class DistroUpgradePrivate  {
+    constructor(config?: properties);
+}
+export class EnumMatch  {
+    constructor(config?: properties);
+    value: number;
+    string: string;
+}
+export class ErrorPrivate  {
+    constructor(config?: properties);
+}
+export class EulaRequiredPrivate  {
+    constructor(config?: properties);
+}
+export class FilesPrivate  {
+    constructor(config?: properties);
+}
+export class ItemProgressPrivate  {
+    constructor(config?: properties);
+}
+export class MediaChangeRequiredPrivate  {
+    constructor(config?: properties);
+}
+export class PackagePrivate  {
+    constructor(config?: properties);
+}
+export class PackageSackPrivate  {
+    constructor(config?: properties);
+}
+export class PackageSackResults  {
+    constructor(config?: properties);
+}
+export class ProgressPrivate  {
+    constructor(config?: properties);
+}
+export class RepoDetailPrivate  {
+    constructor(config?: properties);
+}
+export class RepoSignatureRequiredPrivate  {
+    constructor(config?: properties);
+}
+export class RequireRestartPrivate  {
+    constructor(config?: properties);
+}
+export class ResultsPrivate  {
+    constructor(config?: properties);
+}
+export class SourcePrivate  {
+    constructor(config?: properties);
+}
+export class TaskPrivate  {
+    constructor(config?: properties);
+}
+export class TransactionListPrivate  {
+    constructor(config?: properties);
+}
+export class TransactionPastPrivate  {
+    constructor(config?: properties);
+}
+export class UpdateDetailPrivate  {
+    constructor(config?: properties);
 }

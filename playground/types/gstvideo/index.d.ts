@@ -9,6 +9,7 @@ import * as GstVideo from "gstvideo";
  * gstvideo.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type VideoAffineTransformationGetMatrix = (meta: VideoAffineTransformationMeta, matrix: number) => boolean;
 export type VideoConvertSampleCallback = (sample: Gst.Sample, error: GLib.Error, user_data: object | null) => void;
 export type VideoFormatPack = (info: VideoFormatInfo, flags: VideoPackFlags, src: object | null, sstride: number, data: object | null, stride: number, chroma_site: VideoChromaSite, y: number, width: number) => void;
@@ -311,7 +312,7 @@ export function navigation_query_set_commandsv(query: Gst.Query, n_cmds: number,
 /**
  * 
  */
-export function video_affine_transformation_meta_api_get_type(): unknown;
+export function video_affine_transformation_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -338,7 +339,7 @@ export function video_calculate_display_ratio(video_width: number, video_height:
 /**
  * 
  */
-export function video_caption_meta_api_get_type(): unknown;
+export function video_caption_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -361,13 +362,6 @@ export function video_chroma_from_string(s: string): VideoChromaSite;
  * Perform resampling of @width chroma pixels in @lines.
  */
 export function video_chroma_resample(resample: VideoChromaResample, lines: object | null, width: number): void;
-/**
- * Create a new resampler object for the given parameters. When @h_factor
- *  or
- * @v_factor is > 0, upsampling will be used, otherwise subsampling is
- * performed.
- */
-export function video_chroma_resample_new(method: VideoChromaMethod, site: VideoChromaSite, flags: VideoChromaFlags, format: VideoFormat, h_factor: number, v_factor: number): VideoChromaResample;
 /**
  * Converts @site to its string representation.
  */
@@ -463,27 +457,13 @@ export function video_convert_sample(sample: Gst.Sample, to_caps: Gst.Caps, time
  */
 export function video_convert_sample_async(sample: Gst.Sample, to_caps: Gst.Caps, timeout: Gst.ClockTime, callback: VideoConvertSampleCallback, user_data: object | null, destroy_notify: GLib.DestroyNotify): void;
 /**
- * Create a new converter object to convert between @in_info and @out_inf
- * o
- * with @config.
- */
-export function video_converter_new(in_info: VideoInfo, out_info: VideoInfo, config: Gst.Structure): VideoConverter;
-/**
  * 
  */
-export function video_crop_meta_api_get_type(): unknown;
+export function video_crop_meta_api_get_type(): GType;
 /**
  * 
  */
 export function video_crop_meta_get_info(): Gst.MetaInfo;
-/**
- * Make a new dither object for dithering lines of @format using the
- * algorithm described by @method.
- * Each component will be quantized to a multiple of @quantizer. Better
- * performance is achived when @quantizer is a power of 2.
- * @width is the width of the lines that this ditherer will handle.
- */
-export function video_dither_new(method: VideoDitherMethod, flags: VideoDitherFlags, format: VideoFormat, quantizer: number, width: number): VideoDither;
 /**
  * Checks if an event is a force key unit event. Returns true for both up
  * stream
@@ -605,7 +585,7 @@ export function video_format_to_string(format: VideoFormat): string;
 /**
  * 
  */
-export function video_gl_texture_upload_meta_api_get_type(): unknown;
+export function video_gl_texture_upload_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -630,7 +610,7 @@ export function video_interlace_mode_to_string(mode: VideoInterlaceMode): string
 /**
  * 
  */
-export function video_meta_api_get_type(): unknown;
+export function video_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -681,7 +661,7 @@ export function video_multiview_video_info_change_mode(info: VideoInfo, out_mvie
 /**
  * 
  */
-export function video_overlay_composition_meta_api_get_type(): unknown;
+export function video_overlay_composition_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -705,21 +685,11 @@ export function video_overlay_set_property(object: GObject.Object, last_prop_id:
 /**
  * 
  */
-export function video_region_of_interest_meta_api_get_type(): unknown;
+export function video_region_of_interest_meta_api_get_type(): GType;
 /**
  * 
  */
 export function video_region_of_interest_meta_get_info(): Gst.MetaInfo;
-/**
- * Make a new @method video scaler. @in_size source lines/pixels will
- * be scaled to @out_size destination lines/pixels.
- * @n_taps specifies the amount of pixels to use from the source for one 
- * output
- * pixel. If n_taps is 0, this function chooses a good value automaticall
- * y based
- * on the @method and @in_size/@out_size.
- */
-export function video_scaler_new(method: VideoResamplerMethod, flags: VideoScalerFlags, n_taps: number, in_size: number, out_size: number, options: Gst.Structure | null): VideoScaler;
 /**
  * Get the tile index of the tile at coordinates @x and @y in the tiled
  * image of @x_tiles by @y_tiles.
@@ -729,7 +699,7 @@ export function video_tile_get_index(mode: VideoTileMode, x: number, y: number, 
 /**
  * 
  */
-export function video_time_code_meta_api_get_type(): unknown;
+export function video_time_code_meta_api_get_type(): GType;
 /**
  * 
  */
@@ -1159,604 +1129,517 @@ export enum VideoTimeCodeFlags {
     DROP_FRAME = 1,
     INTERLACED = 2,
 }
-export class ColorBalanceChannel  {constructor(config?: properties);
-readonly label: string;
-readonly min_value: number;
-readonly max_value: number;
-readonly _gst_reserved: object[];
+export class ColorBalanceChannel  {
+    constructor(config?: properties);
+    readonly label: string;
+    readonly min_value: number;
+    readonly max_value: number;
 }
-export class VideoAggregator  {constructor(config?: properties);
-readonly aggregator: GstBase.Aggregator;
-readonly info: VideoInfo;
-readonly priv: VideoAggregatorPrivate;
-readonly _gst_reserved: object[];
+export class VideoAggregator  {
+    constructor(config?: properties);
+    readonly aggregator: GstBase.Aggregator;
+    readonly info: VideoInfo;
+    readonly priv: VideoAggregatorPrivate;
 }
-export class VideoAggregatorConvertPad  {constructor(config?: properties);
-converter_config: Gst.Structure;
-readonly priv: VideoAggregatorConvertPadPrivate;
-readonly _gst_reserved: object[];
-update_conversion_info(): void;
+export class VideoAggregatorConvertPad  {
+    constructor(config?: properties);
+    converter_config: Gst.Structure;
+    readonly priv: VideoAggregatorConvertPadPrivate;
+    update_conversion_info(): void;
 }
-export class VideoAggregatorPad  {constructor(config?: properties);
-repeat_after_eos: boolean;
-zorder: number;
-readonly info: VideoInfo;
-readonly priv: VideoAggregatorPadPrivate;
-readonly _gst_reserved: object[];
-get_current_buffer(): Gst.Buffer;
-get_prepared_frame(): VideoFrame;
-has_current_buffer(): boolean;
-set_needs_alpha(needs_alpha: boolean): void;
+export class VideoAggregatorPad  {
+    constructor(config?: properties);
+    repeat_after_eos: boolean;
+    zorder: number;
+    readonly info: VideoInfo;
+    readonly priv: VideoAggregatorPadPrivate;
+    get_current_buffer(): Gst.Buffer;
+    get_prepared_frame(): VideoFrame;
+    has_current_buffer(): boolean;
+    set_needs_alpha(needs_alpha: boolean): void;
 }
-export class VideoBufferPool extends Gst.BufferPool {constructor(config?: properties);
+export class VideoBufferPool extends Gst.BufferPool {
+    constructor(config?: properties);
 }
-export class VideoDecoder  {constructor(config?: properties);
-readonly element: Gst.Element;
-readonly sinkpad: Gst.Pad;
-readonly srcpad: Gst.Pad;
-readonly stream_lock: GLib.RecMutex;
-readonly input_segment: Gst.Segment;
-readonly output_segment: Gst.Segment;
-readonly priv: VideoDecoderPrivate;
-readonly padding: object[];
-add_to_frame(n_bytes: number): void;
-allocate_output_buffer(): Gst.Buffer;
-allocate_output_frame(frame: VideoCodecFrame): Gst.FlowReturn;
-allocate_output_frame_with_params(frame: VideoCodecFrame, params: Gst.BufferPoolAcquireParams): Gst.FlowReturn;
-drop_frame(frame: VideoCodecFrame): Gst.FlowReturn;
-finish_frame(frame: VideoCodecFrame): Gst.FlowReturn;
-get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
-get_buffer_pool(): Gst.BufferPool;
-get_estimate_rate(): number;
-get_frame(frame_number: number): VideoCodecFrame;
-get_frames(): GLib.List;
-get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
-get_max_decode_time(frame: VideoCodecFrame): Gst.ClockTimeDiff;
-get_max_errors(): number;
-get_needs_format(): boolean;
-get_oldest_frame(): VideoCodecFrame;
-get_output_state(): VideoCodecState;
-get_packetized(): boolean;
-get_pending_frame_size(): number;
-get_qos_proportion(): number;
-have_frame(): Gst.FlowReturn;
-merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
-negotiate(): boolean;
-proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
-release_frame(frame: VideoCodecFrame): void;
-set_estimate_rate(enabled: boolean): void;
-set_interlaced_output_state(fmt: VideoFormat, mode: VideoInterlaceMode, width: number, height: number, reference: VideoCodecState | null): VideoCodecState;
-set_latency(min_latency: Gst.ClockTime, max_latency: Gst.ClockTime): void;
-set_max_errors(num: number): void;
-set_needs_format(enabled: boolean): void;
-set_output_state(fmt: VideoFormat, width: number, height: number, reference: VideoCodecState | null): VideoCodecState;
-set_packetized(packetized: boolean): void;
-set_use_default_pad_acceptcaps(use: boolean): void;
+export class VideoDecoder  {
+    constructor(config?: properties);
+    readonly element: Gst.Element;
+    readonly sinkpad: Gst.Pad;
+    readonly srcpad: Gst.Pad;
+    readonly stream_lock: GLib.RecMutex;
+    readonly input_segment: Gst.Segment;
+    readonly output_segment: Gst.Segment;
+    readonly priv: VideoDecoderPrivate;
+    readonly padding: object[];
+    add_to_frame(n_bytes: number): void;
+    allocate_output_buffer(): Gst.Buffer;
+    allocate_output_frame(frame: VideoCodecFrame): Gst.FlowReturn;
+    allocate_output_frame_with_params(frame: VideoCodecFrame, params: Gst.BufferPoolAcquireParams): Gst.FlowReturn;
+    drop_frame(frame: VideoCodecFrame): Gst.FlowReturn;
+    finish_frame(frame: VideoCodecFrame): Gst.FlowReturn;
+    get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
+    get_buffer_pool(): Gst.BufferPool;
+    get_estimate_rate(): number;
+    get_frame(frame_number: number): VideoCodecFrame;
+    get_frames(): GLib.List;
+    get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
+    get_max_decode_time(frame: VideoCodecFrame): Gst.ClockTimeDiff;
+    get_max_errors(): number;
+    get_needs_format(): boolean;
+    get_oldest_frame(): VideoCodecFrame;
+    get_output_state(): VideoCodecState;
+    get_packetized(): boolean;
+    get_pending_frame_size(): number;
+    get_qos_proportion(): number;
+    have_frame(): Gst.FlowReturn;
+    merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
+    negotiate(): boolean;
+    proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
+    release_frame(frame: VideoCodecFrame): void;
+    set_estimate_rate(enabled: boolean): void;
+    set_interlaced_output_state(fmt: VideoFormat, mode: VideoInterlaceMode, width: number, height: number, reference: VideoCodecState | null): VideoCodecState;
+    set_latency(min_latency: Gst.ClockTime, max_latency: Gst.ClockTime): void;
+    set_max_errors(num: number): void;
+    set_needs_format(enabled: boolean): void;
+    set_output_state(fmt: VideoFormat, width: number, height: number, reference: VideoCodecState | null): VideoCodecState;
+    set_packetized(packetized: boolean): void;
+    set_use_default_pad_acceptcaps(use: boolean): void;
 }
-export class VideoEncoder  {constructor(config?: properties);
-qos: boolean;
-readonly element: Gst.Element;
-readonly sinkpad: Gst.Pad;
-readonly srcpad: Gst.Pad;
-readonly stream_lock: GLib.RecMutex;
-readonly input_segment: Gst.Segment;
-readonly output_segment: Gst.Segment;
-readonly priv: VideoEncoderPrivate;
-readonly padding: object[];
-allocate_output_buffer(size: number): Gst.Buffer;
-allocate_output_frame(frame: VideoCodecFrame, size: number): Gst.FlowReturn;
-finish_frame(frame: VideoCodecFrame): Gst.FlowReturn;
-get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
-get_frame(frame_number: number): VideoCodecFrame;
-get_frames(): GLib.List;
-get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
-get_max_encode_time(frame: VideoCodecFrame): Gst.ClockTimeDiff;
-get_oldest_frame(): VideoCodecFrame;
-get_output_state(): VideoCodecState;
-is_qos_enabled(): boolean;
-merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
-negotiate(): boolean;
-proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
-set_headers(headers: GLib.List): void;
-set_latency(min_latency: Gst.ClockTime, max_latency: Gst.ClockTime): void;
-set_min_pts(min_pts: Gst.ClockTime): void;
-set_output_state(caps: Gst.Caps, reference: VideoCodecState | null): VideoCodecState;
-set_qos_enabled(enabled: boolean): void;
+export class VideoEncoder  {
+    constructor(config?: properties);
+    qos: boolean;
+    readonly element: Gst.Element;
+    readonly sinkpad: Gst.Pad;
+    readonly srcpad: Gst.Pad;
+    readonly stream_lock: GLib.RecMutex;
+    readonly input_segment: Gst.Segment;
+    readonly output_segment: Gst.Segment;
+    readonly priv: VideoEncoderPrivate;
+    readonly padding: object[];
+    allocate_output_buffer(size: number): Gst.Buffer;
+    allocate_output_frame(frame: VideoCodecFrame, size: number): Gst.FlowReturn;
+    finish_frame(frame: VideoCodecFrame): Gst.FlowReturn;
+    get_allocator(): [Gst.Allocator | null,Gst.AllocationParams | null];
+    get_frame(frame_number: number): VideoCodecFrame;
+    get_frames(): GLib.List;
+    get_latency(): [Gst.ClockTime | null,Gst.ClockTime | null];
+    get_max_encode_time(frame: VideoCodecFrame): Gst.ClockTimeDiff;
+    get_oldest_frame(): VideoCodecFrame;
+    get_output_state(): VideoCodecState;
+    is_qos_enabled(): boolean;
+    merge_tags(tags: Gst.TagList | null, mode: Gst.TagMergeMode): void;
+    negotiate(): boolean;
+    proxy_getcaps(caps: Gst.Caps | null, filter: Gst.Caps | null): Gst.Caps;
+    set_headers(headers: GLib.List): void;
+    set_latency(min_latency: Gst.ClockTime, max_latency: Gst.ClockTime): void;
+    set_min_pts(min_pts: Gst.ClockTime): void;
+    set_output_state(caps: Gst.Caps, reference: VideoCodecState | null): VideoCodecState;
+    set_qos_enabled(enabled: boolean): void;
 }
-export class VideoFilter  {constructor(config?: properties);
-readonly element: GstBase.BaseTransform;
-readonly negotiated: boolean;
-readonly in_info: VideoInfo;
-readonly out_info: VideoInfo;
-readonly _gst_reserved: object[];
+export class VideoFilter  {
+    constructor(config?: properties);
+    readonly element: GstBase.BaseTransform;
+    readonly negotiated: boolean;
+    readonly in_info: VideoInfo;
+    readonly out_info: VideoInfo;
 }
-export class VideoMultiviewFlagsSet  {constructor(config?: properties);
+export class VideoMultiviewFlagsSet  {
+    constructor(config?: properties);
 }
-export class VideoSink  {constructor(config?: properties);
-show_preroll_frame: boolean;
-readonly element: GstBase.BaseSink;
-readonly width: number;
-readonly height: number;
-readonly priv: VideoSinkPrivate;
-readonly _gst_reserved: object[];
-static center_rect(src: VideoRectangle, dst: VideoRectangle, result: VideoRectangle, scaling: boolean): void;
+export class VideoSink  {
+    constructor(config?: properties);
+    show_preroll_frame: boolean;
+    readonly element: GstBase.BaseSink;
+    readonly width: number;
+    readonly height: number;
+    readonly priv: VideoSinkPrivate;
+    static center_rect(src: VideoRectangle, dst: VideoRectangle, result: VideoRectangle, scaling: boolean): void;
 }
-export class ColorBalanceChannelClass  {constructor(config?: properties);
-readonly value_changed: unknown;
-readonly _gst_reserved: object[];
+export class VideoAffineTransformationMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    matrix: number[];
+    apply_matrix(matrix: number[]): void;
+    static get_info(): Gst.MetaInfo;
 }
-export class ColorBalanceInterface  {constructor(config?: properties);
-readonly iface: GObject.TypeInterface;
-readonly list_channels: unknown;
-readonly set_value: unknown;
-readonly get_value: unknown;
-readonly get_balance_type: unknown;
-readonly value_changed: unknown;
-readonly _gst_reserved: object[];
+export class VideoAggregatorConvertPadPrivate  {
+    constructor(config?: properties);
 }
-export class NavigationInterface  {constructor(config?: properties);
-readonly iface: GObject.TypeInterface;
-readonly send_event: unknown;
+export class VideoAggregatorPadPrivate  {
+    constructor(config?: properties);
 }
-export class VideoAffineTransformationMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-matrix: number[];
-apply_matrix(matrix: number[]): void;
-static get_info(): Gst.MetaInfo;
+export class VideoAggregatorPrivate  {
+    constructor(config?: properties);
 }
-export class VideoAggregatorClass  {constructor(config?: properties);
-readonly parent_class: GstBase.AggregatorClass;
-readonly update_caps: unknown;
-readonly aggregate_frames: unknown;
-readonly create_output_buffer: unknown;
-readonly find_best_format: unknown;
-readonly _gst_reserved: object[];
+export class VideoAlignment  {
+    constructor(config?: properties);
+    padding_top: number;
+    padding_bottom: number;
+    padding_left: number;
+    padding_right: number;
+    stride_align: number[];
+    reset(): void;
 }
-export class VideoAggregatorConvertPadClass  {constructor(config?: properties);
-readonly parent_class: VideoAggregatorPadClass;
-readonly create_conversion_info: unknown;
-readonly _gst_reserved: object[];
+export class VideoAncillary  {
+    constructor(config?: properties);
+    DID: number;
+    SDID_block_number: number;
+    data_count: number;
+    data: number[];
 }
-export class VideoAggregatorConvertPadPrivate  {constructor(config?: properties);
+export class VideoBufferPoolPrivate  {
+    constructor(config?: properties);
 }
-export class VideoAggregatorPadClass  {constructor(config?: properties);
-readonly parent_class: GstBase.AggregatorPadClass;
-readonly update_conversion_info: unknown;
-readonly prepare_frame: unknown;
-readonly clean_frame: unknown;
-readonly _gst_reserved: object[];
+export class VideoCaptionMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    caption_type: VideoCaptionType;
+    data: number[];
+    size: number;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoAggregatorPadPrivate  {constructor(config?: properties);
+export class VideoChromaResample  {
+    constructor(config?: properties);
+    free(): void;
+    get_info(n_lines: number, offset: number): void;
 }
-export class VideoAggregatorPrivate  {constructor(config?: properties);
+export class VideoCodecFrame  {
+    constructor(config?: properties);
+    readonly ref_count: number;
+    readonly flags: number;
+    system_frame_number: number;
+    readonly decode_frame_number: number;
+    readonly presentation_frame_number: number;
+    dts: Gst.ClockTime;
+    pts: Gst.ClockTime;
+    duration: Gst.ClockTime;
+    distance_from_sync: number;
+    input_buffer: Gst.Buffer;
+    output_buffer: Gst.Buffer;
+    deadline: Gst.ClockTime;
+    readonly events: GLib.List;
+    readonly user_data: object;
+    readonly user_data_destroy_notify: GLib.DestroyNotify;
+    get_user_data(): object | null;
+    ref(): VideoCodecFrame;
+    set_user_data(user_data: object | null, notify: GLib.DestroyNotify): void;
+    unref(): void;
 }
-export class VideoAlignment  {constructor(config?: properties);
-padding_top: number;
-padding_bottom: number;
-padding_left: number;
-padding_right: number;
-stride_align: number[];
-reset(): void;
+export class VideoCodecState  {
+    constructor(config?: properties);
+    readonly ref_count: number;
+    info: VideoInfo;
+    caps: Gst.Caps;
+    codec_data: Gst.Buffer;
+    allocation_caps: Gst.Caps;
+    readonly padding: object[];
+    ref(): VideoCodecState;
+    unref(): void;
 }
-export class VideoAncillary  {constructor(config?: properties);
-DID: number;
-SDID_block_number: number;
-data_count: number;
-data: number[];
-readonly _gst_reserved: object[];
+export class VideoColorPrimariesInfo  {
+    constructor(config?: properties);
+    primaries: VideoColorPrimaries;
+    Wx: number;
+    Wy: number;
+    Rx: number;
+    Ry: number;
+    Gx: number;
+    Gy: number;
+    Bx: number;
+    By: number;
 }
-export class VideoBufferPoolClass  {constructor(config?: properties);
-readonly parent_class: Gst.BufferPoolClass;
+export class VideoColorimetry  {
+    constructor(config?: properties);
+    range: VideoColorRange;
+    matrix: VideoColorMatrix;
+    transfer: VideoTransferFunction;
+    primaries: VideoColorPrimaries;
+    from_string(color: string): boolean;
+    is_equal(other: VideoColorimetry): boolean;
+    matches(color: string): boolean;
+    to_string(): string;
 }
-export class VideoBufferPoolPrivate  {constructor(config?: properties);
+export class VideoConverter  {
+    constructor(config?: properties);
+    frame(src: VideoFrame, dest: VideoFrame): void;
+    free(): void;
+    get_config(): Gst.Structure;
+    set_config(config: Gst.Structure): boolean;
 }
-export class VideoCaptionMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-caption_type: VideoCaptionType;
-data: number[];
-size: number;
-static get_info(): Gst.MetaInfo;
+export class VideoCropMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoChromaResample  {constructor(config?: properties);
-free(): void;
-get_info(n_lines: number, offset: number): void;
-static _new(method: VideoChromaMethod, site: VideoChromaSite, flags: VideoChromaFlags, format: VideoFormat, h_factor: number, v_factor: number): VideoChromaResample;
+export class VideoDecoderPrivate  {
+    constructor(config?: properties);
 }
-export class VideoCodecFrame  {constructor(config?: properties);
-readonly ref_count: number;
-readonly flags: number;
-system_frame_number: number;
-readonly decode_frame_number: number;
-readonly presentation_frame_number: number;
-dts: Gst.ClockTime;
-pts: Gst.ClockTime;
-duration: Gst.ClockTime;
-distance_from_sync: number;
-input_buffer: Gst.Buffer;
-output_buffer: Gst.Buffer;
-deadline: Gst.ClockTime;
-readonly events: GLib.List;
-readonly user_data: object;
-readonly user_data_destroy_notify: GLib.DestroyNotify;
-get_user_data(): object | null;
-ref(): VideoCodecFrame;
-set_user_data(user_data: object | null, notify: GLib.DestroyNotify): void;
-unref(): void;
+export class VideoDither  {
+    constructor(config?: properties);
+    free(): void;
+    line(line: object | null, x: number, y: number, width: number): void;
 }
-export class VideoCodecState  {constructor(config?: properties);
-readonly ref_count: number;
-info: VideoInfo;
-caps: Gst.Caps;
-codec_data: Gst.Buffer;
-allocation_caps: Gst.Caps;
-readonly padding: object[];
-ref(): VideoCodecState;
-unref(): void;
+export class VideoEncoderPrivate  {
+    constructor(config?: properties);
 }
-export class VideoColorPrimariesInfo  {constructor(config?: properties);
-primaries: VideoColorPrimaries;
-Wx: number;
-Wy: number;
-Rx: number;
-Ry: number;
-Gx: number;
-Gy: number;
-Bx: number;
-By: number;
+export class VideoFormatInfo  {
+    constructor(config?: properties);
+    format: VideoFormat;
+    name: string;
+    description: string;
+    flags: VideoFormatFlags;
+    bits: number;
+    n_components: number;
+    shift: number[];
+    depth: number[];
+    pixel_stride: number[];
+    n_planes: number;
+    plane: number[];
+    poffset: number[];
+    w_sub: number[];
+    h_sub: number[];
+    unpack_format: VideoFormat;
+    unpack_func: VideoFormatUnpack;
+    pack_lines: number;
+    pack_func: VideoFormatPack;
+    tile_mode: VideoTileMode;
+    tile_ws: number;
+    tile_hs: number;
 }
-export class VideoColorimetry  {constructor(config?: properties);
-range: VideoColorRange;
-matrix: VideoColorMatrix;
-transfer: VideoTransferFunction;
-primaries: VideoColorPrimaries;
-from_string(color: string): boolean;
-is_equal(other: VideoColorimetry): boolean;
-matches(color: string): boolean;
-to_string(): string;
+export class VideoFrame  {
+    constructor(config?: properties);
+    info: VideoInfo;
+    flags: VideoFrameFlags;
+    buffer: Gst.Buffer;
+    meta: object;
+    id: number;
+    data: object[];
+    copy(src: VideoFrame): boolean;
+    copy_plane(src: VideoFrame, plane: number): boolean;
+    map(info: VideoInfo, buffer: Gst.Buffer, flags: Gst.MapFlags): boolean;
+    map_id(info: VideoInfo, buffer: Gst.Buffer, id: number, flags: Gst.MapFlags): boolean;
+    unmap(): void;
 }
-export class VideoConverter  {constructor(config?: properties);
-frame(src: VideoFrame, dest: VideoFrame): void;
-free(): void;
-get_config(): Gst.Structure;
-set_config(config: Gst.Structure): boolean;
-static _new(in_info: VideoInfo, out_info: VideoInfo, config: Gst.Structure): VideoConverter;
+export class VideoGLTextureUploadMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    texture_orientation: VideoGLTextureOrientation;
+    n_textures: number;
+    texture_type: VideoGLTextureType[];
+    readonly buffer: Gst.Buffer;
+    readonly user_data: object;
+    readonly user_data_copy: GObject.BoxedCopyFunc;
+    readonly user_data_free: GObject.BoxedFreeFunc;
+    upload(texture_id: number): boolean;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoCropMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-x: number;
-y: number;
-width: number;
-height: number;
-static get_info(): Gst.MetaInfo;
+export class VideoInfo  {
+    constructor(config?: properties);
+    align(align: VideoAlignment): boolean;
+    convert(src_format: Gst.Format, src_value: number, dest_format: Gst.Format): [boolean, number];
+    copy(): VideoInfo;
+    free(): void;
+    from_caps(caps: Gst.Caps): boolean;
+    init(): void;
+    is_equal(other: VideoInfo): boolean;
+    set_format(format: VideoFormat, width: number, height: number): boolean;
+    set_interlaced_format(format: VideoFormat, mode: VideoInterlaceMode, width: number, height: number): boolean;
+    to_caps(): Gst.Caps;
 }
-export class VideoDecoderClass  {constructor(config?: properties);
-readonly element_class: Gst.ElementClass;
-readonly open: unknown;
-readonly close: unknown;
-readonly start: unknown;
-readonly stop: unknown;
-readonly parse: unknown;
-readonly set_format: unknown;
-readonly reset: unknown;
-readonly finish: unknown;
-readonly handle_frame: unknown;
-readonly sink_event: unknown;
-readonly src_event: unknown;
-readonly negotiate: unknown;
-readonly decide_allocation: unknown;
-readonly propose_allocation: unknown;
-readonly flush: unknown;
-readonly sink_query: unknown;
-readonly src_query: unknown;
-readonly getcaps: unknown;
-readonly drain: unknown;
-readonly transform_meta: unknown;
-readonly padding: object[];
+export class VideoMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    buffer: Gst.Buffer;
+    flags: VideoFrameFlags;
+    format: VideoFormat;
+    id: number;
+    width: number;
+    height: number;
+    n_planes: number;
+    offset: number[];
+    stride: number[];
+    map(plane: number, info: Gst.MapInfo, flags: Gst.MapFlags): [boolean, object | null,number];
+    unmap(plane: number, info: Gst.MapInfo): boolean;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoDecoderPrivate  {constructor(config?: properties);
+export class VideoMetaTransform  {
+    constructor(config?: properties);
+    in_info: VideoInfo;
+    out_info: VideoInfo;
+    static scale_get_quark(): GLib.Quark;
 }
-export class VideoDirectionInterface  {constructor(config?: properties);
-readonly iface: GObject.TypeInterface;
+export class VideoOverlayComposition  {
+    constructor(config?: properties);
+    add_rectangle(rectangle: VideoOverlayRectangle): void;
+    blend(video_buf: VideoFrame): boolean;
+    copy(): VideoOverlayComposition;
+    get_rectangle(n: number): VideoOverlayRectangle;
+    get_seqnum(): number;
+    make_writable(): VideoOverlayComposition;
+    n_rectangles(): number;
 }
-export class VideoDither  {constructor(config?: properties);
-free(): void;
-line(line: object | null, x: number, y: number, width: number): void;
-static _new(method: VideoDitherMethod, flags: VideoDitherFlags, format: VideoFormat, quantizer: number, width: number): VideoDither;
+export class VideoOverlayCompositionMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    overlay: VideoOverlayComposition;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoEncoderClass  {constructor(config?: properties);
-readonly element_class: Gst.ElementClass;
-readonly open: unknown;
-readonly close: unknown;
-readonly start: unknown;
-readonly stop: unknown;
-readonly set_format: unknown;
-readonly handle_frame: unknown;
-readonly reset: unknown;
-readonly finish: unknown;
-readonly pre_push: unknown;
-readonly getcaps: unknown;
-readonly sink_event: unknown;
-readonly src_event: unknown;
-readonly negotiate: unknown;
-readonly decide_allocation: unknown;
-readonly propose_allocation: unknown;
-readonly flush: unknown;
-readonly sink_query: unknown;
-readonly src_query: unknown;
-readonly transform_meta: unknown;
-readonly _gst_reserved: object[];
+export class VideoOverlayRectangle  {
+    constructor(config?: properties);
+    static new_raw(pixels: Gst.Buffer, render_x: number, render_y: number, render_width: number, render_height: number, flags: VideoOverlayFormatFlags): VideoOverlayRectangle;
+    copy(): VideoOverlayRectangle;
+    get_flags(): VideoOverlayFormatFlags;
+    get_global_alpha(): number;
+    get_pixels_argb(flags: VideoOverlayFormatFlags): Gst.Buffer;
+    get_pixels_ayuv(flags: VideoOverlayFormatFlags): Gst.Buffer;
+    get_pixels_raw(flags: VideoOverlayFormatFlags): Gst.Buffer;
+    get_pixels_unscaled_argb(flags: VideoOverlayFormatFlags): Gst.Buffer;
+    get_pixels_unscaled_ayuv(flags: VideoOverlayFormatFlags): Gst.Buffer;
+    get_pixels_unscaled_raw(flags: VideoOverlayFormatFlags): Gst.Buffer;
+    get_render_rectangle(): [boolean, number | null,number | null,number | null,number | null];
+    get_seqnum(): number;
+    set_global_alpha(global_alpha: number): void;
+    set_render_rectangle(render_x: number, render_y: number, render_width: number, render_height: number): void;
 }
-export class VideoEncoderPrivate  {constructor(config?: properties);
+export class VideoRectangle  {
+    constructor(config?: properties);
+    x: number;
+    y: number;
+    w: number;
+    h: number;
 }
-export class VideoFilterClass  {constructor(config?: properties);
-readonly parent_class: GstBase.BaseTransformClass;
-readonly set_info: unknown;
-readonly transform_frame: unknown;
-readonly transform_frame_ip: unknown;
-readonly _gst_reserved: object[];
+export class VideoRegionOfInterestMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    roi_type: GLib.Quark;
+    id: number;
+    parent_id: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    params: GLib.List;
+    add_param(s: Gst.Structure): void;
+    get_param(name: string): Gst.Structure | null;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoFormatInfo  {constructor(config?: properties);
-format: VideoFormat;
-name: string;
-description: string;
-flags: VideoFormatFlags;
-bits: number;
-n_components: number;
-shift: number[];
-depth: number[];
-pixel_stride: number[];
-n_planes: number;
-plane: number[];
-poffset: number[];
-w_sub: number[];
-h_sub: number[];
-unpack_format: VideoFormat;
-unpack_func: VideoFormatUnpack;
-pack_lines: number;
-pack_func: VideoFormatPack;
-tile_mode: VideoTileMode;
-tile_ws: number;
-tile_hs: number;
-readonly _gst_reserved: object[];
+export class VideoResampler  {
+    constructor(config?: properties);
+    in_size: number;
+    out_size: number;
+    max_taps: number;
+    n_phases: number;
+    offset: number;
+    phase: number;
+    n_taps: number;
+    taps: number;
+    clear(): void;
+    init(method: VideoResamplerMethod, flags: VideoResamplerFlags, n_phases: number, n_taps: number, shift: number, in_size: number, out_size: number, options: Gst.Structure): boolean;
 }
-export class VideoFrame  {constructor(config?: properties);
-info: VideoInfo;
-flags: VideoFrameFlags;
-buffer: Gst.Buffer;
-meta: object;
-id: number;
-data: object[];
-readonly _gst_reserved: object[];
-copy(src: VideoFrame): boolean;
-copy_plane(src: VideoFrame, plane: number): boolean;
-map(info: VideoInfo, buffer: Gst.Buffer, flags: Gst.MapFlags): boolean;
-map_id(info: VideoInfo, buffer: Gst.Buffer, id: number, flags: Gst.MapFlags): boolean;
-unmap(): void;
+export class VideoScaler  {
+    constructor(config?: properties);
+    Gjs_2d(vscale: VideoScaler, format: VideoFormat, src: object | null, src_stride: number, dest: object | null, dest_stride: number, x: number, y: number, width: number, height: number): void;
+    free(): void;
+    get_coeff(out_offset: number, in_offset: number, n_taps: number): number;
+    get_max_taps(): number;
+    horizontal(format: VideoFormat, src: object | null, dest: object | null, dest_offset: number, width: number): void;
+    vertical(format: VideoFormat, src_lines: object | null, dest: object | null, dest_offset: number, width: number): void;
 }
-export class VideoGLTextureUploadMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-texture_orientation: VideoGLTextureOrientation;
-n_textures: number;
-texture_type: VideoGLTextureType[];
-readonly buffer: Gst.Buffer;
-readonly user_data: object;
-readonly user_data_copy: GObject.BoxedCopyFunc;
-readonly user_data_free: GObject.BoxedFreeFunc;
-upload(texture_id: number): boolean;
-static get_info(): Gst.MetaInfo;
+export class VideoSinkPrivate  {
+    constructor(config?: properties);
 }
-export class VideoInfo  {constructor(config?: properties);
-align(align: VideoAlignment): boolean;
-convert(src_format: Gst.Format, src_value: number, dest_format: Gst.Format): [boolean, number];
-copy(): VideoInfo;
-free(): void;
-from_caps(caps: Gst.Caps): boolean;
-init(): void;
-is_equal(other: VideoInfo): boolean;
-set_format(format: VideoFormat, width: number, height: number): boolean;
-set_interlaced_format(format: VideoFormat, mode: VideoInterlaceMode, width: number, height: number): boolean;
-to_caps(): Gst.Caps;
+export class VideoTimeCode  {
+    constructor(config?: properties);
+    static new_empty(): VideoTimeCode;
+    static new_from_date_time(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): VideoTimeCode;
+    static new_from_date_time_full(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): VideoTimeCode;
+    static new_from_string(tc_str: string): VideoTimeCode | null;
+    add_frames(frames: number): void;
+    add_interval(tc_inter: VideoTimeCodeInterval): VideoTimeCode | null;
+    clear(): void;
+    compare(tc2: VideoTimeCode): number;
+    copy(): VideoTimeCode;
+    frames_since_daily_jam(): number;
+    free(): void;
+    increment_frame(): void;
+    init(fps_n: number, fps_d: number, latest_daily_jam: GLib.DateTime, flags: VideoTimeCodeFlags, hours: number, minutes: number, seconds: number, frames: number, field_count: number): void;
+    init_from_date_time(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): void;
+    init_from_date_time_full(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): boolean;
+    is_valid(): boolean;
+    nsec_since_daily_jam(): number;
+    to_date_time(): GLib.DateTime | null;
+    to_string(): string;
 }
-export class VideoMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-buffer: Gst.Buffer;
-flags: VideoFrameFlags;
-format: VideoFormat;
-id: number;
-width: number;
-height: number;
-n_planes: number;
-offset: number[];
-stride: number[];
-map(plane: number, info: Gst.MapInfo, flags: Gst.MapFlags): [boolean, object | null,number];
-unmap(plane: number, info: Gst.MapInfo): boolean;
-static get_info(): Gst.MetaInfo;
+export class VideoTimeCodeConfig  {
+    constructor(config?: properties);
+    fps_n: number;
+    fps_d: number;
+    flags: VideoTimeCodeFlags;
+    latest_daily_jam: GLib.DateTime;
 }
-export class VideoMetaTransform  {constructor(config?: properties);
-in_info: VideoInfo;
-out_info: VideoInfo;
-static scale_get_quark(): GLib.Quark;
+export class VideoTimeCodeInterval  {
+    constructor(config?: properties);
+    static new_from_string(tc_inter_str: string): VideoTimeCodeInterval | null;
+    clear(): void;
+    copy(): VideoTimeCodeInterval;
+    free(): void;
+    init(hours: number, minutes: number, seconds: number, frames: number): void;
 }
-export class VideoOrientationInterface  {constructor(config?: properties);
-readonly iface: GObject.TypeInterface;
-readonly get_hflip: unknown;
-readonly get_vflip: unknown;
-readonly get_hcenter: unknown;
-readonly get_vcenter: unknown;
-readonly set_hflip: unknown;
-readonly set_vflip: unknown;
-readonly set_hcenter: unknown;
-readonly set_vcenter: unknown;
+export class VideoTimeCodeMeta  {
+    constructor(config?: properties);
+    meta: Gst.Meta;
+    tc: VideoTimeCode;
+    static get_info(): Gst.MetaInfo;
 }
-export class VideoOverlayComposition  {constructor(config?: properties);
-add_rectangle(rectangle: VideoOverlayRectangle): void;
-blend(video_buf: VideoFrame): boolean;
-copy(): VideoOverlayComposition;
-get_rectangle(n: number): VideoOverlayRectangle;
-get_seqnum(): number;
-make_writable(): VideoOverlayComposition;
-n_rectangles(): number;
+export class VideoVBIEncoder  {
+    constructor(config?: properties);
+    add_ancillary(composite: boolean, DID: number, SDID_block_number: number, data: number[], data_count: number): boolean;
+    copy(): VideoVBIEncoder;
+    free(): void;
+    write_line(data: number): void;
 }
-export class VideoOverlayCompositionMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-overlay: VideoOverlayComposition;
-static get_info(): Gst.MetaInfo;
-}
-export class VideoOverlayInterface  {constructor(config?: properties);
-readonly iface: GObject.TypeInterface;
-readonly expose: unknown;
-readonly handle_events: unknown;
-readonly set_render_rectangle: unknown;
-readonly set_window_handle: unknown;
-}
-export class VideoOverlayRectangle  {constructor(config?: properties);
-static new_raw(pixels: Gst.Buffer, render_x: number, render_y: number, render_width: number, render_height: number, flags: VideoOverlayFormatFlags): VideoOverlayRectangle;
-copy(): VideoOverlayRectangle;
-get_flags(): VideoOverlayFormatFlags;
-get_global_alpha(): number;
-get_pixels_argb(flags: VideoOverlayFormatFlags): Gst.Buffer;
-get_pixels_ayuv(flags: VideoOverlayFormatFlags): Gst.Buffer;
-get_pixels_raw(flags: VideoOverlayFormatFlags): Gst.Buffer;
-get_pixels_unscaled_argb(flags: VideoOverlayFormatFlags): Gst.Buffer;
-get_pixels_unscaled_ayuv(flags: VideoOverlayFormatFlags): Gst.Buffer;
-get_pixels_unscaled_raw(flags: VideoOverlayFormatFlags): Gst.Buffer;
-get_render_rectangle(): [boolean, number | null,number | null,number | null,number | null];
-get_seqnum(): number;
-set_global_alpha(global_alpha: number): void;
-set_render_rectangle(render_x: number, render_y: number, render_width: number, render_height: number): void;
-}
-export class VideoRectangle  {constructor(config?: properties);
-x: number;
-y: number;
-w: number;
-h: number;
-}
-export class VideoRegionOfInterestMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-roi_type: GLib.Quark;
-id: number;
-parent_id: number;
-x: number;
-y: number;
-w: number;
-h: number;
-params: GLib.List;
-add_param(s: Gst.Structure): void;
-get_param(name: string): Gst.Structure | null;
-static get_info(): Gst.MetaInfo;
-}
-export class VideoResampler  {constructor(config?: properties);
-in_size: number;
-out_size: number;
-max_taps: number;
-n_phases: number;
-offset: number;
-phase: number;
-n_taps: number;
-taps: number;
-readonly _gst_reserved: object[];
-clear(): void;
-init(method: VideoResamplerMethod, flags: VideoResamplerFlags, n_phases: number, n_taps: number, shift: number, in_size: number, out_size: number, options: Gst.Structure): boolean;
-}
-export class VideoScaler  {constructor(config?: properties);
-Gjs_2d(vscale: VideoScaler, format: VideoFormat, src: object | null, src_stride: number, dest: object | null, dest_stride: number, x: number, y: number, width: number, height: number): void;
-combine_packed_YUV(uv_scale: VideoScaler, in_format: VideoFormat, out_format: VideoFormat): VideoScaler;
-free(): void;
-get_coeff(out_offset: number, in_offset: number, n_taps: number): number;
-get_max_taps(): number;
-horizontal(format: VideoFormat, src: object | null, dest: object | null, dest_offset: number, width: number): void;
-vertical(format: VideoFormat, src_lines: object | null, dest: object | null, dest_offset: number, width: number): void;
-static _new(method: VideoResamplerMethod, flags: VideoScalerFlags, n_taps: number, in_size: number, out_size: number, options: Gst.Structure | null): VideoScaler;
-}
-export class VideoSinkClass  {constructor(config?: properties);
-readonly parent_class: GstBase.BaseSinkClass;
-readonly show_frame: unknown;
-readonly _gst_reserved: object[];
-}
-export class VideoSinkPrivate  {constructor(config?: properties);
-}
-export class VideoTimeCode  {constructor(config?: properties);
-static new_empty(): VideoTimeCode;
-static new_from_date_time(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): VideoTimeCode;
-static new_from_date_time_full(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): VideoTimeCode;
-static new_from_string(tc_str: string): VideoTimeCode | null;
-add_frames(frames: number): void;
-add_interval(tc_inter: VideoTimeCodeInterval): VideoTimeCode | null;
-clear(): void;
-compare(tc2: VideoTimeCode): number;
-copy(): VideoTimeCode;
-frames_since_daily_jam(): number;
-free(): void;
-increment_frame(): void;
-init(fps_n: number, fps_d: number, latest_daily_jam: GLib.DateTime, flags: VideoTimeCodeFlags, hours: number, minutes: number, seconds: number, frames: number, field_count: number): void;
-init_from_date_time(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): void;
-init_from_date_time_full(fps_n: number, fps_d: number, dt: GLib.DateTime, flags: VideoTimeCodeFlags, field_count: number): boolean;
-is_valid(): boolean;
-nsec_since_daily_jam(): number;
-to_date_time(): GLib.DateTime | null;
-to_string(): string;
-}
-export class VideoTimeCodeConfig  {constructor(config?: properties);
-fps_n: number;
-fps_d: number;
-flags: VideoTimeCodeFlags;
-latest_daily_jam: GLib.DateTime;
-}
-export class VideoTimeCodeInterval  {constructor(config?: properties);
-static new_from_string(tc_inter_str: string): VideoTimeCodeInterval | null;
-clear(): void;
-copy(): VideoTimeCodeInterval;
-free(): void;
-init(hours: number, minutes: number, seconds: number, frames: number): void;
-}
-export class VideoTimeCodeMeta  {constructor(config?: properties);
-meta: Gst.Meta;
-tc: VideoTimeCode;
-static get_info(): Gst.MetaInfo;
-}
-export class VideoVBIEncoder  {constructor(config?: properties);
-add_ancillary(composite: boolean, DID: number, SDID_block_number: number, data: number[], data_count: number): boolean;
-copy(): VideoVBIEncoder;
-free(): void;
-write_line(data: number): void;
-}
-export class VideoVBIParser  {constructor(config?: properties);
-add_line(data: number[]): void;
-copy(): VideoVBIParser;
-free(): void;
-get_ancillary(): [VideoVBIParserResult, VideoAncillary];
+export class VideoVBIParser  {
+    constructor(config?: properties);
+    add_line(data: number[]): void;
+    copy(): VideoVBIParser;
+    free(): void;
+    get_ancillary(): [VideoVBIParserResult, VideoAncillary];
 }
 export interface ColorBalance  {
-get_balance_type(): ColorBalanceType;
-get_value(channel: ColorBalanceChannel): number;
-list_channels(): GLib.List;
-set_value(channel: ColorBalanceChannel, value: number): void;
-value_changed(channel: ColorBalanceChannel, value: number): void;
+    get_balance_type(): ColorBalanceType;
+    get_value(channel: ColorBalanceChannel): number;
+    list_channels(): GLib.List;
+    set_value(channel: ColorBalanceChannel, value: number): void;
+    value_changed(channel: ColorBalanceChannel, value: number): void;
 }
 export interface Navigation  {
-send_command(command: NavigationCommand): void;
-send_event(structure: Gst.Structure): void;
-send_key_event(event: string, key: string): void;
-send_mouse_event(event: string, button: number, x: number, y: number): void;
+    send_command(command: NavigationCommand): void;
+    send_event(structure: Gst.Structure): void;
+    send_key_event(event: string, key: string): void;
+    send_mouse_event(event: string, button: number, x: number, y: number): void;
 }
 export interface VideoDirection  {
-video_direction: VideoOrientationMethod;
+    video_direction: VideoOrientationMethod;
 }
 export interface VideoOrientation  {
-get_hcenter(): [boolean, number];
-get_hflip(): [boolean, boolean];
-get_vcenter(): [boolean, number];
-get_vflip(): [boolean, boolean];
-set_hcenter(center: number): boolean;
-set_hflip(flip: boolean): boolean;
-set_vcenter(center: number): boolean;
-set_vflip(flip: boolean): boolean;
+    get_hcenter(): [boolean, number];
+    get_hflip(): [boolean, boolean];
+    get_vcenter(): [boolean, number];
+    get_vflip(): [boolean, boolean];
+    set_hcenter(center: number): boolean;
+    set_hflip(flip: boolean): boolean;
+    set_vcenter(center: number): boolean;
+    set_vflip(flip: boolean): boolean;
 }
 export interface VideoOverlay  {
-expose(): void;
-got_window_handle(handle: unknown): void;
-handle_events(handle_events: boolean): void;
-prepare_window_handle(): void;
-set_render_rectangle(x: number, y: number, width: number, height: number): boolean;
-set_window_handle(handle: unknown): void;
+    expose(): void;
+    got_window_handle(handle: unknown): void;
+    handle_events(handle_events: boolean): void;
+    prepare_window_handle(): void;
+    set_render_rectangle(x: number, y: number, width: number, height: number): boolean;
+    set_window_handle(handle: unknown): void;
 }

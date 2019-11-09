@@ -7,6 +7,7 @@ import * as ModemManager from "modemmanager";
  * modemmanager.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type UnlockRetriesForeachCb = (lock: ModemLock, count: number, user_data: object | null) => void;
 export const BEARER_METHOD_CONNECT: string;
 export const BEARER_METHOD_DISCONNECT: string;
@@ -1370,2324 +1371,1759 @@ export enum OmaFeature {
     PRL_UPDATE = 2,
     HANDS_FREE_ACTIVATION = 4,
 }
-export class Bearer  {constructor(config?: properties);
-readonly priv: BearerPrivate;
-connect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-connect_finish(res: Gio.AsyncResult): boolean;
-connect_sync(cancellable: Gio.Cancellable | null): boolean;
-disconnect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-disconnect_finish(res: Gio.AsyncResult): boolean;
-disconnect_sync(cancellable: Gio.Cancellable | null): boolean;
-dup_interface(): string;
-dup_path(): string;
-get_bearer_type(): BearerType;
-get_connected(): boolean;
-get_interface(): string;
-get_ip_timeout(): number;
-get_ipv4_config(): BearerIpConfig;
-get_ipv6_config(): BearerIpConfig;
-get_path(): string;
-get_properties(): BearerProperties;
-get_stats(): BearerStats;
-get_suspended(): boolean;
-peek_ipv4_config(): BearerIpConfig;
-peek_ipv6_config(): BearerIpConfig;
-peek_properties(): BearerProperties;
-peek_stats(): BearerStats;
-}
-export class BearerIpConfig extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): BearerIpConfig;
-dup(): BearerIpConfig;
-get_address(): string;
-get_dictionary(): GLib.Variant;
-get_dns(): string[];
-get_gateway(): string;
-get_method(): BearerIpMethod;
-get_mtu(): number;
-get_prefix(): number;
-set_address(address: string): void;
-set_dns(dns: string): void;
-set_gateway(gateway: string): void;
-set_method(ip_method: BearerIpMethod): void;
-set_mtu(mtu: number): void;
-set_prefix(prefix: number): void;
-}
-export class BearerProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): BearerProperties;
-static new_from_string(str: string): BearerProperties;
-cmp(b: BearerProperties): boolean;
-consume_string(key: string, value: string): boolean;
-consume_variant(key: string, value: GLib.Variant): boolean;
-dup(): BearerProperties;
-get_allow_roaming(): boolean;
-get_allowed_auth(): BearerAllowedAuth;
-get_apn(): string;
-get_dictionary(): GLib.Variant;
-get_ip_type(): BearerIpFamily;
-get_number(): string;
-get_password(): string;
-get_rm_protocol(): ModemCdmaRmProtocol;
-get_user(): string;
-set_allow_roaming(allow_roaming: boolean): void;
-set_allowed_auth(allowed_auth: BearerAllowedAuth): void;
-set_apn(apn: string): void;
-set_ip_type(ip_type: BearerIpFamily): void;
-set_number(number: string): void;
-set_password(password: string): void;
-set_rm_protocol(protocol: ModemCdmaRmProtocol): void;
-set_user(user: string): void;
-}
-export class BearerStats extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): BearerStats;
-get_dictionary(): GLib.Variant;
-get_duration(): number;
-get_rx_bytes(): number;
-get_tx_bytes(): number;
-set_duration(duration: number): void;
-set_rx_bytes(rx_bytes: number): void;
-set_tx_bytes(tx_bytes: number): void;
-}
-export class Call  {constructor(config?: properties);
-readonly priv: CallPrivate;
-accept(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-accept_finish(res: Gio.AsyncResult): boolean;
-accept_sync(cancellable: Gio.Cancellable | null): boolean;
-dup_audio_port(): string;
-dup_number(): string;
-dup_path(): string;
-get_audio_format(): CallAudioFormat;
-get_audio_port(): string;
-get_direction(): CallDirection;
-get_number(): string;
-get_path(): string;
-get_state(): CallState;
-get_state_reason(): CallStateReason;
-hangup(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-hangup_finish(res: Gio.AsyncResult): boolean;
-hangup_sync(cancellable: Gio.Cancellable | null): boolean;
-peek_audio_format(): CallAudioFormat;
-send_dtmf(dtmf: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-send_dtmf_finish(res: Gio.AsyncResult): boolean;
-send_dtmf_sync(dtmf: string, cancellable: Gio.Cancellable | null): boolean;
-start(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-start_finish(res: Gio.AsyncResult): boolean;
-start_sync(cancellable: Gio.Cancellable | null): boolean;
-}
-export class CallAudioFormat extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): CallAudioFormat;
-dup(): CallAudioFormat;
-get_dictionary(): GLib.Variant;
-get_encoding(): string;
-get_rate(): number;
-get_resolution(): string;
-set_encoding(encoding: string): void;
-set_rate(rate: number): void;
-set_resolution(resolution: string): void;
-}
-export class CallProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): CallProperties;
-static new_from_string(str: string): CallProperties;
-dup(): CallProperties;
-get_dictionary(): GLib.Variant;
-get_direction(): CallDirection;
-get_number(): string;
-get_state(): CallState;
-get_state_reason(): CallStateReason;
-set_direction(direction: CallDirection): void;
-set_number(text: string): void;
-set_state(state: CallState): void;
-set_state_reason(state_reason: CallStateReason): void;
-}
-export class CdmaManualActivationProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): CdmaManualActivationProperties;
-static new_from_string(str: string): CdmaManualActivationProperties;
-get_dictionary(): GLib.Variant;
-get_mdn(): string;
-get_min(): string;
-get_mn_aaa_key(): string;
-get_mn_ha_key(): string;
-get_prl(): [number, number];
-get_prl_bytearray(): number[];
-get_sid(): number;
-get_spc(): string;
-peek_prl_bytearray(): number[];
-set_mdn(mdn: string): boolean;
-set_min(min: string): boolean;
-set_mn_aaa_key(mn_aaa_key: string): boolean;
-set_mn_ha_key(mn_ha_key: string): boolean;
-set_prl(prl: number, prl_length: number): boolean;
-set_prl_bytearray(prl: number[]): boolean;
-set_sid(sid: number): void;
-set_spc(spc: string): boolean;
-}
-export class FirmwareProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): FirmwareProperties;
-get_dictionary(): GLib.Variant;
-get_gobi_boot_version(): string;
-get_gobi_modem_unique_id(): string;
-get_gobi_pri_info(): string;
-get_gobi_pri_unique_id(): string;
-get_gobi_pri_version(): string;
-get_image_type(): FirmwareImageType;
-get_unique_id(): string;
-set_gobi_boot_version(version: string): void;
-set_gobi_modem_unique_id(id: string): void;
-set_gobi_pri_info(info: string): void;
-set_gobi_pri_unique_id(id: string): void;
-set_gobi_pri_version(version: string): void;
-}
-export class FirmwareUpdateSettings extends GObject.Object {constructor(config?: properties);
-static new_from_variant(variant: GLib.Variant): FirmwareUpdateSettings;
-get_device_ids(): string[];
-get_fastboot_at(): string;
-get_method(): ModemFirmwareUpdateMethod;
-get_variant(): GLib.Variant;
-get_version(): string;
-set_device_ids(device_ids: string): void;
-set_fastboot_at(fastboot_at: string): void;
-set_version(version: string): void;
-}
-export class GdbusBearerProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusBearerProxy;
-static new_finish(...args: never[]): GdbusBearerProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusBearerProxy;
-static new_for_bus_finish(...args: never[]): GdbusBearerProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusBearerProxy;
-static new_for_bus_sync(...args: never[]): GdbusBearerProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusBearerProxy;
-static new_sync(...args: never[]): GdbusBearerProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusBearerSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModem3gppProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModem3gppProxy;
-static new_finish(...args: never[]): GdbusModem3gppProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModem3gppProxy;
-static new_for_bus_finish(...args: never[]): GdbusModem3gppProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppProxy;
-static new_for_bus_sync(...args: never[]): GdbusModem3gppProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppProxy;
-static new_sync(...args: never[]): GdbusModem3gppProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModem3gppSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModem3gppUssdProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModem3gppUssdProxy;
-static new_finish(...args: never[]): GdbusModem3gppUssdProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModem3gppUssdProxy;
-static new_for_bus_finish(...args: never[]): GdbusModem3gppUssdProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppUssdProxy;
-static new_for_bus_sync(...args: never[]): GdbusModem3gppUssdProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppUssdProxy;
-static new_sync(...args: never[]): GdbusModem3gppUssdProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModem3gppUssdSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemCdmaProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemCdmaProxy;
-static new_finish(...args: never[]): GdbusModemCdmaProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemCdmaProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemCdmaProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemCdmaProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemCdmaProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemCdmaProxy;
-static new_sync(...args: never[]): GdbusModemCdmaProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemCdmaSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemFirmwareProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemFirmwareProxy;
-static new_finish(...args: never[]): GdbusModemFirmwareProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemFirmwareProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemFirmwareProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemFirmwareProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemFirmwareProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemFirmwareProxy;
-static new_sync(...args: never[]): GdbusModemFirmwareProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemFirmwareSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemLocationProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemLocationProxy;
-static new_finish(...args: never[]): GdbusModemLocationProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemLocationProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemLocationProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemLocationProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemLocationProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemLocationProxy;
-static new_sync(...args: never[]): GdbusModemLocationProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemLocationSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemMessagingProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemMessagingProxy;
-static new_finish(...args: never[]): GdbusModemMessagingProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemMessagingProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemMessagingProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemMessagingProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemMessagingProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemMessagingProxy;
-static new_sync(...args: never[]): GdbusModemMessagingProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemMessagingSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemOmaProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemOmaProxy;
-static new_finish(...args: never[]): GdbusModemOmaProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemOmaProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemOmaProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemOmaProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemOmaProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemOmaProxy;
-static new_sync(...args: never[]): GdbusModemOmaProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemOmaSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemProxy;
-static new_finish(...args: never[]): GdbusModemProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemProxy;
-static new_sync(...args: never[]): GdbusModemProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemSignalProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemSignalProxy;
-static new_finish(...args: never[]): GdbusModemSignalProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemSignalProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemSignalProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSignalProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemSignalProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSignalProxy;
-static new_sync(...args: never[]): GdbusModemSignalProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemSignalSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemSimpleProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemSimpleProxy;
-static new_finish(...args: never[]): GdbusModemSimpleProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemSimpleProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemSimpleProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSimpleProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemSimpleProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSimpleProxy;
-static new_sync(...args: never[]): GdbusModemSimpleProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemSimpleSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemTimeProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemTimeProxy;
-static new_finish(...args: never[]): GdbusModemTimeProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemTimeProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemTimeProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemTimeProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemTimeProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemTimeProxy;
-static new_sync(...args: never[]): GdbusModemTimeProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemTimeSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusModemVoiceProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusModemVoiceProxy;
-static new_finish(...args: never[]): GdbusModemVoiceProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemVoiceProxy;
-static new_for_bus_finish(...args: never[]): GdbusModemVoiceProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemVoiceProxy;
-static new_for_bus_sync(...args: never[]): GdbusModemVoiceProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemVoiceProxy;
-static new_sync(...args: never[]): GdbusModemVoiceProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusModemVoiceSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusObjectManagerClient extends Gio.DBusObjectManagerClient {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusObjectManagerClient;
-static new_finish(...args: never[]): GdbusObjectManagerClient;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusObjectManagerClient;
-static new_for_bus_finish(...args: never[]): GdbusObjectManagerClient;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusObjectManagerClientFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusObjectManagerClient;
-static new_for_bus_sync(...args: never[]): GdbusObjectManagerClient;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusObjectManagerClient;
-static new_sync(...args: never[]): GdbusObjectManagerClient;
-static get_proxy_type(manager: Gio.DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null): unknown;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusObjectManagerClientFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusObjectProxy extends Gio.DBusObjectProxy {constructor(config?: properties);
-}
-export class GdbusObjectSkeleton extends Gio.DBusObjectSkeleton {constructor(config?: properties);
-set_modem(interface_: GdbusModem | null): void;
-set_modem3gpp(interface_: GdbusModem3gpp | null): void;
-set_modem3gpp_ussd(interface_: GdbusModem3gppUssd | null): void;
-set_modem_cdma(interface_: GdbusModemCdma | null): void;
-set_modem_firmware(interface_: GdbusModemFirmware | null): void;
-set_modem_location(interface_: GdbusModemLocation | null): void;
-set_modem_messaging(interface_: GdbusModemMessaging | null): void;
-set_modem_oma(interface_: GdbusModemOma | null): void;
-set_modem_signal(interface_: GdbusModemSignal | null): void;
-set_modem_simple(interface_: GdbusModemSimple | null): void;
-set_modem_time(interface_: GdbusModemTime | null): void;
-set_modem_voice(interface_: GdbusModemVoice | null): void;
-}
-export class GdbusOrgFreedesktopModemManager1Proxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusOrgFreedesktopModemManager1Proxy;
-static new_finish(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusOrgFreedesktopModemManager1Proxy;
-static new_for_bus_finish(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusOrgFreedesktopModemManager1Proxy;
-static new_for_bus_sync(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusOrgFreedesktopModemManager1Proxy;
-static new_sync(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusOrgFreedesktopModemManager1Skeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusSimProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusSimProxy;
-static new_finish(...args: never[]): GdbusSimProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusSimProxy;
-static new_for_bus_finish(...args: never[]): GdbusSimProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusSimProxy;
-static new_for_bus_sync(...args: never[]): GdbusSimProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusSimProxy;
-static new_sync(...args: never[]): GdbusSimProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusSimSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class GdbusSmsProxy extends Gio.DBusProxy {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): GdbusSmsProxy;
-static new_finish(...args: never[]): GdbusSmsProxy;
-static new_for_bus_finish(res: Gio.AsyncResult): GdbusSmsProxy;
-static new_for_bus_finish(...args: never[]): GdbusSmsProxy;
-static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusSmsProxy;
-static new_for_bus_sync(...args: never[]): GdbusSmsProxy;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusSmsProxy;
-static new_sync(...args: never[]): GdbusSmsProxy;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-new_for_bus(...args: never[]): never;
-}
-export class GdbusSmsSkeleton extends Gio.DBusInterfaceSkeleton {constructor(config?: properties);
-}
-export class KernelEventProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): KernelEventProperties;
-static new_from_string(str: string): KernelEventProperties;
-dup(): KernelEventProperties;
-get_action(): string;
-get_dictionary(): GLib.Variant;
-get_name(): string;
-get_subsystem(): string;
-get_uid(): string;
-set_action(action: string): void;
-set_name(name: string): void;
-set_subsystem(subsystem: string): void;
-set_uid(uid: string): void;
-}
-export class Location3gpp extends GObject.Object {constructor(config?: properties);
-static new_from_string_variant(string: GLib.Variant): Location3gpp;
-get_cell_id(): number;
-get_location_area_code(): number;
-get_mobile_country_code(): number;
-get_mobile_network_code(): number;
-get_string_variant(): GLib.Variant;
-get_tracking_area_code(): number;
-reset(): boolean;
-set_cell_id(cell_id: number): boolean;
-set_location_area_code(location_area_code: number): boolean;
-set_mobile_country_code(mobile_country_code: number): boolean;
-set_mobile_network_code(mobile_network_code: number): boolean;
-set_tracking_area_code(tracking_area_code: number): boolean;
-}
-export class LocationCdmaBs extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(string: GLib.Variant): LocationCdmaBs;
-get_dictionary(): GLib.Variant;
-get_latitude(): number;
-get_longitude(): number;
-set(longitude: number, latitude: number): boolean;
-set(...args: never[]): never;
-}
-export class LocationGpsNmea extends GObject.Object {constructor(config?: properties);
-static new_from_string_variant(string: GLib.Variant): LocationGpsNmea;
-add_trace(trace: string): boolean;
-build_full(): string;
-get_string_variant(): GLib.Variant;
-get_trace(trace_type: string): string;
-}
-export class LocationGpsRaw extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(string: GLib.Variant): LocationGpsRaw;
-add_trace(trace: string): boolean;
-get_altitude(): number;
-get_dictionary(): GLib.Variant;
-get_latitude(): number;
-get_longitude(): number;
-get_utc_time(): string;
-}
-export class Manager extends GdbusObjectManagerClient {constructor(config?: properties);
-static new_finish(res: Gio.AsyncResult): Manager;
-static new_finish(...args: never[]): Manager;
-static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, cancellable: Gio.Cancellable | null): Manager;
-static new_sync(...args: never[]): Manager;
-get_proxy(): Gio.DBusProxy;
-get_version(): string;
-inhibit_device(uid: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-inhibit_device_finish(res: Gio.AsyncResult): boolean;
-inhibit_device_sync(uid: string, cancellable: Gio.Cancellable | null): boolean;
-peek_proxy(): Gio.DBusProxy;
-report_kernel_event(properties: KernelEventProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-report_kernel_event_finish(res: Gio.AsyncResult): boolean;
-report_kernel_event_sync(properties: KernelEventProperties, cancellable: Gio.Cancellable | null): boolean;
-scan_devices(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-scan_devices_finish(res: Gio.AsyncResult): boolean;
-scan_devices_sync(cancellable: Gio.Cancellable | null): boolean;
-set_logging(level: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_logging_finish(res: Gio.AsyncResult): boolean;
-set_logging_sync(level: string, cancellable: Gio.Cancellable | null): boolean;
-uninhibit_device(uid: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-uninhibit_device_finish(res: Gio.AsyncResult): boolean;
-uninhibit_device_sync(uid: string, cancellable: Gio.Cancellable | null): boolean;
-static _new(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-_new(...args: never[]): never;
-}
-export class Modem  {constructor(config?: properties);
-readonly priv: ModemPrivate;
-command(cmd: string, timeout: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-command_finish(res: Gio.AsyncResult): string;
-command_sync(cmd: string, timeout: number, cancellable: Gio.Cancellable | null): string;
-create_bearer(properties: BearerProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-create_bearer_finish(res: Gio.AsyncResult): Bearer;
-create_bearer_sync(properties: BearerProperties, cancellable: Gio.Cancellable | null): Bearer;
-delete_bearer(bearer: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-delete_bearer_finish(res: Gio.AsyncResult): boolean;
-delete_bearer_sync(bearer: string, cancellable: Gio.Cancellable | null): boolean;
-disable(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-disable_finish(res: Gio.AsyncResult): boolean;
-disable_sync(cancellable: Gio.Cancellable | null): boolean;
-dup_bearer_paths(): string[];
-dup_carrier_configuration(): string;
-dup_carrier_configuration_revision(): string;
-dup_device(): string;
-dup_device_identifier(): string;
-dup_drivers(): string[];
-dup_equipment_identifier(): string;
-dup_hardware_revision(): string;
-dup_manufacturer(): string;
-dup_model(): string;
-dup_own_numbers(): string[];
-dup_path(): string;
-dup_plugin(): string;
-dup_primary_port(): string;
-dup_revision(): string;
-dup_sim_path(): string;
-enable(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-enable_finish(res: Gio.AsyncResult): boolean;
-enable_sync(cancellable: Gio.Cancellable | null): boolean;
-factory_reset(code: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-factory_reset_finish(res: Gio.AsyncResult): boolean;
-factory_reset_sync(code: string, cancellable: Gio.Cancellable | null): boolean;
-get_access_technologies(): ModemAccessTechnology;
-get_bearer_paths(): string[];
-get_carrier_configuration(): string;
-get_carrier_configuration_revision(): string;
-get_current_bands(): [boolean, ModemBand[],number];
-get_current_capabilities(): ModemCapability;
-get_current_modes(): [boolean, ModemMode,ModemMode];
-get_device(): string;
-get_device_identifier(): string;
-get_drivers(): string[];
-get_equipment_identifier(): string;
-get_hardware_revision(): string;
-get_manufacturer(): string;
-get_max_active_bearers(): number;
-get_max_bearers(): number;
-get_model(): string;
-get_own_numbers(): string[];
-get_path(): string;
-get_plugin(): string;
-get_ports(): [boolean, ModemPortInfo[],number];
-get_power_state(): ModemPowerState;
-get_primary_port(): string;
-get_revision(): string;
-get_signal_quality(): [number, boolean];
-get_sim(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_sim_finish(res: Gio.AsyncResult): Sim;
-get_sim_path(): string;
-get_sim_sync(cancellable: Gio.Cancellable | null): Sim;
-get_state(): ModemState;
-get_state_failed_reason(): ModemStateFailedReason;
-get_supported_bands(): [boolean, ModemBand[],number];
-get_supported_capabilities(): [boolean, ModemCapability[],number];
-get_supported_ip_families(): BearerIpFamily;
-get_supported_modes(): [boolean, ModemModeCombination[],number];
-get_unlock_required(): ModemLock;
-get_unlock_retries(): UnlockRetries;
-list_bearers(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-list_bearers_finish(res: Gio.AsyncResult): GLib.List;
-list_bearers_sync(cancellable: Gio.Cancellable | null): GLib.List;
-peek_current_bands(): [boolean, ModemBand[],number];
-peek_ports(): [boolean, ModemPortInfo[],number];
-peek_supported_bands(): [boolean, ModemBand[],number];
-peek_supported_capabilities(): [boolean, ModemCapability[],number];
-peek_supported_modes(): [boolean, ModemModeCombination[],number];
-peek_unlock_retries(): UnlockRetries;
-reset(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-reset_finish(res: Gio.AsyncResult): boolean;
-reset_sync(cancellable: Gio.Cancellable | null): boolean;
-set_current_bands(bands: ModemBand, n_bands: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_current_bands_finish(res: Gio.AsyncResult): boolean;
-set_current_bands_sync(bands: ModemBand, n_bands: number, cancellable: Gio.Cancellable | null): boolean;
-set_current_capabilities(capabilities: ModemCapability, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_current_capabilities_finish(res: Gio.AsyncResult): boolean;
-set_current_capabilities_sync(capabilities: ModemCapability, cancellable: Gio.Cancellable | null): boolean;
-set_current_modes(modes: ModemMode, preferred: ModemMode, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_current_modes_finish(res: Gio.AsyncResult): boolean;
-set_current_modes_sync(modes: ModemMode, preferred: ModemMode, cancellable: Gio.Cancellable | null): boolean;
-set_power_state(state: ModemPowerState, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_power_state_finish(res: Gio.AsyncResult): boolean;
-set_power_state_sync(state: ModemPowerState, cancellable: Gio.Cancellable | null): boolean;
-static get_pending_network_initiated_sessions(self: ModemOma): [boolean, OmaPendingNetworkInitiatedSession[],number];
-static peek_pending_network_initiated_sessions(self: ModemOma): [boolean, OmaPendingNetworkInitiatedSession[],number];
-}
-export class Modem3gpp  {constructor(config?: properties);
-readonly priv: Modem3gppPrivate;
-dup_imei(): string;
-dup_initial_eps_bearer_path(): string;
-dup_operator_code(): string;
-dup_operator_name(): string;
-dup_path(): string;
-get_enabled_facility_locks(): Modem3gppFacility;
-get_eps_ue_mode_operation(): Modem3gppEpsUeModeOperation;
-get_imei(): string;
-get_initial_eps_bearer(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_initial_eps_bearer_finish(res: Gio.AsyncResult): Bearer;
-get_initial_eps_bearer_path(): string;
-get_initial_eps_bearer_settings(): BearerProperties;
-get_initial_eps_bearer_sync(cancellable: Gio.Cancellable | null): Bearer;
-get_operator_code(): string;
-get_operator_name(): string;
-get_path(): string;
-get_pco(): GLib.List;
-get_registration_state(): Modem3gppRegistrationState;
-get_subscription_state(): Modem3gppSubscriptionState;
-peek_initial_eps_bearer_settings(): BearerProperties;
-register(network_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-register_finish(res: Gio.AsyncResult): boolean;
-register_sync(network_id: string, cancellable: Gio.Cancellable | null): boolean;
-scan(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-scan_finish(res: Gio.AsyncResult): GLib.List;
-scan_sync(cancellable: Gio.Cancellable | null): GLib.List;
-set_eps_ue_mode_operation(mode: Modem3gppEpsUeModeOperation, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_eps_ue_mode_operation_finish(res: Gio.AsyncResult): boolean;
-set_eps_ue_mode_operation_sync(mode: Modem3gppEpsUeModeOperation, cancellable: Gio.Cancellable | null): boolean;
-set_initial_eps_bearer_settings(config: BearerProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_initial_eps_bearer_settings_finish(res: Gio.AsyncResult): boolean;
-set_initial_eps_bearer_settings_sync(config: BearerProperties, cancellable: Gio.Cancellable | null): boolean;
-static network_free(network: Modem3gppNetwork): void;
-static network_get_access_technology(network: Modem3gppNetwork): ModemAccessTechnology;
-static network_get_availability(network: Modem3gppNetwork): Modem3gppNetworkAvailability;
-static network_get_operator_code(network: Modem3gppNetwork): string;
-static network_get_operator_long(network: Modem3gppNetwork): string;
-static network_get_operator_short(network: Modem3gppNetwork): string;
-}
-export class Modem3gppUssd  {constructor(config?: properties);
-readonly unused: object;
-cancel(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-cancel_finish(res: Gio.AsyncResult): boolean;
-cancel_sync(cancellable: Gio.Cancellable | null): boolean;
-dup_network_notification(): string;
-dup_network_request(): string;
-dup_path(): string;
-get_network_notification(): string;
-get_network_request(): string;
-get_path(): string;
-get_state(): Modem3gppUssdSessionState;
-initiate(command: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-initiate_finish(res: Gio.AsyncResult): string;
-initiate_sync(command: string, cancellable: Gio.Cancellable | null): string;
-respond(response: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-respond_finish(res: Gio.AsyncResult): string;
-respond_sync(response: string, cancellable: Gio.Cancellable | null): string;
-}
-export class ModemCdma  {constructor(config?: properties);
-readonly unused: object;
-activate(carrier: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-activate_finish(res: Gio.AsyncResult): boolean;
-activate_manual(properties: CdmaManualActivationProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-activate_manual_finish(res: Gio.AsyncResult): boolean;
-activate_manual_sync(properties: CdmaManualActivationProperties, cancellable: Gio.Cancellable | null): boolean;
-activate_sync(carrier: string, cancellable: Gio.Cancellable | null): boolean;
-dup_esn(): string;
-dup_meid(): string;
-dup_path(): string;
-get_activation_state(): ModemCdmaActivationState;
-get_cdma1x_registration_state(): ModemCdmaRegistrationState;
-get_esn(): string;
-get_evdo_registration_state(): ModemCdmaRegistrationState;
-get_meid(): string;
-get_nid(): number;
-get_path(): string;
-get_sid(): number;
-}
-export class ModemFirmware  {constructor(config?: properties);
-readonly priv: ModemFirmwarePrivate;
-dup_path(): string;
-get_path(): string;
-get_update_settings(): FirmwareUpdateSettings;
-list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-list_finish(res: Gio.AsyncResult): [boolean, FirmwareProperties | null,GLib.List | null];
-list_sync(cancellable: Gio.Cancellable | null): [boolean, FirmwareProperties | null,GLib.List | null];
-peek_update_settings(): FirmwareUpdateSettings;
-select(unique_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-select_finish(res: Gio.AsyncResult): boolean;
-select_sync(unique_id: string, cancellable: Gio.Cancellable | null): boolean;
-}
-export class ModemLocation  {constructor(config?: properties);
-readonly unused: object;
-dup_assistance_data_servers(): string[];
-dup_path(): string;
-dup_supl_server(): string;
-get_3gpp(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_3gpp_finish(res: Gio.AsyncResult): Location3gpp;
-get_3gpp_sync(cancellable: Gio.Cancellable | null): Location3gpp;
-get_assistance_data_servers(): string[];
-get_capabilities(): ModemLocationSource;
-get_cdma_bs(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_cdma_bs_finish(res: Gio.AsyncResult): LocationCdmaBs;
-get_cdma_bs_sync(cancellable: Gio.Cancellable | null): LocationCdmaBs;
-get_enabled(): ModemLocationSource;
-get_full(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_full_finish(res: Gio.AsyncResult): [boolean, Location3gpp | null,LocationGpsNmea | null,LocationGpsRaw | null,LocationCdmaBs | null];
-get_full_sync(cancellable: Gio.Cancellable | null): [boolean, Location3gpp | null,LocationGpsNmea | null,LocationGpsRaw | null,LocationCdmaBs | null];
-get_gps_nmea(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_gps_nmea_finish(res: Gio.AsyncResult): LocationGpsNmea;
-get_gps_nmea_sync(cancellable: Gio.Cancellable | null): LocationGpsNmea;
-get_gps_raw(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_gps_raw_finish(res: Gio.AsyncResult): LocationGpsRaw;
-get_gps_raw_sync(cancellable: Gio.Cancellable | null): LocationGpsRaw;
-get_gps_refresh_rate(): number;
-get_path(): string;
-get_supl_server(): string;
-get_supported_assistance_data(): ModemLocationAssistanceDataType;
-inject_assistance_data(data: number[], data_size: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-inject_assistance_data_finish(res: Gio.AsyncResult): boolean;
-inject_assistance_data_sync(data: number[], data_size: number, cancellable: Gio.Cancellable | null): boolean;
-set_gps_refresh_rate(rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_gps_refresh_rate_finish(res: Gio.AsyncResult): boolean;
-set_gps_refresh_rate_sync(rate: number, cancellable: Gio.Cancellable | null): boolean;
-set_supl_server(supl: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-set_supl_server_finish(res: Gio.AsyncResult): boolean;
-set_supl_server_sync(supl: string, cancellable: Gio.Cancellable | null): boolean;
-setup(sources: ModemLocationSource, signal_location: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-setup_finish(res: Gio.AsyncResult): boolean;
-setup_sync(sources: ModemLocationSource, signal_location: boolean, cancellable: Gio.Cancellable | null): boolean;
-signals_location(): boolean;
-}
-export class ModemMessaging  {constructor(config?: properties);
-readonly priv: ModemMessagingPrivate;
-create(properties: SmsProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-create_finish(res: Gio.AsyncResult): Sms;
-create_sync(properties: SmsProperties, cancellable: Gio.Cancellable | null): Sms;
-_delete(sms: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-delete_finish(res: Gio.AsyncResult): boolean;
-delete_sync(sms: string, cancellable: Gio.Cancellable | null): boolean;
-dup_path(): string;
-get_default_storage(): SmsStorage;
-get_path(): string;
-get_supported_storages(): [boolean, SmsStorage[],number];
-list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-list_finish(res: Gio.AsyncResult): GLib.List;
-list_sync(cancellable: Gio.Cancellable | null): GLib.List;
-peek_supported_storages(): [boolean, SmsStorage,number];
-}
-export class ModemOma  {constructor(config?: properties);
-readonly priv: ModemOmaPrivate;
-accept_network_initiated_session(session_id: number, accept: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-accept_network_initiated_session_finish(res: Gio.AsyncResult): boolean;
-accept_network_initiated_session_sync(session_id: number, accept: boolean, cancellable: Gio.Cancellable | null): boolean;
-cancel_session(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-cancel_session_finish(res: Gio.AsyncResult): boolean;
-cancel_session_sync(cancellable: Gio.Cancellable | null): boolean;
-dup_path(): string;
-get_features(): OmaFeature;
-get_path(): string;
-get_session_state(): OmaSessionState;
-get_session_type(): OmaSessionType;
-setup(features: OmaFeature, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-setup_finish(res: Gio.AsyncResult): boolean;
-setup_sync(features: OmaFeature, cancellable: Gio.Cancellable | null): boolean;
-start_client_initiated_session(session_type: OmaSessionType, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-start_client_initiated_session_finish(res: Gio.AsyncResult): boolean;
-start_client_initiated_session_sync(session_type: OmaSessionType, cancellable: Gio.Cancellable | null): boolean;
-}
-export class ModemSignal  {constructor(config?: properties);
-readonly priv: ModemSignalPrivate;
-dup_path(): string;
-get_cdma(): Signal;
-get_evdo(): Signal;
-get_gsm(): Signal;
-get_lte(): Signal;
-get_path(): string;
-get_rate(): number;
-get_umts(): Signal;
-peek_cdma(): Signal;
-peek_evdo(): Signal;
-peek_gsm(): Signal;
-peek_lte(): Signal;
-peek_umts(): Signal;
-setup(rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-setup_finish(res: Gio.AsyncResult): boolean;
-setup_sync(rate: number, cancellable: Gio.Cancellable | null): boolean;
-}
-export class ModemSimple  {constructor(config?: properties);
-readonly unused: object;
-connect(properties: SimpleConnectProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-connect_finish(res: Gio.AsyncResult): Bearer;
-connect_sync(properties: SimpleConnectProperties, cancellable: Gio.Cancellable | null): Bearer;
-disconnect(bearer: string | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-disconnect_finish(res: Gio.AsyncResult): boolean;
-disconnect_sync(bearer: string | null, cancellable: Gio.Cancellable | null): boolean;
-dup_path(): string;
-get_path(): string;
-get_status(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_status_finish(res: Gio.AsyncResult): SimpleStatus;
-get_status_sync(cancellable: Gio.Cancellable | null): SimpleStatus;
-}
-export class ModemTime  {constructor(config?: properties);
-readonly priv: ModemTimePrivate;
-dup_path(): string;
-get_network_time(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-get_network_time_finish(res: Gio.AsyncResult): string;
-get_network_time_sync(cancellable: Gio.Cancellable | null): string;
-get_network_timezone(): NetworkTimezone;
-get_path(): string;
-peek_network_timezone(): NetworkTimezone;
-}
-export class ModemVoice  {constructor(config?: properties);
-readonly priv: ModemVoicePrivate;
-create_call(properties: CallProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-create_call_finish(res: Gio.AsyncResult): Call;
-create_call_sync(properties: CallProperties, cancellable: Gio.Cancellable | null): Call;
-delete_call(call: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-delete_call_finish(res: Gio.AsyncResult): boolean;
-delete_call_sync(call: string, cancellable: Gio.Cancellable | null): boolean;
-dup_path(): string;
-get_path(): string;
-list_calls(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-list_calls_finish(res: Gio.AsyncResult): GLib.List;
-list_calls_sync(cancellable: Gio.Cancellable | null): GLib.List;
-}
-export class NetworkTimezone extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): NetworkTimezone;
-get_dictionary(): GLib.Variant;
-get_dst_offset(): number;
-get_leap_seconds(): number;
-get_offset(): number;
-set_dst_offset(dst_offset: number): void;
-set_leap_seconds(leap_seconds: number): void;
-set_offset(offset: number): void;
-}
-export class Object  {constructor(config?: properties);
-readonly unused: object;
-dup_path(): string;
-get_modem(): Modem;
-get_modem_3gpp(): Modem3gpp;
-get_modem_3gpp_ussd(): Modem3gppUssd;
-get_modem_cdma(): ModemCdma;
-get_modem_firmware(): ModemFirmware;
-get_modem_location(): ModemLocation;
-get_modem_messaging(): ModemMessaging;
-get_modem_oma(): ModemOma;
-get_modem_signal(): ModemSignal;
-get_modem_simple(): ModemSimple;
-get_modem_time(): ModemTime;
-get_modem_voice(): ModemVoice;
-get_path(): string;
-peek_modem(): Modem;
-peek_modem_3gpp(): Modem3gpp;
-peek_modem_3gpp_ussd(): Modem3gppUssd;
-peek_modem_cdma(): ModemCdma;
-peek_modem_firmware(): ModemFirmware;
-peek_modem_location(): ModemLocation;
-peek_modem_messaging(): ModemMessaging;
-peek_modem_oma(): ModemOma;
-peek_modem_signal(): ModemSignal;
-peek_modem_simple(): ModemSimple;
-peek_modem_time(): ModemTime;
-peek_modem_voice(): ModemVoice;
-}
-export class Pco extends GObject.Object {constructor(config?: properties);
-get_data(): [number, number];
-get_data(...args: never[]): never;
-get_session_id(): number;
-is_complete(): boolean;
-set_complete(is_complete: boolean): void;
-set_data(data: number, data_size: number): void;
-set_data(...args: never[]): never;
-set_session_id(session_id: number): void;
-to_variant(): GLib.Variant;
-static from_variant(variant: GLib.Variant): Pco;
-static list_add(pco_list: GLib.List, pco: Pco): GLib.List;
-static list_free(pco_list: GLib.List): void;
-}
-export class Signal extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): Signal;
-get_dictionary(): GLib.Variant;
-get_ecio(): number;
-get_io(): number;
-get_rscp(): number;
-get_rsrp(): number;
-get_rsrq(): number;
-get_rssi(): number;
-get_sinr(): number;
-get_snr(): number;
-set_ecio(value: number): void;
-set_io(value: number): void;
-set_rscp(value: number): void;
-set_rsrp(value: number): void;
-set_rsrq(value: number): void;
-set_rssi(value: number): void;
-set_sinr(value: number): void;
-set_snr(value: number): void;
-}
-export class Sim  {constructor(config?: properties);
-readonly unused: object;
-change_pin(old_pin: string, new_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-change_pin_finish(res: Gio.AsyncResult): boolean;
-change_pin_sync(old_pin: string, new_pin: string, cancellable: Gio.Cancellable | null): boolean;
-disable_pin(pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-disable_pin_finish(res: Gio.AsyncResult): boolean;
-disable_pin_sync(pin: string, cancellable: Gio.Cancellable | null): boolean;
-dup_identifier(): string;
-dup_imsi(): string;
-dup_operator_identifier(): string;
-dup_operator_name(): string;
-dup_path(): string;
-enable_pin(pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-enable_pin_finish(res: Gio.AsyncResult): boolean;
-enable_pin_sync(pin: string, cancellable: Gio.Cancellable | null): boolean;
-get_identifier(): string;
-get_imsi(): string;
-get_operator_identifier(): string;
-get_operator_name(): string;
-get_path(): string;
-send_pin(pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-send_pin_finish(res: Gio.AsyncResult): boolean;
-send_pin_sync(pin: string, cancellable: Gio.Cancellable | null): boolean;
-send_puk(puk: string, pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-send_puk_finish(res: Gio.AsyncResult): boolean;
-send_puk_sync(puk: string, pin: string, cancellable: Gio.Cancellable | null): boolean;
-}
-export class SimpleConnectProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): SimpleConnectProperties;
-static new_from_string(str: string): SimpleConnectProperties;
-get_allow_roaming(): boolean;
-get_allowed_auth(): BearerAllowedAuth;
-get_apn(): string;
-get_bearer_properties(): BearerProperties;
-get_dictionary(): GLib.Variant;
-get_ip_type(): BearerIpFamily;
-get_number(): string;
-get_operator_id(): string;
-get_password(): string;
-get_pin(): string;
-get_user(): string;
-set_allow_roaming(allow_roaming: boolean): void;
-set_allowed_auth(allowed_auth: BearerAllowedAuth): void;
-set_apn(apn: string): void;
-set_ip_type(ip_type: BearerIpFamily): void;
-set_number(number: string): void;
-set_operator_id(operator_id: string): void;
-set_password(password: string): void;
-set_pin(pin: string): void;
-set_user(user: string): void;
-}
-export class SimpleStatus extends GObject.Object {constructor(config?: properties);
-access_technologies: ModemAccessTechnology;
-cdma_cdma1x_registration_state: ModemCdmaRegistrationState;
-cdma_evdo_registration_state: ModemCdmaRegistrationState;
-cdma_nid: number;
-cdma_sid: number;
-current_bands: GLib.Variant;
-m3gpp_operator_code: string;
-m3gpp_operator_name: string;
-m3gpp_registration_state: Modem3gppRegistrationState;
-m3gpp_subscription_state: Modem3gppSubscriptionState;
-signal_quality: GLib.Variant;
-state: ModemState;static new_from_dictionary(dictionary: GLib.Variant): SimpleStatus;
-get_3gpp_operator_code(): string;
-get_3gpp_operator_name(): string;
-get_3gpp_registration_state(): Modem3gppRegistrationState;
-get_3gpp_subscription_state(): Modem3gppSubscriptionState;
-get_access_technologies(): ModemAccessTechnology;
-get_cdma_cdma1x_registration_state(): ModemCdmaRegistrationState;
-get_cdma_evdo_registration_state(): ModemCdmaRegistrationState;
-get_cdma_nid(): number;
-get_cdma_sid(): number;
-get_current_bands(): [ModemBand,number];
-get_dictionary(): GLib.Variant;
-get_signal_quality(): [number, boolean | null];
-get_state(): ModemState;
-}
-export class Sms  {constructor(config?: properties);
-readonly unused: object;
-dup_data(): [number[], number];
-dup_discharge_timestamp(): string;
-dup_number(): string;
-dup_path(): string;
-dup_smsc(): string;
-dup_text(): string;
-dup_timestamp(): string;
-get_class(): number;
-get_data(): [number[], number];
-get_delivery_report_request(): boolean;
-get_delivery_state(): number;
-get_discharge_timestamp(): string;
-get_message_reference(): number;
-get_number(): string;
-get_path(): string;
-get_pdu_type(): SmsPduType;
-get_service_category(): SmsCdmaServiceCategory;
-get_smsc(): string;
-get_state(): SmsState;
-get_storage(): SmsStorage;
-get_teleservice_id(): SmsCdmaTeleserviceId;
-get_text(): string;
-get_timestamp(): string;
-get_validity_relative(): number;
-get_validity_type(): SmsValidityType;
-send(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-send_finish(res: Gio.AsyncResult): boolean;
-send_sync(cancellable: Gio.Cancellable | null): boolean;
-store(storage: SmsStorage, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-store_finish(res: Gio.AsyncResult): boolean;
-store_sync(storage: SmsStorage, cancellable: Gio.Cancellable | null): boolean;
-}
-export class SmsProperties extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): SmsProperties;
-static new_from_string(str: string): SmsProperties;
-dup(): SmsProperties;
-get_class(): number;
-get_data(): [number, number];
-get_data(...args: never[]): never;
-get_data_bytearray(): number[];
-get_delivery_report_request(): boolean;
-get_dictionary(): GLib.Variant;
-get_number(): string;
-get_service_category(): SmsCdmaServiceCategory;
-get_smsc(): string;
-get_teleservice_id(): SmsCdmaTeleserviceId;
-get_text(): string;
-get_validity_relative(): number;
-get_validity_type(): SmsValidityType;
-peek_data_bytearray(): number[];
-set_class(message_class: number): void;
-set_data(data: number, data_length: number): void;
-set_data(...args: never[]): never;
-set_data_bytearray(data: number[]): void;
-set_delivery_report_request(request: boolean): void;
-set_number(number: string): void;
-set_service_category(service_category: SmsCdmaServiceCategory): void;
-set_smsc(smsc: string): void;
-set_teleservice_id(teleservice_id: SmsCdmaTeleserviceId): void;
-set_text(text: string): void;
-set_validity_relative(validity: number): void;
-}
-export class UnlockRetries extends GObject.Object {constructor(config?: properties);
-static new_from_dictionary(dictionary: GLib.Variant): UnlockRetries;
-build_string(): string;
-cmp(b: UnlockRetries): boolean;
-foreach(callback: UnlockRetriesForeachCb, user_data: object | null): void;
-get(lock: ModemLock): number;
-get(...args: never[]): never;
-get_dictionary(): GLib.Variant;
-set(lock: ModemLock, retries: number): void;
-set(...args: never[]): never;
-unset(lock: ModemLock): void;
-}
-export class BearerClass  {constructor(config?: properties);
-}
-export class BearerIpConfigClass  {constructor(config?: properties);
-}
-export class BearerIpConfigPrivate  {constructor(config?: properties);
-}
-export class BearerPrivate  {constructor(config?: properties);
-}
-export class BearerPropertiesClass  {constructor(config?: properties);
-}
-export class BearerPropertiesPrivate  {constructor(config?: properties);
-}
-export class BearerStatsClass  {constructor(config?: properties);
-}
-export class BearerStatsPrivate  {constructor(config?: properties);
-}
-export class CallAudioFormatClass  {constructor(config?: properties);
-}
-export class CallAudioFormatPrivate  {constructor(config?: properties);
-}
-export class CallClass  {constructor(config?: properties);
-}
-export class CallPrivate  {constructor(config?: properties);
-}
-export class CallPropertiesClass  {constructor(config?: properties);
-}
-export class CallPropertiesPrivate  {constructor(config?: properties);
-}
-export class CdmaManualActivationPropertiesClass  {constructor(config?: properties);
-}
-export class CdmaManualActivationPropertiesPrivate  {constructor(config?: properties);
-}
-export class FirmwarePropertiesClass  {constructor(config?: properties);
-}
-export class FirmwarePropertiesPrivate  {constructor(config?: properties);
-}
-export class FirmwareUpdateSettingsClass  {constructor(config?: properties);
-}
-export class FirmwareUpdateSettingsPrivate  {constructor(config?: properties);
-}
-export class GdbusBearerIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_connect: unknown;
-readonly handle_disconnect: unknown;
-readonly get_bearer_type: unknown;
-readonly get_connected: unknown;
-readonly get_interface: unknown;
-readonly get_ip4_config: unknown;
-readonly get_ip6_config: unknown;
-readonly get_ip_timeout: unknown;
-readonly get_properties: unknown;
-readonly get_stats: unknown;
-readonly get_suspended: unknown;
-}
-export class GdbusBearerProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusBearerProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusBearerSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusBearerSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModem3gppIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_register: unknown;
-readonly handle_scan: unknown;
-readonly handle_set_eps_ue_mode_operation: unknown;
-readonly handle_set_initial_eps_bearer_settings: unknown;
-readonly get_enabled_facility_locks: unknown;
-readonly get_eps_ue_mode_operation: unknown;
-readonly get_imei: unknown;
-readonly get_initial_eps_bearer: unknown;
-readonly get_initial_eps_bearer_settings: unknown;
-readonly get_operator_code: unknown;
-readonly get_operator_name: unknown;
-readonly get_pco: unknown;
-readonly get_registration_state: unknown;
-readonly get_subscription_state: unknown;
-}
-export class GdbusModem3gppProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModem3gppProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModem3gppSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModem3gppSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModem3gppUssdIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_cancel: unknown;
-readonly handle_initiate: unknown;
-readonly handle_respond: unknown;
-readonly get_network_notification: unknown;
-readonly get_network_request: unknown;
-readonly get_state: unknown;
-}
-export class GdbusModem3gppUssdProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModem3gppUssdProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModem3gppUssdSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModem3gppUssdSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemCdmaIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_activate: unknown;
-readonly handle_activate_manual: unknown;
-readonly get_activation_state: unknown;
-readonly get_cdma1x_registration_state: unknown;
-readonly get_esn: unknown;
-readonly get_evdo_registration_state: unknown;
-readonly get_meid: unknown;
-readonly get_nid: unknown;
-readonly get_sid: unknown;
-readonly activation_state_changed: unknown;
-}
-export class GdbusModemCdmaProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemCdmaProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemCdmaSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemCdmaSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemFirmwareIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_list: unknown;
-readonly handle_select: unknown;
-readonly get_update_settings: unknown;
-}
-export class GdbusModemFirmwareProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemFirmwareProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemFirmwareSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemFirmwareSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_command: unknown;
-readonly handle_create_bearer: unknown;
-readonly handle_delete_bearer: unknown;
-readonly handle_enable: unknown;
-readonly handle_factory_reset: unknown;
-readonly handle_list_bearers: unknown;
-readonly handle_reset: unknown;
-readonly handle_set_current_bands: unknown;
-readonly handle_set_current_capabilities: unknown;
-readonly handle_set_current_modes: unknown;
-readonly handle_set_power_state: unknown;
-readonly get_access_technologies: unknown;
-readonly get_bearers: unknown;
-readonly get_carrier_configuration: unknown;
-readonly get_carrier_configuration_revision: unknown;
-readonly get_current_bands: unknown;
-readonly get_current_capabilities: unknown;
-readonly get_current_modes: unknown;
-readonly get_device: unknown;
-readonly get_device_identifier: unknown;
-readonly get_drivers: unknown;
-readonly get_equipment_identifier: unknown;
-readonly get_hardware_revision: unknown;
-readonly get_manufacturer: unknown;
-readonly get_max_active_bearers: unknown;
-readonly get_max_bearers: unknown;
-readonly get_model: unknown;
-readonly get_own_numbers: unknown;
-readonly get_plugin: unknown;
-readonly get_ports: unknown;
-readonly get_power_state: unknown;
-readonly get_primary_port: unknown;
-readonly get_revision: unknown;
-readonly get_signal_quality: unknown;
-readonly get_sim: unknown;
-readonly get_state: unknown;
-readonly get_state_failed_reason: unknown;
-readonly get_supported_bands: unknown;
-readonly get_supported_capabilities: unknown;
-readonly get_supported_ip_families: unknown;
-readonly get_supported_modes: unknown;
-readonly get_unlock_required: unknown;
-readonly get_unlock_retries: unknown;
-readonly state_changed: unknown;
-}
-export class GdbusModemLocationIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_get_location: unknown;
-readonly handle_inject_assistance_data: unknown;
-readonly handle_set_gps_refresh_rate: unknown;
-readonly handle_set_supl_server: unknown;
-readonly handle_setup: unknown;
-readonly get_assistance_data_servers: unknown;
-readonly get_capabilities: unknown;
-readonly get_enabled: unknown;
-readonly get_gps_refresh_rate: unknown;
-readonly get_location: unknown;
-readonly get_signals_location: unknown;
-readonly get_supl_server: unknown;
-readonly get_supported_assistance_data: unknown;
-}
-export class GdbusModemLocationProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemLocationProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemLocationSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemLocationSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemMessagingIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_create: unknown;
-readonly handle_delete: unknown;
-readonly handle_list: unknown;
-readonly get_default_storage: unknown;
-readonly get_messages: unknown;
-readonly get_supported_storages: unknown;
-readonly added: unknown;
-readonly deleted: unknown;
-}
-export class GdbusModemMessagingProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemMessagingProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemMessagingSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemMessagingSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemOmaIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_accept_network_initiated_session: unknown;
-readonly handle_cancel_session: unknown;
-readonly handle_setup: unknown;
-readonly handle_start_client_initiated_session: unknown;
-readonly get_features: unknown;
-readonly get_pending_network_initiated_sessions: unknown;
-readonly get_session_state: unknown;
-readonly get_session_type: unknown;
-readonly session_state_changed: unknown;
-}
-export class GdbusModemOmaProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemOmaProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemOmaSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemOmaSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemSignalIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_setup: unknown;
-readonly get_cdma: unknown;
-readonly get_evdo: unknown;
-readonly get_gsm: unknown;
-readonly get_lte: unknown;
-readonly get_rate: unknown;
-readonly get_umts: unknown;
-}
-export class GdbusModemSignalProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemSignalProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemSignalSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemSignalSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemSimpleIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_connect: unknown;
-readonly handle_disconnect: unknown;
-readonly handle_get_status: unknown;
-}
-export class GdbusModemSimpleProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemSimpleProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemSimpleSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemSimpleSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemTimeIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_get_network_time: unknown;
-readonly get_network_timezone: unknown;
-readonly network_time_changed: unknown;
-}
-export class GdbusModemTimeProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemTimeProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemTimeSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemTimeSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusModemVoiceIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_create_call: unknown;
-readonly handle_delete_call: unknown;
-readonly handle_list_calls: unknown;
-readonly get_calls: unknown;
-readonly call_added: unknown;
-readonly call_deleted: unknown;
-}
-export class GdbusModemVoiceProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusModemVoiceProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusModemVoiceSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusModemVoiceSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusObjectIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-}
-export class GdbusObjectManagerClientClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusObjectManagerClientClass;
-}
-export class GdbusObjectManagerClientPrivate  {constructor(config?: properties);
-}
-export class GdbusObjectProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusObjectProxyClass;
-}
-export class GdbusObjectProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusObjectSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusObjectSkeletonClass;
-}
-export class GdbusObjectSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusOrgFreedesktopModemManager1Iface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_inhibit_device: unknown;
-readonly handle_report_kernel_event: unknown;
-readonly handle_scan_devices: unknown;
-readonly handle_set_logging: unknown;
-readonly get_version: unknown;
-}
-export class GdbusOrgFreedesktopModemManager1ProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusOrgFreedesktopModemManager1ProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusOrgFreedesktopModemManager1SkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusOrgFreedesktopModemManager1SkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusSimIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_change_pin: unknown;
-readonly handle_enable_pin: unknown;
-readonly handle_send_pin: unknown;
-readonly handle_send_puk: unknown;
-readonly get_imsi: unknown;
-readonly get_operator_identifier: unknown;
-readonly get_operator_name: unknown;
-readonly get_sim_identifier: unknown;
-}
-export class GdbusSimProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusSimProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusSimSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusSimSkeletonPrivate  {constructor(config?: properties);
-}
-export class GdbusSmsIface  {constructor(config?: properties);
-readonly parent_iface: GObject.TypeInterface;
-readonly handle_send: unknown;
-readonly handle_store: unknown;
-readonly get_class: unknown;
-readonly get_data: unknown;
-readonly get_delivery_report_request: unknown;
-readonly get_delivery_state: unknown;
-readonly get_discharge_timestamp: unknown;
-readonly get_message_reference: unknown;
-readonly get_number: unknown;
-readonly get_pdu_type: unknown;
-readonly get_service_category: unknown;
-readonly get_smsc: unknown;
-readonly get_state: unknown;
-readonly get_storage: unknown;
-readonly get_teleservice_id: unknown;
-readonly get_text: unknown;
-readonly get_timestamp: unknown;
-readonly get_validity: unknown;
-}
-export class GdbusSmsProxyClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusProxyClass;
-}
-export class GdbusSmsProxyPrivate  {constructor(config?: properties);
-}
-export class GdbusSmsSkeletonClass  {constructor(config?: properties);
-readonly parent_class: Gio.DBusInterfaceSkeletonClass;
-}
-export class GdbusSmsSkeletonPrivate  {constructor(config?: properties);
-}
-export class KernelEventPropertiesClass  {constructor(config?: properties);
-}
-export class KernelEventPropertiesPrivate  {constructor(config?: properties);
-}
-export class Location3gppClass  {constructor(config?: properties);
-}
-export class Location3gppPrivate  {constructor(config?: properties);
-}
-export class LocationCdmaBsClass  {constructor(config?: properties);
-}
-export class LocationCdmaBsPrivate  {constructor(config?: properties);
-}
-export class LocationGpsNmeaClass  {constructor(config?: properties);
-}
-export class LocationGpsNmeaPrivate  {constructor(config?: properties);
-}
-export class LocationGpsRawClass  {constructor(config?: properties);
-}
-export class LocationGpsRawPrivate  {constructor(config?: properties);
-}
-export class ManagerClass  {constructor(config?: properties);
-}
-export class ManagerPrivate  {constructor(config?: properties);
-}
-export class Modem3gppClass  {constructor(config?: properties);
-}
-export class Modem3gppNetwork  {constructor(config?: properties);
-}
-export class Modem3gppPrivate  {constructor(config?: properties);
-}
-export class Modem3gppUssdClass  {constructor(config?: properties);
-}
-export class ModemCdmaClass  {constructor(config?: properties);
-}
-export class ModemClass  {constructor(config?: properties);
-}
-export class ModemFirmwareClass  {constructor(config?: properties);
-}
-export class ModemFirmwarePrivate  {constructor(config?: properties);
-}
-export class ModemLocationClass  {constructor(config?: properties);
-}
-export class ModemMessagingClass  {constructor(config?: properties);
-}
-export class ModemMessagingPrivate  {constructor(config?: properties);
-}
-export class ModemModeCombination  {constructor(config?: properties);
-allowed: ModemMode;
-preferred: ModemMode;
-}
-export class ModemOmaClass  {constructor(config?: properties);
-}
-export class ModemOmaPrivate  {constructor(config?: properties);
-}
-export class ModemPortInfo  {constructor(config?: properties);
-name: string;
-type: ModemPortType;
-array_free(array_size: number): void;
-}
-export class ModemPrivate  {constructor(config?: properties);
-}
-export class ModemSignalClass  {constructor(config?: properties);
-}
-export class ModemSignalPrivate  {constructor(config?: properties);
-}
-export class ModemSimpleClass  {constructor(config?: properties);
-}
-export class ModemTimeClass  {constructor(config?: properties);
-}
-export class ModemTimePrivate  {constructor(config?: properties);
-}
-export class ModemVoiceClass  {constructor(config?: properties);
-}
-export class ModemVoicePrivate  {constructor(config?: properties);
-}
-export class NetworkTimezoneClass  {constructor(config?: properties);
-}
-export class NetworkTimezonePrivate  {constructor(config?: properties);
-}
-export class ObjectClass  {constructor(config?: properties);
-}
-export class OmaPendingNetworkInitiatedSession  {constructor(config?: properties);
-session_type: OmaSessionType;
-session_id: number;
-}
-export class PcoClass  {constructor(config?: properties);
-}
-export class PcoPrivate  {constructor(config?: properties);
-}
-export class SignalClass  {constructor(config?: properties);
-}
-export class SignalPrivate  {constructor(config?: properties);
-}
-export class SimClass  {constructor(config?: properties);
-}
-export class SimpleConnectPropertiesClass  {constructor(config?: properties);
-}
-export class SimpleConnectPropertiesPrivate  {constructor(config?: properties);
-}
-export class SimpleStatusClass  {constructor(config?: properties);
-}
-export class SimpleStatusPrivate  {constructor(config?: properties);
-}
-export class SmsClass  {constructor(config?: properties);
-}
-export class SmsPropertiesClass  {constructor(config?: properties);
-}
-export class SmsPropertiesPrivate  {constructor(config?: properties);
-}
-export class UnlockRetriesClass  {constructor(config?: properties);
-}
-export class UnlockRetriesPrivate  {constructor(config?: properties);
+export class Bearer  {
+    constructor(config?: properties);
+    readonly priv: BearerPrivate;
+    connect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    connect_finish(res: Gio.AsyncResult): boolean;
+    connect_sync(cancellable: Gio.Cancellable | null): boolean;
+    disconnect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    disconnect_finish(res: Gio.AsyncResult): boolean;
+    disconnect_sync(cancellable: Gio.Cancellable | null): boolean;
+    dup_interface(): string;
+    dup_path(): string;
+    get_bearer_type(): BearerType;
+    get_connected(): boolean;
+    get_interface(): string;
+    get_ip_timeout(): number;
+    get_ipv4_config(): BearerIpConfig;
+    get_ipv6_config(): BearerIpConfig;
+    get_path(): string;
+    get_properties(): BearerProperties;
+    get_stats(): BearerStats;
+    get_suspended(): boolean;
+    peek_ipv4_config(): BearerIpConfig;
+    peek_ipv6_config(): BearerIpConfig;
+    peek_properties(): BearerProperties;
+    peek_stats(): BearerStats;
+}
+export class BearerIpConfig extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): BearerIpConfig;
+    dup(): BearerIpConfig;
+    get_address(): string;
+    get_dictionary(): GLib.Variant;
+    get_dns(): string[];
+    get_gateway(): string;
+    get_method(): BearerIpMethod;
+    get_mtu(): number;
+    get_prefix(): number;
+    set_address(address: string): void;
+    set_dns(dns: string): void;
+    set_gateway(gateway: string): void;
+    set_method(ip_method: BearerIpMethod): void;
+    set_mtu(mtu: number): void;
+    set_prefix(prefix: number): void;
+}
+export class BearerProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): BearerProperties;
+    static new_from_string(str: string): BearerProperties;
+    cmp(b: BearerProperties): boolean;
+    consume_string(key: string, value: string): boolean;
+    consume_variant(key: string, value: GLib.Variant): boolean;
+    dup(): BearerProperties;
+    get_allow_roaming(): boolean;
+    get_allowed_auth(): BearerAllowedAuth;
+    get_apn(): string;
+    get_dictionary(): GLib.Variant;
+    get_ip_type(): BearerIpFamily;
+    get_number(): string;
+    get_password(): string;
+    get_rm_protocol(): ModemCdmaRmProtocol;
+    get_user(): string;
+    set_allow_roaming(allow_roaming: boolean): void;
+    set_allowed_auth(allowed_auth: BearerAllowedAuth): void;
+    set_apn(apn: string): void;
+    set_ip_type(ip_type: BearerIpFamily): void;
+    set_number(number: string): void;
+    set_password(password: string): void;
+    set_rm_protocol(protocol: ModemCdmaRmProtocol): void;
+    set_user(user: string): void;
+}
+export class BearerStats extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): BearerStats;
+    get_dictionary(): GLib.Variant;
+    get_duration(): number;
+    get_rx_bytes(): number;
+    get_tx_bytes(): number;
+    set_duration(duration: number): void;
+    set_rx_bytes(rx_bytes: number): void;
+    set_tx_bytes(tx_bytes: number): void;
+}
+export class Call  {
+    constructor(config?: properties);
+    readonly priv: CallPrivate;
+    accept(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    accept_finish(res: Gio.AsyncResult): boolean;
+    accept_sync(cancellable: Gio.Cancellable | null): boolean;
+    dup_audio_port(): string;
+    dup_number(): string;
+    dup_path(): string;
+    get_audio_format(): CallAudioFormat;
+    get_audio_port(): string;
+    get_direction(): CallDirection;
+    get_number(): string;
+    get_path(): string;
+    get_state(): CallState;
+    get_state_reason(): CallStateReason;
+    hangup(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    hangup_finish(res: Gio.AsyncResult): boolean;
+    hangup_sync(cancellable: Gio.Cancellable | null): boolean;
+    peek_audio_format(): CallAudioFormat;
+    send_dtmf(dtmf: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    send_dtmf_finish(res: Gio.AsyncResult): boolean;
+    send_dtmf_sync(dtmf: string, cancellable: Gio.Cancellable | null): boolean;
+    start(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    start_finish(res: Gio.AsyncResult): boolean;
+    start_sync(cancellable: Gio.Cancellable | null): boolean;
+}
+export class CallAudioFormat extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): CallAudioFormat;
+    dup(): CallAudioFormat;
+    get_dictionary(): GLib.Variant;
+    get_encoding(): string;
+    get_rate(): number;
+    get_resolution(): string;
+    set_encoding(encoding: string): void;
+    set_rate(rate: number): void;
+    set_resolution(resolution: string): void;
+}
+export class CallProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): CallProperties;
+    static new_from_string(str: string): CallProperties;
+    dup(): CallProperties;
+    get_dictionary(): GLib.Variant;
+    get_direction(): CallDirection;
+    get_number(): string;
+    get_state(): CallState;
+    get_state_reason(): CallStateReason;
+    set_direction(direction: CallDirection): void;
+    set_number(text: string): void;
+    set_state(state: CallState): void;
+    set_state_reason(state_reason: CallStateReason): void;
+}
+export class CdmaManualActivationProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): CdmaManualActivationProperties;
+    static new_from_string(str: string): CdmaManualActivationProperties;
+    get_dictionary(): GLib.Variant;
+    get_mdn(): string;
+    get_min(): string;
+    get_mn_aaa_key(): string;
+    get_mn_ha_key(): string;
+    get_prl(): [number, number];
+    get_prl_bytearray(): number[];
+    get_sid(): number;
+    get_spc(): string;
+    peek_prl_bytearray(): number[];
+    set_mdn(mdn: string): boolean;
+    set_min(min: string): boolean;
+    set_mn_aaa_key(mn_aaa_key: string): boolean;
+    set_mn_ha_key(mn_ha_key: string): boolean;
+    set_prl(prl: number, prl_length: number): boolean;
+    set_prl_bytearray(prl: number[]): boolean;
+    set_sid(sid: number): void;
+    set_spc(spc: string): boolean;
+}
+export class FirmwareProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): FirmwareProperties;
+    get_dictionary(): GLib.Variant;
+    get_gobi_boot_version(): string;
+    get_gobi_modem_unique_id(): string;
+    get_gobi_pri_info(): string;
+    get_gobi_pri_unique_id(): string;
+    get_gobi_pri_version(): string;
+    get_image_type(): FirmwareImageType;
+    get_unique_id(): string;
+    set_gobi_boot_version(version: string): void;
+    set_gobi_modem_unique_id(id: string): void;
+    set_gobi_pri_info(info: string): void;
+    set_gobi_pri_unique_id(id: string): void;
+    set_gobi_pri_version(version: string): void;
+}
+export class FirmwareUpdateSettings extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_variant(variant: GLib.Variant): FirmwareUpdateSettings;
+    get_device_ids(): string[];
+    get_fastboot_at(): string;
+    get_method(): ModemFirmwareUpdateMethod;
+    get_variant(): GLib.Variant;
+    get_version(): string;
+    set_device_ids(device_ids: string): void;
+    set_fastboot_at(fastboot_at: string): void;
+    set_version(version: string): void;
+}
+export class GdbusBearerProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusBearerProxy;
+    static new_finish(...args: never[]): GdbusBearerProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusBearerProxy;
+    static new_for_bus_finish(...args: never[]): GdbusBearerProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusBearerProxy;
+    static new_for_bus_sync(...args: never[]): GdbusBearerProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusBearerProxy;
+    static new_sync(...args: never[]): GdbusBearerProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusBearerSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModem3gppProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModem3gppProxy;
+    static new_finish(...args: never[]): GdbusModem3gppProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModem3gppProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModem3gppProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModem3gppProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppProxy;
+    static new_sync(...args: never[]): GdbusModem3gppProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModem3gppSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModem3gppUssdProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModem3gppUssdProxy;
+    static new_finish(...args: never[]): GdbusModem3gppUssdProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModem3gppUssdProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModem3gppUssdProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppUssdProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModem3gppUssdProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModem3gppUssdProxy;
+    static new_sync(...args: never[]): GdbusModem3gppUssdProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModem3gppUssdSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemCdmaProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemCdmaProxy;
+    static new_finish(...args: never[]): GdbusModemCdmaProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemCdmaProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemCdmaProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemCdmaProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemCdmaProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemCdmaProxy;
+    static new_sync(...args: never[]): GdbusModemCdmaProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemCdmaSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemFirmwareProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemFirmwareProxy;
+    static new_finish(...args: never[]): GdbusModemFirmwareProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemFirmwareProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemFirmwareProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemFirmwareProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemFirmwareProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemFirmwareProxy;
+    static new_sync(...args: never[]): GdbusModemFirmwareProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemFirmwareSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemLocationProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemLocationProxy;
+    static new_finish(...args: never[]): GdbusModemLocationProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemLocationProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemLocationProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemLocationProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemLocationProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemLocationProxy;
+    static new_sync(...args: never[]): GdbusModemLocationProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemLocationSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemMessagingProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemMessagingProxy;
+    static new_finish(...args: never[]): GdbusModemMessagingProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemMessagingProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemMessagingProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemMessagingProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemMessagingProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemMessagingProxy;
+    static new_sync(...args: never[]): GdbusModemMessagingProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemMessagingSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemOmaProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemOmaProxy;
+    static new_finish(...args: never[]): GdbusModemOmaProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemOmaProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemOmaProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemOmaProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemOmaProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemOmaProxy;
+    static new_sync(...args: never[]): GdbusModemOmaProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemOmaSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemProxy;
+    static new_finish(...args: never[]): GdbusModemProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemProxy;
+    static new_sync(...args: never[]): GdbusModemProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemSignalProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemSignalProxy;
+    static new_finish(...args: never[]): GdbusModemSignalProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemSignalProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemSignalProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSignalProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemSignalProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSignalProxy;
+    static new_sync(...args: never[]): GdbusModemSignalProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemSignalSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemSimpleProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemSimpleProxy;
+    static new_finish(...args: never[]): GdbusModemSimpleProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemSimpleProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemSimpleProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSimpleProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemSimpleProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemSimpleProxy;
+    static new_sync(...args: never[]): GdbusModemSimpleProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemSimpleSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemTimeProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemTimeProxy;
+    static new_finish(...args: never[]): GdbusModemTimeProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemTimeProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemTimeProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemTimeProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemTimeProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemTimeProxy;
+    static new_sync(...args: never[]): GdbusModemTimeProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemTimeSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusModemVoiceProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusModemVoiceProxy;
+    static new_finish(...args: never[]): GdbusModemVoiceProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusModemVoiceProxy;
+    static new_for_bus_finish(...args: never[]): GdbusModemVoiceProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemVoiceProxy;
+    static new_for_bus_sync(...args: never[]): GdbusModemVoiceProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusModemVoiceProxy;
+    static new_sync(...args: never[]): GdbusModemVoiceProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusModemVoiceSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusObjectManagerClient extends Gio.DBusObjectManagerClient {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusObjectManagerClient;
+    static new_finish(...args: never[]): GdbusObjectManagerClient;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusObjectManagerClient;
+    static new_for_bus_finish(...args: never[]): GdbusObjectManagerClient;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusObjectManagerClientFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusObjectManagerClient;
+    static new_for_bus_sync(...args: never[]): GdbusObjectManagerClient;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusObjectManagerClient;
+    static new_sync(...args: never[]): GdbusObjectManagerClient;
+    static get_proxy_type(manager: Gio.DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null): GType;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusObjectManagerClientFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusObjectProxy extends Gio.DBusObjectProxy {
+    constructor(config?: properties);
+}
+export class GdbusObjectSkeleton extends Gio.DBusObjectSkeleton {
+    constructor(config?: properties);
+    set_modem(interface_: GdbusModem | null): void;
+    set_modem3gpp(interface_: GdbusModem3gpp | null): void;
+    set_modem3gpp_ussd(interface_: GdbusModem3gppUssd | null): void;
+    set_modem_cdma(interface_: GdbusModemCdma | null): void;
+    set_modem_firmware(interface_: GdbusModemFirmware | null): void;
+    set_modem_location(interface_: GdbusModemLocation | null): void;
+    set_modem_messaging(interface_: GdbusModemMessaging | null): void;
+    set_modem_oma(interface_: GdbusModemOma | null): void;
+    set_modem_signal(interface_: GdbusModemSignal | null): void;
+    set_modem_simple(interface_: GdbusModemSimple | null): void;
+    set_modem_time(interface_: GdbusModemTime | null): void;
+    set_modem_voice(interface_: GdbusModemVoice | null): void;
+}
+export class GdbusOrgFreedesktopModemManager1Proxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_finish(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_for_bus_finish(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_for_bus_sync(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusOrgFreedesktopModemManager1Proxy;
+    static new_sync(...args: never[]): GdbusOrgFreedesktopModemManager1Proxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusOrgFreedesktopModemManager1Skeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusSimProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusSimProxy;
+    static new_finish(...args: never[]): GdbusSimProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusSimProxy;
+    static new_for_bus_finish(...args: never[]): GdbusSimProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusSimProxy;
+    static new_for_bus_sync(...args: never[]): GdbusSimProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusSimProxy;
+    static new_sync(...args: never[]): GdbusSimProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusSimSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class GdbusSmsProxy extends Gio.DBusProxy {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): GdbusSmsProxy;
+    static new_finish(...args: never[]): GdbusSmsProxy;
+    static new_for_bus_finish(res: Gio.AsyncResult): GdbusSmsProxy;
+    static new_for_bus_finish(...args: never[]): GdbusSmsProxy;
+    static new_for_bus_sync(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null): GdbusSmsProxy;
+    static new_for_bus_sync(...args: never[]): GdbusSmsProxy;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null): GdbusSmsProxy;
+    static new_sync(...args: never[]): GdbusSmsProxy;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusProxyFlags, name: string | null, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+    static new_for_bus(bus_type: Gio.BusType, flags: Gio.DBusProxyFlags, name: string, object_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    new_for_bus(...args: never[]): never;
+}
+export class GdbusSmsSkeleton extends Gio.DBusInterfaceSkeleton {
+    constructor(config?: properties);
+}
+export class KernelEventProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): KernelEventProperties;
+    static new_from_string(str: string): KernelEventProperties;
+    dup(): KernelEventProperties;
+    get_action(): string;
+    get_dictionary(): GLib.Variant;
+    get_name(): string;
+    get_subsystem(): string;
+    get_uid(): string;
+    set_action(action: string): void;
+    set_name(name: string): void;
+    set_subsystem(subsystem: string): void;
+    set_uid(uid: string): void;
+}
+export class Location3gpp extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_string_variant(string: GLib.Variant): Location3gpp;
+    get_cell_id(): number;
+    get_location_area_code(): number;
+    get_mobile_country_code(): number;
+    get_mobile_network_code(): number;
+    get_string_variant(): GLib.Variant;
+    get_tracking_area_code(): number;
+    reset(): boolean;
+    set_cell_id(cell_id: number): boolean;
+    set_location_area_code(location_area_code: number): boolean;
+    set_mobile_country_code(mobile_country_code: number): boolean;
+    set_mobile_network_code(mobile_network_code: number): boolean;
+    set_tracking_area_code(tracking_area_code: number): boolean;
+}
+export class LocationCdmaBs extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(string: GLib.Variant): LocationCdmaBs;
+    get_dictionary(): GLib.Variant;
+    get_latitude(): number;
+    get_longitude(): number;
+    set(longitude: number, latitude: number): boolean;
+}
+export class LocationGpsNmea extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_string_variant(string: GLib.Variant): LocationGpsNmea;
+    add_trace(trace: string): boolean;
+    build_full(): string;
+    get_string_variant(): GLib.Variant;
+    get_trace(trace_type: string): string;
+}
+export class LocationGpsRaw extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(string: GLib.Variant): LocationGpsRaw;
+    add_trace(trace: string): boolean;
+    get_altitude(): number;
+    get_dictionary(): GLib.Variant;
+    get_latitude(): number;
+    get_longitude(): number;
+    get_utc_time(): string;
+}
+export class Manager extends GdbusObjectManagerClient {
+    constructor(config?: properties);
+    static new_finish(res: Gio.AsyncResult): Manager;
+    static new_finish(...args: never[]): Manager;
+    static new_sync(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, cancellable: Gio.Cancellable | null): Manager;
+    static new_sync(...args: never[]): Manager;
+    get_proxy(): Gio.DBusProxy;
+    get_version(): string;
+    inhibit_device(uid: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    inhibit_device_finish(res: Gio.AsyncResult): boolean;
+    inhibit_device_sync(uid: string, cancellable: Gio.Cancellable | null): boolean;
+    peek_proxy(): Gio.DBusProxy;
+    report_kernel_event(properties: KernelEventProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    report_kernel_event_finish(res: Gio.AsyncResult): boolean;
+    report_kernel_event_sync(properties: KernelEventProperties, cancellable: Gio.Cancellable | null): boolean;
+    scan_devices(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    scan_devices_finish(res: Gio.AsyncResult): boolean;
+    scan_devices_sync(cancellable: Gio.Cancellable | null): boolean;
+    set_logging(level: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_logging_finish(res: Gio.AsyncResult): boolean;
+    set_logging_sync(level: string, cancellable: Gio.Cancellable | null): boolean;
+    uninhibit_device(uid: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    uninhibit_device_finish(res: Gio.AsyncResult): boolean;
+    uninhibit_device_sync(uid: string, cancellable: Gio.Cancellable | null): boolean;
+    static _new(connection: Gio.DBusConnection, flags: Gio.DBusObjectManagerClientFlags, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    _new(...args: never[]): never;
+}
+export class Modem  {
+    constructor(config?: properties);
+    readonly priv: ModemPrivate;
+    command(cmd: string, timeout: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    command_finish(res: Gio.AsyncResult): string;
+    command_sync(cmd: string, timeout: number, cancellable: Gio.Cancellable | null): string;
+    create_bearer(properties: BearerProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    create_bearer_finish(res: Gio.AsyncResult): Bearer;
+    create_bearer_sync(properties: BearerProperties, cancellable: Gio.Cancellable | null): Bearer;
+    delete_bearer(bearer: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    delete_bearer_finish(res: Gio.AsyncResult): boolean;
+    delete_bearer_sync(bearer: string, cancellable: Gio.Cancellable | null): boolean;
+    disable(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    disable_finish(res: Gio.AsyncResult): boolean;
+    disable_sync(cancellable: Gio.Cancellable | null): boolean;
+    dup_bearer_paths(): string[];
+    dup_carrier_configuration(): string;
+    dup_carrier_configuration_revision(): string;
+    dup_device(): string;
+    dup_device_identifier(): string;
+    dup_drivers(): string[];
+    dup_equipment_identifier(): string;
+    dup_hardware_revision(): string;
+    dup_manufacturer(): string;
+    dup_model(): string;
+    dup_own_numbers(): string[];
+    dup_path(): string;
+    dup_plugin(): string;
+    dup_primary_port(): string;
+    dup_revision(): string;
+    dup_sim_path(): string;
+    enable(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    enable_finish(res: Gio.AsyncResult): boolean;
+    enable_sync(cancellable: Gio.Cancellable | null): boolean;
+    factory_reset(code: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    factory_reset_finish(res: Gio.AsyncResult): boolean;
+    factory_reset_sync(code: string, cancellable: Gio.Cancellable | null): boolean;
+    get_access_technologies(): ModemAccessTechnology;
+    get_bearer_paths(): string[];
+    get_carrier_configuration(): string;
+    get_carrier_configuration_revision(): string;
+    get_current_bands(): [boolean, ModemBand[],number];
+    get_current_capabilities(): ModemCapability;
+    get_current_modes(): [boolean, ModemMode,ModemMode];
+    get_device(): string;
+    get_device_identifier(): string;
+    get_drivers(): string[];
+    get_equipment_identifier(): string;
+    get_hardware_revision(): string;
+    get_manufacturer(): string;
+    get_max_active_bearers(): number;
+    get_max_bearers(): number;
+    get_model(): string;
+    get_plugin(): string;
+    get_ports(): [boolean, ModemPortInfo[],number];
+    get_power_state(): ModemPowerState;
+    get_primary_port(): string;
+    get_revision(): string;
+    get_signal_quality(): [number, boolean];
+    get_sim(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_sim_finish(res: Gio.AsyncResult): Sim;
+    get_sim_sync(cancellable: Gio.Cancellable | null): Sim;
+    get_state(): ModemState;
+    get_state_failed_reason(): ModemStateFailedReason;
+    get_supported_bands(): [boolean, ModemBand[],number];
+    get_supported_capabilities(): [boolean, ModemCapability[],number];
+    get_supported_ip_families(): BearerIpFamily;
+    get_supported_modes(): [boolean, ModemModeCombination[],number];
+    get_unlock_required(): ModemLock;
+    get_unlock_retries(): UnlockRetries;
+    list_bearers(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    list_bearers_finish(res: Gio.AsyncResult): GLib.List;
+    list_bearers_sync(cancellable: Gio.Cancellable | null): GLib.List;
+    peek_current_bands(): [boolean, ModemBand[],number];
+    peek_ports(): [boolean, ModemPortInfo[],number];
+    peek_supported_bands(): [boolean, ModemBand[],number];
+    peek_supported_capabilities(): [boolean, ModemCapability[],number];
+    peek_supported_modes(): [boolean, ModemModeCombination[],number];
+    peek_unlock_retries(): UnlockRetries;
+    reset(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    reset_finish(res: Gio.AsyncResult): boolean;
+    reset_sync(cancellable: Gio.Cancellable | null): boolean;
+    set_current_bands(bands: ModemBand, n_bands: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_current_bands_finish(res: Gio.AsyncResult): boolean;
+    set_current_bands_sync(bands: ModemBand, n_bands: number, cancellable: Gio.Cancellable | null): boolean;
+    set_current_capabilities(capabilities: ModemCapability, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_current_capabilities_finish(res: Gio.AsyncResult): boolean;
+    set_current_capabilities_sync(capabilities: ModemCapability, cancellable: Gio.Cancellable | null): boolean;
+    set_current_modes(modes: ModemMode, preferred: ModemMode, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_current_modes_finish(res: Gio.AsyncResult): boolean;
+    set_current_modes_sync(modes: ModemMode, preferred: ModemMode, cancellable: Gio.Cancellable | null): boolean;
+    set_power_state(state: ModemPowerState, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_power_state_finish(res: Gio.AsyncResult): boolean;
+    set_power_state_sync(state: ModemPowerState, cancellable: Gio.Cancellable | null): boolean;
+    static get_pending_network_initiated_sessions(self: ModemOma): [boolean, OmaPendingNetworkInitiatedSession[],number];
+    static peek_pending_network_initiated_sessions(self: ModemOma): [boolean, OmaPendingNetworkInitiatedSession[],number];
+}
+export class Modem3gpp  {
+    constructor(config?: properties);
+    readonly priv: Modem3gppPrivate;
+    dup_imei(): string;
+    dup_initial_eps_bearer_path(): string;
+    dup_operator_code(): string;
+    dup_operator_name(): string;
+    dup_path(): string;
+    get_enabled_facility_locks(): Modem3gppFacility;
+    get_eps_ue_mode_operation(): Modem3gppEpsUeModeOperation;
+    get_imei(): string;
+    get_initial_eps_bearer(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_initial_eps_bearer_finish(res: Gio.AsyncResult): Bearer;
+    get_initial_eps_bearer_settings(): BearerProperties;
+    get_initial_eps_bearer_sync(cancellable: Gio.Cancellable | null): Bearer;
+    get_operator_code(): string;
+    get_operator_name(): string;
+    get_path(): string;
+    get_pco(): GLib.List;
+    get_registration_state(): Modem3gppRegistrationState;
+    get_subscription_state(): Modem3gppSubscriptionState;
+    peek_initial_eps_bearer_settings(): BearerProperties;
+    register(network_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    register_finish(res: Gio.AsyncResult): boolean;
+    register_sync(network_id: string, cancellable: Gio.Cancellable | null): boolean;
+    scan(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    scan_finish(res: Gio.AsyncResult): GLib.List;
+    scan_sync(cancellable: Gio.Cancellable | null): GLib.List;
+    set_eps_ue_mode_operation(mode: Modem3gppEpsUeModeOperation, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_eps_ue_mode_operation_finish(res: Gio.AsyncResult): boolean;
+    set_eps_ue_mode_operation_sync(mode: Modem3gppEpsUeModeOperation, cancellable: Gio.Cancellable | null): boolean;
+    set_initial_eps_bearer_settings(config: BearerProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_initial_eps_bearer_settings_finish(res: Gio.AsyncResult): boolean;
+    set_initial_eps_bearer_settings_sync(config: BearerProperties, cancellable: Gio.Cancellable | null): boolean;
+    static network_free(network: Modem3gppNetwork): void;
+    static network_get_access_technology(network: Modem3gppNetwork): ModemAccessTechnology;
+    static network_get_availability(network: Modem3gppNetwork): Modem3gppNetworkAvailability;
+    static network_get_operator_code(network: Modem3gppNetwork): string;
+    static network_get_operator_long(network: Modem3gppNetwork): string;
+    static network_get_operator_short(network: Modem3gppNetwork): string;
+}
+export class Modem3gppUssd  {
+    constructor(config?: properties);
+    readonly unused: object;
+    cancel(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    cancel_finish(res: Gio.AsyncResult): boolean;
+    cancel_sync(cancellable: Gio.Cancellable | null): boolean;
+    dup_network_notification(): string;
+    dup_network_request(): string;
+    dup_path(): string;
+    get_network_notification(): string;
+    get_network_request(): string;
+    get_path(): string;
+    get_state(): Modem3gppUssdSessionState;
+    initiate(command: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    initiate_finish(res: Gio.AsyncResult): string;
+    initiate_sync(command: string, cancellable: Gio.Cancellable | null): string;
+    respond(response: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    respond_finish(res: Gio.AsyncResult): string;
+    respond_sync(response: string, cancellable: Gio.Cancellable | null): string;
+}
+export class ModemCdma  {
+    constructor(config?: properties);
+    readonly unused: object;
+    activate(carrier: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    activate_finish(res: Gio.AsyncResult): boolean;
+    activate_manual(properties: CdmaManualActivationProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    activate_manual_finish(res: Gio.AsyncResult): boolean;
+    activate_manual_sync(properties: CdmaManualActivationProperties, cancellable: Gio.Cancellable | null): boolean;
+    activate_sync(carrier: string, cancellable: Gio.Cancellable | null): boolean;
+    dup_esn(): string;
+    dup_meid(): string;
+    dup_path(): string;
+    get_activation_state(): ModemCdmaActivationState;
+    get_cdma1x_registration_state(): ModemCdmaRegistrationState;
+    get_esn(): string;
+    get_evdo_registration_state(): ModemCdmaRegistrationState;
+    get_meid(): string;
+    get_nid(): number;
+    get_path(): string;
+    get_sid(): number;
+}
+export class ModemFirmware  {
+    constructor(config?: properties);
+    readonly priv: ModemFirmwarePrivate;
+    dup_path(): string;
+    get_path(): string;
+    get_update_settings(): FirmwareUpdateSettings;
+    list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    list_finish(res: Gio.AsyncResult): [boolean, FirmwareProperties | null,GLib.List | null];
+    list_sync(cancellable: Gio.Cancellable | null): [boolean, FirmwareProperties | null,GLib.List | null];
+    peek_update_settings(): FirmwareUpdateSettings;
+    select(unique_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    select_finish(res: Gio.AsyncResult): boolean;
+    select_sync(unique_id: string, cancellable: Gio.Cancellable | null): boolean;
+}
+export class ModemLocation  {
+    constructor(config?: properties);
+    readonly unused: object;
+    dup_assistance_data_servers(): string[];
+    dup_path(): string;
+    dup_supl_server(): string;
+    get_3gpp(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_3gpp_finish(res: Gio.AsyncResult): Location3gpp;
+    get_3gpp_sync(cancellable: Gio.Cancellable | null): Location3gpp;
+    get_assistance_data_servers(): string[];
+    get_capabilities(): ModemLocationSource;
+    get_cdma_bs(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_cdma_bs_finish(res: Gio.AsyncResult): LocationCdmaBs;
+    get_cdma_bs_sync(cancellable: Gio.Cancellable | null): LocationCdmaBs;
+    get_enabled(): ModemLocationSource;
+    get_full(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_full_finish(res: Gio.AsyncResult): [boolean, Location3gpp | null,LocationGpsNmea | null,LocationGpsRaw | null,LocationCdmaBs | null];
+    get_full_sync(cancellable: Gio.Cancellable | null): [boolean, Location3gpp | null,LocationGpsNmea | null,LocationGpsRaw | null,LocationCdmaBs | null];
+    get_gps_nmea(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_gps_nmea_finish(res: Gio.AsyncResult): LocationGpsNmea;
+    get_gps_nmea_sync(cancellable: Gio.Cancellable | null): LocationGpsNmea;
+    get_gps_raw(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_gps_raw_finish(res: Gio.AsyncResult): LocationGpsRaw;
+    get_gps_raw_sync(cancellable: Gio.Cancellable | null): LocationGpsRaw;
+    get_gps_refresh_rate(): number;
+    get_path(): string;
+    get_supl_server(): string;
+    get_supported_assistance_data(): ModemLocationAssistanceDataType;
+    inject_assistance_data(data: number[], data_size: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    inject_assistance_data_finish(res: Gio.AsyncResult): boolean;
+    inject_assistance_data_sync(data: number[], data_size: number, cancellable: Gio.Cancellable | null): boolean;
+    set_gps_refresh_rate(rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_gps_refresh_rate_finish(res: Gio.AsyncResult): boolean;
+    set_gps_refresh_rate_sync(rate: number, cancellable: Gio.Cancellable | null): boolean;
+    set_supl_server(supl: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    set_supl_server_finish(res: Gio.AsyncResult): boolean;
+    set_supl_server_sync(supl: string, cancellable: Gio.Cancellable | null): boolean;
+    setup(sources: ModemLocationSource, signal_location: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    setup_finish(res: Gio.AsyncResult): boolean;
+    setup_sync(sources: ModemLocationSource, signal_location: boolean, cancellable: Gio.Cancellable | null): boolean;
+    signals_location(): boolean;
+}
+export class ModemMessaging  {
+    constructor(config?: properties);
+    readonly priv: ModemMessagingPrivate;
+    create(properties: SmsProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    create_finish(res: Gio.AsyncResult): Sms;
+    create_sync(properties: SmsProperties, cancellable: Gio.Cancellable | null): Sms;
+    _delete(sms: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    delete_finish(res: Gio.AsyncResult): boolean;
+    delete_sync(sms: string, cancellable: Gio.Cancellable | null): boolean;
+    dup_path(): string;
+    get_default_storage(): SmsStorage;
+    get_path(): string;
+    get_supported_storages(): [boolean, SmsStorage[],number];
+    list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    list_finish(res: Gio.AsyncResult): GLib.List;
+    list_sync(cancellable: Gio.Cancellable | null): GLib.List;
+    peek_supported_storages(): [boolean, SmsStorage,number];
+}
+export class ModemOma  {
+    constructor(config?: properties);
+    readonly priv: ModemOmaPrivate;
+    accept_network_initiated_session(session_id: number, accept: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    accept_network_initiated_session_finish(res: Gio.AsyncResult): boolean;
+    accept_network_initiated_session_sync(session_id: number, accept: boolean, cancellable: Gio.Cancellable | null): boolean;
+    cancel_session(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    cancel_session_finish(res: Gio.AsyncResult): boolean;
+    cancel_session_sync(cancellable: Gio.Cancellable | null): boolean;
+    dup_path(): string;
+    get_features(): OmaFeature;
+    get_path(): string;
+    get_session_state(): OmaSessionState;
+    get_session_type(): OmaSessionType;
+    setup(features: OmaFeature, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    setup_finish(res: Gio.AsyncResult): boolean;
+    setup_sync(features: OmaFeature, cancellable: Gio.Cancellable | null): boolean;
+    start_client_initiated_session(session_type: OmaSessionType, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    start_client_initiated_session_finish(res: Gio.AsyncResult): boolean;
+    start_client_initiated_session_sync(session_type: OmaSessionType, cancellable: Gio.Cancellable | null): boolean;
+}
+export class ModemSignal  {
+    constructor(config?: properties);
+    readonly priv: ModemSignalPrivate;
+    dup_path(): string;
+    get_cdma(): Signal;
+    get_evdo(): Signal;
+    get_gsm(): Signal;
+    get_lte(): Signal;
+    get_path(): string;
+    get_rate(): number;
+    get_umts(): Signal;
+    peek_cdma(): Signal;
+    peek_evdo(): Signal;
+    peek_gsm(): Signal;
+    peek_lte(): Signal;
+    peek_umts(): Signal;
+    setup(rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    setup_finish(res: Gio.AsyncResult): boolean;
+    setup_sync(rate: number, cancellable: Gio.Cancellable | null): boolean;
+}
+export class ModemSimple  {
+    constructor(config?: properties);
+    readonly unused: object;
+    connect(properties: SimpleConnectProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    connect_finish(res: Gio.AsyncResult): Bearer;
+    connect_sync(properties: SimpleConnectProperties, cancellable: Gio.Cancellable | null): Bearer;
+    disconnect(bearer: string | null, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    disconnect_finish(res: Gio.AsyncResult): boolean;
+    disconnect_sync(bearer: string | null, cancellable: Gio.Cancellable | null): boolean;
+    dup_path(): string;
+    get_path(): string;
+    get_status(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_status_finish(res: Gio.AsyncResult): SimpleStatus;
+    get_status_sync(cancellable: Gio.Cancellable | null): SimpleStatus;
+}
+export class ModemTime  {
+    constructor(config?: properties);
+    readonly priv: ModemTimePrivate;
+    dup_path(): string;
+    get_network_time(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    get_network_time_finish(res: Gio.AsyncResult): string;
+    get_network_time_sync(cancellable: Gio.Cancellable | null): string;
+    get_network_timezone(): NetworkTimezone;
+    get_path(): string;
+    peek_network_timezone(): NetworkTimezone;
+}
+export class ModemVoice  {
+    constructor(config?: properties);
+    readonly priv: ModemVoicePrivate;
+    create_call(properties: CallProperties, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    create_call_finish(res: Gio.AsyncResult): Call;
+    create_call_sync(properties: CallProperties, cancellable: Gio.Cancellable | null): Call;
+    delete_call(call: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    delete_call_finish(res: Gio.AsyncResult): boolean;
+    delete_call_sync(call: string, cancellable: Gio.Cancellable | null): boolean;
+    dup_path(): string;
+    get_path(): string;
+    list_calls(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    list_calls_finish(res: Gio.AsyncResult): GLib.List;
+    list_calls_sync(cancellable: Gio.Cancellable | null): GLib.List;
+}
+export class NetworkTimezone extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): NetworkTimezone;
+    get_dictionary(): GLib.Variant;
+    get_dst_offset(): number;
+    get_leap_seconds(): number;
+    get_offset(): number;
+    set_dst_offset(dst_offset: number): void;
+    set_leap_seconds(leap_seconds: number): void;
+    set_offset(offset: number): void;
+}
+export class Object  {
+    constructor(config?: properties);
+    readonly unused: object;
+    dup_path(): string;
+    get_modem(): Modem;
+    get_modem_3gpp(): Modem3gpp;
+    get_modem_3gpp_ussd(): Modem3gppUssd;
+    get_modem_cdma(): ModemCdma;
+    get_modem_firmware(): ModemFirmware;
+    get_modem_location(): ModemLocation;
+    get_modem_messaging(): ModemMessaging;
+    get_modem_oma(): ModemOma;
+    get_modem_signal(): ModemSignal;
+    get_modem_simple(): ModemSimple;
+    get_modem_time(): ModemTime;
+    get_modem_voice(): ModemVoice;
+}
+export class Pco extends GObject.Object {
+    constructor(config?: properties);
+    get_data(): [number, number];
+    get_data(...args: never[]): never;
+    get_session_id(): number;
+    is_complete(): boolean;
+    set_complete(is_complete: boolean): void;
+    set_data(data: number, data_size: number): void;
+    set_data(...args: never[]): never;
+    set_session_id(session_id: number): void;
+    to_variant(): GLib.Variant;
+    static from_variant(variant: GLib.Variant): Pco;
+    static list_add(pco_list: GLib.List, pco: Pco): GLib.List;
+    static list_free(pco_list: GLib.List): void;
+}
+export class Signal extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): Signal;
+    get_dictionary(): GLib.Variant;
+    get_ecio(): number;
+    get_io(): number;
+    get_rscp(): number;
+    get_rsrp(): number;
+    get_rsrq(): number;
+    get_rssi(): number;
+    get_sinr(): number;
+    get_snr(): number;
+    set_ecio(value: number): void;
+    set_io(value: number): void;
+    set_rscp(value: number): void;
+    set_rsrp(value: number): void;
+    set_rsrq(value: number): void;
+    set_rssi(value: number): void;
+    set_sinr(value: number): void;
+    set_snr(value: number): void;
+}
+export class Sim  {
+    constructor(config?: properties);
+    readonly unused: object;
+    change_pin(old_pin: string, new_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    change_pin_finish(res: Gio.AsyncResult): boolean;
+    change_pin_sync(old_pin: string, new_pin: string, cancellable: Gio.Cancellable | null): boolean;
+    disable_pin(pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    disable_pin_finish(res: Gio.AsyncResult): boolean;
+    disable_pin_sync(pin: string, cancellable: Gio.Cancellable | null): boolean;
+    dup_identifier(): string;
+    dup_imsi(): string;
+    dup_operator_identifier(): string;
+    dup_operator_name(): string;
+    dup_path(): string;
+    enable_pin(pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    enable_pin_finish(res: Gio.AsyncResult): boolean;
+    enable_pin_sync(pin: string, cancellable: Gio.Cancellable | null): boolean;
+    get_identifier(): string;
+    get_imsi(): string;
+    get_operator_identifier(): string;
+    get_operator_name(): string;
+    get_path(): string;
+    send_pin(pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    send_pin_finish(res: Gio.AsyncResult): boolean;
+    send_pin_sync(pin: string, cancellable: Gio.Cancellable | null): boolean;
+    send_puk(puk: string, pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    send_puk_finish(res: Gio.AsyncResult): boolean;
+    send_puk_sync(puk: string, pin: string, cancellable: Gio.Cancellable | null): boolean;
+}
+export class SimpleConnectProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): SimpleConnectProperties;
+    static new_from_string(str: string): SimpleConnectProperties;
+    get_allow_roaming(): boolean;
+    get_allowed_auth(): BearerAllowedAuth;
+    get_apn(): string;
+    get_bearer_properties(): BearerProperties;
+    get_dictionary(): GLib.Variant;
+    get_ip_type(): BearerIpFamily;
+    get_number(): string;
+    get_operator_id(): string;
+    get_password(): string;
+    get_pin(): string;
+    get_user(): string;
+    set_allow_roaming(allow_roaming: boolean): void;
+    set_allowed_auth(allowed_auth: BearerAllowedAuth): void;
+    set_apn(apn: string): void;
+    set_ip_type(ip_type: BearerIpFamily): void;
+    set_number(number: string): void;
+    set_operator_id(operator_id: string): void;
+    set_password(password: string): void;
+    set_pin(pin: string): void;
+    set_user(user: string): void;
+}
+export class SimpleStatus extends GObject.Object {
+    constructor(config?: properties);
+    access_technologies: ModemAccessTechnology;
+    cdma_cdma1x_registration_state: ModemCdmaRegistrationState;
+    cdma_evdo_registration_state: ModemCdmaRegistrationState;
+    cdma_nid: number;
+    cdma_sid: number;
+    current_bands: GLib.Variant;
+    m3gpp_operator_code: string;
+    m3gpp_operator_name: string;
+    m3gpp_registration_state: Modem3gppRegistrationState;
+    m3gpp_subscription_state: Modem3gppSubscriptionState;
+    signal_quality: GLib.Variant;
+    state: ModemState;static new_from_dictionary(dictionary: GLib.Variant): SimpleStatus;
+    get_3gpp_operator_code(): string;
+    get_3gpp_operator_name(): string;
+    get_3gpp_registration_state(): Modem3gppRegistrationState;
+    get_3gpp_subscription_state(): Modem3gppSubscriptionState;
+    get_access_technologies(): ModemAccessTechnology;
+    get_cdma_cdma1x_registration_state(): ModemCdmaRegistrationState;
+    get_cdma_evdo_registration_state(): ModemCdmaRegistrationState;
+    get_cdma_nid(): number;
+    get_cdma_sid(): number;
+    get_current_bands(): [ModemBand,number];
+    get_dictionary(): GLib.Variant;
+    get_signal_quality(): [number, boolean | null];
+    get_state(): ModemState;
+}
+export class Sms  {
+    constructor(config?: properties);
+    readonly unused: object;
+    dup_data(): [number[], number];
+    dup_discharge_timestamp(): string;
+    dup_number(): string;
+    dup_path(): string;
+    dup_smsc(): string;
+    dup_text(): string;
+    dup_timestamp(): string;
+    get_class(): number;
+    get_data(): [number[], number];
+    get_delivery_report_request(): boolean;
+    get_delivery_state(): number;
+    get_discharge_timestamp(): string;
+    get_message_reference(): number;
+    get_number(): string;
+    get_path(): string;
+    get_pdu_type(): SmsPduType;
+    get_service_category(): SmsCdmaServiceCategory;
+    get_smsc(): string;
+    get_state(): SmsState;
+    get_storage(): SmsStorage;
+    get_teleservice_id(): SmsCdmaTeleserviceId;
+    get_text(): string;
+    get_timestamp(): string;
+    get_validity_relative(): number;
+    get_validity_type(): SmsValidityType;
+    send(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    send_finish(res: Gio.AsyncResult): boolean;
+    send_sync(cancellable: Gio.Cancellable | null): boolean;
+    store(storage: SmsStorage, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    store_finish(res: Gio.AsyncResult): boolean;
+    store_sync(storage: SmsStorage, cancellable: Gio.Cancellable | null): boolean;
+}
+export class SmsProperties extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): SmsProperties;
+    static new_from_string(str: string): SmsProperties;
+    dup(): SmsProperties;
+    get_class(): number;
+    get_data(): [number, number];
+    get_data(...args: never[]): never;
+    get_data_bytearray(): number[];
+    get_delivery_report_request(): boolean;
+    get_dictionary(): GLib.Variant;
+    get_number(): string;
+    get_service_category(): SmsCdmaServiceCategory;
+    get_smsc(): string;
+    get_teleservice_id(): SmsCdmaTeleserviceId;
+    get_text(): string;
+    get_validity_relative(): number;
+    get_validity_type(): SmsValidityType;
+    peek_data_bytearray(): number[];
+    set_class(message_class: number): void;
+    set_data(data: number, data_length: number): void;
+    set_data(...args: never[]): never;
+    set_data_bytearray(data: number[]): void;
+    set_delivery_report_request(request: boolean): void;
+    set_number(number: string): void;
+    set_service_category(service_category: SmsCdmaServiceCategory): void;
+    set_smsc(smsc: string): void;
+    set_teleservice_id(teleservice_id: SmsCdmaTeleserviceId): void;
+    set_text(text: string): void;
+    set_validity_relative(validity: number): void;
+}
+export class UnlockRetries extends GObject.Object {
+    constructor(config?: properties);
+    static new_from_dictionary(dictionary: GLib.Variant): UnlockRetries;
+    build_string(): string;
+    cmp(b: UnlockRetries): boolean;
+    foreach(callback: UnlockRetriesForeachCb, user_data: object | null): void;
+    get(lock: ModemLock): number;
+    get_dictionary(): GLib.Variant;
+    set(lock: ModemLock, retries: number): void;
+    unset(lock: ModemLock): void;
+}
+export class BearerIpConfigPrivate  {
+    constructor(config?: properties);
+}
+export class BearerPrivate  {
+    constructor(config?: properties);
+}
+export class BearerPropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class BearerStatsPrivate  {
+    constructor(config?: properties);
+}
+export class CallAudioFormatPrivate  {
+    constructor(config?: properties);
+}
+export class CallPrivate  {
+    constructor(config?: properties);
+}
+export class CallPropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class CdmaManualActivationPropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class FirmwarePropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class FirmwareUpdateSettingsPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusBearerProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusBearerSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModem3gppProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModem3gppSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModem3gppUssdProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModem3gppUssdSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemCdmaProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemCdmaSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemFirmwareProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemFirmwareSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemLocationProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemLocationSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemMessagingProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemMessagingSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemOmaProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemOmaSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemSignalProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemSignalSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemSimpleProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemSimpleSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemTimeProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemTimeSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemVoiceProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusModemVoiceSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusObjectManagerClientPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusObjectProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusObjectSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusOrgFreedesktopModemManager1ProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusOrgFreedesktopModemManager1SkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusSimProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusSimSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusSmsProxyPrivate  {
+    constructor(config?: properties);
+}
+export class GdbusSmsSkeletonPrivate  {
+    constructor(config?: properties);
+}
+export class KernelEventPropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class Location3gppPrivate  {
+    constructor(config?: properties);
+}
+export class LocationCdmaBsPrivate  {
+    constructor(config?: properties);
+}
+export class LocationGpsNmeaPrivate  {
+    constructor(config?: properties);
+}
+export class LocationGpsRawPrivate  {
+    constructor(config?: properties);
+}
+export class ManagerPrivate  {
+    constructor(config?: properties);
+}
+export class Modem3gppNetwork  {
+    constructor(config?: properties);
+}
+export class Modem3gppPrivate  {
+    constructor(config?: properties);
+}
+export class ModemFirmwarePrivate  {
+    constructor(config?: properties);
+}
+export class ModemMessagingPrivate  {
+    constructor(config?: properties);
+}
+export class ModemModeCombination  {
+    constructor(config?: properties);
+    allowed: ModemMode;
+    preferred: ModemMode;
+}
+export class ModemOmaPrivate  {
+    constructor(config?: properties);
+}
+export class ModemPortInfo  {
+    constructor(config?: properties);
+    name: string;
+    type: ModemPortType;
+    array_free(array_size: number): void;
+}
+export class ModemPrivate  {
+    constructor(config?: properties);
+}
+export class ModemSignalPrivate  {
+    constructor(config?: properties);
+}
+export class ModemTimePrivate  {
+    constructor(config?: properties);
+}
+export class ModemVoicePrivate  {
+    constructor(config?: properties);
+}
+export class NetworkTimezonePrivate  {
+    constructor(config?: properties);
+}
+export class OmaPendingNetworkInitiatedSession  {
+    constructor(config?: properties);
+    session_type: OmaSessionType;
+    session_id: number;
+}
+export class PcoPrivate  {
+    constructor(config?: properties);
+}
+export class SignalPrivate  {
+    constructor(config?: properties);
+}
+export class SimpleConnectPropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class SimpleStatusPrivate  {
+    constructor(config?: properties);
+}
+export class SmsPropertiesPrivate  {
+    constructor(config?: properties);
+}
+export class UnlockRetriesPrivate  {
+    constructor(config?: properties);
 }
 export interface GdbusBearer  {
-bearer_type: number;
-connected: boolean;
-_interface: string;
-ip_timeout: number;
-ip4_config: GLib.Variant;
-ip6_config: GLib.Variant;
-properties: GLib.Variant;
-stats: GLib.Variant;
-suspended: boolean;
-call_connect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_connect_finish(res: Gio.AsyncResult): boolean;
-call_connect_sync(cancellable: Gio.Cancellable | null): boolean;
-call_disconnect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_disconnect_finish(res: Gio.AsyncResult): boolean;
-call_disconnect_sync(cancellable: Gio.Cancellable | null): boolean;
-complete_connect(invocation: Gio.DBusMethodInvocation): void;
-complete_disconnect(invocation: Gio.DBusMethodInvocation): void;
-dup_interface(): string | null;
-dup_ip4_config(): GLib.Variant | null;
-dup_ip6_config(): GLib.Variant | null;
-dup_properties(): GLib.Variant | null;
-dup_stats(): GLib.Variant | null;
-get_bearer_type(): number;
-get_connected(): boolean;
-get_interface(): string | null;
-get_ip4_config(): GLib.Variant | null;
-get_ip6_config(): GLib.Variant | null;
-get_ip_timeout(): number;
-get_properties(): GLib.Variant | null;
-get_stats(): GLib.Variant | null;
-get_suspended(): boolean;
-set_bearer_type(value: number): void;
-set_connected(value: boolean): void;
-set_interface(value: string): void;
-set_ip4_config(value: GLib.Variant): void;
-set_ip6_config(value: GLib.Variant): void;
-set_ip_timeout(value: number): void;
-set_properties(value: GLib.Variant): void;
-set_stats(value: GLib.Variant): void;
-set_suspended(value: boolean): void;
+    bearer_type: number;
+    connected: boolean;
+    _interface: string;
+    ip_timeout: number;
+    ip4_config: GLib.Variant;
+    ip6_config: GLib.Variant;
+    properties: GLib.Variant;
+    stats: GLib.Variant;
+    suspended: boolean;
+    call_connect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_connect_finish(res: Gio.AsyncResult): boolean;
+    call_connect_sync(cancellable: Gio.Cancellable | null): boolean;
+    call_disconnect(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_disconnect_finish(res: Gio.AsyncResult): boolean;
+    call_disconnect_sync(cancellable: Gio.Cancellable | null): boolean;
+    complete_connect(invocation: Gio.DBusMethodInvocation): void;
+    complete_disconnect(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusModem  {
-access_technologies: number;
-bearers: string[];
-carrier_configuration: string;
-carrier_configuration_revision: string;
-current_bands: GLib.Variant;
-current_capabilities: number;
-current_modes: GLib.Variant;
-device: string;
-device_identifier: string;
-drivers: string[];
-equipment_identifier: string;
-hardware_revision: string;
-manufacturer: string;
-max_active_bearers: number;
-max_bearers: number;
-model: string;
-own_numbers: string[];
-plugin: string;
-ports: GLib.Variant;
-power_state: number;
-primary_port: string;
-revision: string;
-signal_quality: GLib.Variant;
-sim: string;
-state: number;
-state_failed_reason: number;
-supported_bands: GLib.Variant;
-supported_capabilities: GLib.Variant;
-supported_ip_families: number;
-supported_modes: GLib.Variant;
-unlock_required: number;
-unlock_retries: GLib.Variant;
-call_command(arg_cmd: string, arg_timeout: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_command_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_command_sync(arg_cmd: string, arg_timeout: number, cancellable: Gio.Cancellable | null): [boolean, string | null];
-call_create_bearer(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_create_bearer_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_create_bearer_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
-call_delete_bearer(arg_bearer: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_delete_bearer_finish(res: Gio.AsyncResult): boolean;
-call_delete_bearer_sync(arg_bearer: string, cancellable: Gio.Cancellable | null): boolean;
-call_enable(arg_enable: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_enable_finish(res: Gio.AsyncResult): boolean;
-call_enable_sync(arg_enable: boolean, cancellable: Gio.Cancellable | null): boolean;
-call_factory_reset(arg_code: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_factory_reset_finish(res: Gio.AsyncResult): boolean;
-call_factory_reset_sync(arg_code: string, cancellable: Gio.Cancellable | null): boolean;
-call_list_bearers(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_list_bearers_finish(res: Gio.AsyncResult): [boolean, string[] | null];
-call_list_bearers_sync(cancellable: Gio.Cancellable | null): [boolean, string[] | null];
-call_reset(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_reset_finish(res: Gio.AsyncResult): boolean;
-call_reset_sync(cancellable: Gio.Cancellable | null): boolean;
-call_set_current_bands(arg_bands: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_current_bands_finish(res: Gio.AsyncResult): boolean;
-call_set_current_bands_sync(arg_bands: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-call_set_current_capabilities(arg_capabilities: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_current_capabilities_finish(res: Gio.AsyncResult): boolean;
-call_set_current_capabilities_sync(arg_capabilities: number, cancellable: Gio.Cancellable | null): boolean;
-call_set_current_modes(arg_modes: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_current_modes_finish(res: Gio.AsyncResult): boolean;
-call_set_current_modes_sync(arg_modes: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-call_set_power_state(arg_state: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_power_state_finish(res: Gio.AsyncResult): boolean;
-call_set_power_state_sync(arg_state: number, cancellable: Gio.Cancellable | null): boolean;
-complete_command(invocation: Gio.DBusMethodInvocation, response: string): void;
-complete_create_bearer(invocation: Gio.DBusMethodInvocation, path: string): void;
-complete_delete_bearer(invocation: Gio.DBusMethodInvocation): void;
-complete_enable(invocation: Gio.DBusMethodInvocation): void;
-complete_factory_reset(invocation: Gio.DBusMethodInvocation): void;
-complete_list_bearers(invocation: Gio.DBusMethodInvocation, bearers: string): void;
-complete_reset(invocation: Gio.DBusMethodInvocation): void;
-complete_set_current_bands(invocation: Gio.DBusMethodInvocation): void;
-complete_set_current_capabilities(invocation: Gio.DBusMethodInvocation): void;
-complete_set_current_modes(invocation: Gio.DBusMethodInvocation): void;
-complete_set_power_state(invocation: Gio.DBusMethodInvocation): void;
-dup_bearers(): string[] | null;
-dup_carrier_configuration(): string | null;
-dup_carrier_configuration_revision(): string | null;
-dup_current_bands(): GLib.Variant | null;
-dup_current_modes(): GLib.Variant | null;
-dup_device(): string | null;
-dup_device_identifier(): string | null;
-dup_drivers(): string[] | null;
-dup_equipment_identifier(): string | null;
-dup_hardware_revision(): string | null;
-dup_manufacturer(): string | null;
-dup_model(): string | null;
-dup_own_numbers(): string[] | null;
-dup_plugin(): string | null;
-dup_ports(): GLib.Variant | null;
-dup_primary_port(): string | null;
-dup_revision(): string | null;
-dup_signal_quality(): GLib.Variant | null;
-dup_sim(): string | null;
-dup_supported_bands(): GLib.Variant | null;
-dup_supported_capabilities(): GLib.Variant | null;
-dup_supported_modes(): GLib.Variant | null;
-dup_unlock_retries(): GLib.Variant | null;
-emit_state_changed(arg_old: number, arg_new: number, arg_reason: number): void;
-get_access_technologies(): number;
-get_bearers(): string[] | null;
-get_carrier_configuration(): string | null;
-get_carrier_configuration_revision(): string | null;
-get_current_bands(): GLib.Variant | null;
-get_current_capabilities(): number;
-get_current_modes(): GLib.Variant | null;
-get_device(): string | null;
-get_device_identifier(): string | null;
-get_drivers(): string[] | null;
-get_equipment_identifier(): string | null;
-get_hardware_revision(): string | null;
-get_manufacturer(): string | null;
-get_max_active_bearers(): number;
-get_max_bearers(): number;
-get_model(): string | null;
-get_own_numbers(): string[] | null;
-get_plugin(): string | null;
-get_ports(): GLib.Variant | null;
-get_power_state(): number;
-get_primary_port(): string | null;
-get_revision(): string | null;
-get_signal_quality(): GLib.Variant | null;
-get_sim(): string | null;
-get_state(): number;
-get_state_failed_reason(): number;
-get_supported_bands(): GLib.Variant | null;
-get_supported_capabilities(): GLib.Variant | null;
-get_supported_ip_families(): number;
-get_supported_modes(): GLib.Variant | null;
-get_unlock_required(): number;
-get_unlock_retries(): GLib.Variant | null;
-set_access_technologies(value: number): void;
-set_bearers(value: string): void;
-set_carrier_configuration(value: string): void;
-set_carrier_configuration_revision(value: string): void;
-set_current_bands(value: GLib.Variant): void;
-set_current_capabilities(value: number): void;
-set_current_modes(value: GLib.Variant): void;
-set_device(value: string): void;
-set_device_identifier(value: string): void;
-set_drivers(value: string): void;
-set_equipment_identifier(value: string): void;
-set_hardware_revision(value: string): void;
-set_manufacturer(value: string): void;
-set_max_active_bearers(value: number): void;
-set_max_bearers(value: number): void;
-set_model(value: string): void;
-set_own_numbers(value: string): void;
-set_plugin(value: string): void;
-set_ports(value: GLib.Variant): void;
-set_power_state(value: number): void;
-set_primary_port(value: string): void;
-set_revision(value: string): void;
-set_signal_quality(value: GLib.Variant): void;
-set_sim(value: string): void;
-set_state(value: number): void;
-set_state_failed_reason(value: number): void;
-set_supported_bands(value: GLib.Variant): void;
-set_supported_capabilities(value: GLib.Variant): void;
-set_supported_ip_families(value: number): void;
-set_supported_modes(value: GLib.Variant): void;
-set_unlock_required(value: number): void;
-set_unlock_retries(value: GLib.Variant): void;
+    access_technologies: number;
+    bearers: string[];
+    carrier_configuration: string;
+    carrier_configuration_revision: string;
+    current_bands: GLib.Variant;
+    current_capabilities: number;
+    current_modes: GLib.Variant;
+    device: string;
+    device_identifier: string;
+    drivers: string[];
+    equipment_identifier: string;
+    hardware_revision: string;
+    manufacturer: string;
+    max_active_bearers: number;
+    max_bearers: number;
+    model: string;
+    own_numbers: string[];
+    plugin: string;
+    ports: GLib.Variant;
+    power_state: number;
+    primary_port: string;
+    revision: string;
+    signal_quality: GLib.Variant;
+    sim: string;
+    state: number;
+    state_failed_reason: number;
+    supported_bands: GLib.Variant;
+    supported_capabilities: GLib.Variant;
+    supported_ip_families: number;
+    supported_modes: GLib.Variant;
+    unlock_required: number;
+    unlock_retries: GLib.Variant;
+    call_command(arg_cmd: string, arg_timeout: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_command_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_command_sync(arg_cmd: string, arg_timeout: number, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    call_create_bearer(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_create_bearer_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_create_bearer_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    call_delete_bearer(arg_bearer: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_delete_bearer_finish(res: Gio.AsyncResult): boolean;
+    call_delete_bearer_sync(arg_bearer: string, cancellable: Gio.Cancellable | null): boolean;
+    call_enable(arg_enable: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_enable_finish(res: Gio.AsyncResult): boolean;
+    call_enable_sync(arg_enable: boolean, cancellable: Gio.Cancellable | null): boolean;
+    call_factory_reset(arg_code: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_factory_reset_finish(res: Gio.AsyncResult): boolean;
+    call_factory_reset_sync(arg_code: string, cancellable: Gio.Cancellable | null): boolean;
+    call_list_bearers(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_list_bearers_finish(res: Gio.AsyncResult): [boolean, string[] | null];
+    call_list_bearers_sync(cancellable: Gio.Cancellable | null): [boolean, string[] | null];
+    call_reset(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_reset_finish(res: Gio.AsyncResult): boolean;
+    call_reset_sync(cancellable: Gio.Cancellable | null): boolean;
+    call_set_current_bands(arg_bands: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_current_bands_finish(res: Gio.AsyncResult): boolean;
+    call_set_current_bands_sync(arg_bands: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    call_set_current_capabilities(arg_capabilities: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_current_capabilities_finish(res: Gio.AsyncResult): boolean;
+    call_set_current_capabilities_sync(arg_capabilities: number, cancellable: Gio.Cancellable | null): boolean;
+    call_set_current_modes(arg_modes: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_current_modes_finish(res: Gio.AsyncResult): boolean;
+    call_set_current_modes_sync(arg_modes: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    call_set_power_state(arg_state: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_power_state_finish(res: Gio.AsyncResult): boolean;
+    call_set_power_state_sync(arg_state: number, cancellable: Gio.Cancellable | null): boolean;
+    complete_command(invocation: Gio.DBusMethodInvocation, response: string): void;
+    complete_create_bearer(invocation: Gio.DBusMethodInvocation, path: string): void;
+    complete_delete_bearer(invocation: Gio.DBusMethodInvocation): void;
+    complete_enable(invocation: Gio.DBusMethodInvocation): void;
+    complete_factory_reset(invocation: Gio.DBusMethodInvocation): void;
+    complete_list_bearers(invocation: Gio.DBusMethodInvocation, bearers: string): void;
+    complete_reset(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_current_bands(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_current_capabilities(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_current_modes(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_power_state(invocation: Gio.DBusMethodInvocation): void;
+    emit_state_changed(arg_old: number, arg_new: number, arg_reason: number): void;
 }
 export interface GdbusModem3gpp  {
-enabled_facility_locks: number;
-eps_ue_mode_operation: number;
-imei: string;
-initial_eps_bearer: string;
-initial_eps_bearer_settings: GLib.Variant;
-operator_code: string;
-operator_name: string;
-pco: GLib.Variant;
-registration_state: number;
-subscription_state: number;
-call_register(arg_operator_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_register_finish(res: Gio.AsyncResult): boolean;
-call_register_sync(arg_operator_id: string, cancellable: Gio.Cancellable | null): boolean;
-call_scan(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_scan_finish(res: Gio.AsyncResult): [boolean, GLib.Variant | null];
-call_scan_sync(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
-call_set_eps_ue_mode_operation(arg_mode: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_eps_ue_mode_operation_finish(res: Gio.AsyncResult): boolean;
-call_set_eps_ue_mode_operation_sync(arg_mode: number, cancellable: Gio.Cancellable | null): boolean;
-call_set_initial_eps_bearer_settings(arg_settings: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_initial_eps_bearer_settings_finish(res: Gio.AsyncResult): boolean;
-call_set_initial_eps_bearer_settings_sync(arg_settings: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-complete_register(invocation: Gio.DBusMethodInvocation): void;
-complete_scan(invocation: Gio.DBusMethodInvocation, results: GLib.Variant): void;
-complete_set_eps_ue_mode_operation(invocation: Gio.DBusMethodInvocation): void;
-complete_set_initial_eps_bearer_settings(invocation: Gio.DBusMethodInvocation): void;
-dup_imei(): string | null;
-dup_initial_eps_bearer(): string | null;
-dup_initial_eps_bearer_settings(): GLib.Variant | null;
-dup_operator_code(): string | null;
-dup_operator_name(): string | null;
-dup_pco(): GLib.Variant | null;
-get_enabled_facility_locks(): number;
-get_eps_ue_mode_operation(): number;
-get_imei(): string | null;
-get_initial_eps_bearer(): string | null;
-get_initial_eps_bearer_settings(): GLib.Variant | null;
-get_operator_code(): string | null;
-get_operator_name(): string | null;
-get_pco(): GLib.Variant | null;
-get_registration_state(): number;
-get_subscription_state(): number;
-set_enabled_facility_locks(value: number): void;
-set_eps_ue_mode_operation(value: number): void;
-set_imei(value: string): void;
-set_initial_eps_bearer(value: string): void;
-set_initial_eps_bearer_settings(value: GLib.Variant): void;
-set_operator_code(value: string): void;
-set_operator_name(value: string): void;
-set_pco(value: GLib.Variant): void;
-set_registration_state(value: number): void;
-set_subscription_state(value: number): void;
+    enabled_facility_locks: number;
+    eps_ue_mode_operation: number;
+    imei: string;
+    initial_eps_bearer: string;
+    initial_eps_bearer_settings: GLib.Variant;
+    operator_code: string;
+    operator_name: string;
+    pco: GLib.Variant;
+    registration_state: number;
+    subscription_state: number;
+    call_register(arg_operator_id: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_register_finish(res: Gio.AsyncResult): boolean;
+    call_register_sync(arg_operator_id: string, cancellable: Gio.Cancellable | null): boolean;
+    call_scan(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_scan_finish(res: Gio.AsyncResult): [boolean, GLib.Variant | null];
+    call_scan_sync(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
+    call_set_eps_ue_mode_operation(arg_mode: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_eps_ue_mode_operation_finish(res: Gio.AsyncResult): boolean;
+    call_set_eps_ue_mode_operation_sync(arg_mode: number, cancellable: Gio.Cancellable | null): boolean;
+    call_set_initial_eps_bearer_settings(arg_settings: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_initial_eps_bearer_settings_finish(res: Gio.AsyncResult): boolean;
+    call_set_initial_eps_bearer_settings_sync(arg_settings: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    complete_register(invocation: Gio.DBusMethodInvocation): void;
+    complete_scan(invocation: Gio.DBusMethodInvocation, results: GLib.Variant): void;
+    complete_set_eps_ue_mode_operation(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_initial_eps_bearer_settings(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusModem3gppUssd  {
-network_notification: string;
-network_request: string;
-state: number;
-call_cancel(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_cancel_finish(res: Gio.AsyncResult): boolean;
-call_cancel_sync(cancellable: Gio.Cancellable | null): boolean;
-call_initiate(arg_command: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_initiate_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_initiate_sync(arg_command: string, cancellable: Gio.Cancellable | null): [boolean, string | null];
-call_respond(arg_response: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_respond_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_respond_sync(arg_response: string, cancellable: Gio.Cancellable | null): [boolean, string | null];
-complete_cancel(invocation: Gio.DBusMethodInvocation): void;
-complete_initiate(invocation: Gio.DBusMethodInvocation, reply: string): void;
-complete_respond(invocation: Gio.DBusMethodInvocation, reply: string): void;
-dup_network_notification(): string | null;
-dup_network_request(): string | null;
-get_network_notification(): string | null;
-get_network_request(): string | null;
-get_state(): number;
-set_network_notification(value: string): void;
-set_network_request(value: string): void;
-set_state(value: number): void;
+    network_notification: string;
+    network_request: string;
+    state: number;
+    call_cancel(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_cancel_finish(res: Gio.AsyncResult): boolean;
+    call_cancel_sync(cancellable: Gio.Cancellable | null): boolean;
+    call_initiate(arg_command: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_initiate_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_initiate_sync(arg_command: string, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    call_respond(arg_response: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_respond_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_respond_sync(arg_response: string, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    complete_cancel(invocation: Gio.DBusMethodInvocation): void;
+    complete_initiate(invocation: Gio.DBusMethodInvocation, reply: string): void;
+    complete_respond(invocation: Gio.DBusMethodInvocation, reply: string): void;
 }
 export interface GdbusModemCdma  {
-activation_state: number;
-cdma1x_registration_state: number;
-esn: string;
-evdo_registration_state: number;
-meid: string;
-nid: number;
-sid: number;
-call_activate(arg_carrier_code: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_activate_finish(res: Gio.AsyncResult): boolean;
-call_activate_manual(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_activate_manual_finish(res: Gio.AsyncResult): boolean;
-call_activate_manual_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-call_activate_sync(arg_carrier_code: string, cancellable: Gio.Cancellable | null): boolean;
-complete_activate(invocation: Gio.DBusMethodInvocation): void;
-complete_activate_manual(invocation: Gio.DBusMethodInvocation): void;
-dup_esn(): string | null;
-dup_meid(): string | null;
-emit_activation_state_changed(arg_activation_state: number, arg_activation_error: number, arg_status_changes: GLib.Variant): void;
-get_activation_state(): number;
-get_cdma1x_registration_state(): number;
-get_esn(): string | null;
-get_evdo_registration_state(): number;
-get_meid(): string | null;
-get_nid(): number;
-get_sid(): number;
-set_activation_state(value: number): void;
-set_cdma1x_registration_state(value: number): void;
-set_esn(value: string): void;
-set_evdo_registration_state(value: number): void;
-set_meid(value: string): void;
-set_nid(value: number): void;
-set_sid(value: number): void;
+    activation_state: number;
+    cdma1x_registration_state: number;
+    esn: string;
+    evdo_registration_state: number;
+    meid: string;
+    nid: number;
+    sid: number;
+    call_activate(arg_carrier_code: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_activate_finish(res: Gio.AsyncResult): boolean;
+    call_activate_manual(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_activate_manual_finish(res: Gio.AsyncResult): boolean;
+    call_activate_manual_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    call_activate_sync(arg_carrier_code: string, cancellable: Gio.Cancellable | null): boolean;
+    complete_activate(invocation: Gio.DBusMethodInvocation): void;
+    complete_activate_manual(invocation: Gio.DBusMethodInvocation): void;
+    emit_activation_state_changed(arg_activation_state: number, arg_activation_error: number, arg_status_changes: GLib.Variant): void;
 }
 export interface GdbusModemFirmware  {
-update_settings: GLib.Variant;
-call_list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_list_finish(res: Gio.AsyncResult): [boolean, string | null,GLib.Variant | null];
-call_list_sync(cancellable: Gio.Cancellable | null): [boolean, string | null,GLib.Variant | null];
-call_select(arg_uniqueid: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_select_finish(res: Gio.AsyncResult): boolean;
-call_select_sync(arg_uniqueid: string, cancellable: Gio.Cancellable | null): boolean;
-complete_list(invocation: Gio.DBusMethodInvocation, selected: string, installed: GLib.Variant): void;
-complete_select(invocation: Gio.DBusMethodInvocation): void;
-dup_update_settings(): GLib.Variant | null;
-get_update_settings(): GLib.Variant | null;
-set_update_settings(value: GLib.Variant): void;
+    update_settings: GLib.Variant;
+    call_list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_list_finish(res: Gio.AsyncResult): [boolean, string | null,GLib.Variant | null];
+    call_list_sync(cancellable: Gio.Cancellable | null): [boolean, string | null,GLib.Variant | null];
+    call_select(arg_uniqueid: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_select_finish(res: Gio.AsyncResult): boolean;
+    call_select_sync(arg_uniqueid: string, cancellable: Gio.Cancellable | null): boolean;
+    complete_list(invocation: Gio.DBusMethodInvocation, selected: string, installed: GLib.Variant): void;
+    complete_select(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusModemLocation  {
-assistance_data_servers: string[];
-capabilities: number;
-enabled: number;
-gps_refresh_rate: number;
-location: GLib.Variant;
-signals_location: boolean;
-supl_server: string;
-supported_assistance_data: number;
-call_get_location(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_get_location_finish(res: Gio.AsyncResult): [boolean, GLib.Variant | null];
-call_get_location_sync(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
-call_inject_assistance_data(arg_data: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_inject_assistance_data_finish(res: Gio.AsyncResult): boolean;
-call_inject_assistance_data_sync(arg_data: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-call_set_gps_refresh_rate(arg_rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_gps_refresh_rate_finish(res: Gio.AsyncResult): boolean;
-call_set_gps_refresh_rate_sync(arg_rate: number, cancellable: Gio.Cancellable | null): boolean;
-call_set_supl_server(arg_supl: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_supl_server_finish(res: Gio.AsyncResult): boolean;
-call_set_supl_server_sync(arg_supl: string, cancellable: Gio.Cancellable | null): boolean;
-call_setup(arg_sources: number, arg_signal_location: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_setup_finish(res: Gio.AsyncResult): boolean;
-call_setup_sync(arg_sources: number, arg_signal_location: boolean, cancellable: Gio.Cancellable | null): boolean;
-complete_get_location(invocation: Gio.DBusMethodInvocation, Location: GLib.Variant): void;
-complete_inject_assistance_data(invocation: Gio.DBusMethodInvocation): void;
-complete_set_gps_refresh_rate(invocation: Gio.DBusMethodInvocation): void;
-complete_set_supl_server(invocation: Gio.DBusMethodInvocation): void;
-complete_setup(invocation: Gio.DBusMethodInvocation): void;
-dup_assistance_data_servers(): string[] | null;
-dup_location(): GLib.Variant | null;
-dup_supl_server(): string | null;
-get_assistance_data_servers(): string[] | null;
-get_capabilities(): number;
-get_enabled(): number;
-get_gps_refresh_rate(): number;
-get_location(): GLib.Variant | null;
-get_signals_location(): boolean;
-get_supl_server(): string | null;
-get_supported_assistance_data(): number;
-set_assistance_data_servers(value: string): void;
-set_capabilities(value: number): void;
-set_enabled(value: number): void;
-set_gps_refresh_rate(value: number): void;
-set_location(value: GLib.Variant): void;
-set_signals_location(value: boolean): void;
-set_supl_server(value: string): void;
-set_supported_assistance_data(value: number): void;
+    assistance_data_servers: string[];
+    capabilities: number;
+    enabled: number;
+    gps_refresh_rate: number;
+    location: GLib.Variant;
+    signals_location: boolean;
+    supl_server: string;
+    supported_assistance_data: number;
+    call_get_location(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_get_location_finish(res: Gio.AsyncResult): [boolean, GLib.Variant | null];
+    call_get_location_sync(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
+    call_inject_assistance_data(arg_data: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_inject_assistance_data_finish(res: Gio.AsyncResult): boolean;
+    call_inject_assistance_data_sync(arg_data: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    call_set_gps_refresh_rate(arg_rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_gps_refresh_rate_finish(res: Gio.AsyncResult): boolean;
+    call_set_gps_refresh_rate_sync(arg_rate: number, cancellable: Gio.Cancellable | null): boolean;
+    call_set_supl_server(arg_supl: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_supl_server_finish(res: Gio.AsyncResult): boolean;
+    call_set_supl_server_sync(arg_supl: string, cancellable: Gio.Cancellable | null): boolean;
+    call_setup(arg_sources: number, arg_signal_location: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_setup_finish(res: Gio.AsyncResult): boolean;
+    call_setup_sync(arg_sources: number, arg_signal_location: boolean, cancellable: Gio.Cancellable | null): boolean;
+    complete_get_location(invocation: Gio.DBusMethodInvocation, Location: GLib.Variant): void;
+    complete_inject_assistance_data(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_gps_refresh_rate(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_supl_server(invocation: Gio.DBusMethodInvocation): void;
+    complete_setup(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusModemMessaging  {
-default_storage: number;
-messages: string[];
-supported_storages: GLib.Variant;
-call_create(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_create_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_create_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
-call_delete(arg_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_delete_finish(res: Gio.AsyncResult): boolean;
-call_delete_sync(arg_path: string, cancellable: Gio.Cancellable | null): boolean;
-call_list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_list_finish(res: Gio.AsyncResult): [boolean, string[] | null];
-call_list_sync(cancellable: Gio.Cancellable | null): [boolean, string[] | null];
-complete_create(invocation: Gio.DBusMethodInvocation, path: string): void;
-complete_delete(invocation: Gio.DBusMethodInvocation): void;
-complete_list(invocation: Gio.DBusMethodInvocation, result: string): void;
-dup_messages(): string[] | null;
-dup_supported_storages(): GLib.Variant | null;
-emit_added(arg_path: string, arg_received: boolean): void;
-emit_deleted(arg_path: string): void;
-get_default_storage(): number;
-get_messages(): string[] | null;
-get_supported_storages(): GLib.Variant | null;
-set_default_storage(value: number): void;
-set_messages(value: string): void;
-set_supported_storages(value: GLib.Variant): void;
+    default_storage: number;
+    messages: string[];
+    supported_storages: GLib.Variant;
+    call_create(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_create_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_create_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    call_delete(arg_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_delete_finish(res: Gio.AsyncResult): boolean;
+    call_delete_sync(arg_path: string, cancellable: Gio.Cancellable | null): boolean;
+    call_list(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_list_finish(res: Gio.AsyncResult): [boolean, string[] | null];
+    call_list_sync(cancellable: Gio.Cancellable | null): [boolean, string[] | null];
+    complete_create(invocation: Gio.DBusMethodInvocation, path: string): void;
+    complete_delete(invocation: Gio.DBusMethodInvocation): void;
+    complete_list(invocation: Gio.DBusMethodInvocation, result: string): void;
+    emit_added(arg_path: string, arg_received: boolean): void;
+    emit_deleted(arg_path: string): void;
 }
 export interface GdbusModemOma  {
-features: number;
-pending_network_initiated_sessions: GLib.Variant;
-session_state: number;
-session_type: number;
-call_accept_network_initiated_session(arg_session_id: number, arg_accept: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_accept_network_initiated_session_finish(res: Gio.AsyncResult): boolean;
-call_accept_network_initiated_session_sync(arg_session_id: number, arg_accept: boolean, cancellable: Gio.Cancellable | null): boolean;
-call_cancel_session(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_cancel_session_finish(res: Gio.AsyncResult): boolean;
-call_cancel_session_sync(cancellable: Gio.Cancellable | null): boolean;
-call_setup(arg_features: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_setup_finish(res: Gio.AsyncResult): boolean;
-call_setup_sync(arg_features: number, cancellable: Gio.Cancellable | null): boolean;
-call_start_client_initiated_session(arg_session_type: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_start_client_initiated_session_finish(res: Gio.AsyncResult): boolean;
-call_start_client_initiated_session_sync(arg_session_type: number, cancellable: Gio.Cancellable | null): boolean;
-complete_accept_network_initiated_session(invocation: Gio.DBusMethodInvocation): void;
-complete_cancel_session(invocation: Gio.DBusMethodInvocation): void;
-complete_setup(invocation: Gio.DBusMethodInvocation): void;
-complete_start_client_initiated_session(invocation: Gio.DBusMethodInvocation): void;
-dup_pending_network_initiated_sessions(): GLib.Variant | null;
-emit_session_state_changed(arg_old_session_state: number, arg_new_session_state: number, arg_session_state_failed_reason: number): void;
-get_features(): number;
-get_pending_network_initiated_sessions(): GLib.Variant | null;
-get_session_state(): number;
-get_session_type(): number;
-set_features(value: number): void;
-set_pending_network_initiated_sessions(value: GLib.Variant): void;
-set_session_state(value: number): void;
-set_session_type(value: number): void;
+    features: number;
+    pending_network_initiated_sessions: GLib.Variant;
+    session_state: number;
+    session_type: number;
+    call_accept_network_initiated_session(arg_session_id: number, arg_accept: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_accept_network_initiated_session_finish(res: Gio.AsyncResult): boolean;
+    call_accept_network_initiated_session_sync(arg_session_id: number, arg_accept: boolean, cancellable: Gio.Cancellable | null): boolean;
+    call_cancel_session(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_cancel_session_finish(res: Gio.AsyncResult): boolean;
+    call_cancel_session_sync(cancellable: Gio.Cancellable | null): boolean;
+    call_setup(arg_features: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_setup_finish(res: Gio.AsyncResult): boolean;
+    call_setup_sync(arg_features: number, cancellable: Gio.Cancellable | null): boolean;
+    call_start_client_initiated_session(arg_session_type: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_start_client_initiated_session_finish(res: Gio.AsyncResult): boolean;
+    call_start_client_initiated_session_sync(arg_session_type: number, cancellable: Gio.Cancellable | null): boolean;
+    complete_accept_network_initiated_session(invocation: Gio.DBusMethodInvocation): void;
+    complete_cancel_session(invocation: Gio.DBusMethodInvocation): void;
+    complete_setup(invocation: Gio.DBusMethodInvocation): void;
+    complete_start_client_initiated_session(invocation: Gio.DBusMethodInvocation): void;
+    emit_session_state_changed(arg_old_session_state: number, arg_new_session_state: number, arg_session_state_failed_reason: number): void;
 }
 export interface GdbusModemSignal  {
-cdma: GLib.Variant;
-evdo: GLib.Variant;
-gsm: GLib.Variant;
-lte: GLib.Variant;
-rate: number;
-umts: GLib.Variant;
-call_setup(arg_rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_setup_finish(res: Gio.AsyncResult): boolean;
-call_setup_sync(arg_rate: number, cancellable: Gio.Cancellable | null): boolean;
-complete_setup(invocation: Gio.DBusMethodInvocation): void;
-dup_cdma(): GLib.Variant | null;
-dup_evdo(): GLib.Variant | null;
-dup_gsm(): GLib.Variant | null;
-dup_lte(): GLib.Variant | null;
-dup_umts(): GLib.Variant | null;
-get_cdma(): GLib.Variant | null;
-get_evdo(): GLib.Variant | null;
-get_gsm(): GLib.Variant | null;
-get_lte(): GLib.Variant | null;
-get_rate(): number;
-get_umts(): GLib.Variant | null;
-set_cdma(value: GLib.Variant): void;
-set_evdo(value: GLib.Variant): void;
-set_gsm(value: GLib.Variant): void;
-set_lte(value: GLib.Variant): void;
-set_rate(value: number): void;
-set_umts(value: GLib.Variant): void;
+    cdma: GLib.Variant;
+    evdo: GLib.Variant;
+    gsm: GLib.Variant;
+    lte: GLib.Variant;
+    rate: number;
+    umts: GLib.Variant;
+    call_setup(arg_rate: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_setup_finish(res: Gio.AsyncResult): boolean;
+    call_setup_sync(arg_rate: number, cancellable: Gio.Cancellable | null): boolean;
+    complete_setup(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusModemSimple  {
-call_connect(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_connect_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_connect_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
-call_disconnect(arg_bearer: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_disconnect_finish(res: Gio.AsyncResult): boolean;
-call_disconnect_sync(arg_bearer: string, cancellable: Gio.Cancellable | null): boolean;
-call_get_status(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_get_status_finish(res: Gio.AsyncResult): [boolean, GLib.Variant | null];
-call_get_status_sync(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
-complete_connect(invocation: Gio.DBusMethodInvocation, bearer: string): void;
-complete_disconnect(invocation: Gio.DBusMethodInvocation): void;
-complete_get_status(invocation: Gio.DBusMethodInvocation, properties: GLib.Variant): void;
+    call_connect(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_connect_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_connect_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    call_disconnect(arg_bearer: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_disconnect_finish(res: Gio.AsyncResult): boolean;
+    call_disconnect_sync(arg_bearer: string, cancellable: Gio.Cancellable | null): boolean;
+    call_get_status(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_get_status_finish(res: Gio.AsyncResult): [boolean, GLib.Variant | null];
+    call_get_status_sync(cancellable: Gio.Cancellable | null): [boolean, GLib.Variant | null];
+    complete_connect(invocation: Gio.DBusMethodInvocation, bearer: string): void;
+    complete_disconnect(invocation: Gio.DBusMethodInvocation): void;
+    complete_get_status(invocation: Gio.DBusMethodInvocation, properties: GLib.Variant): void;
 }
 export interface GdbusModemTime  {
-network_timezone: GLib.Variant;
-call_get_network_time(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_get_network_time_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_get_network_time_sync(cancellable: Gio.Cancellable | null): [boolean, string | null];
-complete_get_network_time(invocation: Gio.DBusMethodInvocation, time: string): void;
-dup_network_timezone(): GLib.Variant | null;
-emit_network_time_changed(arg_time: string): void;
-get_network_timezone(): GLib.Variant | null;
-set_network_timezone(value: GLib.Variant): void;
+    network_timezone: GLib.Variant;
+    call_get_network_time(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_get_network_time_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_get_network_time_sync(cancellable: Gio.Cancellable | null): [boolean, string | null];
+    complete_get_network_time(invocation: Gio.DBusMethodInvocation, time: string): void;
+    emit_network_time_changed(arg_time: string): void;
 }
 export interface GdbusModemVoice  {
-calls: string[];
-call_create_call(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_create_call_finish(res: Gio.AsyncResult): [boolean, string | null];
-call_create_call_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
-call_delete_call(arg_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_delete_call_finish(res: Gio.AsyncResult): boolean;
-call_delete_call_sync(arg_path: string, cancellable: Gio.Cancellable | null): boolean;
-call_list_calls(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_list_calls_finish(res: Gio.AsyncResult): [boolean, string[] | null];
-call_list_calls_sync(cancellable: Gio.Cancellable | null): [boolean, string[] | null];
-complete_create_call(invocation: Gio.DBusMethodInvocation, path: string): void;
-complete_delete_call(invocation: Gio.DBusMethodInvocation): void;
-complete_list_calls(invocation: Gio.DBusMethodInvocation, result: string): void;
-dup_calls(): string[] | null;
-emit_call_added(arg_path: string): void;
-emit_call_deleted(arg_path: string): void;
-get_calls(): string[] | null;
-set_calls(value: string): void;
+    calls: string[];
+    call_create_call(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_create_call_finish(res: Gio.AsyncResult): [boolean, string | null];
+    call_create_call_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): [boolean, string | null];
+    call_delete_call(arg_path: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_delete_call_finish(res: Gio.AsyncResult): boolean;
+    call_delete_call_sync(arg_path: string, cancellable: Gio.Cancellable | null): boolean;
+    call_list_calls(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_list_calls_finish(res: Gio.AsyncResult): [boolean, string[] | null];
+    call_list_calls_sync(cancellable: Gio.Cancellable | null): [boolean, string[] | null];
+    complete_create_call(invocation: Gio.DBusMethodInvocation, path: string): void;
+    complete_delete_call(invocation: Gio.DBusMethodInvocation): void;
+    complete_list_calls(invocation: Gio.DBusMethodInvocation, result: string): void;
+    emit_call_added(arg_path: string): void;
+    emit_call_deleted(arg_path: string): void;
 }
 export interface GdbusObject  {
-modem: GdbusModem;
-modem_cdma: GdbusModemCdma;
-modem_firmware: GdbusModemFirmware;
-modem_location: GdbusModemLocation;
-modem_messaging: GdbusModemMessaging;
-modem_oma: GdbusModemOma;
-modem_signal: GdbusModemSignal;
-modem_simple: GdbusModemSimple;
-modem_time: GdbusModemTime;
-modem_voice: GdbusModemVoice;
-modem3gpp: GdbusModem3gpp;
-modem3gpp_ussd: GdbusModem3gppUssd;
-get_modem(): GdbusModem | null;
-get_modem3gpp(): GdbusModem3gpp | null;
-get_modem3gpp_ussd(): GdbusModem3gppUssd | null;
-get_modem_cdma(): GdbusModemCdma | null;
-get_modem_firmware(): GdbusModemFirmware | null;
-get_modem_location(): GdbusModemLocation | null;
-get_modem_messaging(): GdbusModemMessaging | null;
-get_modem_oma(): GdbusModemOma | null;
-get_modem_signal(): GdbusModemSignal | null;
-get_modem_simple(): GdbusModemSimple | null;
-get_modem_time(): GdbusModemTime | null;
-get_modem_voice(): GdbusModemVoice | null;
-peek_modem(): GdbusModem | null;
-peek_modem3gpp(): GdbusModem3gpp | null;
-peek_modem3gpp_ussd(): GdbusModem3gppUssd | null;
-peek_modem_cdma(): GdbusModemCdma | null;
-peek_modem_firmware(): GdbusModemFirmware | null;
-peek_modem_location(): GdbusModemLocation | null;
-peek_modem_messaging(): GdbusModemMessaging | null;
-peek_modem_oma(): GdbusModemOma | null;
-peek_modem_signal(): GdbusModemSignal | null;
-peek_modem_simple(): GdbusModemSimple | null;
-peek_modem_time(): GdbusModemTime | null;
-peek_modem_voice(): GdbusModemVoice | null;
+    modem: GdbusModem;
+    modem_cdma: GdbusModemCdma;
+    modem_firmware: GdbusModemFirmware;
+    modem_location: GdbusModemLocation;
+    modem_messaging: GdbusModemMessaging;
+    modem_oma: GdbusModemOma;
+    modem_signal: GdbusModemSignal;
+    modem_simple: GdbusModemSimple;
+    modem_time: GdbusModemTime;
+    modem_voice: GdbusModemVoice;
+    modem3gpp: GdbusModem3gpp;
+    modem3gpp_ussd: GdbusModem3gppUssd;
+    get_modem(): GdbusModem | null;
+    get_modem3gpp(): GdbusModem3gpp | null;
+    get_modem3gpp_ussd(): GdbusModem3gppUssd | null;
+    get_modem_cdma(): GdbusModemCdma | null;
+    get_modem_firmware(): GdbusModemFirmware | null;
+    get_modem_location(): GdbusModemLocation | null;
+    get_modem_messaging(): GdbusModemMessaging | null;
+    get_modem_oma(): GdbusModemOma | null;
+    get_modem_signal(): GdbusModemSignal | null;
+    get_modem_simple(): GdbusModemSimple | null;
+    get_modem_time(): GdbusModemTime | null;
+    get_modem_voice(): GdbusModemVoice | null;
 }
 export interface GdbusOrgFreedesktopModemManager1  {
-version: string;
-call_inhibit_device(arg_uid: string, arg_inhibit: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_inhibit_device_finish(res: Gio.AsyncResult): boolean;
-call_inhibit_device_sync(arg_uid: string, arg_inhibit: boolean, cancellable: Gio.Cancellable | null): boolean;
-call_report_kernel_event(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_report_kernel_event_finish(res: Gio.AsyncResult): boolean;
-call_report_kernel_event_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
-call_scan_devices(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_scan_devices_finish(res: Gio.AsyncResult): boolean;
-call_scan_devices_sync(cancellable: Gio.Cancellable | null): boolean;
-call_set_logging(arg_level: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_set_logging_finish(res: Gio.AsyncResult): boolean;
-call_set_logging_sync(arg_level: string, cancellable: Gio.Cancellable | null): boolean;
-complete_inhibit_device(invocation: Gio.DBusMethodInvocation): void;
-complete_report_kernel_event(invocation: Gio.DBusMethodInvocation): void;
-complete_scan_devices(invocation: Gio.DBusMethodInvocation): void;
-complete_set_logging(invocation: Gio.DBusMethodInvocation): void;
-dup_version(): string | null;
-get_version(): string | null;
-set_version(value: string): void;
+    version: string;
+    call_inhibit_device(arg_uid: string, arg_inhibit: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_inhibit_device_finish(res: Gio.AsyncResult): boolean;
+    call_inhibit_device_sync(arg_uid: string, arg_inhibit: boolean, cancellable: Gio.Cancellable | null): boolean;
+    call_report_kernel_event(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_report_kernel_event_finish(res: Gio.AsyncResult): boolean;
+    call_report_kernel_event_sync(arg_properties: GLib.Variant, cancellable: Gio.Cancellable | null): boolean;
+    call_scan_devices(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_scan_devices_finish(res: Gio.AsyncResult): boolean;
+    call_scan_devices_sync(cancellable: Gio.Cancellable | null): boolean;
+    call_set_logging(arg_level: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_set_logging_finish(res: Gio.AsyncResult): boolean;
+    call_set_logging_sync(arg_level: string, cancellable: Gio.Cancellable | null): boolean;
+    complete_inhibit_device(invocation: Gio.DBusMethodInvocation): void;
+    complete_report_kernel_event(invocation: Gio.DBusMethodInvocation): void;
+    complete_scan_devices(invocation: Gio.DBusMethodInvocation): void;
+    complete_set_logging(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusSim  {
-imsi: string;
-operator_identifier: string;
-operator_name: string;
-sim_identifier: string;
-call_change_pin(arg_old_pin: string, arg_new_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_change_pin_finish(res: Gio.AsyncResult): boolean;
-call_change_pin_sync(arg_old_pin: string, arg_new_pin: string, cancellable: Gio.Cancellable | null): boolean;
-call_enable_pin(arg_pin: string, arg_enabled: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_enable_pin_finish(res: Gio.AsyncResult): boolean;
-call_enable_pin_sync(arg_pin: string, arg_enabled: boolean, cancellable: Gio.Cancellable | null): boolean;
-call_send_pin(arg_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_send_pin_finish(res: Gio.AsyncResult): boolean;
-call_send_pin_sync(arg_pin: string, cancellable: Gio.Cancellable | null): boolean;
-call_send_puk(arg_puk: string, arg_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_send_puk_finish(res: Gio.AsyncResult): boolean;
-call_send_puk_sync(arg_puk: string, arg_pin: string, cancellable: Gio.Cancellable | null): boolean;
-complete_change_pin(invocation: Gio.DBusMethodInvocation): void;
-complete_enable_pin(invocation: Gio.DBusMethodInvocation): void;
-complete_send_pin(invocation: Gio.DBusMethodInvocation): void;
-complete_send_puk(invocation: Gio.DBusMethodInvocation): void;
-dup_imsi(): string | null;
-dup_operator_identifier(): string | null;
-dup_operator_name(): string | null;
-dup_sim_identifier(): string | null;
-get_imsi(): string | null;
-get_operator_identifier(): string | null;
-get_operator_name(): string | null;
-get_sim_identifier(): string | null;
-set_imsi(value: string): void;
-set_operator_identifier(value: string): void;
-set_operator_name(value: string): void;
-set_sim_identifier(value: string): void;
+    imsi: string;
+    operator_identifier: string;
+    operator_name: string;
+    sim_identifier: string;
+    call_change_pin(arg_old_pin: string, arg_new_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_change_pin_finish(res: Gio.AsyncResult): boolean;
+    call_change_pin_sync(arg_old_pin: string, arg_new_pin: string, cancellable: Gio.Cancellable | null): boolean;
+    call_enable_pin(arg_pin: string, arg_enabled: boolean, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_enable_pin_finish(res: Gio.AsyncResult): boolean;
+    call_enable_pin_sync(arg_pin: string, arg_enabled: boolean, cancellable: Gio.Cancellable | null): boolean;
+    call_send_pin(arg_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_send_pin_finish(res: Gio.AsyncResult): boolean;
+    call_send_pin_sync(arg_pin: string, cancellable: Gio.Cancellable | null): boolean;
+    call_send_puk(arg_puk: string, arg_pin: string, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_send_puk_finish(res: Gio.AsyncResult): boolean;
+    call_send_puk_sync(arg_puk: string, arg_pin: string, cancellable: Gio.Cancellable | null): boolean;
+    complete_change_pin(invocation: Gio.DBusMethodInvocation): void;
+    complete_enable_pin(invocation: Gio.DBusMethodInvocation): void;
+    complete_send_pin(invocation: Gio.DBusMethodInvocation): void;
+    complete_send_puk(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusSms  {
-_class: number;
-data: GLib.Variant;
-delivery_report_request: boolean;
-delivery_state: number;
-discharge_timestamp: string;
-message_reference: number;
-number: string;
-pdu_type: number;
-service_category: number;
-smsc: string;
-state: number;
-storage: number;
-teleservice_id: number;
-text: string;
-timestamp: string;
-validity: GLib.Variant;
-call_send(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_send_finish(res: Gio.AsyncResult): boolean;
-call_send_sync(cancellable: Gio.Cancellable | null): boolean;
-call_store(arg_storage: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
-call_store_finish(res: Gio.AsyncResult): boolean;
-call_store_sync(arg_storage: number, cancellable: Gio.Cancellable | null): boolean;
-complete_send(invocation: Gio.DBusMethodInvocation): void;
-complete_store(invocation: Gio.DBusMethodInvocation): void;
-dup_data(): GLib.Variant | null;
-dup_discharge_timestamp(): string | null;
-dup_number(): string | null;
-dup_smsc(): string | null;
-dup_text(): string | null;
-dup_timestamp(): string | null;
-dup_validity(): GLib.Variant | null;
-get_class(): number;
-get_data(): GLib.Variant | null;
-get_delivery_report_request(): boolean;
-get_delivery_state(): number;
-get_discharge_timestamp(): string | null;
-get_message_reference(): number;
-get_number(): string | null;
-get_pdu_type(): number;
-get_service_category(): number;
-get_smsc(): string | null;
-get_state(): number;
-get_storage(): number;
-get_teleservice_id(): number;
-get_text(): string | null;
-get_timestamp(): string | null;
-get_validity(): GLib.Variant | null;
-set_class(value: number): void;
-set_data(value: GLib.Variant): void;
-set_delivery_report_request(value: boolean): void;
-set_delivery_state(value: number): void;
-set_discharge_timestamp(value: string): void;
-set_message_reference(value: number): void;
-set_number(value: string): void;
-set_pdu_type(value: number): void;
-set_service_category(value: number): void;
-set_smsc(value: string): void;
-set_state(value: number): void;
-set_storage(value: number): void;
-set_teleservice_id(value: number): void;
-set_text(value: string): void;
-set_timestamp(value: string): void;
-set_validity(value: GLib.Variant): void;
+    _class: number;
+    data: GLib.Variant;
+    delivery_report_request: boolean;
+    delivery_state: number;
+    discharge_timestamp: string;
+    message_reference: number;
+    number: string;
+    pdu_type: number;
+    service_category: number;
+    smsc: string;
+    state: number;
+    storage: number;
+    teleservice_id: number;
+    text: string;
+    timestamp: string;
+    validity: GLib.Variant;
+    call_send(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_send_finish(res: Gio.AsyncResult): boolean;
+    call_send_sync(cancellable: Gio.Cancellable | null): boolean;
+    call_store(arg_storage: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
+    call_store_finish(res: Gio.AsyncResult): boolean;
+    call_store_sync(arg_storage: number, cancellable: Gio.Cancellable | null): boolean;
+    complete_send(invocation: Gio.DBusMethodInvocation): void;
+    complete_store(invocation: Gio.DBusMethodInvocation): void;
 }

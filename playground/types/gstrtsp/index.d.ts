@@ -10,6 +10,7 @@ import * as GstRtsp from "gstrtsp";
  * gstrtsp.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type RTSPConnectionAcceptCertificateFunc = (conn: Gio.TlsConnection, peer_cert: Gio.TlsCertificate, errors: Gio.TlsCertificateFlags, user_data: object | null) => boolean;
 export const RTSP_DEFAULT_PORT: number;
 /**
@@ -185,15 +186,6 @@ export function rtsp_url_parse(urlstr: string): [RTSPResult, RTSPUrl];
  * Convert @version to a string.
  */
 export function rtsp_version_as_text(version: RTSPVersion): string;
-/**
- * Create a watch object for @conn. The functions provided in @funcs will
- *  be
- * called with @user_data when activity happened on the watch.
- * The new watch is usually created so that it can be attached to a
- * maincontext with gst_rtsp_watch_attach().
- * @conn must exist for the entire lifetime of the watch.
- */
-export function rtsp_watch_new(conn: RTSPConnection, funcs: RTSPWatchFuncs, user_data: object | null, notify: GLib.DestroyNotify): RTSPWatch;
 export enum RTSPAuthMethod {
     NONE = 0,
     BASIC = 1,
@@ -440,215 +432,201 @@ export enum RTSPTransMode {
     RTP = 1,
     RDT = 2,
 }
-export class RTSPAuthCredential  {constructor(config?: properties);
-scheme: RTSPAuthMethod;
-params: RTSPAuthParam;
-authorization: string;
+export class RTSPAuthCredential  {
+    constructor(config?: properties);
+    scheme: RTSPAuthMethod;
+    params: RTSPAuthParam;
+    authorization: string;
 }
-export class RTSPAuthParam  {constructor(config?: properties);
-name: string;
-value: string;
-copy(): RTSPAuthParam;
-free(): void;
+export class RTSPAuthParam  {
+    constructor(config?: properties);
+    name: string;
+    value: string;
+    copy(): RTSPAuthParam;
+    free(): void;
 }
-export class RTSPConnection  {constructor(config?: properties);
-clear_auth_params(): void;
-close(): RTSPResult;
-connect(timeout: GLib.TimeVal): RTSPResult;
-connect_with_response(timeout: GLib.TimeVal, response: RTSPMessage): RTSPResult;
-do_tunnel(conn2: RTSPConnection): RTSPResult;
-flush(flush: boolean): RTSPResult;
-free(): RTSPResult;
-get_ip(): string;
-get_read_socket(): Gio.Socket;
-get_remember_session_id(): boolean;
-get_tls(): Gio.TlsConnection;
-get_tls_database(): Gio.TlsDatabase;
-get_tls_interaction(): Gio.TlsInteraction;
-get_tls_validation_flags(): Gio.TlsCertificateFlags;
-get_tunnelid(): string;
-get_url(): RTSPUrl;
-get_write_socket(): Gio.Socket;
-is_tunneled(): boolean;
-next_timeout(timeout: GLib.TimeVal): RTSPResult;
-poll(events: RTSPEvent, revents: RTSPEvent, timeout: GLib.TimeVal): RTSPResult;
-read(data: number, size: number, timeout: GLib.TimeVal): RTSPResult;
-receive(message: RTSPMessage, timeout: GLib.TimeVal): RTSPResult;
-reset_timeout(): RTSPResult;
-send(message: RTSPMessage, timeout: GLib.TimeVal): RTSPResult;
-send_messages(messages: RTSPMessage[], n_messages: number, timeout: GLib.TimeVal): RTSPResult;
-set_accept_certificate_func(func: RTSPConnectionAcceptCertificateFunc, user_data: object | null, destroy_notify: GLib.DestroyNotify): void;
-set_auth(method: RTSPAuthMethod, user: string, pass: string): RTSPResult;
-set_auth_param(param: string, value: string): void;
-set_http_mode(enable: boolean): void;
-set_ip(ip: string): void;
-set_proxy(host: string, port: number): RTSPResult;
-set_qos_dscp(qos_dscp: number): RTSPResult;
-set_remember_session_id(remember: boolean): void;
-set_tls_database(database: Gio.TlsDatabase): void;
-set_tls_interaction(interaction: Gio.TlsInteraction): void;
-set_tls_validation_flags(flags: Gio.TlsCertificateFlags): boolean;
-set_tunneled(tunneled: boolean): void;
-write(data: number, size: number, timeout: GLib.TimeVal): RTSPResult;
-static accept(socket: Gio.Socket, cancellable: Gio.Cancellable | null): [RTSPResult, RTSPConnection];
-static create(url: RTSPUrl): [RTSPResult, RTSPConnection];
-static create_from_socket(socket: Gio.Socket, ip: string, port: number, initial_buffer: string): [RTSPResult, RTSPConnection];
+export class RTSPConnection  {
+    constructor(config?: properties);
+    clear_auth_params(): void;
+    close(): RTSPResult;
+    connect(timeout: GLib.TimeVal): RTSPResult;
+    connect_with_response(timeout: GLib.TimeVal, response: RTSPMessage): RTSPResult;
+    do_tunnel(conn2: RTSPConnection): RTSPResult;
+    flush(flush: boolean): RTSPResult;
+    free(): RTSPResult;
+    get_ip(): string;
+    get_read_socket(): Gio.Socket;
+    get_remember_session_id(): boolean;
+    get_tls(): Gio.TlsConnection;
+    get_tls_database(): Gio.TlsDatabase;
+    get_tls_interaction(): Gio.TlsInteraction;
+    get_tls_validation_flags(): Gio.TlsCertificateFlags;
+    get_tunnelid(): string;
+    get_url(): RTSPUrl;
+    get_write_socket(): Gio.Socket;
+    is_tunneled(): boolean;
+    next_timeout(timeout: GLib.TimeVal): RTSPResult;
+    poll(events: RTSPEvent, revents: RTSPEvent, timeout: GLib.TimeVal): RTSPResult;
+    read(data: number, size: number, timeout: GLib.TimeVal): RTSPResult;
+    receive(message: RTSPMessage, timeout: GLib.TimeVal): RTSPResult;
+    reset_timeout(): RTSPResult;
+    send(message: RTSPMessage, timeout: GLib.TimeVal): RTSPResult;
+    send_messages(messages: RTSPMessage[], n_messages: number, timeout: GLib.TimeVal): RTSPResult;
+    set_accept_certificate_func(func: RTSPConnectionAcceptCertificateFunc, user_data: object | null, destroy_notify: GLib.DestroyNotify): void;
+    set_auth(method: RTSPAuthMethod, user: string, pass: string): RTSPResult;
+    set_auth_param(param: string, value: string): void;
+    set_http_mode(enable: boolean): void;
+    set_ip(ip: string): void;
+    set_proxy(host: string, port: number): RTSPResult;
+    set_qos_dscp(qos_dscp: number): RTSPResult;
+    set_remember_session_id(remember: boolean): void;
+    set_tls_database(database: Gio.TlsDatabase): void;
+    set_tls_interaction(interaction: Gio.TlsInteraction): void;
+    set_tls_validation_flags(flags: Gio.TlsCertificateFlags): boolean;
+    set_tunneled(tunneled: boolean): void;
+    write(data: number, size: number, timeout: GLib.TimeVal): RTSPResult;
+    static accept(socket: Gio.Socket, cancellable: Gio.Cancellable | null): [RTSPResult, RTSPConnection];
+    static create(url: RTSPUrl): [RTSPResult, RTSPConnection];
+    static create_from_socket(socket: Gio.Socket, ip: string, port: number, initial_buffer: string): [RTSPResult, RTSPConnection];
 }
-export class RTSPExtensionInterface  {constructor(config?: properties);
-readonly detect_server: unknown;
-readonly before_send: unknown;
-readonly after_send: unknown;
-readonly parse_sdp: unknown;
-readonly setup_media: unknown;
-readonly configure_stream: unknown;
-readonly get_transports: unknown;
-readonly stream_select: unknown;
-readonly send: unknown;
-readonly receive_request: unknown;
-readonly _gst_reserved: object[];
+export class RTSPMessage  {
+    constructor(config?: properties);
+    type: RTSPMsgType;
+    readonly hdr_fields: object[];
+    readonly body: number;
+    readonly body_size: number;
+    readonly body_buffer: Gst.Buffer;
+    add_header(field: RTSPHeaderField, value: string): RTSPResult;
+    add_header_by_name(header: string, value: string): RTSPResult;
+    append_headers(str: GLib.String): RTSPResult;
+    copy(): [RTSPResult, RTSPMessage];
+    dump(): RTSPResult;
+    free(): RTSPResult;
+    get_body(): [RTSPResult, number[],number];
+    get_body_buffer(): [RTSPResult, Gst.Buffer];
+    get_header(field: RTSPHeaderField, indx: number): [RTSPResult, string];
+    get_header_by_name(header: string, index: number): [RTSPResult, string];
+    get_type(): RTSPMsgType;
+    has_body_buffer(): boolean;
+    init(): RTSPResult;
+    init_data(channel: number): RTSPResult;
+    init_request(method: RTSPMethod, uri: string): RTSPResult;
+    init_response(code: RTSPStatusCode, reason: string | null, request: RTSPMessage | null): RTSPResult;
+    parse_auth_credentials(field: RTSPHeaderField): RTSPAuthCredential[];
+    parse_data(): [RTSPResult, number];
+    parse_request(): [RTSPResult, RTSPMethod | null,string | null,RTSPVersion | null];
+    parse_response(): [RTSPResult, RTSPStatusCode | null,string | null,RTSPVersion | null];
+    remove_header(field: RTSPHeaderField, indx: number): RTSPResult;
+    remove_header_by_name(header: string, index: number): RTSPResult;
+    set_body(data: number[], size: number): RTSPResult;
+    set_body_buffer(buffer: Gst.Buffer): RTSPResult;
+    steal_body(): [RTSPResult, number[],number];
+    steal_body_buffer(): [RTSPResult, Gst.Buffer];
+    take_body(data: number[], size: number): RTSPResult;
+    take_body_buffer(buffer: Gst.Buffer): RTSPResult;
+    take_header(field: RTSPHeaderField, value: string): RTSPResult;
+    take_header_by_name(header: string, value: string): RTSPResult;
+    unset(): RTSPResult;
 }
-export class RTSPMessage  {constructor(config?: properties);
-type: RTSPMsgType;
-readonly hdr_fields: object[];
-readonly body: number;
-readonly body_size: number;
-readonly body_buffer: Gst.Buffer;
-readonly _gst_reserved: object[];
-add_header(field: RTSPHeaderField, value: string): RTSPResult;
-add_header_by_name(header: string, value: string): RTSPResult;
-append_headers(str: GLib.String): RTSPResult;
-copy(): [RTSPResult, RTSPMessage];
-dump(): RTSPResult;
-free(): RTSPResult;
-get_body(): [RTSPResult, number[],number];
-get_body_buffer(): [RTSPResult, Gst.Buffer];
-get_header(field: RTSPHeaderField, indx: number): [RTSPResult, string];
-get_header_by_name(header: string, index: number): [RTSPResult, string];
-get_type(): RTSPMsgType;
-has_body_buffer(): boolean;
-init(): RTSPResult;
-init_data(channel: number): RTSPResult;
-init_request(method: RTSPMethod, uri: string): RTSPResult;
-init_response(code: RTSPStatusCode, reason: string | null, request: RTSPMessage | null): RTSPResult;
-parse_auth_credentials(field: RTSPHeaderField): RTSPAuthCredential[];
-parse_data(): [RTSPResult, number];
-parse_request(): [RTSPResult, RTSPMethod | null,string | null,RTSPVersion | null];
-parse_response(): [RTSPResult, RTSPStatusCode | null,string | null,RTSPVersion | null];
-remove_header(field: RTSPHeaderField, indx: number): RTSPResult;
-remove_header_by_name(header: string, index: number): RTSPResult;
-set_body(data: number[], size: number): RTSPResult;
-set_body_buffer(buffer: Gst.Buffer): RTSPResult;
-steal_body(): [RTSPResult, number[],number];
-steal_body_buffer(): [RTSPResult, Gst.Buffer];
-take_body(data: number[], size: number): RTSPResult;
-take_body_buffer(buffer: Gst.Buffer): RTSPResult;
-take_header(field: RTSPHeaderField, value: string): RTSPResult;
-take_header_by_name(header: string, value: string): RTSPResult;
-unset(): RTSPResult;
+export class RTSPRange  {
+    constructor(config?: properties);
+    min: number;
+    max: number;
+    static convert_units(range: RTSPTimeRange, unit: RTSPRangeUnit): boolean;
+    static free(range: RTSPTimeRange): void;
+    static get_times(range: RTSPTimeRange): [boolean, Gst.ClockTime,Gst.ClockTime];
+    static parse(rangestr: string): [RTSPResult, RTSPTimeRange];
+    static to_string(range: RTSPTimeRange): string;
 }
-export class RTSPRange  {constructor(config?: properties);
-min: number;
-max: number;
-static convert_units(range: RTSPTimeRange, unit: RTSPRangeUnit): boolean;
-static free(range: RTSPTimeRange): void;
-static get_times(range: RTSPTimeRange): [boolean, Gst.ClockTime,Gst.ClockTime];
-static parse(rangestr: string): [RTSPResult, RTSPTimeRange];
-static to_string(range: RTSPTimeRange): string;
+export class RTSPTime  {
+    constructor(config?: properties);
+    type: RTSPTimeType;
+    seconds: number;
 }
-export class RTSPTime  {constructor(config?: properties);
-type: RTSPTimeType;
-seconds: number;
+export class RTSPTime2  {
+    constructor(config?: properties);
+    frames: number;
+    year: number;
+    month: number;
+    day: number;
 }
-export class RTSPTime2  {constructor(config?: properties);
-frames: number;
-year: number;
-month: number;
-day: number;
+export class RTSPTimeRange  {
+    constructor(config?: properties);
+    unit: RTSPRangeUnit;
+    min: RTSPTime;
+    max: RTSPTime;
+    min2: RTSPTime2;
+    max2: RTSPTime2;
 }
-export class RTSPTimeRange  {constructor(config?: properties);
-unit: RTSPRangeUnit;
-min: RTSPTime;
-max: RTSPTime;
-min2: RTSPTime2;
-max2: RTSPTime2;
+export class RTSPTransport  {
+    constructor(config?: properties);
+    trans: RTSPTransMode;
+    profile: RTSPProfile;
+    lower_transport: RTSPLowerTrans;
+    destination: string;
+    source: string;
+    layers: number;
+    mode_play: boolean;
+    mode_record: boolean;
+    append: boolean;
+    interleaved: RTSPRange;
+    ttl: number;
+    port: RTSPRange;
+    client_port: RTSPRange;
+    server_port: RTSPRange;
+    ssrc: number;
+    as_text(): string;
+    free(): RTSPResult;
+    get_media_type(): [RTSPResult, string];
+    init(): RTSPResult;
+    static get_manager(trans: RTSPTransMode, option: number): [RTSPResult, string | null];
+    static get_mime(trans: RTSPTransMode, mime: string): RTSPResult;
+    static _new(transport: RTSPTransport): RTSPResult;
+    static parse(str: string, transport: RTSPTransport): RTSPResult;
 }
-export class RTSPTransport  {constructor(config?: properties);
-trans: RTSPTransMode;
-profile: RTSPProfile;
-lower_transport: RTSPLowerTrans;
-destination: string;
-source: string;
-layers: number;
-mode_play: boolean;
-mode_record: boolean;
-append: boolean;
-interleaved: RTSPRange;
-ttl: number;
-port: RTSPRange;
-client_port: RTSPRange;
-server_port: RTSPRange;
-ssrc: number;
-readonly _gst_reserved: object[];
-as_text(): string;
-free(): RTSPResult;
-get_media_type(): [RTSPResult, string];
-init(): RTSPResult;
-static get_manager(trans: RTSPTransMode, option: number): [RTSPResult, string | null];
-static get_mime(trans: RTSPTransMode, mime: string): RTSPResult;
-static _new(transport: RTSPTransport): RTSPResult;
-static parse(str: string, transport: RTSPTransport): RTSPResult;
+export class RTSPUrl  {
+    constructor(config?: properties);
+    transports: RTSPLowerTrans;
+    family: RTSPFamily;
+    user: string;
+    passwd: string;
+    host: string;
+    port: number;
+    abspath: string;
+    query: string;
+    copy(): RTSPUrl;
+    decode_path_components(): string[];
+    free(): void;
+    get_port(): [RTSPResult, number];
+    get_request_uri(): string;
+    set_port(port: number): RTSPResult;
+    static parse(urlstr: string): [RTSPResult, RTSPUrl];
 }
-export class RTSPUrl  {constructor(config?: properties);
-transports: RTSPLowerTrans;
-family: RTSPFamily;
-user: string;
-passwd: string;
-host: string;
-port: number;
-abspath: string;
-query: string;
-copy(): RTSPUrl;
-decode_path_components(): string[];
-free(): void;
-get_port(): [RTSPResult, number];
-get_request_uri(): string;
-set_port(port: number): RTSPResult;
-static parse(urlstr: string): [RTSPResult, RTSPUrl];
+export class RTSPWatch  {
+    constructor(config?: properties);
+    attach(context: GLib.MainContext): number;
+    get_send_backlog(): [number | null,number | null];
+    reset(): void;
+    send_message(message: RTSPMessage): [RTSPResult, number | null];
+    send_messages(messages: RTSPMessage[], n_messages: number): [RTSPResult, number | null];
+    set_flushing(flushing: boolean): void;
+    set_send_backlog(bytes: number, messages: number): void;
+    unref(): void;
+    wait_backlog(timeout: GLib.TimeVal): RTSPResult;
+    write_data(data: number[], size: number): [RTSPResult, number | null];
 }
-export class RTSPWatch  {constructor(config?: properties);
-attach(context: GLib.MainContext): number;
-get_send_backlog(): [number | null,number | null];
-reset(): void;
-send_message(message: RTSPMessage): [RTSPResult, number | null];
-send_messages(messages: RTSPMessage[], n_messages: number): [RTSPResult, number | null];
-set_flushing(flushing: boolean): void;
-set_send_backlog(bytes: number, messages: number): void;
-unref(): void;
-wait_backlog(timeout: GLib.TimeVal): RTSPResult;
-write_data(data: number[], size: number): [RTSPResult, number | null];
-static _new(conn: RTSPConnection, funcs: RTSPWatchFuncs, user_data: object | null, notify: GLib.DestroyNotify): RTSPWatch;
-}
-export class RTSPWatchFuncs  {constructor(config?: properties);
-readonly message_received: unknown;
-readonly message_sent: unknown;
-readonly closed: unknown;
-readonly error: unknown;
-readonly tunnel_start: unknown;
-readonly tunnel_complete: unknown;
-readonly error_full: unknown;
-readonly tunnel_lost: unknown;
-readonly tunnel_http_response: unknown;
-readonly _gst_reserved: object[];
+export class RTSPWatchFuncs  {
+    constructor(config?: properties);
 }
 export interface RTSPExtension  {
-after_send(req: RTSPMessage, resp: RTSPMessage): RTSPResult;
-before_send(req: RTSPMessage): RTSPResult;
-configure_stream(caps: Gst.Caps): boolean;
-detect_server(resp: RTSPMessage): boolean;
-get_transports(protocols: RTSPLowerTrans, transport: string): RTSPResult;
-parse_sdp(sdp: GstSdp.SDPMessage, s: Gst.Structure): RTSPResult;
-receive_request(req: RTSPMessage): RTSPResult;
-send(req: RTSPMessage, resp: RTSPMessage): RTSPResult;
-setup_media(media: GstSdp.SDPMedia): RTSPResult;
-stream_select(url: RTSPUrl): RTSPResult;
+    after_send(req: RTSPMessage, resp: RTSPMessage): RTSPResult;
+    before_send(req: RTSPMessage): RTSPResult;
+    configure_stream(caps: Gst.Caps): boolean;
+    detect_server(resp: RTSPMessage): boolean;
+    get_transports(protocols: RTSPLowerTrans, transport: string): RTSPResult;
+    parse_sdp(sdp: GstSdp.SDPMessage, s: Gst.Structure): RTSPResult;
+    receive_request(req: RTSPMessage): RTSPResult;
+    send(req: RTSPMessage, resp: RTSPMessage): RTSPResult;
+    setup_media(media: GstSdp.SDPMedia): RTSPResult;
+    stream_select(url: RTSPUrl): RTSPResult;
 }

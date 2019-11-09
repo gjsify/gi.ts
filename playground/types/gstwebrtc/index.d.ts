@@ -9,6 +9,7 @@ import * as GstWebRTC from "gstwebrtc";
  * gstwebrtc.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * 
  */
@@ -126,71 +127,54 @@ export enum WebRTCStatsType {
     REMOTE_CANDIDATE = 13,
     CERTIFICATE = 14,
 }
-export class WebRTCDTLSTransport extends Gst.Object {constructor(config?: properties);
-certificate: string;
-client: boolean;
-readonly remote_certificate: string;
-rtcp: boolean;
-session_id: number;
-readonly state: WebRTCDTLSTransportState;
-readonly transport: WebRTCICETransport;
-set_transport(ice: WebRTCICETransport): void;
+export class WebRTCDTLSTransport extends Gst.Object {
+    constructor(config?: properties);
+    certificate: string;
+    client: boolean;
+    readonly remote_certificate: string;
+    rtcp: boolean;
+    session_id: number;
+    readonly state: WebRTCDTLSTransportState;
+    readonly transport: WebRTCICETransport;
+    set_transport(ice: WebRTCICETransport): void;
 }
-export class WebRTCICETransport  {constructor(config?: properties);
-component: WebRTCICEComponent;
-readonly gathering_state: WebRTCICEGatheringState;
-readonly state: WebRTCICEConnectionState;
-readonly role: WebRTCICERole;
-readonly src: Gst.Element;
-readonly sink: Gst.Element;
-readonly _padding: object[];
-connection_state_change(new_state: WebRTCICEConnectionState): void;
-gathering_state_change(new_state: WebRTCICEGatheringState): void;
-new_candidate(stream_id: number, component: WebRTCICEComponent, attr: string): void;
-selected_pair_change(): void;
+export class WebRTCICETransport  {
+    constructor(config?: properties);
+    component: WebRTCICEComponent;
+    readonly gathering_state: WebRTCICEGatheringState;
+    readonly state: WebRTCICEConnectionState;
+    readonly role: WebRTCICERole;
+    readonly src: Gst.Element;
+    readonly sink: Gst.Element;
+    connection_state_change(new_state: WebRTCICEConnectionState): void;
+    gathering_state_change(new_state: WebRTCICEGatheringState): void;
+    new_candidate(stream_id: number, component: WebRTCICEComponent, attr: string): void;
+    selected_pair_change(): void;
 }
-export class WebRTCRTPReceiver extends Gst.Object {constructor(config?: properties);
-set_rtcp_transport(transport: WebRTCDTLSTransport): void;
-set_transport(transport: WebRTCDTLSTransport): void;
+export class WebRTCRTPReceiver extends Gst.Object {
+    constructor(config?: properties);
+    set_rtcp_transport(transport: WebRTCDTLSTransport): void;
+    set_transport(transport: WebRTCDTLSTransport): void;
 }
-export class WebRTCRTPSender extends Gst.Object {constructor(config?: properties);
-set_rtcp_transport(transport: WebRTCDTLSTransport): void;
-set_transport(transport: WebRTCDTLSTransport): void;
+export class WebRTCRTPSender extends Gst.Object {
+    constructor(config?: properties);
+    set_rtcp_transport(transport: WebRTCDTLSTransport): void;
+    set_transport(transport: WebRTCDTLSTransport): void;
 }
-export class WebRTCRTPTransceiver  {constructor(config?: properties);
-mlineindex: number;
-receiver: WebRTCRTPReceiver;
-sender: WebRTCRTPSender;
-readonly mline: number;
-readonly mid: string;
-readonly stopped: boolean;
-readonly direction: WebRTCRTPTransceiverDirection;
-readonly current_direction: WebRTCRTPTransceiverDirection;
-readonly codec_preferences: Gst.Caps;
-readonly _padding: object[];
+export class WebRTCRTPTransceiver  {
+    constructor(config?: properties);
+    mlineindex: number;
+    receiver: WebRTCRTPReceiver;
+    sender: WebRTCRTPSender;
+    readonly mline: number;
+    readonly mid: string;
+    readonly stopped: boolean;
+    readonly direction: WebRTCRTPTransceiverDirection;
+    readonly current_direction: WebRTCRTPTransceiverDirection;
+    readonly codec_preferences: Gst.Caps;
 }
-export class WebRTCDTLSTransportClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly _padding: object[];
-}
-export class WebRTCICETransportClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly gather_candidates: unknown;
-readonly _padding: object[];
-}
-export class WebRTCRTPReceiverClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly _padding: object[];
-}
-export class WebRTCRTPSenderClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly _padding: object[];
-}
-export class WebRTCRTPTransceiverClass  {constructor(config?: properties);
-readonly parent_class: Gst.ObjectClass;
-readonly _padding: object[];
-}
-export class WebRTCSessionDescription  {constructor(config?: properties);
-copy(): WebRTCSessionDescription;
-free(): void;
+export class WebRTCSessionDescription  {
+    constructor(config?: properties);
+    copy(): WebRTCSessionDescription;
+    free(): void;
 }

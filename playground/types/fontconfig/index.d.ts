@@ -6,11 +6,14 @@ import * as GLib from "glib";
  * fontconfig.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * 
  */
 export function init(): void;
-export class Pattern  {constructor(config?: properties);
+export class Pattern  {
+    constructor(config?: properties);
 }
-export class CharSet  {constructor(config?: properties);
+export class CharSet  {
+    constructor(config?: properties);
 }

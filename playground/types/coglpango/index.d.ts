@@ -10,6 +10,7 @@ import * as CoglPango from "coglpango";
  * coglpango.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * This updates any internal glyph cache textures as necessary to be
  * able to render the given @layout.
@@ -79,8 +80,7 @@ export function show_layout(framebuffer: Cogl.Framebuffer, layout: Pango.Layout,
  */
 export function show_layout_line(framebuffer: Cogl.Framebuffer, line: Pango.LayoutLine, x: number, y: number, color: Cogl.Color): void;
 export type FontMap = PangoCairo.FontMap;
-export class Renderer  {constructor(config?: properties);
-context: object;
-}
-export class RendererClass  {constructor(config?: properties);
+export class Renderer  {
+    constructor(config?: properties);
+    context: object;
 }

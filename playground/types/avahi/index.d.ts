@@ -8,6 +8,7 @@ import * as Avahi from "avahi";
  * avahi.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 /**
  * 
  */
@@ -63,79 +64,66 @@ export enum ResolverEvent {
     GA_RESOLVER_FOUND = 0,
     GA_RESOLVER_FAILURE = 1,
 }
-export class Client extends GObject.Object {constructor(config?: properties);
-flags: ClientFlags;
-readonly state: ClientState;
-start(): boolean;
-start_in_context(context: GLib.MainContext): boolean;
+export class Client extends GObject.Object {
+    constructor(config?: properties);
+    flags: ClientFlags;
+    readonly state: ClientState;
+    start(): boolean;
+    start_in_context(context: GLib.MainContext): boolean;
 }
-export class EntryGroup extends GObject.Object {constructor(config?: properties);
-readonly state: EntryGroupState;
-add_record(flags: AvahiCore.PublishFlags, name: string, type: number, ttl: number, rdata: object | null, size: number): boolean;
-add_record_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, flags: AvahiCore.PublishFlags, name: string, clazz: number, type: number, ttl: number, rdata: object | null, size: number): boolean;
-add_service(name: string, type: string, port: number, error: GLib.Error, ___: unknown[]): EntryGroupService;
-add_service_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, flags: AvahiCore.PublishFlags, name: string, type: string, domain: string, host: string, port: number, error: GLib.Error, ___: unknown[]): EntryGroupService;
-add_service_full_strlist(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, flags: AvahiCore.PublishFlags, name: string, type: string, domain: string, host: string, port: number, error: GLib.Error, txt: AvahiCore.StringList): EntryGroupService;
-add_service_strlist(name: string, type: string, port: number, error: GLib.Error, txt: AvahiCore.StringList): EntryGroupService;
-attach(client: Client): boolean;
-commit(): boolean;
-reset(): boolean;
+export class EntryGroup extends GObject.Object {
+    constructor(config?: properties);
+    readonly state: EntryGroupState;
+    add_record(flags: AvahiCore.PublishFlags, name: string, type: number, ttl: number, rdata: object | null, size: number): boolean;
+    add_record_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, flags: AvahiCore.PublishFlags, name: string, clazz: number, type: number, ttl: number, rdata: object | null, size: number): boolean;
+    attach(client: Client): boolean;
+    commit(): boolean;
+    reset(): boolean;
 }
-export class RecordBrowser extends GObject.Object {constructor(config?: properties);
-_class: number;
-flags: LookupFlags;
-_interface: number;
-name: string;
-protocol: Protocol;
-type: number;static new_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, name: string, clazz: number, type: number, flags: LookupFlags): RecordBrowser;
-attach(client: Client): boolean;
+export class RecordBrowser extends GObject.Object {
+    constructor(config?: properties);
+    _class: number;
+    flags: LookupFlags;
+    _interface: number;
+    name: string;
+    protocol: Protocol;
+    type: number;static new_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, name: string, clazz: number, type: number, flags: LookupFlags): RecordBrowser;
+    attach(client: Client): boolean;
 }
-export class ServiceBrowser extends GObject.Object {constructor(config?: properties);
-domain: string;
-flags: LookupFlags;
-_interface: number;
-protocol: Protocol;
-type: string;static new_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, type: string, domain: string, flags: LookupFlags): ServiceBrowser;
-attach(client: Client): boolean;
+export class ServiceBrowser extends GObject.Object {
+    constructor(config?: properties);
+    domain: string;
+    flags: LookupFlags;
+    _interface: number;
+    protocol: Protocol;
+    type: string;static new_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, type: string, domain: string, flags: LookupFlags): ServiceBrowser;
+    attach(client: Client): boolean;
 }
-export class ServiceResolver extends GObject.Object {constructor(config?: properties);
-aprotocol: Protocol;
-domain: string;
-flags: LookupFlags;
-_interface: number;
-name: string;
-protocol: Protocol;
-type: string;
-attach(client: Client): boolean;
-get_address(address: AvahiCore.Address, port: number): boolean;
+export class ServiceResolver extends GObject.Object {
+    constructor(config?: properties);
+    aprotocol: Protocol;
+    domain: string;
+    flags: LookupFlags;
+    _interface: number;
+    name: string;
+    protocol: Protocol;
+    type: string;
+    attach(client: Client): boolean;
+    get_address(address: AvahiCore.Address, port: number): boolean;
 }
-export class ClientClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class EntryGroupClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class EntryGroupService  {constructor(config?: properties);
-_interface: AvahiCore.IfIndex;
-protocol: AvahiCore.Protocol;
-flags: AvahiCore.PublishFlags;
-name: string;
-type: string;
-domain: string;
-host: string;
-port: number;
-freeze(): void;
-remove_key(key: string): boolean;
-set(key: string, value: string): boolean;
-set_arbitrary(key: string, value: number, size: number): boolean;
-thaw(): boolean;
-}
-export class RecordBrowserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ServiceBrowserClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
-}
-export class ServiceResolverClass  {constructor(config?: properties);
-readonly parent_class: GObject.ObjectClass;
+export class EntryGroupService  {
+    constructor(config?: properties);
+    _interface: AvahiCore.IfIndex;
+    protocol: AvahiCore.Protocol;
+    flags: AvahiCore.PublishFlags;
+    name: string;
+    type: string;
+    domain: string;
+    host: string;
+    port: number;
+    freeze(): void;
+    remove_key(key: string): boolean;
+    set(key: string, value: string): boolean;
+    set_arbitrary(key: string, value: number, size: number): boolean;
+    thaw(): boolean;
 }

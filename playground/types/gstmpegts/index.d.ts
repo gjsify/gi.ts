@@ -8,6 +8,7 @@ import * as GstMpegts from "gstmpegts";
  * gstmpegts.d.ts
  */
 type properties = { [key: string]: any };
+type GType = object;
 export type PacketizeFunc = (section: Section) => boolean;
 /**
  * Creates a #GstMpegtsDescriptor with custom @tag and @data
@@ -653,365 +654,412 @@ export enum TerrestrialTransmissionMode {
     C1 = 7,
     C3780 = 8,
 }
-export class AtscEIT  {constructor(config?: properties);
-source_id: number;
-protocol_version: number;
-events: AtscEITEvent[];
+export class AtscEIT  {
+    constructor(config?: properties);
+    source_id: number;
+    protocol_version: number;
+    events: AtscEITEvent[];
 }
-export class AtscEITEvent  {constructor(config?: properties);
-event_id: number;
-start_time: number;
-etm_location: number;
-length_in_seconds: number;
-titles: AtscMultString[];
-descriptors: Descriptor[];
+export class AtscEITEvent  {
+    constructor(config?: properties);
+    event_id: number;
+    start_time: number;
+    etm_location: number;
+    length_in_seconds: number;
+    titles: AtscMultString[];
+    descriptors: Descriptor[];
 }
-export class AtscETT  {constructor(config?: properties);
-ett_table_id_extension: number;
-protocol_version: number;
-etm_id: number;
-messages: AtscMultString[];
+export class AtscETT  {
+    constructor(config?: properties);
+    ett_table_id_extension: number;
+    protocol_version: number;
+    etm_id: number;
+    messages: AtscMultString[];
 }
-export class AtscMGT  {constructor(config?: properties);
-protocol_version: number;
-tables_defined: number;
-tables: AtscMGTTable[];
-descriptors: Descriptor[];
+export class AtscMGT  {
+    constructor(config?: properties);
+    protocol_version: number;
+    tables_defined: number;
+    tables: AtscMGTTable[];
+    descriptors: Descriptor[];
 }
-export class AtscMGTTable  {constructor(config?: properties);
-table_type: number;
-pid: number;
-version_number: number;
-number_bytes: number;
-descriptors: Descriptor[];
+export class AtscMGTTable  {
+    constructor(config?: properties);
+    table_type: number;
+    pid: number;
+    version_number: number;
+    number_bytes: number;
+    descriptors: Descriptor[];
 }
-export class AtscMultString  {constructor(config?: properties);
-iso_639_langcode: number[];
-segments: AtscStringSegment[];
+export class AtscMultString  {
+    constructor(config?: properties);
+    iso_639_langcode: number[];
+    segments: AtscStringSegment[];
 }
-export class AtscSTT  {constructor(config?: properties);
-protocol_version: number;
-system_time: number;
-gps_utc_offset: number;
-ds_status: boolean;
-ds_dayofmonth: number;
-ds_hour: number;
-descriptors: Descriptor[];
-utc_datetime: Gst.DateTime;
-get_datetime_utc(): Gst.DateTime;
+export class AtscSTT  {
+    constructor(config?: properties);
+    protocol_version: number;
+    system_time: number;
+    gps_utc_offset: number;
+    ds_status: boolean;
+    ds_dayofmonth: number;
+    ds_hour: number;
+    descriptors: Descriptor[];
+    utc_datetime: Gst.DateTime;
+    get_datetime_utc(): Gst.DateTime;
 }
-export class AtscStringSegment  {constructor(config?: properties);
-compression_type: number;
-mode: number;
-compressed_data_size: number;
-compressed_data: number;
-cached_string: string;
-get_string(): string;
+export class AtscStringSegment  {
+    constructor(config?: properties);
+    compression_type: number;
+    mode: number;
+    compressed_data_size: number;
+    compressed_data: number;
+    cached_string: string;
+    get_string(): string;
 }
-export class AtscVCT  {constructor(config?: properties);
-transport_stream_id: number;
-protocol_version: number;
-sources: AtscVCTSource[];
-descriptors: Descriptor[];
+export class AtscVCT  {
+    constructor(config?: properties);
+    transport_stream_id: number;
+    protocol_version: number;
+    sources: AtscVCTSource[];
+    descriptors: Descriptor[];
 }
-export class AtscVCTSource  {constructor(config?: properties);
-short_name: string;
-major_channel_number: number;
-minor_channel_number: number;
-modulation_mode: number;
-carrier_frequency: number;
-channel_TSID: number;
-program_number: number;
-ETM_location: number;
-access_controlled: boolean;
-hidden: boolean;
-path_select: boolean;
-out_of_band: boolean;
-hide_guide: boolean;
-service_type: number;
-source_id: number;
-descriptors: Descriptor[];
+export class AtscVCTSource  {
+    constructor(config?: properties);
+    short_name: string;
+    major_channel_number: number;
+    minor_channel_number: number;
+    modulation_mode: number;
+    carrier_frequency: number;
+    channel_TSID: number;
+    program_number: number;
+    ETM_location: number;
+    access_controlled: boolean;
+    hidden: boolean;
+    path_select: boolean;
+    out_of_band: boolean;
+    hide_guide: boolean;
+    service_type: number;
+    source_id: number;
+    descriptors: Descriptor[];
 }
-export class BAT  {constructor(config?: properties);
-descriptors: Descriptor[];
-streams: BATStream[];
+export class BAT  {
+    constructor(config?: properties);
+    descriptors: Descriptor[];
+    streams: BATStream[];
 }
-export class BATStream  {constructor(config?: properties);
-transport_stream_id: number;
-original_network_id: number;
-descriptors: object[];
+export class BATStream  {
+    constructor(config?: properties);
+    transport_stream_id: number;
+    original_network_id: number;
+    descriptors: object[];
 }
-export class CableDeliverySystemDescriptor  {constructor(config?: properties);
-frequency: number;
-outer_fec: CableOuterFECScheme;
-modulation: ModulationType;
-symbol_rate: number;
-fec_inner: DVBCodeRate;
-free(): void;
+export class CableDeliverySystemDescriptor  {
+    constructor(config?: properties);
+    frequency: number;
+    outer_fec: CableOuterFECScheme;
+    modulation: ModulationType;
+    symbol_rate: number;
+    fec_inner: DVBCodeRate;
+    free(): void;
 }
-export class ComponentDescriptor  {constructor(config?: properties);
-stream_content: number;
-component_type: number;
-component_tag: number;
-language_code: string;
-text: string;
+export class ComponentDescriptor  {
+    constructor(config?: properties);
+    stream_content: number;
+    component_type: number;
+    component_tag: number;
+    language_code: string;
+    text: string;
 }
-export class Content  {constructor(config?: properties);
-content_nibble_1: ContentNibbleHi;
-content_nibble_2: number;
-user_byte: number;
+export class Content  {
+    constructor(config?: properties);
+    content_nibble_1: ContentNibbleHi;
+    content_nibble_2: number;
+    user_byte: number;
 }
-export class DVBLinkageDescriptor  {constructor(config?: properties);
-transport_stream_id: number;
-original_network_id: number;
-service_id: number;
-linkage_type: DVBLinkageType;
-readonly linkage_data: object;
-private_data_length: number;
-private_data_bytes: number;
-free(): void;
-get_event(): DVBLinkageEvent;
-get_extended_event(): DVBLinkageExtendedEvent[];
-get_mobile_hand_over(): DVBLinkageMobileHandOver;
+export class DVBLinkageDescriptor  {
+    constructor(config?: properties);
+    transport_stream_id: number;
+    original_network_id: number;
+    service_id: number;
+    linkage_type: DVBLinkageType;
+    readonly linkage_data: object;
+    private_data_length: number;
+    private_data_bytes: number;
+    free(): void;
+    get_event(): DVBLinkageEvent;
+    get_extended_event(): DVBLinkageExtendedEvent[];
+    get_mobile_hand_over(): DVBLinkageMobileHandOver;
 }
-export class DVBLinkageEvent  {constructor(config?: properties);
-target_event_id: number;
-target_listed: boolean;
-event_simulcast: boolean;
+export class DVBLinkageEvent  {
+    constructor(config?: properties);
+    target_event_id: number;
+    target_listed: boolean;
+    event_simulcast: boolean;
 }
-export class DVBLinkageExtendedEvent  {constructor(config?: properties);
-target_event_id: number;
-target_listed: boolean;
-event_simulcast: boolean;
-link_type: number;
-target_id_type: number;
-original_network_id_flag: boolean;
-service_id_flag: boolean;
-user_defined_id: number;
-target_transport_stream_id: number;
-target_original_network_id: number;
-target_service_id: number;
+export class DVBLinkageExtendedEvent  {
+    constructor(config?: properties);
+    target_event_id: number;
+    target_listed: boolean;
+    event_simulcast: boolean;
+    link_type: number;
+    target_id_type: number;
+    original_network_id_flag: boolean;
+    service_id_flag: boolean;
+    user_defined_id: number;
+    target_transport_stream_id: number;
+    target_original_network_id: number;
+    target_service_id: number;
 }
-export class DVBLinkageMobileHandOver  {constructor(config?: properties);
-hand_over_type: DVBLinkageHandOverType;
-origin_type: boolean;
-network_id: number;
-initial_service_id: number;
+export class DVBLinkageMobileHandOver  {
+    constructor(config?: properties);
+    hand_over_type: DVBLinkageHandOverType;
+    origin_type: boolean;
+    network_id: number;
+    initial_service_id: number;
 }
-export class DVBParentalRatingItem  {constructor(config?: properties);
-country_code: string;
-rating: number;
+export class DVBParentalRatingItem  {
+    constructor(config?: properties);
+    country_code: string;
+    rating: number;
 }
-export class DVBServiceListItem  {constructor(config?: properties);
-service_id: number;
-type: DVBServiceType;
+export class DVBServiceListItem  {
+    constructor(config?: properties);
+    service_id: number;
+    type: DVBServiceType;
 }
-export class DataBroadcastDescriptor  {constructor(config?: properties);
-data_broadcast_id: number;
-component_tag: number;
-length: number;
-selector_bytes: number;
-language_code: string;
-text: string;
-free(): void;
+export class DataBroadcastDescriptor  {
+    constructor(config?: properties);
+    data_broadcast_id: number;
+    component_tag: number;
+    length: number;
+    selector_bytes: number;
+    language_code: string;
+    text: string;
+    free(): void;
 }
-export class Descriptor  {constructor(config?: properties);
-tag: number;
-tag_extension: number;
-length: number;
-data: number;
-readonly _gst_reserved: object[];
-free(): void;
-parse_ca(): [boolean, number,number,number[] | null,number | null];
-parse_cable_delivery_system(): [boolean, CableDeliverySystemDescriptor];
-parse_dvb_bouquet_name(): [boolean, string | null];
-parse_dvb_ca_identifier(): [boolean, number[]];
-parse_dvb_component(): [boolean, ComponentDescriptor];
-parse_dvb_content(): [boolean, Content[]];
-parse_dvb_data_broadcast(): [boolean, DataBroadcastDescriptor];
-parse_dvb_data_broadcast_id(): [boolean, number,number[],number];
-parse_dvb_extended_event(): [boolean, ExtendedEventDescriptor];
-parse_dvb_frequency_list(): [boolean, boolean,number[]];
-parse_dvb_linkage(): [boolean, DVBLinkageDescriptor];
-parse_dvb_multilingual_bouquet_name(): [boolean, DvbMultilingualBouquetNameItem[]];
-parse_dvb_multilingual_component(): [boolean, number,DvbMultilingualComponentItem[]];
-parse_dvb_multilingual_network_name(): [boolean, DvbMultilingualNetworkNameItem[]];
-parse_dvb_multilingual_service_name(): [boolean, DvbMultilingualServiceNameItem[]];
-parse_dvb_network_name(): [boolean, string];
-parse_dvb_parental_rating(): [boolean, DVBParentalRatingItem[]];
-parse_dvb_private_data_specifier(): [boolean, number,number[] | null,number | null];
-parse_dvb_scrambling(): [boolean, DVBScramblingModeType];
-parse_dvb_service(): [boolean, DVBServiceType | null,string | null,string | null];
-parse_dvb_service_list(): [boolean, DVBServiceListItem[]];
-parse_dvb_short_event(): [boolean, string | null,string | null,string | null];
-parse_dvb_stream_identifier(): [boolean, number];
-parse_dvb_stuffing(): [boolean, number];
-parse_dvb_subtitling_idx(idx: number): [boolean, string,number | null,number | null,number | null];
-parse_dvb_subtitling_nb(): number;
-parse_dvb_t2_delivery_system(): [boolean, T2DeliverySystemDescriptor];
-parse_dvb_teletext_idx(idx: number): [boolean, string | null,DVBTeletextType | null,number | null,number | null];
-parse_dvb_teletext_nb(): number;
-parse_iso_639_language(): [boolean, ISO639LanguageDescriptor];
-parse_iso_639_language_idx(idx: number): [boolean, string,Iso639AudioType | null];
-parse_iso_639_language_nb(): number;
-parse_logical_channel(): [boolean, LogicalChannelDescriptor];
-parse_satellite_delivery_system(): [boolean, SatelliteDeliverySystemDescriptor];
-parse_terrestrial_delivery_system(): [boolean, TerrestrialDeliverySystemDescriptor];
-static from_custom(tag: number, data: number[], length: number): Descriptor;
-static from_custom_with_extension(tag: number, tag_extension: number, data: number[], length: number): Descriptor;
-static from_dvb_network_name(name: string): Descriptor;
-static from_dvb_service(service_type: DVBServiceType, service_name: string | null, service_provider: string | null): Descriptor;
-static from_dvb_subtitling(lang: string, type: number, composition: number, ancillary: number): Descriptor;
-static from_iso_639_language(language: string): Descriptor;
-static from_registration(format_identifier: string, additional_info: number[] | null, additional_info_length: number): Descriptor;
+export class Descriptor  {
+    constructor(config?: properties);
+    tag: number;
+    tag_extension: number;
+    length: number;
+    data: number;
+    free(): void;
+    parse_ca(): [boolean, number,number,number[] | null,number | null];
+    parse_cable_delivery_system(): [boolean, CableDeliverySystemDescriptor];
+    parse_dvb_bouquet_name(): [boolean, string | null];
+    parse_dvb_ca_identifier(): [boolean, number[]];
+    parse_dvb_component(): [boolean, ComponentDescriptor];
+    parse_dvb_content(): [boolean, Content[]];
+    parse_dvb_data_broadcast(): [boolean, DataBroadcastDescriptor];
+    parse_dvb_data_broadcast_id(): [boolean, number,number[],number];
+    parse_dvb_extended_event(): [boolean, ExtendedEventDescriptor];
+    parse_dvb_frequency_list(): [boolean, boolean,number[]];
+    parse_dvb_linkage(): [boolean, DVBLinkageDescriptor];
+    parse_dvb_multilingual_bouquet_name(): [boolean, DvbMultilingualBouquetNameItem[]];
+    parse_dvb_multilingual_component(): [boolean, number,DvbMultilingualComponentItem[]];
+    parse_dvb_multilingual_network_name(): [boolean, DvbMultilingualNetworkNameItem[]];
+    parse_dvb_multilingual_service_name(): [boolean, DvbMultilingualServiceNameItem[]];
+    parse_dvb_network_name(): [boolean, string];
+    parse_dvb_parental_rating(): [boolean, DVBParentalRatingItem[]];
+    parse_dvb_private_data_specifier(): [boolean, number,number[] | null,number | null];
+    parse_dvb_scrambling(): [boolean, DVBScramblingModeType];
+    parse_dvb_service(): [boolean, DVBServiceType | null,string | null,string | null];
+    parse_dvb_service_list(): [boolean, DVBServiceListItem[]];
+    parse_dvb_short_event(): [boolean, string | null,string | null,string | null];
+    parse_dvb_stream_identifier(): [boolean, number];
+    parse_dvb_stuffing(): [boolean, number];
+    parse_dvb_subtitling_idx(idx: number): [boolean, string,number | null,number | null,number | null];
+    parse_dvb_subtitling_nb(): number;
+    parse_dvb_t2_delivery_system(): [boolean, T2DeliverySystemDescriptor];
+    parse_dvb_teletext_idx(idx: number): [boolean, string | null,DVBTeletextType | null,number | null,number | null];
+    parse_dvb_teletext_nb(): number;
+    parse_iso_639_language(): [boolean, ISO639LanguageDescriptor];
+    parse_iso_639_language_idx(idx: number): [boolean, string,Iso639AudioType | null];
+    parse_iso_639_language_nb(): number;
+    parse_logical_channel(): [boolean, LogicalChannelDescriptor];
+    parse_satellite_delivery_system(): [boolean, SatelliteDeliverySystemDescriptor];
+    parse_terrestrial_delivery_system(): [boolean, TerrestrialDeliverySystemDescriptor];
+    static from_custom(tag: number, data: number[], length: number): Descriptor;
+    static from_custom_with_extension(tag: number, tag_extension: number, data: number[], length: number): Descriptor;
+    static from_dvb_network_name(name: string): Descriptor;
+    static from_dvb_service(service_type: DVBServiceType, service_name: string | null, service_provider: string | null): Descriptor;
+    static from_dvb_subtitling(lang: string, type: number, composition: number, ancillary: number): Descriptor;
+    static from_iso_639_language(language: string): Descriptor;
+    static from_registration(format_identifier: string, additional_info: number[] | null, additional_info_length: number): Descriptor;
 }
-export class DvbMultilingualBouquetNameItem  {constructor(config?: properties);
-language_code: string;
-bouquet_name: string;
+export class DvbMultilingualBouquetNameItem  {
+    constructor(config?: properties);
+    language_code: string;
+    bouquet_name: string;
 }
-export class DvbMultilingualComponentItem  {constructor(config?: properties);
-language_code: string;
-description: string;
+export class DvbMultilingualComponentItem  {
+    constructor(config?: properties);
+    language_code: string;
+    description: string;
 }
-export class DvbMultilingualNetworkNameItem  {constructor(config?: properties);
-language_code: string;
-network_name: string;
+export class DvbMultilingualNetworkNameItem  {
+    constructor(config?: properties);
+    language_code: string;
+    network_name: string;
 }
-export class DvbMultilingualServiceNameItem  {constructor(config?: properties);
-language_code: string;
-provider_name: string;
-service_name: string;
+export class DvbMultilingualServiceNameItem  {
+    constructor(config?: properties);
+    language_code: string;
+    provider_name: string;
+    service_name: string;
 }
-export class EIT  {constructor(config?: properties);
-transport_stream_id: number;
-original_network_id: number;
-segment_last_section_number: number;
-last_table_id: number;
-actual_stream: boolean;
-present_following: boolean;
-events: EITEvent[];
+export class EIT  {
+    constructor(config?: properties);
+    transport_stream_id: number;
+    original_network_id: number;
+    segment_last_section_number: number;
+    last_table_id: number;
+    actual_stream: boolean;
+    present_following: boolean;
+    events: EITEvent[];
 }
-export class EITEvent  {constructor(config?: properties);
-event_id: number;
-start_time: Gst.DateTime;
-duration: number;
-running_status: RunningStatus;
-free_CA_mode: boolean;
-descriptors: Descriptor[];
+export class EITEvent  {
+    constructor(config?: properties);
+    event_id: number;
+    start_time: Gst.DateTime;
+    duration: number;
+    running_status: RunningStatus;
+    free_CA_mode: boolean;
+    descriptors: Descriptor[];
 }
-export class ExtendedEventDescriptor  {constructor(config?: properties);
-descriptor_number: number;
-last_descriptor_number: number;
-language_code: string;
-items: ExtendedEventItem[];
-text: string;
-free(): void;
+export class ExtendedEventDescriptor  {
+    constructor(config?: properties);
+    descriptor_number: number;
+    last_descriptor_number: number;
+    language_code: string;
+    items: ExtendedEventItem[];
+    text: string;
+    free(): void;
 }
-export class ExtendedEventItem  {constructor(config?: properties);
-item_description: string;
-item: string;
+export class ExtendedEventItem  {
+    constructor(config?: properties);
+    item_description: string;
+    item: string;
 }
-export class ISO639LanguageDescriptor  {constructor(config?: properties);
-nb_language: number;
-language: string[];
-audio_type: Iso639AudioType[];
-descriptor_free(): void;
+export class ISO639LanguageDescriptor  {
+    constructor(config?: properties);
+    nb_language: number;
+    language: string[];
+    audio_type: Iso639AudioType[];
+    descriptor_free(): void;
 }
-export class LogicalChannel  {constructor(config?: properties);
-service_id: number;
-visible_service: boolean;
-logical_channel_number: number;
+export class LogicalChannel  {
+    constructor(config?: properties);
+    service_id: number;
+    visible_service: boolean;
+    logical_channel_number: number;
 }
-export class LogicalChannelDescriptor  {constructor(config?: properties);
-nb_channels: number;
-channels: LogicalChannel[];
+export class LogicalChannelDescriptor  {
+    constructor(config?: properties);
+    nb_channels: number;
+    channels: LogicalChannel[];
 }
-export class NIT  {constructor(config?: properties);
+export class NIT  {
+    constructor(config?: properties);
 }
-export class NITStream  {constructor(config?: properties);
+export class NITStream  {
+    constructor(config?: properties);
 }
-export class PMT  {constructor(config?: properties);
+export class PMT  {
+    constructor(config?: properties);
 }
-export class PMTStream  {constructor(config?: properties);
+export class PMTStream  {
+    constructor(config?: properties);
 }
-export class PatProgram  {constructor(config?: properties);
+export class PatProgram  {
+    constructor(config?: properties);
 }
-export class SDT  {constructor(config?: properties);
+export class SDT  {
+    constructor(config?: properties);
 }
-export class SDTService  {constructor(config?: properties);
+export class SDTService  {
+    constructor(config?: properties);
 }
-export class SatelliteDeliverySystemDescriptor  {constructor(config?: properties);
-frequency: number;
-orbital_position: number;
-west_east: boolean;
-polarization: SatellitePolarizationType;
-roll_off: SatelliteRolloff;
-modulation_system: boolean;
-modulation_type: ModulationType;
-symbol_rate: number;
-fec_inner: DVBCodeRate;
+export class SatelliteDeliverySystemDescriptor  {
+    constructor(config?: properties);
+    frequency: number;
+    orbital_position: number;
+    west_east: boolean;
+    polarization: SatellitePolarizationType;
+    roll_off: SatelliteRolloff;
+    modulation_system: boolean;
+    modulation_type: ModulationType;
+    symbol_rate: number;
+    fec_inner: DVBCodeRate;
 }
-export class Section  {constructor(config?: properties);
-get_atsc_cvct(): AtscVCT;
-get_atsc_eit(): AtscEIT;
-get_atsc_ett(): AtscETT;
-get_atsc_mgt(): AtscMGT;
-get_atsc_stt(): AtscSTT;
-get_atsc_tvct(): AtscVCT;
-get_bat(): BAT;
-get_cat(): Descriptor[];
-get_data(): GLib.Bytes;
-get_eit(): EIT;
-get_nit(): NIT;
-get_pat(): PatProgram[];
-get_pmt(): PMT;
-get_sdt(): SDT;
-get_tdt(): Gst.DateTime;
-get_tot(): TOT;
-get_tsdt(): Descriptor[];
-packetize(): [number, number];
-send_event(element: Gst.Element): boolean;
-static from_nit(nit: NIT): Section;
-static from_pat(programs: PatProgram[], ts_id: number): Section;
-static from_pmt(pmt: PMT, pid: number): Section;
-static from_sdt(sdt: SDT): Section;
+export class Section  {
+    constructor(config?: properties);
+    get_atsc_cvct(): AtscVCT;
+    get_atsc_eit(): AtscEIT;
+    get_atsc_ett(): AtscETT;
+    get_atsc_mgt(): AtscMGT;
+    get_atsc_stt(): AtscSTT;
+    get_atsc_tvct(): AtscVCT;
+    get_bat(): BAT;
+    get_cat(): Descriptor[];
+    get_data(): GLib.Bytes;
+    get_eit(): EIT;
+    get_nit(): NIT;
+    get_pat(): PatProgram[];
+    get_pmt(): PMT;
+    get_sdt(): SDT;
+    get_tdt(): Gst.DateTime;
+    get_tot(): TOT;
+    get_tsdt(): Descriptor[];
+    packetize(): [number, number];
+    send_event(element: Gst.Element): boolean;
+    static from_nit(nit: NIT): Section;
+    static from_pat(programs: PatProgram[], ts_id: number): Section;
+    static from_pmt(pmt: PMT, pid: number): Section;
+    static from_sdt(sdt: SDT): Section;
 }
-export class T2DeliverySystemCell  {constructor(config?: properties);
-cell_id: number;
-centre_frequencies: number[];
-sub_cells: T2DeliverySystemCellExtension[];
+export class T2DeliverySystemCell  {
+    constructor(config?: properties);
+    cell_id: number;
+    centre_frequencies: number[];
+    sub_cells: T2DeliverySystemCellExtension[];
 }
-export class T2DeliverySystemCellExtension  {constructor(config?: properties);
-cell_id_extension: number;
-transposer_frequency: number;
+export class T2DeliverySystemCellExtension  {
+    constructor(config?: properties);
+    cell_id_extension: number;
+    transposer_frequency: number;
 }
-export class T2DeliverySystemDescriptor  {constructor(config?: properties);
-plp_id: number;
-t2_system_id: number;
-siso_miso: number;
-bandwidth: number;
-guard_interval: TerrestrialGuardInterval;
-transmission_mode: TerrestrialTransmissionMode;
-other_frequency: boolean;
-tfs: boolean;
-cells: T2DeliverySystemCell[];
-free(): void;
+export class T2DeliverySystemDescriptor  {
+    constructor(config?: properties);
+    plp_id: number;
+    t2_system_id: number;
+    siso_miso: number;
+    bandwidth: number;
+    guard_interval: TerrestrialGuardInterval;
+    transmission_mode: TerrestrialTransmissionMode;
+    other_frequency: boolean;
+    tfs: boolean;
+    cells: T2DeliverySystemCell[];
+    free(): void;
 }
-export class TOT  {constructor(config?: properties);
-utc_time: Gst.DateTime;
-descriptors: Descriptor[];
+export class TOT  {
+    constructor(config?: properties);
+    utc_time: Gst.DateTime;
+    descriptors: Descriptor[];
 }
-export class TerrestrialDeliverySystemDescriptor  {constructor(config?: properties);
-frequency: number;
-bandwidth: number;
-priority: boolean;
-time_slicing: boolean;
-mpe_fec: boolean;
-constellation: ModulationType;
-hierarchy: TerrestrialHierarchy;
-code_rate_hp: DVBCodeRate;
-code_rate_lp: DVBCodeRate;
-guard_interval: TerrestrialGuardInterval;
-transmission_mode: TerrestrialTransmissionMode;
-other_frequency: boolean;
+export class TerrestrialDeliverySystemDescriptor  {
+    constructor(config?: properties);
+    frequency: number;
+    bandwidth: number;
+    priority: boolean;
+    time_slicing: boolean;
+    mpe_fec: boolean;
+    constellation: ModulationType;
+    hierarchy: TerrestrialHierarchy;
+    code_rate_hp: DVBCodeRate;
+    code_rate_lp: DVBCodeRate;
+    guard_interval: TerrestrialGuardInterval;
+    transmission_mode: TerrestrialTransmissionMode;
+    other_frequency: boolean;
 }
