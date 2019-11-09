@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "rootDir": "src",
+    "allowJs": true,
+    "outDir": "_build",
+    "lib": [
+      "es2019"
+    ]
+  },
+  "include": [
+    "src/*"
+  ]
+}

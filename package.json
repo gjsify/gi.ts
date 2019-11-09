@@ -1,0 +1,20 @@
+{
+  "name": "gi.ts",
+  "version": "0.0.1",
+  "main": "generate.js",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^7.1.4",
+    "typescript": "^3.5.3",
+    "xml2js": "^0.4.22"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/xml2js": "^0.4.4"
+  },
+  "scripts": {
+    "init": "gjs config.js",
+    "generate": "gjs generate.js playground/types",
+    "build": "tsc"
+  }
+}
