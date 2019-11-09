@@ -1045,7 +1045,6 @@ export class GirEnumMember extends GirBase {
   }
 
   asString(_: string, __: GirNSRegistry): string {
-    if (this.name[0] >= "0" && this.name[0] <= "9") return `_${this.name},`;
     const sanitized = getName(this.name);
     const invalid = sanitized !== this.name;
     if (this.value != null) {
