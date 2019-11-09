@@ -59,6 +59,8 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
     case "GLib.SList":
       // GJS translates GLib lists to JS arrays
       return "string[]";
+    case "GObject.ObjectClass":
+      return "any";
   }
 
   if (name in patches) {
@@ -183,13 +185,12 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
         if (modName === ns_name) {
           return `unknown${isArray}`;
         } else {
-          console.log("Using raw type: " + type.raw_type);
           if (current_rns) {
             current_rns.addImport(ns_name);
           } else {
             console.log("Failed to add import for current namespace.");
           }
-          return `${ns_name}.${name}${isArray}`;
+          return `any${isArray}`;
         }
       }
   }
@@ -645,7 +646,14 @@ export class GirClass extends GirBase {
         }
       }
 
-      const protected_names = ["draw", "show_all", "parent_instance", "parent"];
+      const protected_names = [
+        "draw",
+        "show_all",
+        "parent_instance",
+        "parent",
+        "parent_class",
+        "object_class"
+      ];
 
       // Properties
       if (has_props(klass) && klass.property) {
