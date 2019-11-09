@@ -19,6 +19,7 @@ src/main.ts   - Main CLI for generating the .d.ts files.
 src/xml.ts    - Has definitions for the XML format
 
 ## Usage 
-`npm i`
-`npm run init` (`gjs config.js`)
-`npm run generate` (`gjs generate.js playground/types`)
+
+1. `npm i` (download dependencies)
+2. `npm run init` (`gjs config.js`) (generate docs.json)
+3. `npm run generate` (`gjs generate.js playground/types`) (generate files)
