@@ -37,6 +37,7 @@ export abstract class GirBase {
   abstract asString(modName: string, registry: GirNSRegistry): string;
 }
 
+// Inspired by gir2dts' resolveType
 function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
   let ns_name = modName;
   let name: string = type.raw_type || type.name;
@@ -180,7 +181,7 @@ interface Type {
 }
 
 /* Decode the type */
-function getType(modName, ns: GirNamespace, param: any): Type {
+function getType(_modName, _ns: GirNamespace, param: any): Type {
   let [name, isArray] = ["", false];
   name = getName(name);
 
@@ -471,22 +472,27 @@ export class GirClass extends GirBase {
 
     const clazz = new this(getName(klass.$.name));
 
+    // TODO Fix this is_interface check.
     const is_interface: (k: typeof klass) => k is Interface = (
       k
     ): k is Interface => clazz.isInterface();
+
     const has_props: (k: typeof klass) => k is Interface | ClassElement = (
       k
     ): k is Interface | ClassElement => "property" in k;
+
     const has_constructor: (k: typeof klass) => k is ClassElement = (
       k
     ): k is ClassElement =>
       Object.getOwnPropertyNames(k).includes("constructor") &&
       Array.isArray(k.constructor);
+
     const has_field: (k: typeof klass) => k is ClassElement | RecordElement = (
       k
     ): k is ClassElement | RecordElement => "field" in k;
 
     try {
+      // Setup parent type if this is an interface or class.
       if ((has_constructor(klass) || is_interface(klass)) && klass.$.parent) {
         clazz.parent = {
           raw_type: klass.$.parent,
@@ -508,9 +514,7 @@ export class GirClass extends GirBase {
         }
       }
 
-      /**
-       * Methods
-       */
+      // Instance Methods
       if (klass.method) {
         for (let method of klass.method) {
           clazz.members.push(
@@ -519,6 +523,7 @@ export class GirClass extends GirBase {
         }
       }
 
+      // Virtual Methods
       if (has_constructor(klass) && klass["virtual-method"]) {
         for (let method of klass["virtual-method"]) {
           clazz.members.push(
@@ -527,9 +532,7 @@ export class GirClass extends GirBase {
         }
       }
 
-      /**
-       * Static methods (functions)
-       */
+      // Static methods (functions)
       if (!is_interface(klass) && klass.function) {
         for (let func of klass.function) {
           if (func.$["name"] === "newv") continue; // TODO
@@ -541,6 +544,7 @@ export class GirClass extends GirBase {
 
       const protected_names = ["draw", "show_all", "parent_instance", "parent"];
 
+      // Properties
       if (has_props(klass) && klass.property) {
         for (let prop of klass.property) {
           const property = GirProperty.fromXML(modName, ns, prop);
@@ -553,6 +557,7 @@ export class GirClass extends GirBase {
         }
       }
 
+      // Is this a foreign type? (don't allow construction if foreign)
       if (!has_constructor(klass)) {
         const kl = klass as RecordElement;
         clazz._isForeign = kl.$.foreign && kl.$.foreign === "1";
@@ -560,8 +565,8 @@ export class GirClass extends GirBase {
         clazz._isForeign = false;
       }
 
+      // Fields (for "non-class" records)
       if (!has_constructor(klass) && has_field(klass) && klass.field) {
-      
         for (let field of klass.field) {
           const property = GirProperty.fromXML(modName, ns, field);
           if (
@@ -625,12 +630,6 @@ export class GirClass extends GirBase {
 
     const name = this.name;
 
-    /**
-     * Constructors
-     */
-
-    // TODO Figure out a much more robust parent check.
-
     return `export ${
       this.isInterface() ? "interface" : "class"
     } ${name} ${this.extends(modName, registry)}${this.implements()} {${
@@ -673,6 +672,13 @@ ${this.props
       .reduce(
         (prev, next) => {
           // TODO This should catch most of them.
+          // TODO Cleanup the conflicts code (its very messy)
+          // Essentially, this loops through the each of the constructors of each parent
+          // searching for a conflicting name. If it finds one, it inserts a duplicate
+          // constructor with the "never" type. This overloads the child constructor
+          // and makes it compatible with the parent but because you can never
+          // use a never type, when a user tries to use the constructor it
+          // defaults to the correct one.          
           const conflicts = resolved_parents.some(resolved_parent =>
             resolved_parent.constructors.some(
               p =>
@@ -898,7 +904,11 @@ export class GirConstructor extends GirBase {
 export class GirEnumMember extends GirBase {
   value: string;
 
-  static fromXML(_: string, ns: GirNamespace, m: MemberElement): GirEnumMember {
+  static fromXML(
+    _: string,
+    _ns: GirNamespace,
+    m: MemberElement
+  ): GirEnumMember {
     const em = new GirEnumMember(getName(m.$.name.toUpperCase()));
     em.value = m.$.value;
     return em;
