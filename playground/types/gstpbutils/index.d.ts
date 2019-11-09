@@ -514,13 +514,13 @@ export enum InstallPluginsReturn {
     HELPER_MISSING = 202,
     INSTALL_IN_PROGRESS = 203,
 }
-export type DiscovererAudioInfoClass = GObject.ObjectClass;
-export type DiscovererContainerInfoClass = GObject.ObjectClass;
-export type DiscovererInfoClass = GObject.ObjectClass;
-export type DiscovererStreamInfoClass = GObject.ObjectClass;
-export type DiscovererSubtitleInfoClass = GObject.ObjectClass;
-export type DiscovererVideoInfoClass = GObject.ObjectClass;
-export type EncodingTargetClass = GObject.ObjectClass;
+export type DiscovererAudioInfoClass = any;
+export type DiscovererContainerInfoClass = any;
+export type DiscovererInfoClass = any;
+export type DiscovererStreamInfoClass = any;
+export type DiscovererSubtitleInfoClass = any;
+export type DiscovererVideoInfoClass = any;
+export type EncodingTargetClass = any;
 export enum DiscovererSerializeFlags {
     BASIC = 0,
     CAPS = 1,

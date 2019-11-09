@@ -912,7 +912,6 @@ export class LibarchiveInputStream  {
 }
 export class LibarchiveInputStreamClass  {
     constructor(config?: properties);
-    parent_class: Gio.InputStreamClass;
 }
 export class LibarchiveInputStreamPrivate  {
     constructor(config?: properties);
@@ -922,14 +921,12 @@ export class LzmaCompressor  {
 }
 export class LzmaCompressorClass  {
     constructor(config?: properties);
-    parent_class: GObject.ObjectClass;
 }
 export class LzmaDecompressor  {
     constructor(config?: properties);
 }
 export class LzmaDecompressorClass  {
     constructor(config?: properties);
-    parent_class: GObject.ObjectClass;
 }
 export class MutableTreeIter  {
     constructor(config?: properties);
@@ -996,7 +993,6 @@ export class RepoFileEnumerator  {
 }
 export class RepoFileEnumeratorClass  {
     constructor(config?: properties);
-    parent_class: Gio.FileEnumeratorClass;
 }
 export class RepoFinderResult  {
     constructor(config?: properties);

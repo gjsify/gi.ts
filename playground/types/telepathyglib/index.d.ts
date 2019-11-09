@@ -728,7 +728,7 @@ export function dbus_errors_quark(): GLib.Quark;
  * whose properties are set using
  * tp_dbus_properties_mixin_implement_interface() will be used.
  */
-export function dbus_properties_mixin_class_init(cls: GObject.ObjectClass, offset: number): void;
+export function dbus_properties_mixin_class_init(cls: any, offset: number): void;
 /**
  * Get all the properties of a particular interface. This implementation
  * never returns an error: it will return an empty map if the interface
@@ -3244,7 +3244,7 @@ export class DBusDaemonPrivate  {
 export class DBusPropertiesMixinClass  {
     constructor(config?: properties);
     interfaces: DBusPropertiesMixinIfaceImpl;
-    static init(cls: GObject.ObjectClass, offset: number): void;
+    static init(cls: any, offset: number): void;
 }
 export class DBusPropertiesMixinIfaceImpl  {
     constructor(config?: properties);

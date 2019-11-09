@@ -673,7 +673,7 @@ export function video_overlay_composition_meta_get_info(): Gst.MetaInfo;
  * the
  * class.
  */
-export function video_overlay_install_properties(oclass: GObject.ObjectClass, last_prop_id: number): void;
+export function video_overlay_install_properties(oclass: any, last_prop_id: number): void;
 /**
  * This helper shall be used by classes implementing the #GstVideoOverlay
  * interface that want the render rectangle to be controllable using

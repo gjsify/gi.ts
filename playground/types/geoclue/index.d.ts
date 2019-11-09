@@ -19,7 +19,7 @@ export function client_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function client_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function client_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-GeoClue2-Location.top_of_page">org.freedesktop.Geo
@@ -31,7 +31,7 @@ export function location_interface_info(): Gio.DBusInterfaceInfo;
  * a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function location_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function location_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-GeoClue2-Manager.top_of_page">org.freedesktop.GeoC
@@ -43,7 +43,7 @@ export function manager_interface_info(): Gio.DBusInterfaceInfo;
  *  concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function manager_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function manager_override_properties(klass: any, property_id_begin: number): number;
 export enum AccuracyLevel {
     NONE = 0,
     COUNTRY = 1,

@@ -19,7 +19,7 @@ export function chooser_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function chooser_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function chooser_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Reads /usr/share/xsessions and other relevant places for possible sess
  * ions
@@ -45,7 +45,7 @@ export function greeter_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function greeter_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function greeter_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-DisplayManager-Manager.top_of_page">org.gnome.DisplayMan
@@ -57,7 +57,7 @@ export function manager_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function manager_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function manager_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-DisplayManager-RemoteGreeter.top_of_page">org.gnome.Disp
@@ -69,7 +69,7 @@ export function remote_greeter_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function remote_greeter_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function remote_greeter_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-DisplayManager-UserVerifier-ChoiceList.top_of_page">org.
@@ -81,7 +81,7 @@ export function user_verifier_choice_list_interface_info(): Gio.DBusInterfaceInf
  * terface for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function user_verifier_choice_list_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function user_verifier_choice_list_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-DisplayManager-UserVerifier.top_of_page">org.gnome.Displ
@@ -93,7 +93,7 @@ export function user_verifier_interface_info(): Gio.DBusInterfaceInfo;
  * r a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function user_verifier_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function user_verifier_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-DisplayManager-WorkerManager.top_of_page">org.gnome.Disp
@@ -105,7 +105,7 @@ export function worker_manager_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function worker_manager_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function worker_manager_override_properties(klass: any, property_id_begin: number): number;
 export enum ClientError {
     CLIENT_ERROR_GENERIC = 0,
 }

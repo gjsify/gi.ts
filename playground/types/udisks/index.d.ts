@@ -23,7 +23,7 @@ export function block_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function block_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function block_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Drive-Ata.top_of_page">org.freedesktop.UDi
@@ -35,7 +35,7 @@ export function drive_ata_interface_info(): Gio.DBusInterfaceInfo;
  *  a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function drive_ata_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function drive_ata_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Drive.top_of_page">org.freedesktop.UDisks2
@@ -47,7 +47,7 @@ export function drive_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function drive_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function drive_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Encrypted.top_of_page">org.freedesktop.UDi
@@ -59,7 +59,7 @@ export function encrypted_interface_info(): Gio.DBusInterfaceInfo;
  * r a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function encrypted_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function encrypted_override_properties(klass: any, property_id_begin: number): number;
 /**
  * 
  */
@@ -75,7 +75,7 @@ export function filesystem_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function filesystem_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function filesystem_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Job.top_of_page">org.freedesktop.UDisks2.J
@@ -87,7 +87,7 @@ export function job_interface_info(): Gio.DBusInterfaceInfo;
  * ncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function job_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function job_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Loop.top_of_page">org.freedesktop.UDisks2.
@@ -99,7 +99,7 @@ export function loop_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function loop_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function loop_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Manager.top_of_page">org.freedesktop.UDisk
@@ -111,7 +111,7 @@ export function manager_interface_info(): Gio.DBusInterfaceInfo;
  * a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function manager_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function manager_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-MDRaid.top_of_page">org.freedesktop.UDisks
@@ -123,7 +123,7 @@ export function mdraid_interface_info(): Gio.DBusInterfaceInfo;
  *  concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function mdraid_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function mdraid_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Partition.top_of_page">org.freedesktop.UDi
@@ -135,7 +135,7 @@ export function partition_interface_info(): Gio.DBusInterfaceInfo;
  * r a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function partition_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function partition_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-PartitionTable.top_of_page">org.freedeskto
@@ -147,7 +147,7 @@ export function partition_table_interface_info(): Gio.DBusInterfaceInfo;
  * ce for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function partition_table_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function partition_table_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-UDisks2-Swapspace.top_of_page">org.freedesktop.UDi
@@ -159,7 +159,7 @@ export function swapspace_interface_info(): Gio.DBusInterfaceInfo;
  * r a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function swapspace_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function swapspace_override_properties(klass: any, property_id_begin: number): number;
 export enum Error {
     FAILED = 0,
     CANCELLED = 1,

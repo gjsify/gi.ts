@@ -394,7 +394,7 @@ export class Monitor extends GObject.Object {
     time_range: TimeRange;
     event_templates: Event[];
     get_templates(): Event[];
-    get_path(): GLib.ObjectPath;
+    get_path(): any;
     get_time_range(): TimeRange;
     set_time_range(value: TimeRange): void;
     get_event_templates(): Event[];
@@ -571,7 +571,7 @@ export class VersionStruct  {
 export interface RemoteRegistry  {
     get_data_sources(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     get_data_sources_finish(_res_: Gio.AsyncResult): GLib.Variant;
-    register_data_source(unique_id: string, name: string, description: string, event_templates: GLib.Variant, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    register_data_source(unique_id: string, name: string, description: string, event_templates: GLib.Variant, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     register_data_source_finish(_res_: Gio.AsyncResult): boolean;
     set_data_source_enabled(unique_id: string, enabled: boolean, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     set_data_source_enabled_finish(_res_: Gio.AsyncResult): void;
@@ -582,21 +582,21 @@ export interface RemoteLog  {
     readonly extensions: string[];
     readonly version: VersionStruct;
     readonly datapath: string;
-    delete_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    delete_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     delete_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
-    find_event_ids(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_event_ids(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     find_event_ids_finish(_res_: Gio.AsyncResult): [number[], number];
-    find_events(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_events(time_range: GLib.Variant, event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     find_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
-    find_related_uris(time_range: GLib.Variant, event_templates: GLib.Variant, result_event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    find_related_uris(time_range: GLib.Variant, event_templates: GLib.Variant, result_event_templates: GLib.Variant, storage_state: number, num_events: number, result_type: number, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     find_related_uris_finish(_res_: Gio.AsyncResult): [string[], number];
-    get_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    get_events(event_ids: number[], event_ids_length1: number, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     get_events_finish(_res_: Gio.AsyncResult): GLib.Variant;
-    insert_events(events: GLib.Variant, cancellable: Gio.Cancellable | null, sender: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    insert_events(events: GLib.Variant, cancellable: Gio.Cancellable | null, sender: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     insert_events_finish(_res_: Gio.AsyncResult): [number[], number];
-    install_monitor(monitor_path: GLib.ObjectPath, time_range: GLib.Variant, event_templates: GLib.Variant, owner: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    install_monitor(monitor_path: any, time_range: GLib.Variant, event_templates: GLib.Variant, owner: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     install_monitor_finish(_res_: Gio.AsyncResult): void;
-    remove_monitor(monitor_path: GLib.ObjectPath, owner: GLib.BusName | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    remove_monitor(monitor_path: any, owner: any | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     remove_monitor_finish(_res_: Gio.AsyncResult): void;
     quit(cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     quit_finish(_res_: Gio.AsyncResult): void;

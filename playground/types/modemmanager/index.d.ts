@@ -281,7 +281,7 @@ export function gdbus_bearer_interface_info(): Gio.DBusInterfaceInfo;
  * a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_bearer_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_bearer_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Modem3gpp.top_of_page">org.fre
@@ -293,7 +293,7 @@ export function gdbus_modem3gpp_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem3gpp_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem3gpp_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Modem3gpp-Ussd.top_of_page">or
@@ -306,7 +306,7 @@ export function gdbus_modem3gpp_ussd_interface_info(): Gio.DBusInterfaceInfo;
  * ce for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem3gpp_ussd_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem3gpp_ussd_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-ModemCdma.top_of_page">org.fre
@@ -318,7 +318,7 @@ export function gdbus_modem_cdma_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_cdma_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_cdma_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Firmware.top_of_page">org.free
@@ -330,7 +330,7 @@ export function gdbus_modem_firmware_interface_info(): Gio.DBusInterfaceInfo;
  * ce for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_firmware_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_firmware_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem.top_of_page">org.freedesktop.M
@@ -348,7 +348,7 @@ export function gdbus_modem_location_interface_info(): Gio.DBusInterfaceInfo;
  * ce for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_location_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_location_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Messaging.top_of_page">org.fre
@@ -360,7 +360,7 @@ export function gdbus_modem_messaging_interface_info(): Gio.DBusInterfaceInfo;
  * ace for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_messaging_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_messaging_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Oma.top_of_page">org.freedeskt
@@ -372,13 +372,13 @@ export function gdbus_modem_oma_interface_info(): Gio.DBusInterfaceInfo;
  * r a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_oma_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_oma_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Overrides all #GObject properties in the #MmGdbusModem interface for a
  *  concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Signal.top_of_page">org.freede
@@ -390,7 +390,7 @@ export function gdbus_modem_signal_interface_info(): Gio.DBusInterfaceInfo;
  *  for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_signal_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_signal_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Simple.top_of_page">org.freede
@@ -402,7 +402,7 @@ export function gdbus_modem_simple_interface_info(): Gio.DBusInterfaceInfo;
  *  for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_simple_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_simple_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Time.top_of_page">org.freedesk
@@ -414,7 +414,7 @@ export function gdbus_modem_time_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_time_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_time_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Modem-Voice.top_of_page">org.freedes
@@ -426,7 +426,7 @@ export function gdbus_modem_voice_interface_info(): Gio.DBusInterfaceInfo;
  * for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_modem_voice_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_modem_voice_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1.top_of_page">org.freedesktop.ModemMa
@@ -438,7 +438,7 @@ export function gdbus_org_freedesktop_modem_manager1_interface_info(): Gio.DBusI
  * nager1 interface for a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_org_freedesktop_modem_manager1_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_org_freedesktop_modem_manager1_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Sim.top_of_page">org.freedesktop.Mod
@@ -450,7 +450,7 @@ export function gdbus_sim_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_sim_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_sim_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-freedesktop-ModemManager1-Sms.top_of_page">org.freedesktop.Mod
@@ -462,7 +462,7 @@ export function gdbus_sms_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function gdbus_sms_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function gdbus_sms_override_properties(klass: any, property_id_begin: number): number;
 /**
  * 
  */

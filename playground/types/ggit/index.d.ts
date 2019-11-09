@@ -650,7 +650,7 @@ export class Object  {
 }
 export class ObjectFactory  {
     constructor(config?: properties);
-    construct(parent_class: GObject.ObjectClass, basetype: GType, n_construct_properties: number, construct_properties: GObject.ObjectConstructParam[]): GObject.Object | null;
+    construct(parent_class: any, basetype: GType, n_construct_properties: number, construct_properties: GObject.ObjectConstructParam[]): GObject.Object | null;
     register(basetype: GType, subtype: GType): void;
     unregister(basetype: GType, subtype: GType): void;
     static get_default(): ObjectFactory;

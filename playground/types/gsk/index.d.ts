@@ -346,12 +346,12 @@ export function text_node_peek_glyphs(node: RenderNode): Pango.GlyphInfo;
 /**
  * 
  */
-export function texture_node_get_texture(node: RenderNode): Gdk.Texture;
+export function texture_node_get_texture(node: RenderNode): any;
 /**
  * Creates a #GskRenderNode that will render the given
  * @texture into the area given by @bounds.
  */
-export function texture_node_new(texture: Gdk.Texture, bounds: Graphene.Rect): RenderNode;
+export function texture_node_new(texture: any, bounds: Graphene.Rect): RenderNode;
 /**
  * Gets the child node that is getting transformed by the given @node.
  */
@@ -452,12 +452,12 @@ export class GLRenderer extends Renderer {
 export class Renderer extends GObject.Object {
     constructor(config?: properties);
     readonly realized: boolean;
-    readonly surface: Gdk.Surface;static new_for_surface(surface: Gdk.Surface): Renderer | null;
-    get_surface(): Gdk.Surface | null;
+    readonly surface: any;static new_for_surface(surface: any): Renderer | null;
+    get_surface(): any | null;
     is_realized(): boolean;
-    realize(surface: Gdk.Surface): boolean;
+    realize(surface: any): boolean;
     render(root: RenderNode, region: cairo.Region | null): void;
-    render_texture(root: RenderNode, viewport: Graphene.Rect | null): Gdk.Texture;
+    render_texture(root: RenderNode, viewport: Graphene.Rect | null): any;
     unrealize(): void;
 }
 export class VulkanRenderer extends Renderer {

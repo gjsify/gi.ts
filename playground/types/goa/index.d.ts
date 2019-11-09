@@ -23,7 +23,7 @@ export function account_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function account_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function account_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Calendar.top_of_page">org.gnome.OnlineAcc
@@ -35,7 +35,7 @@ export function calendar_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function calendar_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function calendar_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Chat.top_of_page">org.gnome.OnlineAccount
@@ -47,7 +47,7 @@ export function chat_interface_info(): Gio.DBusInterfaceInfo;
  * rete class.
  * The properties are overridden in the order they are defined.
  */
-export function chat_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function chat_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Checks that the GOA library in use is compatible with the
  * given version. Generally you would pass in the constants
@@ -75,7 +75,7 @@ export function contacts_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function contacts_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function contacts_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Documents.top_of_page">org.gnome.OnlineAc
@@ -87,7 +87,7 @@ export function documents_interface_info(): Gio.DBusInterfaceInfo;
  *  concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function documents_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function documents_override_properties(klass: any, property_id_begin: number): number;
 /**
  * 
  */
@@ -103,7 +103,7 @@ export function exchange_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function exchange_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function exchange_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Files.top_of_page">org.gnome.OnlineAccoun
@@ -115,7 +115,7 @@ export function files_interface_info(): Gio.DBusInterfaceInfo;
  * crete class.
  * The properties are overridden in the order they are defined.
  */
-export function files_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function files_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Mail.top_of_page">org.gnome.OnlineAccount
@@ -127,7 +127,7 @@ export function mail_interface_info(): Gio.DBusInterfaceInfo;
  * rete class.
  * The properties are overridden in the order they are defined.
  */
-export function mail_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function mail_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Manager.top_of_page">org.gnome.OnlineAcco
@@ -139,7 +139,7 @@ export function manager_interface_info(): Gio.DBusInterfaceInfo;
  * oncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function manager_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function manager_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Maps.top_of_page">org.gnome.OnlineAccount
@@ -151,7 +151,7 @@ export function maps_interface_info(): Gio.DBusInterfaceInfo;
  * rete class.
  * The properties are overridden in the order they are defined.
  */
-export function maps_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function maps_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-MediaServer.top_of_page">org.gnome.Online
@@ -163,7 +163,7 @@ export function media_server_interface_info(): Gio.DBusInterfaceInfo;
  *  a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function media_server_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function media_server_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Music.top_of_page">org.gnome.OnlineAccoun
@@ -175,7 +175,7 @@ export function music_interface_info(): Gio.DBusInterfaceInfo;
  * crete class.
  * The properties are overridden in the order they are defined.
  */
-export function music_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function music_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-OAuth2Based.top_of_page">org.gnome.Online
@@ -187,7 +187,7 @@ export function oauth2_based_interface_info(): Gio.DBusInterfaceInfo;
  *  a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function oauth2_based_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function oauth2_based_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-OAuthBased.top_of_page">org.gnome.OnlineA
@@ -199,7 +199,7 @@ export function oauth_based_interface_info(): Gio.DBusInterfaceInfo;
  * a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function oauth_based_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function oauth_based_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-PasswordBased.top_of_page">org.gnome.Onli
@@ -211,7 +211,7 @@ export function password_based_interface_info(): Gio.DBusInterfaceInfo;
  * or a concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function password_based_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function password_based_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Photos.top_of_page">org.gnome.OnlineAccou
@@ -223,7 +223,7 @@ export function photos_interface_info(): Gio.DBusInterfaceInfo;
  * ncrete class.
  * The properties are overridden in the order they are defined.
  */
-export function photos_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function photos_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Printers.top_of_page">org.gnome.OnlineAcc
@@ -235,7 +235,7 @@ export function printers_interface_info(): Gio.DBusInterfaceInfo;
  * concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function printers_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function printers_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-ReadLater.top_of_page">org.gnome.OnlineAc
@@ -247,7 +247,7 @@ export function read_later_interface_info(): Gio.DBusInterfaceInfo;
  *  concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function read_later_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function read_later_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Ticketing.top_of_page">org.gnome.OnlineAc
@@ -259,7 +259,7 @@ export function ticketing_interface_info(): Gio.DBusInterfaceInfo;
  *  concrete class.
  * The properties are overridden in the order they are defined.
  */
-export function ticketing_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function ticketing_override_properties(klass: any, property_id_begin: number): number;
 /**
  * Gets a machine-readable description of the <link linkend="gdbus-interf
  * ace-org-gnome-OnlineAccounts-Todo.top_of_page">org.gnome.OnlineAccount
@@ -271,7 +271,7 @@ export function todo_interface_info(): Gio.DBusInterfaceInfo;
  * rete class.
  * The properties are overridden in the order they are defined.
  */
-export function todo_override_properties(klass: GObject.ObjectClass, property_id_begin: number): number;
+export function todo_override_properties(klass: any, property_id_begin: number): number;
 export enum Error {
     FAILED = 0,
     NOT_SUPPORTED = 1,

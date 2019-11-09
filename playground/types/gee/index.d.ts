@@ -615,7 +615,7 @@ export interface Deque  {
 }
 export interface Future  {
     readonly ready: boolean;
-    readonly exception: GLib.Error_;
+    readonly exception: any;
     wait(): object | null;
     wait_until(end_time: number): [boolean, object | null];
     wait_async(_callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
@@ -627,7 +627,7 @@ export interface Future  {
     flat_map(a_type: GType, a_dup_func: GObject.BoxedCopyFunc, a_destroy_func: GLib.DestroyNotify, func: FlatMapFunc, func_target: object | null, func_target_destroy_notify: GLib.DestroyNotify): Future;
     get_value(): object | null;
     get_ready(): boolean;
-    get_exception(): GLib.Error_ | null;
+    get_exception(): any | null;
 }
 export interface Hashable  {
     hash(): number;

@@ -4730,11 +4730,11 @@ export function color_get_static(color: StaticColor): Color;
 /**
  * Looks up the #GParamSpec for a child property of @klass.
  */
-export function container_class_find_child_property(klass: GObject.ObjectClass, property_name: string): GObject.ParamSpec;
+export function container_class_find_child_property(klass: any, property_name: string): GObject.ParamSpec;
 /**
  * Returns an array of #GParamSpec for all child properties.
  */
-export function container_class_list_child_properties(klass: GObject.ObjectClass): [GObject.ParamSpec[], number];
+export function container_class_list_child_properties(klass: any): [GObject.ParamSpec[], number];
 /**
  * Disable loading the accessibility support. It has the same effect
  * as setting the environment variable
@@ -6990,7 +6990,7 @@ export class OffscreenEffect  {
     constructor(config?: properties);
     readonly priv: OffscreenEffectPrivate;
     create_texture(width: number, height: number): Cogl.Handle;
-    get_target(): Cogl.Material;
+    get_target(): any;
     get_target_rect(): [boolean, Rect];
     get_target_size(): [boolean, number,number];
     get_texture(): Cogl.Handle;

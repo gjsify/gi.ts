@@ -1256,7 +1256,6 @@ export class ProjectPrivate  {
 }
 export class PropertyKlass  {
     constructor(config?: properties);
-    parent_class: GObject.ObjectClass;
 }
 export class PropertyLabelPrivate  {
     constructor(config?: properties);
@@ -1272,7 +1271,6 @@ export class SignalEditorPrivate  {
 }
 export class SignalKlass  {
     constructor(config?: properties);
-    object_class: GObject.ObjectClass;
 }
 export class SignalModelPrivate  {
     constructor(config?: properties);
