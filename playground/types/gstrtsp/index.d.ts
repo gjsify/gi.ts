@@ -388,9 +388,9 @@ export enum RTSPTimeType {
 }
 export enum RTSPVersion {
     INVALID = 0,
-    Gjs_1_0 = 16,
-    Gjs_1_1 = 17,
-    Gjs_2_0 = 32,
+    "1_0" = 16,
+    "1_1" = 17,
+    "2_0" = 32,
 }
 export enum RTSPEvent {
     READ = 1,

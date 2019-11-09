@@ -10,7 +10,6 @@ import * as Xkl from "xkl";
 type properties = { [key: string]: any };
 type GType = object;
 export type ConfigItemProcessFunc = (config: ConfigRegistry, item: ConfigItem, data: object | null) => void;
-export type LogAppender = (file: number, _function: number, level: number, format: number, args: any) => void;
 export type TwoConfigItemsProcessFunc = (config: ConfigRegistry, item: ConfigItem, subitem: ConfigItem, data: object | null) => void;
 export const MAX_CI_DESC_LENGTH: number;
 export const MAX_CI_NAME_LENGTH: number;

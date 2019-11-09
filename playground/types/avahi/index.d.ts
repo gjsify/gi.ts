@@ -82,9 +82,9 @@ export class EntryGroup extends GObject.Object {
 }
 export class RecordBrowser extends GObject.Object {
     constructor(config?: properties);
-    _class: number;
+    "class": number;
     flags: LookupFlags;
-    _interface: number;
+    "interface": number;
     name: string;
     protocol: Protocol;
     type: number;static new_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, name: string, clazz: number, type: number, flags: LookupFlags): RecordBrowser;
@@ -94,7 +94,7 @@ export class ServiceBrowser extends GObject.Object {
     constructor(config?: properties);
     domain: string;
     flags: LookupFlags;
-    _interface: number;
+    "interface": number;
     protocol: Protocol;
     type: string;static new_full(_interface: AvahiCore.IfIndex, protocol: AvahiCore.Protocol, type: string, domain: string, flags: LookupFlags): ServiceBrowser;
     attach(client: Client): boolean;
@@ -104,7 +104,7 @@ export class ServiceResolver extends GObject.Object {
     aprotocol: Protocol;
     domain: string;
     flags: LookupFlags;
-    _interface: number;
+    "interface": number;
     name: string;
     protocol: Protocol;
     type: string;
@@ -113,7 +113,7 @@ export class ServiceResolver extends GObject.Object {
 }
 export class EntryGroupService  {
     constructor(config?: properties);
-    _interface: AvahiCore.IfIndex;
+    "interface": AvahiCore.IfIndex;
     protocol: AvahiCore.Protocol;
     flags: AvahiCore.PublishFlags;
     name: string;

@@ -1011,8 +1011,8 @@ export enum TexturePixmapX11ReportLevel {
     NON_EMPTY = 3,
 }
 export enum TextureType {
-    Gjs_2D = 0,
-    Gjs_3D = 1,
+    "2D" = 0,
+    "3D" = 1,
     RECTANGLE = 2,
 }
 export enum VerticesMode {
@@ -1074,7 +1074,7 @@ export enum BufferBit {
     STENCIL = 4,
 }
 export enum BufferMapHint {
-     = 1,
+    "" = 1,
     _RANGE = 2,
 }
 export enum BufferTarget {

@@ -6887,7 +6887,7 @@ export class InputDevice  {
 }
 export class Interval extends GObject.InitiallyUnowned {
     constructor(config?: properties);
-    _final: GObject.Value;
+    "final": GObject.Value;
     initial: GObject.Value;
     value_type: GType;static new_with_values(gtype: GType, initial: GObject.Value | null, _final: GObject.Value | null): Interval;
     clone(): Interval;

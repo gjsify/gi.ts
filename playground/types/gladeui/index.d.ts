@@ -14,7 +14,6 @@ import * as GModule from "gmodule";
 type properties = { [key: string]: any };
 type GType = object;
 export type ActionActivateFunc = (adaptor: WidgetAdaptor, object: GObject.Object, action_path: string) => void;
-export type ActionSubmenuFunc = (adaptor: WidgetAdaptor, object: GObject.Object, action_path: string) => Gtk.Widget;
 export type AddChildFunc = (adaptor: WidgetAdaptor, parent: GObject.Object, child: GObject.Object) => void;
 export type AddChildVerifyFunc = (adaptor: WidgetAdaptor, parent: GObject.Object, child: GObject.Object, user_feedback: boolean) => boolean;
 export type CatalogInitFunc = (name: string) => void;
@@ -22,14 +21,8 @@ export type ChildActionActivateFunc = (adaptor: WidgetAdaptor, container: GObjec
 export type ChildGetPropertyFunc = (adaptor: WidgetAdaptor, container: GObject.Object, child: GObject.Object, property_name: string, value: GObject.Value) => void;
 export type ChildSetPropertyFunc = (adaptor: WidgetAdaptor, container: GObject.Object, child: GObject.Object, property_name: string, value: GObject.Value) => void;
 export type ChildVerifyPropertyFunc = (adaptor: WidgetAdaptor, container: GObject.Object, child: GObject.Object, property_name: string, value: GObject.Value) => boolean;
-export type ConstructObjectFunc = (adaptor: WidgetAdaptor, n_parameters: number, parameters: GObject.Parameter) => GObject.Object;
-export type CreateEPropFunc = (adaptor: WidgetAdaptor, klass: unknown, use_command: boolean) => EditorProperty;
-export type CreateEditableFunc = (adaptor: WidgetAdaptor, type: EditorPageType) => Editable;
-export type CreateWidgetFunc = (adaptor: WidgetAdaptor, first_property_name: string, var_args: any) => Widget;
 export type DependsFunc = (adaptor: WidgetAdaptor, widget: Widget, another: Widget) => boolean;
 export type DestroyObjectFunc = (adaptor: WidgetAdaptor, object: GObject.Object) => void;
-export type GetChildrenFunc = (adaptor: WidgetAdaptor, container: GObject.Object) => GLib.List;
-export type GetInternalFunc = (adaptor: WidgetAdaptor, parent: GObject.Object, name: string) => GObject.Object;
 export type GetPropertyFunc = (adaptor: WidgetAdaptor, object: GObject.Object, property_name: string, value: GObject.Value) => void;
 export type PostCreateFunc = (adaptor: WidgetAdaptor, object: GObject.Object, reason: CreateReason) => void;
 export type ReadWidgetFunc = (adaptor: WidgetAdaptor, widget: Widget, node: XmlNode) => void;
@@ -580,6 +573,7 @@ export enum UtilFileDialogType {
     OPEN = 0,
     SAVE = 1,
 }
+export type GList = object;
 export enum DebugFlag {
     REF_COUNTS = 1,
     WIDGET_EVENTS = 2,
@@ -884,7 +878,7 @@ export class Project extends GObject.Object {
 }
 export class Property extends GObject.Object {
     constructor(config?: properties);
-    _class: object;
+    "class": object;
     enabled: boolean;
     i18n_comment: string;
     i18n_context: string;
@@ -970,7 +964,7 @@ export class PropertyShell extends Gtk.Box {
 export class Signal extends GObject.Object {
     constructor(config?: properties);
     after: boolean;
-    _class: object;
+    "class": object;
     detail: string;
     handler: string;
     support_warning: string;
@@ -1099,7 +1093,7 @@ export class Widget  {
 }
 export class WidgetAction  {
     constructor(config?: properties);
-    _class: object;
+    "class": object;
     sensitive: boolean;
     visible: boolean;
     readonly priv: WidgetActionPrivate;

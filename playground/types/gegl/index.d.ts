@@ -8,7 +8,6 @@ import * as Gegl from "gegl";
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type FlattenerFunc = (original: PathList) => PathList;
 export type LookupFunction = (value: number, data: object | null) => number;
 export type NodeFunction = (node: PathItem, user_data: object | null) => void;
 export type ParallelDistributeAreaFunc = (area: Rectangle, user_data: object | null) => void;
@@ -385,8 +384,6 @@ export class Buffer extends TileHandler {
     width: number;
     x: number;
     y: number;static introspectable_new(format_name: string, x: number, y: number, width: number, height: number): Buffer;
-    static linear_new(extent: Rectangle, format: unknown): Buffer;
-    static linear_new_from_data(data: object | null, format: unknown, extent: Rectangle, rowstride: number, destroy_fn: GLib.DestroyNotify, destroy_fn_data: object | null): Buffer;
     static new_for_backend(extent: Rectangle, backend: TileBackend): Buffer;
     add_handler(handler: object | null): void;
     clear(roi: Rectangle): void;
@@ -663,7 +660,7 @@ export class ColorPrivate  {
 }
 export class Lookup  {
     constructor(config?: properties);
-    _function: LookupFunction;
+    "function": LookupFunction;
     data: object;
     shift: number;
     positive_min: number;

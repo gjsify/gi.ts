@@ -3372,9 +3372,9 @@ export enum EventType {
     EXPOSE = 2,
     MOTION_NOTIFY = 3,
     BUTTON_PRESS = 4,
-    Gjs_2BUTTON_PRESS = 5,
+    "2BUTTON_PRESS" = 5,
     DOUBLE_BUTTON_PRESS = 5,
-    Gjs_3BUTTON_PRESS = 6,
+    "3BUTTON_PRESS" = 6,
     TRIPLE_BUTTON_PRESS = 6,
     BUTTON_RELEASE = 7,
     KEY_PRESS = 8,
@@ -4333,7 +4333,7 @@ export class EventFocus  {
     type: EventType;
     window: Window;
     send_event: number;
-    _in: number;
+    "in": number;
 }
 export class EventGrabBroken  {
     constructor(config?: properties);

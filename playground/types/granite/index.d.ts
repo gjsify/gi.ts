@@ -569,6 +569,9 @@ export class WidgetsOverlayBar extends Gtk.EventBox {
     get_active(): boolean;
     set_active(value: boolean): void;
 }
+export module WidgetsSourceList {
+    export type VisibleFunc = (item: WidgetsSourceListItem, user_data: object) => boolean;
+}
 export class WidgetsSourceList extends Gtk.ScrolledWindow {
     constructor(config?: properties);
     root: WidgetsSourceListExpandableItem;
@@ -576,7 +579,7 @@ export class WidgetsSourceList extends Gtk.ScrolledWindow {
     ellipsize_mode: Pango.EllipsizeMode;
     readonly editing: boolean;
     has_item(item: WidgetsSourceListItem): boolean;
-    set_filter_func(visible_func: unknown | null, visible_func_target: object | null, refilter: boolean): void;
+    set_filter_func(visible_func: WidgetsSourceList.VisibleFunc | null, visible_func_target: object | null, refilter: boolean): void;
     refilter(): void;
     is_item_expanded(item: WidgetsSourceListItem): boolean;
     start_editing_item(item: WidgetsSourceListItem): boolean;

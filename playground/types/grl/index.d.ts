@@ -10,7 +10,6 @@ import * as Grl from "grl";
 type properties = { [key: string]: any };
 type GType = object;
 export type PluginDeinitFunc = (plugin: Plugin) => void;
-export type PluginInitFunc = (registry: Registry, plugin: Plugin, configs: GLib.List) => boolean;
 export type PluginRegisterKeysFunc = (registry: Registry, plugin: Plugin) => void;
 export type SourceRemoveCb = (source: Source, media: Media, user_data: object | null, error: GLib.Error | null) => void;
 export type SourceResolveCb = (source: Source, operation_id: number, media: Media, user_data: object | null, error: GLib.Error | null) => void;
@@ -669,9 +668,6 @@ export class Registry  {
 }
 export class RelatedKeys extends GObject.Object {
     constructor(config?: properties);
-    static new_valist(key: KeyID, args: any): RelatedKeys;
-    static new_valist(...args: never[]): RelatedKeys;
-    static new_with_keys(key: KeyID, ___: any): RelatedKeys;
     dup(): RelatedKeys;
     get(key: KeyID): GObject.Value;
     get_binary(key: KeyID): [number, number];

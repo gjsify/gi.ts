@@ -8,10 +8,6 @@ import * as GIRepository from "girepository";
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ObjectInfoGetValueFunction = (value: GObject.Value) => object | null;
-export type ObjectInfoRefFunction = (object: object | null) => object | null;
-export type ObjectInfoSetValueFunction = (value: GObject.Value, object: object | null) => void;
-export type ObjectInfoUnrefFunction = (object: object | null) => void;
 export const MAJOR_VERSION: number;
 export const MICRO_VERSION: number;
 export const MINOR_VERSION: number;

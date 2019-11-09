@@ -112,7 +112,7 @@ export function egl_image_from_dmabuf_direct(context: GLContext, fd: number, off
 /**
  * 
  */
-export function egl_image_from_texture(context: GLContext, gl_mem: GLMemory, attribs: unknown): EGLImage;
+export function egl_image_from_texture(context: GLContext, gl_mem: GLMemory, attribs: never): EGLImage;
 /**
  * 
  */
@@ -419,22 +419,22 @@ export enum GLSLError {
 }
 export enum GLSLVersion {
     NONE = 0,
-    Gjs_100 = 100,
-    Gjs_110 = 110,
-    Gjs_120 = 120,
-    Gjs_130 = 130,
-    Gjs_140 = 140,
-    Gjs_150 = 150,
-    Gjs_300 = 300,
-    Gjs_310 = 310,
-    Gjs_320 = 320,
-    Gjs_330 = 330,
-    Gjs_400 = 400,
-    Gjs_410 = 410,
-    Gjs_420 = 420,
-    Gjs_430 = 430,
-    Gjs_440 = 440,
-    Gjs_450 = 450,
+    "100" = 100,
+    "110" = 110,
+    "120" = 120,
+    "130" = 130,
+    "140" = 140,
+    "150" = 150,
+    "300" = 300,
+    "310" = 310,
+    "320" = 320,
+    "330" = 330,
+    "400" = 400,
+    "410" = 410,
+    "420" = 420,
+    "430" = 430,
+    "440" = 440,
+    "450" = 450,
 }
 export enum GLStereoDownmix {
     GREEN_MAGENTA_DUBOIS = 0,
@@ -443,7 +443,7 @@ export enum GLStereoDownmix {
 }
 export enum GLTextureTarget {
     NONE = 0,
-    Gjs_2D = 1,
+    "2D" = 1,
     RECTANGLE = 2,
     EXTERNAL_OES = 3,
 }
@@ -528,7 +528,7 @@ export class GLColorConvert extends Gst.Object {
 }
 export class GLContext extends Gst.Object {
     constructor(config?: properties);
-    static new_wrapped(display: GLDisplay, handle: unknown, context_type: GLPlatform, available_apis: GLAPI): GLContext;
+    static new_wrapped(display: GLDisplay, handle: never, context_type: GLPlatform, available_apis: GLAPI): GLContext;
     activate(activate: boolean): boolean;
     can_share(other_context: GLContext): boolean;
     check_feature(feature: string): boolean;
@@ -541,7 +541,7 @@ export class GLContext extends Gst.Object {
     fill_info(): boolean;
     get_display(): GLDisplay;
     get_gl_api(): GLAPI;
-    get_gl_context(): unknown;
+    get_gl_context(): never;
     get_gl_platform(): GLPlatform;
     get_gl_platform_version(): [number,number];
     get_gl_version(): [number,number];
@@ -562,14 +562,14 @@ export class GLContext extends Gst.Object {
     vfunc_create_context(gl_api: GLAPI, other_context: GLContext): boolean;
     vfunc_destroy_context(): void;
     vfunc_get_gl_api(): GLAPI;
-    vfunc_get_gl_context(): unknown;
+    vfunc_get_gl_context(): never;
     vfunc_get_gl_platform(): GLPlatform;
     vfunc_get_gl_platform_version(): [number,number];
     vfunc_swap_buffers(): void;
     static default_get_proc_address(gl_api: GLAPI, name: string): object | null;
     static get_current(): GLContext;
     static get_current_gl_api(platform: GLPlatform): [GLAPI, number | null,number | null];
-    static get_current_gl_context(context_type: GLPlatform): unknown;
+    static get_current_gl_context(context_type: GLPlatform): never;
     static get_proc_address_with_platform(context_type: GLPlatform, gl_api: GLAPI, name: string): object | null;
 }
 export class GLDisplay extends Gst.Object {
@@ -583,16 +583,16 @@ export class GLDisplay extends Gst.Object {
     get_gl_api(): GLAPI;
     get_gl_api_unlocked(): GLAPI;
     get_gl_context_for_thread(thread: GLib.Thread): GLContext;
-    get_handle(): unknown;
+    get_handle(): never;
     get_handle_type(): GLDisplayType;
     remove_window(window: GLWindow): boolean;
     vfunc_create_window(): GLWindow;
-    vfunc_get_handle(): unknown;
+    vfunc_get_handle(): never;
 }
 export class GLDisplayEGL extends GLDisplay {
     constructor(config?: properties);
     static new_with_egl_display(display: object | null): GLDisplayEGL;
-    static get_from_native(type: GLDisplayType, display: unknown): object | null;
+    static get_from_native(type: GLDisplayType, display: never): object | null;
 }
 export class GLDisplayWayland extends GLDisplay {
     constructor(config?: properties);
@@ -600,7 +600,6 @@ export class GLDisplayWayland extends GLDisplay {
 }
 export class GLDisplayX11 extends GLDisplay {
     constructor(config?: properties);
-    static new_with_display(display: unknown): GLDisplayX11;
 }
 export class GLFilter  {
     constructor(config?: properties);
@@ -672,8 +671,6 @@ export class GLSLStage extends Gst.Object {
 export class GLShader extends Gst.Object {
     constructor(config?: properties);
     readonly linked: boolean;static new_default(context: GLContext): GLShader;
-    static new_link_with_stages(context: GLContext, error: GLib.Error, ___: any): GLShader;
-    static new_with_stages(context: GLContext, error: GLib.Error, ___: any): GLShader;
     attach(stage: GLSLStage): boolean;
     attach_unlocked(stage: GLSLStage): boolean;
     bind_attribute_location(index: number, name: string): void;
@@ -748,9 +745,9 @@ export class GLWindow extends Gst.Object {
     controls_viewport(): boolean;
     draw(): void;
     get_context(): GLContext;
-    get_display(): unknown;
+    get_display(): never;
     get_surface_dimensions(): [number,number];
-    get_window_handle(): unknown;
+    get_window_handle(): never;
     handle_events(handle_events: boolean): void;
     queue_resize(): void;
     quit(): void;
@@ -765,13 +762,13 @@ export class GLWindow extends Gst.Object {
     set_preferred_size(width: number, height: number): void;
     set_render_rectangle(x: number, y: number, width: number, height: number): boolean;
     set_resize_callback(callback: GLWindowResizeCB, data: object | null, destroy_notify: GLib.DestroyNotify): void;
-    set_window_handle(handle: unknown): void;
+    set_window_handle(handle: never): void;
     show(): void;
     vfunc_close(): void;
     vfunc_controls_viewport(): boolean;
     vfunc_draw(): void;
-    vfunc_get_display(): unknown;
-    vfunc_get_window_handle(): unknown;
+    vfunc_get_display(): never;
+    vfunc_get_window_handle(): never;
     vfunc_handle_events(handle_events: boolean): void;
     vfunc_open(): boolean;
     vfunc_queue_resize(): void;
@@ -781,7 +778,7 @@ export class GLWindow extends Gst.Object {
     vfunc_send_message_async(callback: GLWindowCB, data: object | null, destroy: GLib.DestroyNotify): void;
     vfunc_set_preferred_size(width: number, height: number): void;
     vfunc_set_render_rectangle(x: number, y: number, width: number, height: number): boolean;
-    vfunc_set_window_handle(handle: unknown): void;
+    vfunc_set_window_handle(handle: never): void;
     vfunc_show(): void;
 }
 export class EGLImage  {
@@ -791,7 +788,7 @@ export class EGLImage  {
     get_image(): object | null;
     static from_dmabuf(context: GLContext, dmabuf: number, in_info: GstVideo.VideoInfo, plane: number, offset: number): EGLImage;
     static from_dmabuf_direct(context: GLContext, fd: number, offset: number, in_info: GstVideo.VideoInfo): EGLImage;
-    static from_texture(context: GLContext, gl_mem: GLMemory, attribs: unknown): EGLImage;
+    static from_texture(context: GLContext, gl_mem: GLMemory, attribs: never): EGLImage;
 }
 export class GLAllocationParams  {
     constructor(config?: properties);
@@ -815,7 +812,7 @@ export class GLAsyncDebug  {
     readonly cat: Gst.DebugCategory;
     readonly level: Gst.DebugLevel;
     readonly file: string;
-    readonly _function: string;
+    readonly "function": string;
     readonly line: number;
     readonly object: GObject.Object;
     readonly debug_msg: string;

@@ -75,6 +75,15 @@ export enum XMLError {
     INVALID_ATTRIBUTE = 3,
     OTHER = 4,
 }
+export type BinBase64 = object;
+export type BinHex = object;
+export type Date = object;
+export type DateTime = object;
+export type DateTimeTZ = object;
+export type Time = object;
+export type TimeTZ = object;
+export type URI = object;
+export type UUID = object;
 export class Context extends GSSDP.Client {
     constructor(config?: properties);
     acl: Acl;
@@ -291,7 +300,7 @@ export class ServiceActionArgInfo  {
 export class ServiceActionInfo  {
     constructor(config?: properties);
     name: string;
-    _arguments: GLib.List;
+    "arguments": GLib.List;
 }
 export class ServiceProxyAction  {
     constructor(config?: properties);

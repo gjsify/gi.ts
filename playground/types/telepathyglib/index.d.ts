@@ -13,10 +13,6 @@ export type BaseClientClassAddDispatchOperationImpl = (client: BaseClient, accou
 export type BaseClientClassHandleChannelsImpl = (client: BaseClient, account: Account, connection: Connection, channels: GLib.List, requests_satisfied: GLib.List, user_action_time: number, context: HandleChannelsContext) => void;
 export type BaseClientClassObserveChannelsImpl = (client: BaseClient, account: Account, connection: Connection, channels: GLib.List, dispatch_operation: ChannelDispatchOperation | null, requests: GLib.List, context: ObserveChannelsContext) => void;
 export type BaseClientDelegatedChannelsCb = (client: BaseClient, channels: Channel[], user_data: object | null) => void;
-export type BaseConnectionCreateChannelFactoriesImpl = (self: BaseConnection) => object[];
-export type BaseConnectionCreateChannelManagersImpl = (self: BaseConnection) => object[];
-export type BaseConnectionCreateHandleReposImpl = (self: BaseConnection, repos: HandleRepoIface) => void;
-export type BaseConnectionGetInterfacesImpl = (self: BaseConnection) => object[];
 export type BaseConnectionGetUniqueConnectionNameImpl = (self: BaseConnection) => string;
 export type BaseConnectionProc = (self: BaseConnection) => void;
 export type BaseConnectionStartConnectingImpl = (self: BaseConnection) => boolean;
@@ -30,7 +26,6 @@ export type ConnectionNameListCb = (names: string[], n: number, cms: string[], p
 export type ConnectionRequestHandlesCb = (connection: Connection, handle_type: HandleType, n_handles: number, handles: number[], ids: string[], error: GLib.Error, user_data: object | null, weak_object: GObject.Object) => void;
 export type ConnectionUpgradeContactsCb = (connection: Connection, n_contacts: number, contacts: Contact[], error: GLib.Error, user_data: object | null, weak_object: GObject.Object) => void;
 export type ConnectionWhenReadyCb = (connection: Connection, error: GLib.Error, user_data: object | null) => void;
-export type ContactsMixinFillContactAttributesFunc = (obj: GObject.Object, contacts: object[], attributes_hash: GLib.HashTable) => void;
 export type DBusDaemonListNamesCb = (bus_daemon: DBusDaemon, names: string, error: GLib.Error, user_data: object | null, weak_object: GObject.Object) => void;
 export type DBusDaemonNameOwnerChangedCb = (bus_daemon: DBusDaemon, name: string, new_owner: string, user_data: object | null) => void;
 export type DBusPropertiesMixinGetter = (object: GObject.Object, iface: GLib.Quark, name: GLib.Quark, value: GObject.Value, getter_data: object | null) => void;
@@ -38,9 +33,7 @@ export type DBusPropertiesMixinSetter = (object: GObject.Object, iface: GLib.Qua
 export type GroupMixinAddMemberFunc = (obj: GObject.Object, handle: Handle, message: string) => boolean;
 export type GroupMixinRemMemberFunc = (obj: GObject.Object, handle: Handle, message: string) => boolean;
 export type GroupMixinRemMemberWithReasonFunc = (obj: GObject.Object, handle: Handle, message: string, reason: number) => boolean;
-export type HandleSetMemberFunc = (set: HandleSet, handle: Handle, userdata: object | null) => void;
 export type IntFunc = (i: number, userdata: object | null) => void;
-export type PresenceMixinGetContactStatusesFunc = (obj: GObject.Object, contacts: object[]) => GLib.HashTable;
 export type PresenceMixinGetMaximumStatusMessageLengthFunc = (obj: GObject.Object) => number;
 export type PresenceMixinSetOwnStatusFunc = (obj: GObject.Object, status: PresenceStatus) => boolean;
 export type PresenceMixinStatusAvailableFunc = (obj: GObject.Object, which: number) => boolean;
@@ -1860,6 +1853,8 @@ export enum TubeType {
     STREAM = 1,
 }
 export type Handle = number;
+export type ContactInfoList = object;
+export type ContactInfoSpecList = object;
 export enum AnonymityModeFlags {
     CLIENT_INFO = 1,
     SHOW_CLIENT_INFO = 2,
@@ -2651,7 +2646,7 @@ export class Contact  {
     readonly client_types: string[];
     readonly connection: Connection;
     readonly contact_groups: string[];
-    readonly contact_info: unknown;
+    readonly contact_info: ContactInfoList;
     readonly handle: number;
     readonly identifier: string;
     readonly location_vardict: GLib.Variant;
@@ -3321,9 +3316,6 @@ export class HandleRepoIfaceClass  {
 }
 export class HandleSet  {
     constructor(config?: properties);
-    static new_containing(repo: HandleRepoIface, handle: Handle): HandleSet;
-    static new_from_array(repo: HandleRepoIface, array: number[]): HandleSet;
-    static new_from_intset(repo: HandleRepoIface, intset: Intset): HandleSet;
     dump(): string;
     to_identifier_map(): GLib.HashTable;
 }

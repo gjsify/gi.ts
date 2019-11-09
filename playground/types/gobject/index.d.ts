@@ -32,7 +32,6 @@ export type TypePluginCompleteInterfaceInfo = (plugin: TypePlugin, instance_type
 export type TypePluginCompleteTypeInfo = (plugin: TypePlugin, g_type: GType, info: TypeInfo, value_table: TypeValueTable) => void;
 export type TypePluginUnuse = (plugin: TypePlugin) => void;
 export type TypePluginUse = (plugin: TypePlugin) => void;
-export type VaClosureMarshal = (closure: Closure, return_value: Value | null, instance: TypeInstance, args: any, marshal_data: object | null, n_params: number, param_types: GType) => void;
 export type ValueTransform = (src_value: Value, dest_value: Value) => void;
 export type WeakNotify = (data: object | null, where_the_object_was: Object) => void;
 export const PARAM_MASK: number;
@@ -1079,7 +1078,7 @@ export function value_type_compatible(src_type: GType, dest_type: GType): boolea
  */
 export function value_type_transformable(src_type: GType, dest_type: GType): boolean;
 export type SignalCMarshaller = ClosureMarshal;
-export type SignalCVaMarshaller = VaClosureMarshal;
+export type SignalCVaMarshaller = unknown;
 export type Type = number;
 export enum BindingFlags {
     DEFAULT = 0,
@@ -1163,8 +1162,6 @@ export class InitiallyUnowned  {
 }
 export class Object  {
     constructor(config?: properties);
-    static new_valist(object_type: GType, first_property_name: string, var_args: any): Object;
-    static new_with_properties(object_type: GType, n_properties: number, names: string[], values: Value[]): Object;
     static newv(object_type: GType, n_parameters: number, parameters: Parameter[]): Object;
     bind_property(source_property: string, target: Object, target_property: string, flags: BindingFlags): Binding;
     bind_property_full(source_property: string, target: Object, target_property: string, flags: BindingFlags, transform_to: BindingTransformFunc | null, transform_from: BindingTransformFunc | null, user_data: object | null, notify: GLib.DestroyNotify | null): Binding;

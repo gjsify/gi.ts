@@ -198,11 +198,7 @@ export class Context extends GObject.Object {
 }
 export class Exception extends GObject.Object {
     constructor(config?: properties);
-    static new_printf(context: Context, format: string, ___: any): Exception;
-    static new_vprintf(context: Context, format: string, args: any): Exception;
     static new_with_name(context: Context, name: string, message: string): Exception;
-    static new_with_name_printf(context: Context, name: string, format: string, ___: any): Exception;
-    static new_with_name_vprintf(context: Context, name: string, format: string, args: any): Exception;
     get_backtrace_string(): string | null;
     get_column_number(): number;
     get_line_number(): number;
@@ -214,11 +210,9 @@ export class Exception extends GObject.Object {
 }
 export class Value extends GObject.Object {
     constructor(config?: properties);
-    context: Context;static new_array(context: Context, first_item_type: GType, ___: any): Value;
-    static new_array_from_garray(context: Context, array: Value[] | null): Value;
+    context: Context;static new_array_from_garray(context: Context, array: Value[] | null): Value;
     static new_array_from_strv(context: Context, strv: string[]): Value;
     static new_boolean(context: Context, value: boolean): Value;
-    static new_function(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType, n_params: number, ___: any): Value;
     static new_function_variadic(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType): Value;
     static new_functionv(context: Context, name: string | null, callback: GObject.Callback, user_data: object | null, destroy_notify: GLib.DestroyNotify | null, return_type: GType, n_parameters: number, parameter_types: GType): Value;
     static new_null(context: Context): Value;

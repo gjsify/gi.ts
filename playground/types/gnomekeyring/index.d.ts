@@ -13,7 +13,6 @@ export type OperationGetAttributesCallback = (result: Result, attributes: Attrib
 export type OperationGetIntCallback = (result: Result, val: number, user_data: object | null) => void;
 export type OperationGetItemInfoCallback = (result: Result, info: ItemInfo, user_data: object | null) => void;
 export type OperationGetKeyringInfoCallback = (result: Result, info: Info, user_data: object | null) => void;
-export type OperationGetListCallback = (result: Result, list: GLib.List, user_data: object | null) => void;
 export type OperationGetStringCallback = (result: Result, string: string | null, user_data: object | null) => void;
 export const ITEM_APPLICATION_SECRET: number;
 export const ITEM_INFO_ALL: number;

@@ -36,7 +36,7 @@ export function is_phys_memory(mem: Gst.Memory): boolean;
 /**
  * 
  */
-export function phys_memory_get_phys_addr(mem: Gst.Memory): unknown;
+export function phys_memory_get_phys_addr(mem: Gst.Memory): never;
 export enum FdMemoryFlags {
     NONE = 0,
     KEEP_MAPPED = 1,

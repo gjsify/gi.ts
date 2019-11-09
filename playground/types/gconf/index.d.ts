@@ -11,10 +11,8 @@ type GType = object;
 export type ChangeSetForeachFunc = (cs: ChangeSet, key: string, value: Value, user_data: object | null) => void;
 export type ClientErrorHandlerFunc = (client: Client, error: GLib.Error) => void;
 export type ClientNotifyFunc = (client: Client, cnxn_id: number, entry: Entry, user_data: object | null) => void;
-export type ListenersCallback = (listeners: unknown, all_above_key: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => void;
 export type ListenersForeach = (location: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => void;
 export type ListenersPredicate = (location: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => boolean;
-export type NotifyFunc = (conf: unknown, cnxn_id: number, entry: Entry, user_data: object | null) => void;
 /**
  * 
  */

@@ -813,8 +813,8 @@ export enum VideoColorPrimaries {
 }
 export enum VideoColorRange {
     UNKNOWN = 0,
-    Gjs_0_255 = 1,
-    Gjs_16_235 = 2,
+    "0_255" = 1,
+    "16_235" = 2,
 }
 export enum VideoDitherMethod {
     NONE = 0,
@@ -977,9 +977,9 @@ export enum VideoMultiviewMode {
 }
 export enum VideoOrientationMethod {
     IDENTITY = 0,
-    Gjs_90R = 1,
-    Gjs_180 = 2,
-    Gjs_90L = 3,
+    "90R" = 1,
+    "180" = 2,
+    "90L" = 3,
     HORIZ = 4,
     VERT = 5,
     UL_LR = 6,
@@ -1300,6 +1300,7 @@ export class VideoCaptionMeta  {
 }
 export class VideoChromaResample  {
     constructor(config?: properties);
+    ""(lines: object | null, width: number): void;
     free(): void;
     get_info(n_lines: number, offset: number): void;
 }
@@ -1637,9 +1638,9 @@ export interface VideoOrientation  {
 }
 export interface VideoOverlay  {
     expose(): void;
-    got_window_handle(handle: unknown): void;
+    got_window_handle(handle: never): void;
     handle_events(handle_events: boolean): void;
     prepare_window_handle(): void;
     set_render_rectangle(x: number, y: number, width: number, height: number): boolean;
-    set_window_handle(handle: unknown): void;
+    set_window_handle(handle: never): void;
 }

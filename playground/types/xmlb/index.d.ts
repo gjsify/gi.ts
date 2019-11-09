@@ -11,8 +11,6 @@ type GType = object;
 export type BuilderFixupFunc = (self: BuilderFixup, bn: BuilderNode, user_data: object | null) => boolean;
 export type BuilderNodeSortFunc = (bn1: BuilderNode, bn2: BuilderNode, user_data: object | null) => number;
 export type BuilderNodeTraverseFunc = (bn: BuilderNode, user_data: object | null) => boolean;
-export type BuilderSourceAdapterFunc = (self: BuilderSource, ctx: BuilderSourceCtx, user_data: object | null, cancellable: Gio.Cancellable | null) => Gio.InputStream;
-export type BuilderSourceConverterFunc = (self: BuilderSource, file: Gio.File, user_data: object | null, cancellable: Gio.Cancellable | null) => Gio.InputStream;
 export type BuilderSourceNodeFunc = (self: BuilderSource, bn: BuilderNode, user_data: object | null) => boolean;
 export type MachineMethodFunc = (self: Machine, stack: Stack, result_unused: boolean, exec_data: object | null, user_data: object | null) => boolean;
 export type MachineOpcodeFixupFunc = (self: Machine, opcodes: Stack, user_data: object | null) => boolean;

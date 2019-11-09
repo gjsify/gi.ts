@@ -21,7 +21,6 @@ export type DBusMessageFilterFunction = (connection: DBusConnection, message: DB
 export type DBusProxyTypeFunc = (manager: DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null) => GType;
 export type DBusSignalCallback = (connection: DBusConnection, sender_name: string, object_path: string, interface_name: string, signal_name: string, parameters: GLib.Variant, user_data: object | null) => void;
 export type DBusSubtreeDispatchFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, node: string, out_user_data: object, user_data: object | null) => DBusInterfaceVTable;
-export type DBusSubtreeEnumerateFunc = (connection: DBusConnection, sender: string, object_path: string, user_data: object | null) => string[];
 export type DBusSubtreeIntrospectFunc = (connection: DBusConnection, sender: string, object_path: string, node: string, user_data: object | null) => DBusInterfaceInfo;
 export type DatagramBasedSourceFunc = (datagram_based: DatagramBased, condition: GLib.IOCondition, user_data: object | null) => boolean;
 export type DesktopAppLaunchCallback = (appinfo: DesktopAppInfo, pid: GLib.Pid, user_data: object | null) => void;
@@ -1889,7 +1888,7 @@ export class Application extends GObject.Object {
 }
 export class ApplicationCommandLine  {
     constructor(config?: properties);
-    _arguments: GLib.Variant;
+    "arguments": GLib.Variant;
     readonly is_remote: boolean;
     options: GLib.Variant;
     platform_data: GLib.Variant;
@@ -2302,7 +2301,7 @@ export class DesktopAppInfo extends GObject.Object {
     launch_uris_as_manager_with_fds(uris: GLib.List, launch_context: AppLaunchContext | null, spawn_flags: GLib.SpawnFlags, user_setup: GLib.SpawnChildSetupFunc | null, user_setup_data: object | null, pid_callback: DesktopAppLaunchCallback | null, pid_callback_data: object | null, stdin_fd: number, stdout_fd: number, stderr_fd: number): boolean;
     list_actions(): string[];
     static get_implementations(_interface: string): GLib.List;
-    static search(search_string: string): unknown[];
+    static search(search_string: string): string[][];
     static set_desktop_env(desktop_env: string): void;
 }
 export class Emblem extends GObject.Object {
@@ -2930,9 +2929,7 @@ export class SimpleActionGroup extends GObject.Object {
 }
 export class SimpleAsyncResult extends GObject.Object {
     constructor(config?: properties);
-    static new_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, domain: GLib.Quark, code: number, format: string, ___: any): SimpleAsyncResult;
     static new_from_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
-    static new_take_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
     complete(): void;
     complete_in_idle(): void;
     get_op_res_gboolean(): boolean;
@@ -3415,7 +3412,7 @@ export class UnixOutputStream extends OutputStream {
 }
 export class UnixSocketAddress extends SocketAddress {
     constructor(config?: properties);
-    _abstract: boolean;
+    "abstract": boolean;
     address_type: UnixSocketAddressType;
     path: string;
     path_as_array: number[];static new_abstract(path: number[], path_len: number): SocketAddress;

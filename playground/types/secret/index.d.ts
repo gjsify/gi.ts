@@ -191,8 +191,7 @@ export class Collection extends Gio.DBusProxy {
     label: string;
     readonly locked: boolean;
     modified: number;
-    service: Service;static new_for_dbus_path_finish(result: Gio.AsyncResult): Collection;
-    static new_for_dbus_path_sync(service: Service | null, collection_path: string, flags: CollectionFlags, cancellable: Gio.Cancellable | null): Collection;
+    service: Service;
     _delete(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
     delete_finish(result: Gio.AsyncResult): boolean;
     delete_sync(cancellable: Gio.Cancellable | null): boolean;
@@ -225,8 +224,7 @@ export class Item extends Gio.DBusProxy {
     constructor(config?: properties);
     flags: ItemFlags;
     readonly locked: boolean;
-    service: Service;static new_for_dbus_path_finish(result: Gio.AsyncResult): Item;
-    static new_for_dbus_path_sync(service: Service | null, item_path: string, flags: ItemFlags, cancellable: Gio.Cancellable | null): Item;
+    service: Service;
     _delete(cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
     delete_finish(result: Gio.AsyncResult): boolean;
     delete_sync(cancellable: Gio.Cancellable | null): boolean;

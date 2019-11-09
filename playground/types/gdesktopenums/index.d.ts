@@ -22,8 +22,8 @@ export enum BackgroundStyle {
     SPANNED = 6,
 }
 export enum ClockFormat {
-    Gjs_24H = 0,
-    Gjs_12H = 1,
+    "24H" = 0,
+    "12H" = 1,
 }
 export enum DeviceSendEvents {
     ENABLED = 0,

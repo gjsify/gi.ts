@@ -289,7 +289,7 @@ export enum XMLContent {
     NO_CONTENT = 0,
     CONTENT = 1,
     SHARED_CONTENT = 2,
-    Gjs_2ND = 3,
+    "2ND" = 3,
 }
 export enum ZipCompressionMethod {
     STORED = 0,
@@ -467,8 +467,6 @@ export class OutfileOpenPkg extends Outfile {
 }
 export class OutfileStdio extends Outfile {
     constructor(config?: properties);
-    static new_full(root: string, err: GLib.Error | null, first_property_name: string, ___: any): Outfile;
-    static new_valist(root: string, err: GLib.Error | null, first_property_name: string, var_args: any): Outfile;
 }
 export class OutfileZip extends Outfile {
     constructor(config?: properties);
@@ -556,9 +554,6 @@ export class OutputMemory extends Output {
 }
 export class OutputStdio extends Output {
     constructor(config?: properties);
-    static new_FILE(filename: string, file: object | null, keep_open: boolean): Output;
-    static new_full(filename: string, err: GLib.Error | null, first_property_name: string, ___: any): Output;
-    static new_valist(filename: string, err: GLib.Error, first_property_name: string, var_args: any): Output;
 }
 export class SharedMemory extends GObject.Object {
     constructor(config?: properties);

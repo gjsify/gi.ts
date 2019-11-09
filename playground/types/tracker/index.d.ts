@@ -187,7 +187,7 @@ export class SparqlConnection  {
     update_async(sparql: string, priority: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     update_finish(_res_: Gio.AsyncResult): void;
     update_array_async(sparql: string[], sparql_length1: number, priority: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
-    update_array_finish(_res_: Gio.AsyncResult): unknown[] | null;
+    update_array_finish(_res_: Gio.AsyncResult): Error[] | null;
     update_blank(sparql: string, priority: number, cancellable: Gio.Cancellable | null): GLib.Variant | null;
     update_blank_async(sparql: string, priority: number, cancellable: Gio.Cancellable | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     update_blank_finish(_res_: Gio.AsyncResult): GLib.Variant | null;

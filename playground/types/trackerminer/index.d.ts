@@ -46,7 +46,7 @@ export enum NetworkType {
     UNKNOWN = 1,
     GPRS = 2,
     EDGE = 3,
-    Gjs_3G = 4,
+    "3G" = 4,
     LAN = 5,
 }
 export enum DirectoryFlags {

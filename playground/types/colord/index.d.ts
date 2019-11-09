@@ -832,7 +832,7 @@ export class Sensor extends GObject.Object {
     readonly locked: string;
     readonly mode: string;
     readonly model: string;
-    readonly _native: string;
+    readonly "native": string;
     object_path: string;
     readonly serial: string;
     readonly state: string;

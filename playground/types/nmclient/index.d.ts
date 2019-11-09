@@ -395,6 +395,13 @@ export enum WimaxNspNetworkType {
 }
 export type RemoteConnectionCommitFunc = RemoteConnectionResultFunc;
 export type RemoteConnectionDeleteFunc = RemoteConnectionResultFunc;
+export type IP6AddressArray = object;
+export type IP6AddressObjectArray = object;
+export type IP6RouteObjectArray = object;
+export type ObjectArray = object;
+export type Ssid = object;
+export type StringArray = object;
+export type UintArray = object;
 export enum SecretAgentCapabilities {
     NONE = 0,
     VPN_HINTS = 1,
@@ -416,7 +423,7 @@ export class AccessPoint extends Object {
     readonly max_bitrate: number;
     readonly mode: number;
     readonly rsn_flags: number;
-    readonly ssid: unknown;
+    readonly ssid: Ssid;
     readonly strength: number;
     readonly wpa_flags: number;
     connection_valid(connection: NetworkManager.Connection): boolean;
@@ -436,9 +443,9 @@ export class AccessPoint extends Object {
 export class ActiveConnection extends Object {
     constructor(config?: properties);
     readonly connection: string;
-    readonly _default: boolean;
+    readonly "default": boolean;
     readonly default6: boolean;
-    readonly devices: unknown;
+    readonly devices: ObjectArray;
     readonly dhcp4_config: DHCP4Config;
     readonly dhcp6_config: DHCP6Config;
     readonly id: string;
@@ -471,9 +478,9 @@ export class Client extends Object {
     constructor(config?: properties);
     readonly activating_connection: ActiveConnection;
     readonly active_connections: object[];
-    readonly all_devices: unknown;
+    readonly all_devices: ObjectArray;
     readonly connectivity: number;
-    readonly devices: unknown;
+    readonly devices: ObjectArray;
     readonly manager_running: boolean;
     networking_enabled: boolean;
     readonly primary_connection: ActiveConnection;
@@ -540,7 +547,7 @@ export class Device extends Object {
     constructor(config?: properties);
     readonly active_connection: ActiveConnection;
     autoconnect: boolean;
-    readonly available_connections: unknown;
+    readonly available_connections: ObjectArray;
     readonly capabilities: number;
     readonly device_type: number;
     readonly dhcp4_config: DHCP4Config;
@@ -549,7 +556,7 @@ export class Device extends Object {
     readonly driver_version: string;
     readonly firmware_missing: boolean;
     readonly firmware_version: string;
-    readonly _interface: string;
+    readonly "interface": string;
     readonly ip_interface: string;
     readonly ip4_config: IP4Config;
     readonly ip6_config: IP6Config;
@@ -613,7 +620,7 @@ export class DeviceBond extends Device {
     constructor(config?: properties);
     readonly carrier: boolean;
     readonly hw_address: string;
-    readonly slaves: unknown;
+    readonly slaves: ObjectArray;
     get_carrier(): boolean;
     get_hw_address(): string;
     get_slaves(): Device[];
@@ -622,7 +629,7 @@ export class DeviceBridge extends Device {
     constructor(config?: properties);
     readonly carrier: boolean;
     readonly hw_address: string;
-    readonly slaves: unknown;
+    readonly slaves: ObjectArray;
     get_carrier(): boolean;
     get_hw_address(): string;
     get_slaves(): Device[];
@@ -681,7 +688,7 @@ export class DeviceTeam extends Device {
     constructor(config?: properties);
     readonly carrier: boolean;
     readonly hw_address: string;
-    readonly slaves: unknown;
+    readonly slaves: ObjectArray;
     get_carrier(): boolean;
     get_hw_address(): string;
     get_slaves(): Device[];
@@ -698,7 +705,7 @@ export class DeviceVlan extends Device {
 }
 export class DeviceWifi extends Device {
     constructor(config?: properties);
-    readonly access_points: unknown;
+    readonly access_points: ObjectArray;
     readonly active_access_point: AccessPoint;
     readonly bitrate: number;
     readonly hw_address: string;
@@ -725,7 +732,7 @@ export class DeviceWimax extends Device {
     readonly center_frequency: number;
     readonly cinr: number;
     readonly hw_address: string;
-    readonly nsps: unknown;
+    readonly nsps: ObjectArray;
     readonly rssi: number;
     readonly tx_power: number;
     get_active_nsp(): WimaxNsp;
@@ -743,12 +750,12 @@ export class DeviceWimax extends Device {
 export class IP4Config extends Object {
     constructor(config?: properties);
     readonly addresses: object;
-    readonly domains: unknown;
+    readonly domains: StringArray;
     readonly gateway: string;
-    readonly nameservers: unknown;
+    readonly nameservers: UintArray;
     readonly routes: object;
-    readonly searches: unknown;
-    readonly wins_servers: unknown;
+    readonly searches: StringArray;
+    readonly wins_servers: UintArray;
     get_addresses(): string[];
     get_domains(): string[];
     get_gateway(): string;
@@ -759,12 +766,12 @@ export class IP4Config extends Object {
 }
 export class IP6Config extends Object {
     constructor(config?: properties);
-    readonly addresses: unknown;
-    readonly domains: unknown;
+    readonly addresses: IP6AddressObjectArray;
+    readonly domains: StringArray;
     readonly gateway: string;
-    readonly nameservers: unknown;
-    readonly routes: unknown;
-    readonly searches: unknown;
+    readonly nameservers: IP6AddressArray;
+    readonly routes: IP6RouteObjectArray;
+    readonly searches: StringArray;
     get_addresses(): string[];
     get_domains(): string[];
     get_gateway(): string;

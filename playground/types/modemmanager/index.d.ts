@@ -1322,7 +1322,7 @@ export enum ModemAccessTechnology {
     HSUPA = 128,
     HSPA = 256,
     HSPA_PLUS = 512,
-    Gjs_1XRTT = 1024,
+    "1XRTT" = 1024,
     EVDO0 = 2048,
     EVDOA = 4096,
     EVDOB = 8192,
@@ -1350,7 +1350,7 @@ export enum ModemLocationAssistanceDataType {
 }
 export enum ModemLocationSource {
     NONE = 0,
-    Gjs_3GPP_LAC_CI = 1,
+    "3GPP_LAC_CI" = 1,
     GPS_RAW = 2,
     GPS_NMEA = 4,
     CDMA_BS = 8,
@@ -1360,9 +1360,9 @@ export enum ModemLocationSource {
 export enum ModemMode {
     NONE = 0,
     CS = 1,
-    Gjs_2G = 2,
-    Gjs_3G = 4,
-    Gjs_4G = 8,
+    "2G" = 2,
+    "3G" = 4,
+    "4G" = 8,
     ANY = 4294967295,
 }
 export enum OmaFeature {
@@ -2742,7 +2742,7 @@ export class UnlockRetriesPrivate  {
 export interface GdbusBearer  {
     bearer_type: number;
     connected: boolean;
-    _interface: string;
+    "interface": string;
     ip_timeout: number;
     ip4_config: GLib.Variant;
     ip6_config: GLib.Variant;
@@ -3102,7 +3102,7 @@ export interface GdbusSim  {
     complete_send_puk(invocation: Gio.DBusMethodInvocation): void;
 }
 export interface GdbusSms  {
-    _class: number;
+    "class": number;
     data: GLib.Variant;
     delivery_report_request: boolean;
     delivery_state: number;

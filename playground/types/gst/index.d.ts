@@ -41,7 +41,6 @@ export type MemoryUnmapFunction = (mem: Memory) => void;
 export type MetaFreeFunction = (meta: Meta, buffer: Buffer) => void;
 export type MetaInitFunction = (meta: Meta, params: object | null, buffer: Buffer) => boolean;
 export type MetaTransformFunction = (transbuf: Buffer, meta: Meta, buffer: Buffer, type: GLib.Quark, data: object | null) => boolean;
-export type MiniObjectCopyFunction = (obj: MiniObject) => MiniObject;
 export type MiniObjectDisposeFunction = (obj: MiniObject) => boolean;
 export type MiniObjectFreeFunction = (obj: MiniObject) => void;
 export type MiniObjectNotify = (user_data: object | null, obj: MiniObject) => void;
@@ -2916,9 +2915,6 @@ export class Caps  {
     static new_any(): Caps;
     static new_empty(): Caps;
     static new_empty_simple(media_type: string): Caps;
-    static new_full(struct1: Structure, ___: any): Caps;
-    static new_full_valist(structure: Structure, var_args: any): Caps;
-    static new_simple(media_type: string, fieldname: string, ___: any): Caps;
     append(caps2: Caps): void;
     append_structure(structure: Structure): void;
     append_structure_full(structure: Structure, features: CapsFeatures | null): void;
@@ -2963,9 +2959,6 @@ export class CapsFeatures  {
     constructor(config?: properties);
     static new_any(): CapsFeatures;
     static new_empty(): CapsFeatures;
-    static new_id(feature1: GLib.Quark, ___: any): CapsFeatures;
-    static new_id_valist(feature1: GLib.Quark, varargs: any): CapsFeatures;
-    static new_valist(feature1: string, varargs: any): CapsFeatures;
     add(feature: string): void;
     add_id(feature: GLib.Quark): void;
     contains(feature: string): boolean;
@@ -3142,7 +3135,6 @@ export class GhostPadPrivate  {
 }
 export class Iterator  {
     constructor(config?: properties);
-    static new_list(type: GType, lock: GLib.Mutex, master_cookie: number, list: GLib.List, owner: GObject.Object, item: IteratorItemFunction): Iterator;
     static new_single(type: GType, object: GObject.Value): Iterator;
     copy(): Iterator;
     filter(func: GLib.CompareFunc, user_data: GObject.Value): Iterator;
@@ -3374,7 +3366,7 @@ export class PluginDesc  {
     version: string;
     license: string;
     source: string;
-    _package: string;
+    "package": string;
     origin: string;
     release_datetime: string;
 }
@@ -3580,9 +3572,7 @@ export class Structure  {
     constructor(config?: properties);
     static new_empty(name: string): Structure;
     static new_from_string(string: string): Structure | null;
-    static new_id(name_quark: GLib.Quark, field_quark: GLib.Quark, ___: any): Structure;
     static new_id_empty(quark: GLib.Quark): Structure;
-    static new_valist(name: string, firstfield: string, varargs: any): Structure;
     can_intersect(struct2: Structure): boolean;
     copy(): Structure;
     filter_and_map_in_place(func: StructureFilterMapFunc, user_data: object | null): void;
@@ -3646,7 +3636,6 @@ export class TagList  {
     constructor(config?: properties);
     static new_empty(): TagList;
     static new_from_string(str: string): TagList | null;
-    static new_valist(var_args: any): TagList;
     add_value(mode: TagMergeMode, tag: string, value: GObject.Value): void;
     foreach(func: TagForeachFunc, user_data: object | null): void;
     get_boolean(tag: string): [boolean, boolean];

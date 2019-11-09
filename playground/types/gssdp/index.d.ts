@@ -31,7 +31,7 @@ export class Client extends GObject.Object {
     config_id: number;
     host_ip: string;
     host_mask: Gio.InetAddressMask;
-    _interface: string;
+    "interface": string;
     msearch_port: number;
     network: string;
     server_id: string;

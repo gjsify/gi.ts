@@ -2600,7 +2600,7 @@ export class glyph_position_t  {
     y_advance: position_t;
     x_offset: position_t;
     y_offset: position_t;
-    readonly _var: var_int_t;
+    readonly "var": var_int_t;
 }
 export class language_t  {
     constructor(config?: properties);
@@ -2630,7 +2630,7 @@ export class ot_math_glyph_variant_t  {
 export class ot_name_entry_t  {
     constructor(config?: properties);
     name_id: ot_name_id_t;
-    readonly _var: var_int_t;
+    readonly "var": var_int_t;
     language: language_t;
 }
 export class ot_var_axis_info_t  {

@@ -254,6 +254,7 @@ export enum SessionMigration {
     MIGRATING = 2,
     CONNECTING = 3,
 }
+export type VReader = object;
 export enum InputsLock {
     SCROLL_LOCK = 1,
     NUM_LOCK = 2,

@@ -372,7 +372,7 @@ export class HashContext  {
     constructor(config?: properties);
     buf: number[];
     bits: number[];
-    _in: number[];
+    "in": number[];
     version: number;
 }
 export class MdnsBrowserPrivate  {

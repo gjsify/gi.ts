@@ -390,9 +390,7 @@ export class TitleBar extends Gtk.Bin {
 }
 export class ValueObject extends GObject.Object {
     constructor(config?: properties);
-    value: GObject.Value;static new_collect(type: GType, ___: any): ValueObject;
-    static new_string(string: string): ValueObject;
-    static new_take_string(string: string): ValueObject;
+    value: GObject.Value;
     copy_value(dest: GObject.Value): void;
     dup_string(): string;
     get_string(): string;

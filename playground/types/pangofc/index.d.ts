@@ -10,7 +10,6 @@ import * as PangoFc from "pangofc";
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type DecoderFindFunc = (pattern: fontconfig.Pattern, user_data: object | null) => Decoder;
 export const FONT_FEATURES: string;
 export const FONT_VARIATIONS: string;
 export const GRAVITY: string;

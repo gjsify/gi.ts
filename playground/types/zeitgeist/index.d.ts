@@ -451,8 +451,7 @@ export class Event extends GObject.Object {
     interpretation: string;
     manifestation: string;
     subjects: Subject[];
-    payload: GLib.ByteArray;static full(interpretation: string | null, manifestation: string | null, actor: string | null, origin: string | null, ___: any): Event;
-    static from_variant(event_variant: GLib.Variant): Event;
+    payload: GLib.ByteArray;static from_variant(event_variant: GLib.Variant): Event;
     get_subject(index: number): Subject;
     num_subjects(): number;
     add_subject(subject: Subject): void;

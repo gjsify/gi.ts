@@ -346,7 +346,7 @@ export enum CertificateTrust {
 export enum CipherAlgo {
     DEFAULT = 0,
     IDEA = 1,
-    Gjs_3DES = 2,
+    "3DES" = 2,
     CAST5 = 3,
     BLOWFISH = 4,
     AES = 7,
@@ -359,8 +359,8 @@ export enum CipherAlgo {
 }
 export enum ContentEncoding {
     DEFAULT = 0,
-    Gjs_7BIT = 1,
-    Gjs_8BIT = 2,
+    "7BIT" = 1,
+    "8BIT" = 2,
     BINARY = 3,
     BASE64 = 4,
     QUOTEDPRINTABLE = 5,
@@ -381,8 +381,8 @@ export enum DigestAlgo {
     MD4 = 301,
 }
 export enum EncodingConstraint {
-    Gjs_7BIT = 0,
-    Gjs_8BIT = 1,
+    "7BIT" = 0,
+    "8BIT" = 1,
     BINARY = 2,
 }
 export enum FilterFromMode {

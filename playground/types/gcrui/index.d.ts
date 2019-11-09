@@ -61,7 +61,7 @@ export class CertificateWidget extends Gtk.Bin {
 export class CollectionModel extends GObject.Object {
     constructor(config?: properties);
     collection: Gcr.Collection;
-    columns: object;static new_full(collection: Gcr.Collection, mode: CollectionModelMode, columns: Gcr.Column): CollectionModel;
+    columns: object;
     change_selected(iter: Gtk.TreeIter, selected: boolean): void;
     column_for_selected(): number;
     get_collection(): Gcr.Collection;

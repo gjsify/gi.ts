@@ -1081,7 +1081,7 @@ export class Progress extends GObject.Object {
     download_size_remaining: number;
     elapsed_time: number;
     item_progress: ItemProgress;
-    _package: Package;
+    "package": Package;
     package_id: string;
     percentage: number;
     remaining_time: number;

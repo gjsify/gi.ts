@@ -236,7 +236,7 @@ export enum ParameterEnable {
 }
 export enum ParameterEncoding {
     X = 20300,
-    Gjs_8BIT = 20301,
+    "8BIT" = 20301,
     BASE64 = 20302,
     NONE = 20399,
 }
@@ -736,44 +736,44 @@ export enum RecurrenceWeekday {
 }
 export enum RequestStatus {
     UNKNOWN_STATUS = 0,
-    Gjs_2_0_SUCCESS_STATUS = 1,
-    Gjs_2_1_FALLBACK_STATUS = 2,
-    Gjs_2_2_IGPROP_STATUS = 3,
-    Gjs_2_3_IGPARAM_STATUS = 4,
-    Gjs_2_4_IGXPROP_STATUS = 5,
-    Gjs_2_5_IGXPARAM_STATUS = 6,
-    Gjs_2_6_IGCOMP_STATUS = 7,
-    Gjs_2_7_FORWARD_STATUS = 8,
-    Gjs_2_8_ONEEVENT_STATUS = 9,
-    Gjs_2_9_TRUNC_STATUS = 10,
-    Gjs_2_10_ONETODO_STATUS = 11,
-    Gjs_2_11_TRUNCRRULE_STATUS = 12,
-    Gjs_3_0_INVPROPNAME_STATUS = 13,
-    Gjs_3_1_INVPROPVAL_STATUS = 14,
-    Gjs_3_2_INVPARAM_STATUS = 15,
-    Gjs_3_3_INVPARAMVAL_STATUS = 16,
-    Gjs_3_4_INVCOMP_STATUS = 17,
-    Gjs_3_5_INVTIME_STATUS = 18,
-    Gjs_3_6_INVRULE_STATUS = 19,
-    Gjs_3_7_INVCU_STATUS = 20,
-    Gjs_3_8_NOAUTH_STATUS = 21,
-    Gjs_3_9_BADVERSION_STATUS = 22,
-    Gjs_3_10_TOOBIG_STATUS = 23,
-    Gjs_3_11_MISSREQCOMP_STATUS = 24,
-    Gjs_3_12_UNKCOMP_STATUS = 25,
-    Gjs_3_13_BADCOMP_STATUS = 26,
-    Gjs_3_14_NOCAP_STATUS = 27,
-    Gjs_3_15_INVCOMMAND = 28,
-    Gjs_4_0_BUSY_STATUS = 29,
-    Gjs_4_1_STORE_ACCESS_DENIED = 30,
-    Gjs_4_2_STORE_FAILED = 31,
-    Gjs_4_3_STORE_NOT_FOUND = 32,
-    Gjs_5_0_MAYBE_STATUS = 33,
-    Gjs_5_1_UNAVAIL_STATUS = 34,
-    Gjs_5_2_NOSERVICE_STATUS = 35,
-    Gjs_5_3_NOSCHED_STATUS = 36,
-    Gjs_6_1_CONTAINER_NOT_FOUND = 37,
-    Gjs_9_0_UNRECOGNIZED_COMMAND = 38,
+    "2_0_SUCCESS_STATUS" = 1,
+    "2_1_FALLBACK_STATUS" = 2,
+    "2_2_IGPROP_STATUS" = 3,
+    "2_3_IGPARAM_STATUS" = 4,
+    "2_4_IGXPROP_STATUS" = 5,
+    "2_5_IGXPARAM_STATUS" = 6,
+    "2_6_IGCOMP_STATUS" = 7,
+    "2_7_FORWARD_STATUS" = 8,
+    "2_8_ONEEVENT_STATUS" = 9,
+    "2_9_TRUNC_STATUS" = 10,
+    "2_10_ONETODO_STATUS" = 11,
+    "2_11_TRUNCRRULE_STATUS" = 12,
+    "3_0_INVPROPNAME_STATUS" = 13,
+    "3_1_INVPROPVAL_STATUS" = 14,
+    "3_2_INVPARAM_STATUS" = 15,
+    "3_3_INVPARAMVAL_STATUS" = 16,
+    "3_4_INVCOMP_STATUS" = 17,
+    "3_5_INVTIME_STATUS" = 18,
+    "3_6_INVRULE_STATUS" = 19,
+    "3_7_INVCU_STATUS" = 20,
+    "3_8_NOAUTH_STATUS" = 21,
+    "3_9_BADVERSION_STATUS" = 22,
+    "3_10_TOOBIG_STATUS" = 23,
+    "3_11_MISSREQCOMP_STATUS" = 24,
+    "3_12_UNKCOMP_STATUS" = 25,
+    "3_13_BADCOMP_STATUS" = 26,
+    "3_14_NOCAP_STATUS" = 27,
+    "3_15_INVCOMMAND" = 28,
+    "4_0_BUSY_STATUS" = 29,
+    "4_1_STORE_ACCESS_DENIED" = 30,
+    "4_2_STORE_FAILED" = 31,
+    "4_3_STORE_NOT_FOUND" = 32,
+    "5_0_MAYBE_STATUS" = 33,
+    "5_1_UNAVAIL_STATUS" = 34,
+    "5_2_NOSERVICE_STATUS" = 35,
+    "5_3_NOSCHED_STATUS" = 36,
+    "6_1_CONTAINER_NOT_FOUND" = 37,
+    "9_0_UNRECOGNIZED_COMMAND" = 38,
 }
 export enum RestrictionKind {
     NONE = 0,
@@ -832,7 +832,6 @@ export enum ValueKind {
 }
 export class Array extends Object {
     constructor(config?: properties);
-    static new_full(_native: unknown, owner: GObject.Object, is_global_memory: boolean): Array;
     copy(): Array;
     remove_element_at(position: number): void;
     size(): number;
@@ -842,14 +841,12 @@ export class Attach extends Object {
     static new_from_bytes(bytes: GLib.Bytes): Attach;
     static new_from_data(data: string, free_fn: GLib.Func | null, free_fn_data: object | null): Attach;
     static new_from_url(url: string): Attach;
-    static new_full(_native: unknown, owner: GObject.Object): Attach;
     get_data(): string | null;
     get_is_url(): boolean;
     get_url(): string | null;
 }
 export class CompIter extends Object {
     constructor(config?: properties);
-    static new_full(_native: object | null): CompIter;
     deref(): Component;
     next(): Component;
     prior(): Component;
@@ -857,7 +854,6 @@ export class CompIter extends Object {
 export class Component extends Object {
     constructor(config?: properties);
     static new_from_string(str: string): Component;
-    static new_full(_native: unknown, owner: GObject.Object): Component;
     static new_vagenda(): Component;
     static new_valarm(): Component;
     static new_vavailability(): Component;
@@ -943,7 +939,6 @@ export class Component extends Object {
 }
 export class Datetimeperiod extends Object {
     constructor(config?: properties);
-    static new_full(_native: object | null): Datetimeperiod;
     get_period(): Period;
     get_time(): Time;
     set_period(period: Period): void;
@@ -954,7 +949,6 @@ export class Duration extends Object {
     static new_bad_duration(): Duration;
     static new_from_int(t: number): Duration;
     static new_from_string(str: string): Duration;
-    static new_full(_native: object | null): Duration;
     static new_null_duration(): Duration;
     as_ical_string(): string;
     as_int(): number;
@@ -975,7 +969,6 @@ export class Duration extends Object {
 }
 export class Geo extends Object {
     constructor(config?: properties);
-    static new_full(_native: object | null): Geo;
     clone(): Geo;
     get_lat(): number;
     get_lon(): number;
@@ -985,7 +978,7 @@ export class Geo extends Object {
 export class Object  {
     constructor(config?: properties);
     is_global_memory: boolean;
-    _native: object;
+    "native": object;
     native_destroy_func: object;
     owner: GObject.Object;
     readonly priv: ObjectPrivate;
@@ -1016,7 +1009,6 @@ export class Parameter extends Object {
     static new_fmttype(v: string): Parameter;
     static new_from_string(value: string): Parameter;
     static new_from_value_string(kind: ParameterKind, value: string): Parameter;
-    static new_full(_native: unknown, owner: GObject.Object): Parameter;
     static new_iana(v: string): Parameter;
     static new_id(v: string): Parameter;
     static new_language(v: string): Parameter;
@@ -1161,7 +1153,6 @@ export class Parameter extends Object {
 }
 export class Parser extends Object {
     constructor(config?: properties);
-    static new_full(_native: unknown, owner: GObject.Object): Parser;
     add_line(str: string | null): Component | null;
     clean(): Component | null;
     free(): void;
@@ -1173,7 +1164,6 @@ export class Parser extends Object {
 export class Period extends Object {
     constructor(config?: properties);
     static new_from_string(str: string): Period;
-    static new_full(_native: object | null): Period;
     static new_null_period(): Period;
     as_ical_string(): string;
     get_duration(): Duration;
@@ -1230,7 +1220,6 @@ export class Property extends Object {
     static new_exrule(v: Recurrence): Property;
     static new_freebusy(v: Period): Property;
     static new_from_string(str: string): Property;
-    static new_full(_native: unknown, owner: GObject.Object): Property;
     static new_geo(v: Geo): Property;
     static new_grant(v: string): Property;
     static new_itipversion(v: string): Property;
@@ -1571,14 +1560,12 @@ export class Property extends Object {
 }
 export class RecurIterator extends Object {
     constructor(config?: properties);
-    static new_full(_native: unknown, owner: GObject.Object): RecurIterator;
     next(): Time;
     set_start(start: Time): number;
 }
 export class Recurrence extends Object {
     constructor(config?: properties);
     static new_from_string(str: string): Recurrence;
-    static new_full(_native: object | null): Recurrence;
     clear(): void;
     get_by_day(index: number): number;
     get_by_day_array(): number[];
@@ -1643,7 +1630,6 @@ export class Recurrence extends Object {
 export class Reqstat extends Object {
     constructor(config?: properties);
     static new_from_string(str: string): Reqstat;
-    static new_full(_native: object | null): Reqstat;
     get_code(): RequestStatus;
     get_debug(): string;
     get_desc(): string;
@@ -1656,7 +1642,6 @@ export class Time extends Object {
     static new_from_day_of_year(day: number, year: number): Time;
     static new_from_string(str: string): Time;
     static new_from_timet_with_zone(v: number, is_date: number, zone: Timezone | null): Time;
-    static new_full(_native: object | null): Time;
     static new_null_date(): Time;
     static new_null_time(): Time;
     static new_today(): Time;
@@ -1712,7 +1697,6 @@ export class Time extends Object {
 }
 export class TimeSpan extends Object {
     constructor(config?: properties);
-    static new_full(_native: object | null): TimeSpan;
     static new_timet(start: number, end: number, is_busy: boolean): TimeSpan;
     clone(): TimeSpan;
     contains(container: TimeSpan): number;
@@ -1727,7 +1711,6 @@ export class TimeSpan extends Object {
 export class Timezone extends Object {
     constructor(config?: properties);
     static array_new(): Array;
-    static new_full(_native: unknown, owner: GObject.Object, is_global_memory: boolean): Timezone;
     copy(): Timezone;
     dump_changes(max_year: number, fp: object | null): number;
     get_component(): Component;
@@ -1761,7 +1744,6 @@ export class Trigger extends Object {
     constructor(config?: properties);
     static new_from_int(reltime: number): Trigger;
     static new_from_string(str: string): Trigger;
-    static new_full(_native: object | null): Trigger;
     get_duration(): Duration;
     get_time(): Time;
     is_bad_trigger(): boolean;
@@ -1787,7 +1769,6 @@ export class Value extends Object {
     static new_duration(v: Duration): Value;
     static new_float(v: number): Value;
     static new_from_string(kind: ValueKind, str: string): Value;
-    static new_full(_native: unknown, owner: GObject.Object): Value;
     static new_geo(v: Geo): Value;
     static new_integer(v: number): Value;
     static new_method(v: PropertyMethod): Value;

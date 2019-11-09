@@ -1854,7 +1854,7 @@ export enum DeviceType {
     OVS_PORT = 25,
     OVS_BRIDGE = 26,
     WPAN = 27,
-    Gjs_6LOWPAN = 28,
+    "6LOWPAN" = 28,
     WIREGUARD = 29,
     WIFI_P2P = 30,
 }
@@ -2043,8 +2043,8 @@ export enum SettingsError {
     INVALIDARGUMENTS = 7,
 }
 export enum SriovVFVlanProtocol {
-    Gjs_1Q = 0,
-    Gjs_1AD = 1,
+    "1Q" = 0,
+    "1AD" = 1,
 }
 export enum State {
     UNKNOWN = 0,
@@ -2279,7 +2279,7 @@ export enum SettingWirelessWakeOnWLan {
     MAGIC = 8,
     GTK_REKEY_FAILURE = 16,
     EAP_IDENTITY_REQUEST = 32,
-    Gjs_4WAY_HANDSHAKE = 64,
+    "4WAY_HANDSHAKE" = 64,
     RFKILL_RELEASE = 128,
     TCP = 256,
     ALL = 510,
@@ -2354,7 +2354,7 @@ export class AccessPoint  {
 export class ActiveConnection  {
     constructor(config?: properties);
     readonly connection: RemoteConnection;
-    readonly _default: boolean;
+    readonly "default": boolean;
     readonly default6: boolean;
     readonly devices: Device[];
     readonly dhcp4_config: DhcpConfig;
@@ -2518,7 +2518,7 @@ export class Device  {
     readonly driver_version: string;
     readonly firmware_missing: boolean;
     readonly firmware_version: string;
-    readonly _interface: string;
+    readonly "interface": string;
     readonly ip_interface: string;
     readonly ip4_config: IPConfig;
     readonly ip4_connectivity: ConnectivityState;

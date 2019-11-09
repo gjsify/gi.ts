@@ -12,7 +12,6 @@ import * as Pango from "pango";
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ParseErrorFunc = (section: unknown, error: GLib.Error, user_data: object | null) => void;
 /**
  * 
  */
@@ -435,10 +434,10 @@ export enum SerializationError {
 export enum TransformCategory {
     UNKNOWN = 0,
     ANY = 1,
-    Gjs_3D = 2,
-    Gjs_2D = 3,
-    Gjs_2D_AFFINE = 4,
-    Gjs_2D_TRANSLATE = 5,
+    "3D" = 2,
+    "2D" = 3,
+    "2D_AFFINE" = 4,
+    "2D_TRANSLATE" = 5,
     IDENTITY = 6,
 }
 export class BroadwayRenderer extends Renderer {

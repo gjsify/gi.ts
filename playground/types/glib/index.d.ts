@@ -5830,7 +5830,7 @@ export enum SpawnError {
     ACCES = 3,
     PERM = 4,
     TOO_BIG = 5,
-    Gjs_2BIG = 5,
+    "2BIG" = 5,
     NOEXEC = 6,
     NAMETOOLONG = 7,
     NOENT = 8,
@@ -6440,9 +6440,7 @@ export class ByteArray  {
 }
 export class Bytes  {
     constructor(config?: properties);
-    static new_static(data: number[] | null, size: number): Bytes;
     static new_take(data: number[] | null, size: number): Bytes;
-    static new_with_free_func(data: number[] | null, size: number, free_func: DestroyNotify, user_data: object | null): Bytes;
     compare(bytes2: Bytes): number;
     equal(bytes2: Bytes): boolean;
     get_data(): [number[] | null, number | null];
@@ -6594,7 +6592,6 @@ export class Dir  {
 export class Error  {
     constructor(config?: properties);
     static new_literal(domain: Quark, code: number, message: string): Error;
-    static new_valist(domain: Quark, code: number, format: string, args: any): Error;
     copy(): Error;
     free(): void;
     matches(domain: Quark, code: number): boolean;
@@ -7260,7 +7257,6 @@ export class TestSuite  {
 }
 export class Thread  {
     constructor(config?: properties);
-    static try_new(name: string | null, func: ThreadFunc, data: object | null): Thread;
     join(): object | null;
     ref(): Thread;
     unref(): void;
@@ -7359,18 +7355,13 @@ export class Variant  {
     static new_maybe(child_type: VariantType | null, child: Variant | null): Variant;
     static new_object_path(object_path: string): Variant;
     static new_objv(strv: string[], length: number): Variant;
-    static new_parsed(format: string, ___: any): Variant;
-    static new_parsed_va(format: string, app: any): Variant;
-    static new_printf(format_string: string, ___: any): Variant;
     static new_signature(signature: string): Variant;
     static new_string(string: string): Variant;
     static new_strv(strv: string[], length: number): Variant;
-    static new_take_string(string: string): Variant;
     static new_tuple(children: Variant[], n_children: number): Variant;
     static new_uint16(value: number): Variant;
     static new_uint32(value: number): Variant;
     static new_uint64(value: number): Variant;
-    static new_va(format_string: string, endptr: string | null, app: any): Variant;
     static new_variant(value: Variant): Variant;
     byteswap(): Variant;
     check_format_string(format_string: string, copy_only: boolean): boolean;

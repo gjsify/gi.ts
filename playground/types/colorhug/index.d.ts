@@ -390,10 +390,10 @@ export enum Error {
     SELF_TEST_EEPROM = 35,
 }
 export enum FreqScale {
-    Gjs_0 = 0,
-    Gjs_20 = 1,
-    Gjs_2 = 2,
-    Gjs_100 = 3,
+    "0" = 0,
+    "20" = 1,
+    "2" = 2,
+    "100" = 3,
 }
 export enum MeasureMode {
     FREQUENCY = 0,

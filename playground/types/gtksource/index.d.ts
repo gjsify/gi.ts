@@ -13,7 +13,6 @@ import * as Pango from "pango";
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type MountOperationFactory = (file: File, userdata: object | null) => Gio.MountOperation;
 /**
  * 
  */

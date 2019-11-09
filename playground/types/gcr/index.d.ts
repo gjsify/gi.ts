@@ -504,7 +504,6 @@ export class SecretExchange extends GObject.Object {
 }
 export class SimpleCertificate extends GObject.Object {
     constructor(config?: properties);
-    static new_static(data: number[], n_data: number): SimpleCertificate;
 }
 export class SimpleCollection extends GObject.Object {
     constructor(config?: properties);

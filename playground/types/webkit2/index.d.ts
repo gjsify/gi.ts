@@ -732,7 +732,7 @@ export class Settings extends GObject.Object {
     sans_serif_font_family: string;
     serif_font_family: string;
     user_agent: string;
-    zoom_text_only: boolean;static new_with_settings(first_setting_name: string, ___: any): Settings;
+    zoom_text_only: boolean;
     get_allow_file_access_from_file_urls(): boolean;
     get_allow_modal_dialogs(): boolean;
     get_allow_universal_access_from_file_urls(): boolean;

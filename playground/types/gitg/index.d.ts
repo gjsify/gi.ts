@@ -116,11 +116,14 @@ export enum StageCommitOptions {
     AMEND = (null),
     SKIP_HOOKS = (null),
 }
+export module Async {
+    export type ThreadFunc = () => void;
+}
 export class Async  {
     constructor(config?: properties);
-    static thread(func: unknown, func_target: object | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    static thread(func: Async.ThreadFunc, func_target: object | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     static thread_finish(_res_: Gio.AsyncResult): void;
-    static thread_try(func: unknown, func_target: object | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
+    static thread_try(func: Async.ThreadFunc, func_target: object | null, _callback_: Gio.AsyncReadyCallback | null, _callback__target: object | null): void;
     static thread_try_finish(_res_: Gio.AsyncResult): void;
 }
 export class AuthenticationDialog extends Gtk.Dialog {
@@ -629,9 +632,12 @@ export class Utils  {
     static replace_home_dir_with_tilde(file: Gio.File): string;
     static expand_home_dir(path: string): string;
 }
+export module WhenMapped {
+    export type OnMapped = () => void;
+}
 export class WhenMapped  {
     constructor(config?: properties);
-    update(mapped: unknown, mapped_target: object | null, mapped_target_destroy_notify: GLib.DestroyNotify, lifetime: GObject.Object | null): void;
+    update(mapped: WhenMapped.OnMapped, mapped_target: object | null, mapped_target_destroy_notify: GLib.DestroyNotify, lifetime: GObject.Object | null): void;
 }
 export class AsyncPrivate  {
     constructor(config?: properties);

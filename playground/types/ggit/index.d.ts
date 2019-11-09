@@ -641,7 +641,7 @@ export class Index  {
 }
 export class Native  {
     constructor(config?: properties);
-    _native: object;
+    "native": object;
 }
 export class Object  {
     constructor(config?: properties);

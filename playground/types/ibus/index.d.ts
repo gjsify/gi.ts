@@ -4557,7 +4557,6 @@ export class Component extends Serializable {
     textdomain: string;
     version: string;static new_from_file(filename: string): Component;
     static new_from_xml_node(node: XML): Component;
-    static new_varargs(first_property_name: string, ___: any): Component;
     add_engine(engine: EngineDesc): void;
     add_observed_path(path: string, access_fs: boolean): void;
     check_modification(): boolean;
@@ -4676,7 +4675,6 @@ export class EngineDesc extends Serializable {
     symbol: string;
     textdomain: string;
     version: string;static new_from_xml_node(node: XML): EngineDesc;
-    static new_varargs(first_property_name: string, ___: any): EngineDesc;
     get_author(): string;
     get_description(): string;
     get_hotkeys(): string;
@@ -4865,7 +4863,7 @@ export class Property extends Serializable {
     sub_props: PropList;
     symbol: Text;
     tooltip: Text;
-    visible: boolean;static new_varargs(first_property_name: string, ___: any): Property;
+    visible: boolean;
     get_icon(): string;
     get_key(): string;
     get_label(): Text;
@@ -4933,8 +4931,6 @@ export class Service extends Object {
 }
 export class Text extends Serializable {
     constructor(config?: properties);
-    static new_from_printf(fmt: string, ___: any): Text;
-    static new_from_static_string(str: string): Text;
     static new_from_string(str: string): Text;
     static new_from_ucs4(str: number): Text;
     static new_from_unichar(c: number): Text;

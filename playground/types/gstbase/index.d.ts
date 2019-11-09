@@ -18,7 +18,6 @@ export type CollectPadsEventFunction = (pads: CollectPads, pad: CollectData, eve
 export type CollectPadsFlushFunction = (pads: CollectPads, user_data: object | null) => void;
 export type CollectPadsFunction = (pads: CollectPads, user_data: object | null) => Gst.FlowReturn;
 export type CollectPadsQueryFunction = (pads: CollectPads, pad: CollectData, query: Gst.Query, user_data: object | null) => boolean;
-export type DataQueueCheckFullFunction = (queue: DataQueue, visible: number, bytes: number, time: number, checkdata: object | null) => boolean;
 export type DataQueueEmptyCallback = (queue: DataQueue, checkdata: object | null) => void;
 export type DataQueueFullCallback = (queue: DataQueue, checkdata: object | null) => void;
 export type TypeFindHelperGetRangeFunction = (obj: Gst.Object, parent: Gst.Object | null, offset: number, length: number) => Gst.FlowReturn;
@@ -470,7 +469,7 @@ export class BitReader  {
     constructor(config?: properties);
     data: number[];
     size: number;
-    _byte: number;
+    "byte": number;
     bit: number;
     free(): void;
     get_bits_uint16(nbits: number): [boolean, number];
@@ -517,7 +516,7 @@ export class ByteReader  {
     constructor(config?: properties);
     data: number[];
     size: number;
-    _byte: number;
+    "byte": number;
     dup_data(): [boolean, number,number[]];
     dup_string_utf16(): [boolean, number[]];
     dup_string_utf32(): [boolean, number[]];

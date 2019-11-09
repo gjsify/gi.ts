@@ -130,16 +130,16 @@ export enum ComponentType {
     RTCP = 2,
 }
 export enum DTMFEvent {
-    Gjs_0 = 0,
-    Gjs_1 = 1,
-    Gjs_2 = 2,
-    Gjs_3 = 3,
-    Gjs_4 = 4,
-    Gjs_5 = 5,
-    Gjs_6 = 6,
-    Gjs_7 = 7,
-    Gjs_8 = 8,
-    Gjs_9 = 9,
+    "0" = 0,
+    "1" = 1,
+    "2" = 2,
+    "3" = 3,
+    "4" = 4,
+    "5" = 5,
+    "6" = 6,
+    "7" = 7,
+    "8" = 8,
+    "9" = 9,
     STAR = 10,
     POUND = 11,
     A = 12,
@@ -186,6 +186,9 @@ export enum StreamState {
     CONNECTED = 4,
     READY = 5,
 }
+export type CandidateList = object;
+export type CodecGList = object;
+export type RtpHeaderExtensionGList = object;
 export enum StreamDirection {
     NONE = 0,
     SEND = 1,
@@ -282,7 +285,7 @@ export class Stream  {
 export class StreamTransmitter  {
     constructor(config?: properties);
     associate_on_source: boolean;
-    preferred_local_candidates: unknown;
+    preferred_local_candidates: CandidateList;
     sending: boolean;
     readonly priv: StreamTransmitterPrivate;
     add_remote_candidates(candidates: GLib.List): boolean;

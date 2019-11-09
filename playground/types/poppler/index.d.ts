@@ -94,7 +94,7 @@ export enum AdditionalActionType {
     CALCULATE_FIELD = 3,
 }
 export enum AnnotExternalDataType {
-    Gjs_3D = 0,
+    "3D" = 0,
     UNKNOWN = 1,
 }
 export enum AnnotFreeTextQuadding {
@@ -142,7 +142,7 @@ export enum AnnotType {
     PRINTER_MARK = 22,
     TRAP_NET = 23,
     WATERMARK = 24,
-    Gjs_3D = 25,
+    "3D" = 25,
 }
 export enum Backend {
     UNKNOWN = 0,
@@ -222,14 +222,14 @@ export enum PDFConformance {
 }
 export enum PDFPart {
     UNSET = 0,
-    Gjs_1 = 1,
-    Gjs_2 = 2,
-    Gjs_3 = 3,
-    Gjs_4 = 4,
-    Gjs_5 = 5,
-    Gjs_6 = 6,
-    Gjs_7 = 7,
-    Gjs_8 = 8,
+    "1" = 1,
+    "2" = 2,
+    "3" = 3,
+    "4" = 4,
+    "5" = 5,
+    "6" = 6,
+    "7" = 7,
+    "8" = 8,
     NONE = 9,
 }
 export enum PDFSubtype {
@@ -380,10 +380,10 @@ export enum StructureFormState {
 }
 export enum StructureGlyphOrientation {
     AUTO = 0,
-    Gjs_0 = 0,
-    Gjs_90 = 1,
-    Gjs_180 = 2,
-    Gjs_270 = 3,
+    "0" = 0,
+    "90" = 1,
+    "180" = 2,
+    "270" = 3,
 }
 export enum StructureInlineAlign {
     START = 0,

@@ -341,7 +341,7 @@ export enum RTCPXRType {
 }
 export enum RTPPayload {
     PCMU = 0,
-    Gjs_1016 = 1,
+    "1016" = 1,
     G721 = 2,
     GSM = 3,
     G723 = 4,

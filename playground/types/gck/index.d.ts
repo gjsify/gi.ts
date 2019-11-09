@@ -359,7 +359,6 @@ export class Attribute  {
 }
 export class Attributes  {
     constructor(config?: properties);
-    static new_empty(first_type: number, ___: any): Attributes;
     at(index: number): Attribute;
     contains(match: Attribute): boolean;
     count(): number;

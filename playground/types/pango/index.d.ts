@@ -1519,7 +1519,6 @@ export class ScriptIter  {
 }
 export class TabArray  {
     constructor(config?: properties);
-    static new_with_positions(size: number, positions_in_pixels: boolean, first_alignment: TabAlign, first_position: number, ___: any): TabArray;
     copy(): TabArray;
     free(): void;
     get_positions_in_pixels(): boolean;

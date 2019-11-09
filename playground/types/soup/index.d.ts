@@ -1058,6 +1058,7 @@ export enum XMLRPCFault {
     SYSTEM_ERROR = -32400,
     TRANSPORT_ERROR = -32300,
 }
+export type ByteArray = object;
 export enum Cacheability {
     CACHEABLE = 1,
     UNCACHEABLE = 2,
@@ -1379,7 +1380,7 @@ export class Server extends GObject.Object {
     async_context: object;
     http_aliases: string[];
     https_aliases: string[];
-    _interface: Address;
+    "interface": Address;
     port: number;
     raw_paths: boolean;
     server_header: string;
@@ -1439,7 +1440,7 @@ export class Session extends GObject.Object {
     tls_interaction: Gio.TlsInteraction;
     use_ntlm: boolean;
     use_thread_context: boolean;
-    user_agent: string;static new_with_options(optname1: string, ___: any): Session;
+    user_agent: string;
     abort(): void;
     add_feature(feature: SessionFeature): void;
     add_feature_by_type(feature_type: GType): void;
@@ -1484,11 +1485,9 @@ export class Session extends GObject.Object {
 }
 export class SessionAsync extends Session {
     constructor(config?: properties);
-    static new_with_options(optname1: string, ___: any): Session;
 }
 export class SessionSync extends Session {
     constructor(config?: properties);
-    static new_with_options(optname1: string, ___: any): Session;
 }
 export class Socket extends GObject.Object {
     constructor(config?: properties);

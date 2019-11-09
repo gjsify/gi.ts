@@ -61,9 +61,7 @@ export class ExtensionSet extends GObject.Object {
     constructor(config?: properties);
     construct_properties: object;
     engine: Engine;
-    extension_type: GType;static new_valist(engine: Engine | null, exten_type: GType, first_property: string, var_args: any): ExtensionSet;
-    static new_valist(...args: never[]): ExtensionSet;
-    static newv(engine: Engine | null, exten_type: GType, n_parameters: number, parameters: GObject.Parameter[]): ExtensionSet;
+    extension_type: GType;static newv(engine: Engine | null, exten_type: GType, n_parameters: number, parameters: GObject.Parameter[]): ExtensionSet;
     static newv(...args: never[]): ExtensionSet;
     foreach(func: ExtensionSetForeachFunc, data: object | null): void;
     get_extension(info: PluginInfo): Extension;
@@ -77,8 +75,7 @@ export class ObjectModule extends GObject.TypeModule {
     module_name: string;
     path: string;
     resident: boolean;
-    symbol: string;static new_embedded(module_name: string, symbol: string): ObjectModule;
-    static new_full(module_name: string, path: string, resident: boolean, local_linkage: boolean): ObjectModule;
+    symbol: string;
     register_extension_factory(exten_type: GType, factory_func: FactoryFunc, user_data: object | null, destroy_func: GLib.DestroyNotify): void;
     register_extension_type(exten_type: GType, impl_type: GType): void;
 }

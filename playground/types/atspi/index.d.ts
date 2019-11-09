@@ -599,14 +599,12 @@ export class Application  {
 }
 export class DeviceListener extends GObject.Object {
     constructor(config?: properties);
-    static new_simple(callback: DeviceListenerSimpleCB, callback_destroyed: GLib.DestroyNotify): DeviceListener;
     add_callback(callback: DeviceListenerCB, callback_destroyed: GLib.DestroyNotify, user_data: object | null): void;
     remove_callback(callback: DeviceListenerCB): void;
     vfunc_device_event(event: DeviceEvent): boolean;
 }
 export class EventListener extends GObject.Object {
     constructor(config?: properties);
-    static new_simple(callback: EventListenerSimpleCB, callback_destroyed: GLib.DestroyNotify): EventListener;
     deregister(event_type: string): boolean;
     register(event_type: string): boolean;
     register_full(event_type: string, properties: string[] | null): boolean;

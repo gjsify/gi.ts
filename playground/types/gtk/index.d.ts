@@ -3768,7 +3768,7 @@ export class CssProvider extends GObject.Object {
 }
 export class Dialog extends Window {
     constructor(config?: properties);
-    use_header_bar: number;static new_with_buttons(title: string | null, parent: Window | null, flags: DialogFlags, first_button_text: string | null, ___: any): Widget;
+    use_header_bar: number;
     add_action_widget(child: Widget, response_id: number): void;
     add_button(button_text: string, response_id: number): Widget;
     get_action_area(): Widget;
@@ -4713,7 +4713,7 @@ export class InfoBar extends Box {
     constructor(config?: properties);
     message_type: MessageType;
     revealed: boolean;
-    show_close_button: boolean;static new_with_buttons(first_button_text: string | null, ___: any): Widget;
+    show_close_button: boolean;
     add_action_widget(child: Widget, response_id: number): void;
     add_button(button_text: string, response_id: number): Button;
     get_action_area(): Widget;
@@ -5132,7 +5132,7 @@ export class MessageDialog extends Dialog {
     secondary_text: string;
     secondary_use_markup: boolean;
     text: string;
-    use_markup: boolean;static new_with_markup(parent: Window | null, flags: DialogFlags, type: MessageType, buttons: ButtonsType, message_format: string | null, ___: any): Widget;
+    use_markup: boolean;
     get_image(): Widget;
     get_message_area(): Widget;
     set_image(image: Widget): void;
@@ -5739,7 +5739,6 @@ export class RecentAction extends Action {
 }
 export class RecentChooserDialog extends Dialog {
     constructor(config?: properties);
-    static new_for_manager(title: string | null, parent: Window | null, manager: RecentManager, first_button_text: string | null, ___: any): Widget;
 }
 export class RecentChooserMenu extends Menu {
     constructor(config?: properties);
@@ -7180,7 +7179,6 @@ export class TreeViewColumn extends GObject.InitiallyUnowned {
     widget: Widget;
     readonly width: number;
     readonly x_offset: number;static new_with_area(area: CellArea): TreeViewColumn;
-    static new_with_attributes(title: string, cell: CellRenderer, ___: any): TreeViewColumn;
     add_attribute(cell_renderer: CellRenderer, attribute: string, column: number): void;
     cell_get_position(cell_renderer: CellRenderer): [boolean, number | null,number | null];
     cell_get_size(cell_area: Gdk.Rectangle | null): [number | null,number | null,number | null,number | null];
@@ -8941,7 +8939,6 @@ export class TreeModelSortPrivate  {
 export class TreePath  {
     constructor(config?: properties);
     static new_first(): TreePath;
-    static new_from_indices(first_index: number, ___: any): TreePath;
     static new_from_indicesv(indices: number[], length: number): TreePath;
     static new_from_string(path: string): TreePath;
     append_index(index_: number): void;

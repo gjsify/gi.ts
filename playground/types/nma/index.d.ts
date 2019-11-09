@@ -49,7 +49,7 @@ export enum CertChooserFlags {
 }
 export enum MobileFamily {
     UNKNOWN = 0,
-    Gjs_3GPP = 1,
+    "3GPP" = 1,
     CDMA = 2,
 }
 export class BarCode extends GObject.Object {

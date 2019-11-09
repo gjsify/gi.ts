@@ -82,7 +82,7 @@ export class UserQuery extends GObject.Object {
     message_type: Gtk.MessageType;
     default_response: Gtk.ResponseType;
     default_is_destructive: boolean;
-    message_use_markup: boolean;static full(title: string, message: string, message_type: Gtk.MessageType, ___: any): UserQuery;
+    message_use_markup: boolean;
     get_responses(): [UserQueryResponse[], number];
     set_responses(value: UserQueryResponse[], value_length1: number): void;
     get_title(): string;

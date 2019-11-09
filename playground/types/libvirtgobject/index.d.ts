@@ -114,6 +114,17 @@ export enum StorageVolType {
     BLOCK = 1,
     DIR = 2,
 }
+export type ConnectionHandle = object;
+export type DomainHandle = object;
+export type DomainSnapshotHandle = object;
+export type InterfaceHandle = object;
+export type NetworkFilterHandle = object;
+export type NetworkHandle = object;
+export type NodeDeviceHandle = object;
+export type SecretHandle = object;
+export type StoragePoolHandle = object;
+export type StorageVolHandle = object;
+export type StreamHandle = object;
 export enum DomainStartFlags {
     NONE = 0,
     PAUSED = 1,
@@ -129,7 +140,7 @@ export enum StreamIOCondition {
 }
 export class Connection extends GObject.Object {
     constructor(config?: properties);
-    handle: unknown;
+    handle: ConnectionHandle;
     uri: string;
     close(): void;
     create_domain(conf: LibvirtGConfig.Domain): Domain;
@@ -186,7 +197,7 @@ export class Connection extends GObject.Object {
 }
 export class Domain  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: DomainHandle;
     readonly persistent: boolean;
     readonly priv: DomainPrivate;
     create_snapshot(custom_conf: LibvirtGConfig.DomainSnapshot | null, flags: number): DomainSnapshot;
@@ -258,7 +269,7 @@ export class DomainInterface  {
 }
 export class DomainSnapshot  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: DomainSnapshotHandle;
     readonly priv: DomainSnapshotPrivate;
     _delete(flags: number): boolean;
     delete_async(flags: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
@@ -273,7 +284,7 @@ export class DomainSnapshot  {
 }
 export class Interface  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: InterfaceHandle;
     readonly priv: InterfacePrivate;
     get_config(flags: number): LibvirtGConfig.Interface;
     get_mac(): string;
@@ -290,7 +301,7 @@ export class Manager extends GObject.Object {
 }
 export class Network  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: NetworkHandle;
     readonly priv: NetworkPrivate;
     get_config(flags: number): LibvirtGConfig.Network;
     get_dhcp_leases(mac: string | null, flags: number): GLib.List;
@@ -313,7 +324,7 @@ export class NetworkDHCPLease  {
 }
 export class NetworkFilter  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: NetworkFilterHandle;
     readonly priv: NetworkFilterPrivate;
     get_config(flags: number): LibvirtGConfig.NetworkFilter;
     get_name(): string;
@@ -321,14 +332,14 @@ export class NetworkFilter  {
 }
 export class NodeDevice  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: NodeDeviceHandle;
     readonly priv: NodeDevicePrivate;
     get_config(flags: number): LibvirtGConfig.NodeDevice;
     get_name(): string;
 }
 export class Secret  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: SecretHandle;
     readonly priv: SecretPrivate;
     get_config(flags: number): LibvirtGConfig.Secret;
     get_name(): string;
@@ -336,7 +347,7 @@ export class Secret  {
 }
 export class StoragePool  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: StoragePoolHandle;
     readonly priv: StoragePoolPrivate;
     build(flags: number): boolean;
     build_async(flags: number, cancellable: Gio.Cancellable | null, callback: Gio.AsyncReadyCallback | null, user_data: object | null): void;
@@ -370,7 +381,7 @@ export class StoragePool  {
 }
 export class StorageVol  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: StorageVolHandle;
     pool: StoragePool;
     readonly priv: StorageVolPrivate;
     _delete(flags: number): boolean;
@@ -384,7 +395,7 @@ export class StorageVol  {
 }
 export class Stream  {
     constructor(config?: properties);
-    handle: unknown;
+    handle: StreamHandle;
     readonly priv: StreamPrivate;
     add_watch_full(priority: number, cond: StreamIOCondition, func: StreamIOFunc, opaque: object | null, notify: GLib.DestroyNotify): number;
     receive(buffer: number[], size: number, cancellable: Gio.Cancellable | null): number;

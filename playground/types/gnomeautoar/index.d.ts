@@ -133,7 +133,7 @@ export enum Format {
     ZIP = 1,
     TAR = 2,
     CPIO = 3,
-    Gjs_7ZIP = 4,
+    "7ZIP" = 4,
     AR_BSD = 5,
     AR_SVR4 = 6,
     CPIO_NEWC = 7,

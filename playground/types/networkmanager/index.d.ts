@@ -1093,7 +1093,7 @@ export enum SettingGsmNetworkType {
     PREFER_UMTS_HSPA = 2,
     PREFER_GPRS_EDGE = 3,
     PREFER_4G = 4,
-    Gjs_4G = 5,
+    "4G" = 5,
 }
 export enum SettingHashFlags {
     ALL = 0,
