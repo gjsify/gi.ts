@@ -1,17 +1,15 @@
 
+/**
+ * ostree
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as OSTree from "ostree";
 /**
- * ostree.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type RepoCheckoutFilter = (repo: Repo, path: string, stbuf: object | null, user_data: object | null) => RepoCheckoutFilterResult;
-export type RepoCommitFilter = (repo: Repo, path: string, file_info: Gio.FileInfo, user_data: object | null) => RepoCommitFilterResult;
-export type RepoCommitModifierXattrCallback = (repo: Repo, path: string, file_info: Gio.FileInfo, user_data: object | null) => GLib.Variant;
-export type RepoImportArchiveTranslatePathname = (repo: Repo, stbuf: object | null, src_path: string, user_data: object | null) => string;
 export const BUILT_FEATURES: string;
 export const COMMIT_GVARIANT_STRING: string;
 export const COMMIT_META_KEY_COLLECTION_BINDING: string;
@@ -363,6 +361,12 @@ export function validate_structureof_file_mode(mode: number): boolean;
  * 
  */
 export function validate_structureof_objtype(objtype: number): boolean;
+export type RepoCheckoutFilter = (repo: Repo, path: string, stbuf: object | null, user_data: object | null) => RepoCheckoutFilterResult;
+export type RepoCommitFilter = (repo: Repo, path: string, file_info: Gio.FileInfo, user_data: object | null) => RepoCommitFilterResult;
+export type RepoCommitModifierXattrCallback = (repo: Repo, path: string, file_info: Gio.FileInfo, user_data: object | null) => GLib.Variant;
+export type RepoImportArchiveTranslatePathname = (repo: Repo, stbuf: object | null, src_path: string, user_data: object | null) => string;
+export type CollectionRefv = CollectionRef;
+export type RepoFinderResultv = RepoFinderResult;
 export enum DeploymentUnlockedState {
     NONE = 0,
     DEVELOPMENT = 1,
@@ -449,8 +453,6 @@ export enum StaticDeltaGenerateOpt {
     LOWLATENCY = 0,
     MAJOR = 1,
 }
-export type CollectionRefv = CollectionRef;
-export type RepoFinderResultv = RepoFinderResult;
 export enum ChecksumFlags {
     NONE = 0,
     IGNORE_XATTRS = 1,
@@ -524,6 +526,7 @@ export enum SysrootUpgraderPullFlags {
 export class AsyncProgress extends GObject.Object {
     constructor(config?: properties);
     static new_and_connect(changed: object | null, user_data: object | null): AsyncProgress;
+    static new_and_connect(...args: never[]): never;
     finish(): void;
     get_status(): string | null;
     get_uint(key: string): number;
@@ -587,6 +590,7 @@ export class GpgVerifyResult  {
 export class MutableTree extends GObject.Object {
     constructor(config?: properties);
     static new_from_checksum(repo: Repo, contents_checksum: string, metadata_checksum: string): MutableTree;
+    static new_from_checksum(...args: never[]): never;
     check_error(): boolean;
     ensure_dir(name: string): [boolean, MutableTree];
     ensure_parent_dirs(split_path: string[], metadata_checksum: string): [boolean, MutableTree];
@@ -607,7 +611,9 @@ export class Repo extends GObject.Object {
     path: Gio.File;
     remotes_config_dir: string;
     sysroot_path: Gio.File;static new_default(): Repo;
+    static new_default(...args: never[]): never;
     static new_for_sysroot_path(repo_path: Gio.File, sysroot_path: Gio.File): Repo;
+    static new_for_sysroot_path(...args: never[]): never;
     abort_transaction(cancellable: Gio.Cancellable | null): boolean;
     add_gpg_signature_summary(key_id: string[], homedir: string | null, cancellable: Gio.Cancellable | null): boolean;
     append_gpg_signature(commit_checksum: string, signature_bytes: GLib.Bytes, cancellable: Gio.Cancellable | null): boolean;
@@ -767,6 +773,7 @@ export class SePolicy extends GObject.Object {
     constructor(config?: properties);
     path: Gio.File;
     rootfs_dfd: number;static new_at(rootfs_dfd: number, cancellable: Gio.Cancellable | null): SePolicy;
+    static new_at(...args: never[]): never;
     get_csum(): string;
     get_label(relpath: string, unix_mode: number, cancellable: Gio.Cancellable | null): [boolean, string | null];
     get_name(): string;
@@ -778,6 +785,7 @@ export class SePolicy extends GObject.Object {
 export class Sysroot extends GObject.Object {
     constructor(config?: properties);
     path: Gio.File;static new_default(): Sysroot;
+    static new_default(...args: never[]): never;
     cleanup(cancellable: Gio.Cancellable | null): boolean;
     cleanup_prune_repo(options: RepoPruneOptions, cancellable: Gio.Cancellable | null): [boolean, number,number,number];
     deploy_tree(osname: string | null, revision: string, origin: GLib.KeyFile | null, provided_merge_deployment: Deployment | null, override_kernel_argv: string[] | null, cancellable: Gio.Cancellable | null): [boolean, Deployment];
@@ -822,7 +830,9 @@ export class SysrootUpgrader extends GObject.Object {
     flags: SysrootUpgraderFlags;
     osname: string;
     sysroot: Sysroot;static new_for_os(sysroot: Sysroot, osname: string | null, cancellable: Gio.Cancellable | null): SysrootUpgrader;
+    static new_for_os(...args: never[]): never;
     static new_for_os_with_flags(sysroot: Sysroot, osname: string | null, flags: SysrootUpgraderFlags, cancellable: Gio.Cancellable | null): SysrootUpgrader;
+    static new_for_os_with_flags(...args: never[]): never;
     deploy(cancellable: Gio.Cancellable | null): boolean;
     dup_origin(): GLib.KeyFile;
     get_origin(): GLib.KeyFile;
@@ -893,7 +903,7 @@ export class KernelArgs  {
     append_argv(argv: string): void;
     append_argv_filtered(argv: string, prefixes: string): void;
     append_proc_cmdline(cancellable: Gio.Cancellable | null): boolean;
-    _delete(arg: string): boolean;
+    ["delete"](arg: string): boolean;
     delete_key_entry(key: string): boolean;
     free(): void;
     get_last_value(key: string): string;

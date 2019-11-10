@@ -1,16 +1,16 @@
 
+/**
+ * xkl
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as xlib from "xlib";
-import * as Xkl from "xkl";
 /**
- * xkl.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ConfigItemProcessFunc = (config: ConfigRegistry, item: ConfigItem, data: object | null) => void;
-export type TwoConfigItemsProcessFunc = (config: ConfigRegistry, item: ConfigItem, subitem: ConfigItem, data: object | null) => void;
 export const MAX_CI_DESC_LENGTH: number;
 export const MAX_CI_NAME_LENGTH: number;
 export const MAX_CI_SHORT_DESC_LENGTH: number;
@@ -35,6 +35,8 @@ export function restore_names_prop(engine: Engine): boolean;
  * Message of the level more than the one set here - will be ignored
  */
 export function set_debug_level(level: number): void;
+export type ConfigItemProcessFunc = (config: ConfigRegistry, item: ConfigItem, data: object | null) => void;
+export type TwoConfigItemsProcessFunc = (config: ConfigRegistry, item: ConfigItem, subitem: ConfigItem, data: object | null) => void;
 export enum EngineListenModes {
     MANAGE_WINDOW_STATES = 1,
     TRACK_KEYBOARD_STATE = 2,

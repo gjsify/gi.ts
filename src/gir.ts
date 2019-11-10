@@ -86,6 +86,10 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
     isArray = "".padStart(2 * type.isArray, "[]");
   }
 
+  if (type.anyified) {
+    isArray += " | any";
+  }
+
   // TODO Check that this doesn't mean the array type itself can be null.
   isArray = type.nullable ? isArray + " | null" : isArray;
 
@@ -155,13 +159,19 @@ function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
     case "va_list":
       return "any" + isArray;
     case "never": // Support TS "never"
-      return "never";
+      return "never" + isArray;
     case "guintptr": // You can't use pointers in GJS! (at least that I'm aware of)
-      return "never";
+      return "never" + isArray;
     case "any": // Support TS "any"
-      return "any";
+      return "any" + isArray;
+    case "number": // Support TS "number"
+      return "number" + isArray;
+    case "string": // Support TS "string"
+      return "string" + isArray;
+    case "boolean": // Support TS "boolean"
+      return "boolean" + isArray;
     case "object": // Support TS "object"
-      return "object";
+      return "object" + isArray;
     default:
       if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
         if (current_rns) {
@@ -220,6 +230,7 @@ function resolveParent(
 }
 
 interface Type {
+  anyified?: boolean;
   isArray: boolean | number;
   name: string;
   raw_type: string;
@@ -519,6 +530,13 @@ export class GirClass extends GirBase {
   violates_parent = [];
   callbacks: GirCallback[] = [];
   resolve_names: string[] = [];
+  isAbstract: boolean = false;
+  ns: string;
+
+  constructor(name: string, ns: string) {
+    super(name);
+    this.ns = ns;
+  }
 
   isInterface(): this is Interface {
     return this._isInterface;
@@ -537,7 +555,7 @@ export class GirClass extends GirBase {
       `  >> Parsing definition ${klass.$.name} (${getName(klass.$.name)})...`
     );
 
-    const clazz = new this(getName(klass.$.name));
+    const clazz = new this(getName(klass.$.name), ns.name);
     clazz.resolve_names = [klass.$.name];
 
     if (klass.$["glib:type-name"]) {
@@ -578,7 +596,7 @@ export class GirClass extends GirBase {
         for (let constructor of klass.constructor) {
           if (!constructor || !constructor.$) continue;
 
-          if (constructor.$["name"] === "new") {
+          if (constructor.$.name === "new") {
             continue;
           }
 
@@ -750,13 +768,15 @@ export class GirClass extends GirBase {
         resolved_parent =
           (resolved_parent.parent &&
             resolved_parent.parent.name &&
-            resolveParent(modName, registry, resolved_parent.parent.name)) ||
+            resolveParent(resolved_parent.ns, registry, resolved_parent.parent.name)) ||
           null;
         inheritanceLevel++;
       }
     }
 
     const name = this.name;
+
+    console.log(`Resolving types ${name}...`);
 
     return `${
       this.callbacks.length > 0
@@ -768,7 +788,7 @@ export class GirClass extends GirBase {
     }export ${
       this.isInterface() ? "interface" : "class"
     } ${name} ${this.extends(modName, registry)}${this.implements()} {${
-      this.isInterface() || this.isForeign()
+      this.isInterface() || this.isForeign() || this.isAbstract
         ? ""
         : "\nconstructor(config?: properties);\n"
     }
@@ -776,23 +796,32 @@ ${this.props
   .filter(p => p.name)
   .reduce(
     (prev, next) => {
-      const conflicts = resolved_parents.some(p =>
-        p.props.some(
-          p =>
-            p.name &&
-            (p.name == next.name &&
-              p.typeName.raw_type !== next.typeName.raw_type)
-        )
-      );
+      console.log(`prop ${next.name} has parents ${resolved_parents.map(s => s.name).join(" -> ")}`);
+      const conflicts = resolved_parents.some(resolved_parent => {
+        console.log(`prop resolving ${resolved_parent.name} in ${next.name}`)
+        return resolved_parent.props.some(p => {
+          console.log(`prop resolving of parent ${p.name}`)
+          if (p.name && p.name == next.name) {
+            const conflict = p.typeName.raw_type !== next.typeName.raw_type;
+
+            if (!conflict) {
+              console.log(
+                `No conflict on ${p.name}: ${p.typeName.raw_type} on ${next.typeName.raw_type} from ${resolved_parent.ns} and ${this.ns}`
+              );
+            }
+
+            return (
+              conflict ||
+              (p.typeName.raw_type === next.typeName.raw_type &&
+                resolved_parent.ns !== this.ns)
+            );
+          }
+          return false;
+        })
+      });
       if (conflicts) {
-        const never = new GirProperty(next.name);
-        never.typeName = {
-          name: "never",
-          raw_type: "never",
-          isArray: false,
-          nullable: false
-        };
-        prev.push(next, never);
+        next.typeName.anyified = true;
+        prev.push(next);
       } else {
         prev.push(next);
       }
@@ -814,15 +843,27 @@ ${this.props
           // use a never type, when a user tries to use the constructor it
           // defaults to the correct one.
           const conflicts = resolved_parents.some(resolved_parent =>
-            resolved_parent.constructors.some(
+            [...resolved_parent.constructors, ...resolved_parent.members].some(
               p =>
                 p.name &&
-                (p.name == next.name &&
+                ((p.name == next.name &&
                   (p.parameters.length !== next.parameters.length ||
                     next.parameters.some(
                       (np, i) =>
-                        p.parameters[i].type.raw_type !== np.type.raw_type
-                    )))
+                        p.parameters[i].type.raw_type !== np.type.raw_type ||
+                        (p.parameters[i].type.raw_type !== np.type.raw_type &&
+                          resolved_parent.ns !== this.ns)
+                    ))) ||
+                  p.output_parameters.length !==
+                    next.output_parameters.length ||
+                  next.output_parameters.some(
+                    (np, i) =>
+                      p.output_parameters[i].type.raw_type !==
+                        np.type.raw_type ||
+                      (p.output_parameters[i].type.raw_type !==
+                        np.type.raw_type &&
+                        resolved_parent.ns !== this.ns)
+                  ))
             )
           );
           if (conflicts) {
@@ -836,7 +877,12 @@ ${this.props
               isArray: false
             };
             never.parameters = [never_param];
-            never.return_value = next.return_value;
+            never.return_value = {
+              name: "never",
+              raw_type: "never",
+              nullable: false,
+              isArray: false
+            };
             prev.push(next, never);
           } else {
             prev.push(next);
@@ -853,19 +899,37 @@ ${this.members
     (prev, next) => {
       // TODO This should catch most of them.
       const conflicts = resolved_parents.some(resolved_parent =>
-        resolved_parent.members.some(
+        [...resolved_parent.constructors, ...resolved_parent.members].some(
           p =>
             p.name &&
             (p.name == next.name &&
               (p.parameters.length !== next.parameters.length ||
-                p.return_type.raw_type !== next.return_type.raw_type ||
+                (p instanceof GirClassFunction &&
+                  p.return_type.raw_type !== next.return_type.raw_type) ||
                 next.parameters.some(
-                  (np, i) => p.parameters[i].type.raw_type !== np.type.raw_type
+                  (np, i) =>
+                    p.parameters[i].type.raw_type !== np.type.raw_type ||
+                    (p.parameters[i].type.raw_type !== np.type.raw_type &&
+                      resolved_parent.ns !== this.ns)
+                ) ||
+                p.output_parameters.length !== next.output_parameters.length ||
+                next.output_parameters.some(
+                  (np, i) =>
+                    p.output_parameters[i].type.raw_type !== np.type.raw_type ||
+                    (p.output_parameters[i].type.raw_type !==
+                      np.type.raw_type &&
+                      resolved_parent.ns !== this.ns)
                 )))
         )
       );
       if (conflicts) {
-        const never = new GirClassFunction(next.name);
+        let never = new GirClassFunction(next.name);
+        if (next instanceof GirStaticClassFunction) {
+          never = new GirStaticClassFunction(next.name);
+        }
+        if (next instanceof GirVirtualClassFunction) {
+          never = new GirVirtualClassFunction(next.name);
+        }
         const never_param = new GirFunctionParameter("args");
         never_param.direction = Direction.In;
         never_param.isVarArgs = true;
@@ -880,7 +944,7 @@ ${this.members
           name: "never",
           raw_type: "never",
           nullable: false,
-          isArray: true
+          isArray: false
         };
         prev.push(next, never);
       } else {
@@ -905,22 +969,20 @@ export class GirInterface extends GirClass {
 export class GirProperty extends GirBase {
   writable: boolean = false;
   typeName: Type;
+  isStatic: boolean = false;
+  type: any;
 
   asString(modName: string, registry: GirNSRegistry): string {
     const ns = registry.namespace(modName);
     const invalid = this.name !== getName(this.name);
     if (this.writable) {
-      return `${invalid ? `"${this.name}"` : this.name}: ${resolveType(
-        modName,
-        registry,
-        this.typeName
-      ) || "any"};`;
+      return `${this.isStatic ? "static " : ""}${
+        invalid ? `"${this.name}"` : this.name
+      }: ${resolveType(modName, registry, this.typeName) || "any"};`;
     } else {
-      return `readonly ${invalid ? `"${this.name}"` : this.name}: ${resolveType(
-        modName,
-        registry,
-        this.typeName
-      ) || "any"};`;
+      return `${this.isStatic ? "static " : ""}readonly ${
+        invalid ? `"${this.name}"` : this.name
+      }: ${resolveType(modName, registry, this.typeName) || "any"};`;
     }
   }
 
@@ -948,7 +1010,7 @@ export class GirClassFunction extends GirBase {
     ns: GirNamespace,
     m: ClassFunction
   ): GirClassFunction {
-    const func = new this(getName(m.$.name));
+    const func = new this(m.$.name);
     const fn = GirFunction.fromXML(
       modName,
       ns,
@@ -957,12 +1019,15 @@ export class GirClassFunction extends GirBase {
     func.output_parameters = fn.output_parameters;
     func.parameters = fn.parameters;
     func.return_type = fn.return_type;
-    func.name = fn.name;
     return func;
   }
 
   asString(modName: string, registry: GirNSRegistry) {
-    return `${this.name}(${GirFunction.prototype.params.call(
+    const sanitized = getName(this.name);
+    const invalid = sanitized !== this.name;
+    return `${
+      invalid ? `["${this.name}"]` : this.name
+    }(${GirFunction.prototype.params.call(
       this,
       modName,
       registry
@@ -1016,7 +1081,7 @@ export class GirConstructor extends GirBase {
     ns: GirNamespace,
     m: ClassConstructor
   ): GirConstructor {
-    const constr = new GirConstructor(getName(m.$.name));
+    const constr = new GirConstructor(m.$.name);
     const fn = GirFunction.fromXML(
       modName,
       ns,
@@ -1055,7 +1120,12 @@ export class GirEnumMember extends GirBase {
   asString(_: string, __: GirNSRegistry): string {
     const sanitized = getName(this.name);
     const invalid = sanitized !== this.name;
-    if (this.value != null) {
+    if (
+      this.value != null &&
+      !Number.isNaN(Number.parseInt(this.value, 10)) &&
+      Number.isNaN(Number.parseInt(this.name, 10)) &&
+      this.name !== "NaN"
+    ) {
       return invalid
         ? `"${this.name}" = ${this.value},`
         : `${this.name} = ${this.value},`;
@@ -1066,15 +1136,55 @@ export class GirEnumMember extends GirBase {
 }
 
 export class GirEnum extends GirBase {
-  members: GirEnumMember[] = [];
+  members = new Map<string, GirEnumMember>();
+  ns: string;
+
+  constructor(name: string, ns: string) {
+    super(name);
+    this.ns = ns;
+  }
+
   asString(modName: string, registry: GirNSRegistry): string {
     try {
+      const isInvalidEnum = Array.from(this.members.keys()).some(
+        name =>
+          !Number.isNaN(Number.parseFloat(name)) ||
+          name === "NaN" ||
+          name === "Infinity"
+      );
+      if (isInvalidEnum) {
+        return this.asClass().asString(modName, registry);
+      }
+
       return `export enum ${this.name} {
-${this.members.map(member => `${member.asString(modName, registry)}`).join(EOL)}
+${Array.from(this.members.values())
+  .map(member => `${member.asString(modName, registry)}`)
+  .join(EOL)}
 }`;
     } catch (e) {
       console.error(e);
     }
+  }
+
+  asClass(): GirClass {
+    const clazz = new GirClass(this.name, this.ns);
+    clazz.isAbstract = true;
+    clazz.props.push(
+      ...Array.from(this.members.values()).map(m => {
+        const member = new GirProperty(m.name);
+        member.typeName = {
+          name: "number",
+          raw_type: "number",
+          isArray: false,
+          nullable: false
+        };
+        member.writable = true;
+        member.isStatic = true;
+        return member;
+      })
+    );
+    clazz.members = [];
+    return clazz;
   }
 
   static fromXML(
@@ -1082,10 +1192,13 @@ ${this.members.map(member => `${member.asString(modName, registry)}`).join(EOL)}
     ns: GirNamespace,
     m: Enumeration | BitfieldElement
   ): GirEnum {
-    const em = new GirEnum(getName(m.$.name));
-    em.members.push(
-      ...m.member.map(m => GirEnumMember.fromXML(modName, ns, m))
-    );
+    const em = new GirEnum(getName(m.$.name), ns.name);
+
+    m.member.forEach(m => {
+      const member = GirEnumMember.fromXML(modName, ns, m);
+      em.members.set(member.name, member);
+    });
+
     return em;
   }
 }
@@ -1156,30 +1269,37 @@ export class GirNSRegistry {
 export class GirNamespace extends GirBase {
   name: string;
   imports: string[] = [];
-  members: GirNSMember[] = [];
+  members: Map<string, GirNSMember> = new Map<string, GirNSMember>();
 
   addImport(ns_name: string) {
-    if (!this.imports.includes(ns_name)) {
+    if (ns_name !== this.name && !this.imports.includes(ns_name)) {
       this.imports.push(ns_name);
     }
   }
 
   getClass(name: string) {
-    return this.members.find(
-      (m): m is GirClass => m.name === name && m instanceof GirClass
-    );
+    if (this.members.has(name)) {
+      const member = this.members.get(name);
+
+      if (member instanceof GirClass) {
+        return member;
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
   }
 
   hasSymbol(name: string) {
-    return this.members.some(
-      m => m.name === name
-      // TODO Support better lookups here (we do for class callbacks)
-      // (m instanceof GirClass && m.resolve_names.includes(name))
-    );
+    return this.members.has(name);
+
+    // TODO Support better lookups here (we do for class callbacks)
+    // (m instanceof GirClass && m.resolve_names.includes(name))
   }
 
   findClassCallback(name: string): [string | null, string] {
-    const clazzes = this.members.filter(
+    const clazzes = Array.from(this.members.values()).filter(
       (m): m is GirClass => m instanceof GirClass
     );
     const res = clazzes
@@ -1199,20 +1319,26 @@ export class GirNamespace extends GirBase {
   asString(modName: string, registry: GirNSRegistry) {
     console.log(`Resolving the types of ${modName}...`);
     const name = this.name;
+    const header = `/**
+ * ${name.toLowerCase()}
+ */
+`;
     const base = `
 /**
- * ${name.toLowerCase()}.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
+${Array.from(this.members.values())
+  .map(m => `${m.asString(modName, registry)}`)
+  .join(`${EOL}`)}`;
 
     // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
     const imports = `${this.imports
       .map(i => `import * as ${i} from "${i.toLowerCase()}";`)
       .join(`${EOL}`)}`;
 
-    const raw_output = [imports, base].join("\n");
+    const raw_output = [header, imports, base].join("\n");
 
     // Cleanup and indent the output
     const [, output] = raw_output.split("\n").reduce(
@@ -1260,106 +1386,101 @@ ${this.members.map(m => `${m.asString(modName, registry)}`).join(`${EOL}`)}`;
     building.imports.push(
       ...includes
         .map(i => i.$.name)
-        .filter(name => !defaultImports.includes(name))
+        .filter(name => !defaultImports.includes(name) && modName !== name)
     );
 
-    if (ns.callback)
-      building.members.push(
-        ...ns.callback
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(callback => GirCallback.fromXML(modName, building, callback))
-      );
-
     // Constants
-    if (ns.constant)
-      building.members.push(
-        ...ns.constant
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(constant => GirConst.fromXML(modName, building, constant))
-      );
+    if (ns.constant) {
+      ns.constant
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(constant => GirConst.fromXML(modName, building, constant))
+        .forEach(c => building.members.set(c.name, c));
+    }
 
     // Get the requested functions
-    if (ns.function)
-      building.members.push(
-        ...ns.function
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(func => GirFunction.fromXML(modName, building, func))
-      );
+    if (ns.function) {
+      ns.function
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(func => GirFunction.fromXML(modName, building, func))
+        .forEach(c => building.members.set(c.name, c));
+    }
 
-    if (ns.enumeration)
-      // Get the requested enums
-      building.members.push(
-        ...ns.enumeration.map(enumeration =>
-          GirEnum.fromXML(modName, building, enumeration)
-        )
-      );
+    if (ns.callback) {
+      ns.callback
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(callback => GirCallback.fromXML(modName, building, callback))
+        .forEach(c => building.members.set(c.name, c));
+    }
 
     if (ns.alias) {
-      building.members.push(
-        ...ns.alias
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(alias => GirAlias.fromXML(modName, building, alias))
-      );
+      ns.alias
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(alias => GirAlias.fromXML(modName, building, alias))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns["glib:boxed"]) {
-      building.members.push(
-        ...ns["glib:boxed"]
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(boxed => {
-            let alias = new GirAlias(boxed.$["glib:name"]);
-            alias.type = {
-              name: "object",
-              raw_type: "object",
-              isArray: false,
-              nullable: false
-            };
-            return alias;
-          })
-      );
+      ns["glib:boxed"]
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(boxed => {
+          let alias = new GirAlias(boxed.$["glib:name"]);
+          alias.type = {
+            name: "object",
+            raw_type: "object",
+            isArray: false,
+            nullable: false
+          };
+          return alias;
+        })
+        .forEach(c => building.members.set(c.name, c));
+    }
+
+    if (ns.enumeration) {
+      // Get the requested enums
+      ns.enumeration
+        .map(enumeration => GirEnum.fromXML(modName, building, enumeration))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     // Bitfield is a type of enum
-    if (ns.bitfield)
-      building.members.push(
-        ...ns.bitfield
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(field => GirEnum.fromXML(modName, building, field))
-      );
-
-    // Get the requested classes
-    if (ns.class)
-      building.members.push(
-        ...ns.class
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(klass => GirClass.fromXML(modName, building, klass))
-      );
-
-    if (ns.record)
-      building.members.push(
-        ...ns.record
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          // _ marks these records as private.
-          .filter(b => !b.$.name.startsWith("_"))
-          // Don't generate records for structs
-          .filter(b => typeof b.$["glib:is-gtype-struct-for"] !== "string")
-          .map(record => GirClass.fromXML(modName, building, record))
-      );
-
-    if (ns.union) {
-      building.members.push(
-        ...ns.union
-          .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
-          .map(union => GirClass.fromXML(modName, building, union))
-      );
+    if (ns.bitfield) {
+      ns.bitfield
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(field => GirEnum.fromXML(modName, building, field))
+        .forEach(c => building.members.set(c.name, c));
     }
 
-    if (ns.interface)
-      building.members.push(
-        ...ns.interface.map(inter =>
-          GirInterface.fromXML(modName, building, inter)
-        )
-      );
+    // Get the requested classes
+    if (ns.class) {
+      ns.class
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(klass => GirClass.fromXML(modName, building, klass))
+        .forEach(c => building.members.set(c.name, c));
+    }
+
+    if (ns.record) {
+      ns.record
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        // _ marks these records as private.
+        .filter(b => !b.$.name.startsWith("_"))
+        // Don't generate records for structs
+        .filter(b => typeof b.$["glib:is-gtype-struct-for"] !== "string")
+        .map(record => GirClass.fromXML(modName, building, record))
+        .forEach(c => building.members.set(c.name, c));
+    }
+
+    if (ns.union) {
+      ns.union
+        .filter(b => !b.$.introspectable || b.$.introspectable !== "0")
+        .map(union => GirClass.fromXML(modName, building, union))
+        .forEach(c => building.members.set(c.name, c));
+    }
+
+    if (ns.interface) {
+      ns.interface
+        .map(inter => GirInterface.fromXML(modName, building, inter))
+        .forEach(c => building.members.set(c.name, c));
+    }
 
     return building;
   }

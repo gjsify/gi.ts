@@ -1,14 +1,16 @@
 
+/**
+ * gsk
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Gdk from "gdk";
 import * as Graphene from "graphene";
-import * as Gsk from "gsk";
 import * as cairo from "cairo";
 import * as Pango from "pango";
 /**
- * gsk.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
@@ -431,14 +433,14 @@ export enum SerializationError {
     UNSUPPORTED_VERSION = 1,
     INVALID_DATA = 2,
 }
-export enum TransformCategory {
-    UNKNOWN = 0,
-    ANY = 1,
-    "3D" = 2,
-    "2D" = 3,
-    "2D_AFFINE" = 4,
-    "2D_TRANSLATE" = 5,
-    IDENTITY = 6,
+export class TransformCategory  {
+    static UNKNOWN: number;
+    static ANY: number;
+    static "3D": number;
+    static "2D": number;
+    static "2D_AFFINE": number;
+    static "2D_TRANSLATE": number;
+    static IDENTITY: number;
 }
 export class BroadwayRenderer extends Renderer {
     constructor(config?: properties);
@@ -453,6 +455,7 @@ export class Renderer extends GObject.Object {
     constructor(config?: properties);
     readonly realized: boolean;
     readonly surface: any;static new_for_surface(surface: any): Renderer | null;
+    static new_for_surface(...args: never[]): never;
     get_surface(): any | null;
     is_realized(): boolean;
     realize(surface: any): boolean;

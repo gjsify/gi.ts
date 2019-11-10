@@ -1,4 +1,7 @@
 
+/**
+ * gtkclutter
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
@@ -6,7 +9,7 @@ import * as Clutter from "clutter";
 import * as Gtk from "gtk";
 import * as GdkPixbuf from "gdkpixbuf";
 /**
- * gtkclutter.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
@@ -26,6 +29,7 @@ export enum TextureError {
 export class Actor extends Clutter.Actor {
     constructor(config?: properties);
     contents: Gtk.Widget;static new_with_contents(contents: Gtk.Widget): Clutter.Actor;
+    static new_with_contents(...args: never[]): never;
     get_contents(): Gtk.Widget;
     get_widget(): Gtk.Widget;
 }

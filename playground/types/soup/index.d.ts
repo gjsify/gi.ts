@@ -1,30 +1,15 @@
 
+/**
+ * soup
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as Soup from "soup";
 /**
- * soup.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type AddressCallback = (addr: Address, status: number, user_data: object | null) => void;
-export type AuthDomainBasicAuthCallback = (domain: AuthDomainBasic, msg: Message, username: string, password: string, user_data: object | null) => boolean;
-export type AuthDomainDigestAuthCallback = (domain: AuthDomainDigest, msg: Message, username: string, user_data: object | null) => string | null;
-export type AuthDomainFilter = (domain: AuthDomain, msg: Message, user_data: object | null) => boolean;
-export type AuthDomainGenericAuthCallback = (domain: AuthDomain, msg: Message, username: string, user_data: object | null) => boolean;
-export type ChunkAllocator = (msg: Message, max_len: number, user_data: object | null) => Buffer | null;
-export type LoggerFilter = (logger: Logger, msg: Message, user_data: object | null) => LoggerLogLevel;
-export type LoggerPrinter = (logger: Logger, level: LoggerLogLevel, direction: number, data: string, user_data: object | null) => void;
-export type MessageHeadersForeachFunc = (name: string, value: string, user_data: object | null) => void;
-export type PasswordManagerCallback = (password_manager: PasswordManager, msg: Message, auth: Auth, retrying: boolean, user_data: object | null) => void;
-export type ProxyResolverCallback = (proxy_resolver: ProxyResolver, msg: Message, arg: number, addr: Address, user_data: object | null) => void;
-export type ProxyURIResolverCallback = (resolver: ProxyURIResolver, status: number, proxy_uri: URI, user_data: object | null) => void;
-export type ServerCallback = (server: Server, msg: Message, path: string, query: GLib.HashTable | null, client: ClientContext, user_data: object | null) => void;
-export type ServerWebsocketCallback = (server: Server, connection: WebsocketConnection, path: string, client: ClientContext, user_data: object | null) => void;
-export type SessionCallback = (session: Session, msg: Message, user_data: object | null) => void;
-export type SessionConnectProgressCallback = (session: Session, event: Gio.SocketClientEvent, connection: Gio.IOStream, user_data: object | null) => void;
-export type SocketCallback = (sock: Socket, status: number, user_data: object | null) => void;
 export const ADDRESS_ANY_PORT: number;
 export const ADDRESS_FAMILY: string;
 export const ADDRESS_NAME: string;
@@ -783,6 +768,24 @@ export function xmlrpc_variant_get_datetime(variant: GLib.Variant): Date;
  * </programlisting></informalexample>
  */
 export function xmlrpc_variant_new_datetime(date: Date): GLib.Variant;
+export type AddressCallback = (addr: Address, status: number, user_data: object | null) => void;
+export type AuthDomainBasicAuthCallback = (domain: AuthDomainBasic, msg: Message, username: string, password: string, user_data: object | null) => boolean;
+export type AuthDomainDigestAuthCallback = (domain: AuthDomainDigest, msg: Message, username: string, user_data: object | null) => string | null;
+export type AuthDomainFilter = (domain: AuthDomain, msg: Message, user_data: object | null) => boolean;
+export type AuthDomainGenericAuthCallback = (domain: AuthDomain, msg: Message, username: string, user_data: object | null) => boolean;
+export type ChunkAllocator = (msg: Message, max_len: number, user_data: object | null) => Buffer | null;
+export type LoggerFilter = (logger: Logger, msg: Message, user_data: object | null) => LoggerLogLevel;
+export type LoggerPrinter = (logger: Logger, level: LoggerLogLevel, direction: number, data: string, user_data: object | null) => void;
+export type MessageHeadersForeachFunc = (name: string, value: string, user_data: object | null) => void;
+export type PasswordManagerCallback = (password_manager: PasswordManager, msg: Message, auth: Auth, retrying: boolean, user_data: object | null) => void;
+export type ProxyResolverCallback = (proxy_resolver: ProxyResolver, msg: Message, arg: number, addr: Address, user_data: object | null) => void;
+export type ProxyURIResolverCallback = (resolver: ProxyURIResolver, status: number, proxy_uri: URI, user_data: object | null) => void;
+export type ServerCallback = (server: Server, msg: Message, path: string, query: GLib.HashTable | null, client: ClientContext, user_data: object | null) => void;
+export type ServerWebsocketCallback = (server: Server, connection: WebsocketConnection, path: string, client: ClientContext, user_data: object | null) => void;
+export type SessionCallback = (session: Session, msg: Message, user_data: object | null) => void;
+export type SessionConnectProgressCallback = (session: Session, event: Gio.SocketClientEvent, connection: Gio.IOStream, user_data: object | null) => void;
+export type SocketCallback = (sock: Socket, status: number, user_data: object | null) => void;
+export type ByteArray = object;
 export enum AddressFamily {
     INVALID = -1,
     IPV4 = 2,
@@ -1058,7 +1061,6 @@ export enum XMLRPCFault {
     SYSTEM_ERROR = -32400,
     TRANSPORT_ERROR = -32300,
 }
-export type ByteArray = object;
 export enum Cacheability {
     CACHEABLE = 1,
     UNCACHEABLE = 2,
@@ -1093,7 +1095,9 @@ export class Address extends GObject.Object {
     port: number;
     protocol: string;
     sockaddr: object;static new_any(family: AddressFamily, port: number): Address | null;
+    static new_any(...args: never[]): never;
     static new_from_sockaddr(sa: object | null, len: number): Address | null;
+    static new_from_sockaddr(...args: never[]): never;
     equal_by_ip(addr2: Address): boolean;
     equal_by_name(addr2: Address): boolean;
     get_gsockaddr(): Gio.SocketAddress;
@@ -1285,6 +1289,7 @@ export class Message extends GObject.Object {
     tls_certificate: Gio.TlsCertificate;
     tls_errors: Gio.TlsCertificateFlags;
     uri: URI;static new_from_uri(method: string, uri: URI): Message;
+    static new_from_uri(...args: never[]): never;
     content_sniffed(content_type: string, params: GLib.HashTable): void;
     disable_feature(feature_type: GType): void;
     finished(): void;
@@ -1538,6 +1543,7 @@ export class WebsocketConnection extends GObject.Object {
     protocol: string;
     readonly state: WebsocketState;
     uri: URI;static new_with_extensions(stream: Gio.IOStream, uri: URI, type: WebsocketConnectionType, origin: string | null, protocol: string | null, extensions: GLib.List): WebsocketConnection;
+    static new_with_extensions(...args: never[]): never;
     close(code: number, data: string | null): void;
     get_close_code(): number;
     get_close_data(): string;

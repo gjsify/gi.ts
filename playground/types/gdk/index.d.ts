@@ -1,21 +1,18 @@
 
+/**
+ * gdk
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as GdkPixbuf from "gdkpixbuf";
 import * as Pango from "pango";
 import * as cairo from "cairo";
-import * as Gdk from "gdk";
 /**
- * gdk.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type EventFunc = (event: Event, data: object | null) => void;
-export type FilterFunc = (xevent: XEvent, event: Event, data: object | null) => FilterReturn;
-export type SeatGrabPrepareFunc = (seat: Seat, window: Window, user_data: object | null) => void;
-export type WindowChildFunc = (window: Window, user_data: object | null) => boolean;
-export type WindowInvalidateHandlerFunc = (window: Window, region: cairo.Region) => void;
 export const BUTTON_MIDDLE: number;
 export const BUTTON_PRIMARY: number;
 export const BUTTON_SECONDARY: number;
@@ -3220,6 +3217,12 @@ export function unicode_to_keyval(wc: number): number;
  * \x{ABCD}, or it may be in some other form of approximation.
  */
 export function utf8_to_string_target(str: string): string | null;
+export type EventFunc = (event: Event, data: object | null) => void;
+export type FilterFunc = (xevent: XEvent, event: Event, data: object | null) => FilterReturn;
+export type SeatGrabPrepareFunc = (seat: Seat, window: Window, user_data: object | null) => void;
+export type WindowChildFunc = (window: Window, user_data: object | null) => boolean;
+export type WindowInvalidateHandlerFunc = (window: Window, region: cairo.Region) => void;
+export type XEvent = void;
 export enum AxisUse {
     IGNORE = 0,
     X = 1,
@@ -3365,58 +3368,58 @@ export enum DragProtocol {
     LOCAL = 6,
     WAYLAND = 7,
 }
-export enum EventType {
-    NOTHING = -1,
-    DELETE = 0,
-    DESTROY = 1,
-    EXPOSE = 2,
-    MOTION_NOTIFY = 3,
-    BUTTON_PRESS = 4,
-    "2BUTTON_PRESS" = 5,
-    DOUBLE_BUTTON_PRESS = 5,
-    "3BUTTON_PRESS" = 6,
-    TRIPLE_BUTTON_PRESS = 6,
-    BUTTON_RELEASE = 7,
-    KEY_PRESS = 8,
-    KEY_RELEASE = 9,
-    ENTER_NOTIFY = 10,
-    LEAVE_NOTIFY = 11,
-    FOCUS_CHANGE = 12,
-    CONFIGURE = 13,
-    MAP = 14,
-    UNMAP = 15,
-    PROPERTY_NOTIFY = 16,
-    SELECTION_CLEAR = 17,
-    SELECTION_REQUEST = 18,
-    SELECTION_NOTIFY = 19,
-    PROXIMITY_IN = 20,
-    PROXIMITY_OUT = 21,
-    DRAG_ENTER = 22,
-    DRAG_LEAVE = 23,
-    DRAG_MOTION = 24,
-    DRAG_STATUS = 25,
-    DROP_START = 26,
-    DROP_FINISHED = 27,
-    CLIENT_EVENT = 28,
-    VISIBILITY_NOTIFY = 29,
-    SCROLL = 31,
-    WINDOW_STATE = 32,
-    SETTING = 33,
-    OWNER_CHANGE = 34,
-    GRAB_BROKEN = 35,
-    DAMAGE = 36,
-    TOUCH_BEGIN = 37,
-    TOUCH_UPDATE = 38,
-    TOUCH_END = 39,
-    TOUCH_CANCEL = 40,
-    TOUCHPAD_SWIPE = 41,
-    TOUCHPAD_PINCH = 42,
-    PAD_BUTTON_PRESS = 43,
-    PAD_BUTTON_RELEASE = 44,
-    PAD_RING = 45,
-    PAD_STRIP = 46,
-    PAD_GROUP_MODE = 47,
-    EVENT_LAST = 48,
+export class EventType  {
+    static NOTHING: number;
+    static DELETE: number;
+    static DESTROY: number;
+    static EXPOSE: number;
+    static MOTION_NOTIFY: number;
+    static BUTTON_PRESS: number;
+    static "2BUTTON_PRESS": number;
+    static DOUBLE_BUTTON_PRESS: number;
+    static "3BUTTON_PRESS": number;
+    static TRIPLE_BUTTON_PRESS: number;
+    static BUTTON_RELEASE: number;
+    static KEY_PRESS: number;
+    static KEY_RELEASE: number;
+    static ENTER_NOTIFY: number;
+    static LEAVE_NOTIFY: number;
+    static FOCUS_CHANGE: number;
+    static CONFIGURE: number;
+    static MAP: number;
+    static UNMAP: number;
+    static PROPERTY_NOTIFY: number;
+    static SELECTION_CLEAR: number;
+    static SELECTION_REQUEST: number;
+    static SELECTION_NOTIFY: number;
+    static PROXIMITY_IN: number;
+    static PROXIMITY_OUT: number;
+    static DRAG_ENTER: number;
+    static DRAG_LEAVE: number;
+    static DRAG_MOTION: number;
+    static DRAG_STATUS: number;
+    static DROP_START: number;
+    static DROP_FINISHED: number;
+    static CLIENT_EVENT: number;
+    static VISIBILITY_NOTIFY: number;
+    static SCROLL: number;
+    static WINDOW_STATE: number;
+    static SETTING: number;
+    static OWNER_CHANGE: number;
+    static GRAB_BROKEN: number;
+    static DAMAGE: number;
+    static TOUCH_BEGIN: number;
+    static TOUCH_UPDATE: number;
+    static TOUCH_END: number;
+    static TOUCH_CANCEL: number;
+    static TOUCHPAD_SWIPE: number;
+    static TOUCHPAD_PINCH: number;
+    static PAD_BUTTON_PRESS: number;
+    static PAD_BUTTON_RELEASE: number;
+    static PAD_RING: number;
+    static PAD_STRIP: number;
+    static PAD_GROUP_MODE: number;
+    static EVENT_LAST: number;
 }
 export enum FilterReturn {
     CONTINUE = 0,
@@ -3589,7 +3592,6 @@ export enum WindowWindowClass {
     INPUT_OUTPUT = 0,
     INPUT_ONLY = 1,
 }
-export type XEvent = void;
 export enum AnchorHints {
     FLIP_X = 1,
     FLIP_Y = 2,
@@ -3772,9 +3774,13 @@ export class Cursor extends GObject.Object {
     constructor(config?: properties);
     cursor_type: CursorType;
     display: Display;static new_for_display(display: Display, cursor_type: CursorType): Cursor;
+    static new_for_display(...args: never[]): never;
     static new_from_name(display: Display, name: string): Cursor | null;
+    static new_from_name(...args: never[]): never;
     static new_from_pixbuf(display: Display, pixbuf: GdkPixbuf.Pixbuf, x: number, y: number): Cursor;
+    static new_from_pixbuf(...args: never[]): never;
     static new_from_surface(display: Display, surface: cairo.Surface, x: number, y: number): Cursor;
+    static new_from_surface(...args: never[]): never;
     get_cursor_type(): CursorType;
     get_display(): Display;
     get_image(): GdkPixbuf.Pixbuf | null;

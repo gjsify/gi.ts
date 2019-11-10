@@ -4,6 +4,7 @@
   "main": "generate.js",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.17.1",
     "glob": "^7.1.4",
     "typescript": "^3.5.3",
     "xml2js": "^0.4.22"

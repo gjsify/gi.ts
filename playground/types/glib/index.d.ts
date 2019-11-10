@@ -1,58 +1,14 @@
 
+/**
+ * glib
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
-import * as GLib from "glib";
 /**
- * glib.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ChildWatchFunc = (pid: Pid, status: number, user_data: object | null) => void;
-export type ClearHandleFunc = (handle_id: number) => void;
-export type CompareDataFunc = (a: object | null, b: object | null, user_data: object | null) => number;
-export type CompareFunc = (a: object | null, b: object | null) => number;
-export type CopyFunc = (src: object, data: object | null) => object;
-export type DataForeachFunc = (key_id: Quark, data: object | null, user_data: object | null) => void;
-export type DestroyNotify = (data: object | null) => void;
-export type DuplicateFunc = (data: object | null, user_data: object | null) => object | null;
-export type EqualFunc = (a: object | null, b: object | null) => boolean;
-export type FreeFunc = (data: object | null) => void;
-export type Func = (data: object | null, user_data: object | null) => void;
-export type HFunc = (key: object | null, value: object | null, user_data: object | null) => void;
-export type HRFunc = (key: object | null, value: object | null, user_data: object | null) => boolean;
-export type HashFunc = (key: object | null) => number;
-export type HookCheckFunc = (data: object | null) => boolean;
-export type HookCheckMarshaller = (hook: Hook, marshal_data: object | null) => boolean;
-export type HookCompareFunc = (new_hook: Hook, sibling: Hook) => number;
-export type HookFinalizeFunc = (hook_list: HookList, hook: Hook) => void;
-export type HookFindFunc = (hook: Hook, data: object | null) => boolean;
-export type HookFunc = (data: object | null) => void;
-export type HookMarshaller = (hook: Hook, marshal_data: object | null) => void;
-export type IOFunc = (source: IOChannel, condition: IOCondition, data: object | null) => boolean;
-export type LogFunc = (log_domain: string, log_level: LogLevelFlags, message: string, user_data: object | null) => void;
-export type LogWriterFunc = (log_level: LogLevelFlags, fields: LogField[], n_fields: number, user_data: object | null) => LogWriterOutput;
-export type NodeForeachFunc = (node: Node, data: object | null) => void;
-export type NodeTraverseFunc = (node: Node, data: object | null) => boolean;
-export type OptionArgFunc = (option_name: string, value: string, data: object | null) => boolean;
-export type OptionErrorFunc = (context: OptionContext, group: OptionGroup, data: object | null) => void;
-export type OptionParseFunc = (context: OptionContext, group: OptionGroup, data: object | null) => boolean;
-export type PollFunc = (ufds: PollFD, nfsd: number, timeout_: number) => number;
-export type PrintFunc = (string: string) => void;
-export type RegexEvalCallback = (match_info: MatchInfo, result: String, user_data: object | null) => boolean;
-export type ScannerMsgFunc = (scanner: Scanner, message: string, error: boolean) => void;
-export type SequenceIterCompareFunc = (a: SequenceIter, b: SequenceIter, data: object | null) => number;
-export type SourceDummyMarshal = () => void;
-export type SourceFunc = (user_data: object | null) => boolean;
-export type SpawnChildSetupFunc = (user_data: object | null) => void;
-export type TestDataFunc = (user_data: object | null) => void;
-export type TestFixtureFunc = (fixture: object, user_data: object | null) => void;
-export type TestFunc = () => void;
-export type TestLogFatalFunc = (log_domain: string, log_level: LogLevelFlags, message: string, user_data: object | null) => boolean;
-export type ThreadFunc = (data: object | null) => object | null;
-export type TranslateFunc = (str: string, data: object | null) => string;
-export type TraverseFunc = (key: object | null, value: object | null, data: object | null) => boolean;
-export type UnixFDSourceFunc = (fd: number, condition: IOCondition, user_data: object | null) => boolean;
-export type VoidFunc = () => void;
 export const ANALYZER_ANALYZING: number;
 export const ASCII_DTOSTR_BUF_SIZE: number;
 export const BIG_ENDIAN: number;
@@ -5573,6 +5529,63 @@ export function variant_type_string_is_valid(type_string: string): boolean;
  * see g_variant_type_string_is_valid().
  */
 export function variant_type_string_scan(string: string, limit: string | null): [boolean, string | null];
+export type ChildWatchFunc = (pid: Pid, status: number, user_data: object | null) => void;
+export type ClearHandleFunc = (handle_id: number) => void;
+export type CompareDataFunc = (a: object | null, b: object | null, user_data: object | null) => number;
+export type CompareFunc = (a: object | null, b: object | null) => number;
+export type CopyFunc = (src: object, data: object | null) => object;
+export type DataForeachFunc = (key_id: Quark, data: object | null, user_data: object | null) => void;
+export type DestroyNotify = (data: object | null) => void;
+export type DuplicateFunc = (data: object | null, user_data: object | null) => object | null;
+export type EqualFunc = (a: object | null, b: object | null) => boolean;
+export type FreeFunc = (data: object | null) => void;
+export type Func = (data: object | null, user_data: object | null) => void;
+export type HFunc = (key: object | null, value: object | null, user_data: object | null) => void;
+export type HRFunc = (key: object | null, value: object | null, user_data: object | null) => boolean;
+export type HashFunc = (key: object | null) => number;
+export type HookCheckFunc = (data: object | null) => boolean;
+export type HookCheckMarshaller = (hook: Hook, marshal_data: object | null) => boolean;
+export type HookCompareFunc = (new_hook: Hook, sibling: Hook) => number;
+export type HookFinalizeFunc = (hook_list: HookList, hook: Hook) => void;
+export type HookFindFunc = (hook: Hook, data: object | null) => boolean;
+export type HookFunc = (data: object | null) => void;
+export type HookMarshaller = (hook: Hook, marshal_data: object | null) => void;
+export type IOFunc = (source: IOChannel, condition: IOCondition, data: object | null) => boolean;
+export type LogFunc = (log_domain: string, log_level: LogLevelFlags, message: string, user_data: object | null) => void;
+export type LogWriterFunc = (log_level: LogLevelFlags, fields: LogField[], n_fields: number, user_data: object | null) => LogWriterOutput;
+export type NodeForeachFunc = (node: Node, data: object | null) => void;
+export type NodeTraverseFunc = (node: Node, data: object | null) => boolean;
+export type OptionArgFunc = (option_name: string, value: string, data: object | null) => boolean;
+export type OptionErrorFunc = (context: OptionContext, group: OptionGroup, data: object | null) => void;
+export type OptionParseFunc = (context: OptionContext, group: OptionGroup, data: object | null) => boolean;
+export type PollFunc = (ufds: PollFD, nfsd: number, timeout_: number) => number;
+export type PrintFunc = (string: string) => void;
+export type RegexEvalCallback = (match_info: MatchInfo, result: String, user_data: object | null) => boolean;
+export type ScannerMsgFunc = (scanner: Scanner, message: string, error: boolean) => void;
+export type SequenceIterCompareFunc = (a: SequenceIter, b: SequenceIter, data: object | null) => number;
+export type SourceDummyMarshal = () => void;
+export type SourceFunc = (user_data: object | null) => boolean;
+export type SpawnChildSetupFunc = (user_data: object | null) => void;
+export type TestDataFunc = (user_data: object | null) => void;
+export type TestFixtureFunc = (fixture: object, user_data: object | null) => void;
+export type TestFunc = () => void;
+export type TestLogFatalFunc = (log_domain: string, log_level: LogLevelFlags, message: string, user_data: object | null) => boolean;
+export type ThreadFunc = (data: object | null) => object | null;
+export type TranslateFunc = (str: string, data: object | null) => string;
+export type TraverseFunc = (key: object | null, value: object | null, data: object | null) => boolean;
+export type UnixFDSourceFunc = (fd: number, condition: IOCondition, user_data: object | null) => boolean;
+export type VoidFunc = () => void;
+export type DateDay = number;
+export type DateYear = number;
+export type MutexLocker = void;
+export type Pid = number;
+export type Quark = number;
+export type RecMutexLocker = void;
+export type RefString = number;
+export type Strv = string;
+export type Time = number;
+export type TimeSpan = number;
+export type Type = number;
 export enum BookmarkFileError {
     INVALID_URI = 0,
     INVALID_VALUE = 1,
@@ -5823,28 +5836,28 @@ export enum SliceConfig {
     CHUNK_SIZES = 5,
     CONTENTION_COUNTER = 6,
 }
-export enum SpawnError {
-    FORK = 0,
-    READ = 1,
-    CHDIR = 2,
-    ACCES = 3,
-    PERM = 4,
-    TOO_BIG = 5,
-    "2BIG" = 5,
-    NOEXEC = 6,
-    NAMETOOLONG = 7,
-    NOENT = 8,
-    NOMEM = 9,
-    NOTDIR = 10,
-    LOOP = 11,
-    TXTBUSY = 12,
-    IO = 13,
-    NFILE = 14,
-    MFILE = 15,
-    INVAL = 16,
-    ISDIR = 17,
-    LIBBAD = 18,
-    FAILED = 19,
+export class SpawnError  {
+    static FORK: number;
+    static READ: number;
+    static CHDIR: number;
+    static ACCES: number;
+    static PERM: number;
+    static TOO_BIG: number;
+    static "2BIG": number;
+    static NOEXEC: number;
+    static NAMETOOLONG: number;
+    static NOENT: number;
+    static NOMEM: number;
+    static NOTDIR: number;
+    static LOOP: number;
+    static TXTBUSY: number;
+    static IO: number;
+    static NFILE: number;
+    static MFILE: number;
+    static INVAL: number;
+    static ISDIR: number;
+    static LIBBAD: number;
+    static FAILED: number;
 }
 export enum TestFileType {
     DIST = 0,
@@ -6189,17 +6202,6 @@ export enum VariantParseError {
     UNTERMINATED_STRING_CONSTANT = 16,
     VALUE_EXPECTED = 17,
 }
-export type DateDay = number;
-export type DateYear = number;
-export type MutexLocker = void;
-export type Pid = number;
-export type Quark = number;
-export type RecMutexLocker = void;
-export type RefString = number;
-export type Strv = string;
-export type Time = number;
-export type TimeSpan = number;
-export type Type = number;
 export enum AsciiType {
     ALNUM = 1,
     ALPHA = 2,
@@ -6434,7 +6436,7 @@ export class ByteArray  {
     len: number;
     static free(array: number[], free_segment: boolean): number;
     static free_to_bytes(array: number[]): Bytes;
-    static _new(): number[];
+    static new(): number[];
     static new_take(data: number[], len: number): number[];
     static unref(array: number[]): void;
 }
@@ -6790,7 +6792,7 @@ export class MainContext  {
     unref(): void;
     wait(cond: Cond, mutex: Mutex): boolean;
     wakeup(): void;
-    static _default(): MainContext;
+    static default(): MainContext;
     static get_thread_default(): MainContext;
     static ref_thread_default(): MainContext;
 }
@@ -6982,10 +6984,10 @@ export class RWLock  {
 }
 export class Rand  {
     constructor(config?: properties);
-    _double(): number;
+    ["double"](): number;
     double_range(begin: number, end: number): number;
     free(): void;
-    _int(): number;
+    ["int"](): number;
     int_range(begin: number, end: number): number;
     set_seed(seed: number): void;
     set_seed_array(seed: number, seed_length: number): void;
@@ -7263,7 +7265,7 @@ export class Thread  {
     static error_quark(): Quark;
     static exit(retval: object | null): void;
     static self(): Thread;
-    static _yield(): void;
+    static yield(): void;
 }
 export class ThreadPool  {
     constructor(config?: properties);
@@ -7308,7 +7310,7 @@ export class TimeZone  {
 }
 export class Timer  {
     constructor(config?: properties);
-    _continue(): void;
+    ["continue"](): void;
     destroy(): void;
     elapsed(microseconds: number): number;
     reset(): void;

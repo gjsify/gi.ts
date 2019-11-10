@@ -1,16 +1,16 @@
 
+/**
+ * gdkpixbuf
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as GModule from "gmodule";
-import * as GdkPixbuf from "gdkpixbuf";
 /**
- * gdkpixbuf.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type PixbufDestroyNotify = (pixels: number[], data: object | null) => void;
-export type PixbufSaveFunc = (buf: number[], count: number, data: object | null) => boolean;
 export const PIXBUF_FEATURES_H: number;
 export const PIXBUF_MAJOR: number;
 export const PIXBUF_MICRO: number;
@@ -20,6 +20,8 @@ export const PIXBUF_VERSION: string;
  * 
  */
 export function pixbuf_error_quark(): GLib.Quark;
+export type PixbufDestroyNotify = (pixels: number[], data: object | null) => void;
+export type PixbufSaveFunc = (buf: number[], count: number, data: object | null) => boolean;
 export enum Colorspace {
     RGB = 0,
 }
@@ -59,17 +61,29 @@ export class Pixbuf extends GObject.Object {
     pixels: object;
     rowstride: number;
     width: number;static new_from_bytes(data: GLib.Bytes, colorspace: Colorspace, has_alpha: boolean, bits_per_sample: number, width: number, height: number, rowstride: number): Pixbuf;
+    static new_from_bytes(...args: never[]): never;
     static new_from_data(data: number[], colorspace: Colorspace, has_alpha: boolean, bits_per_sample: number, width: number, height: number, rowstride: number, destroy_fn: PixbufDestroyNotify | null, destroy_fn_data: object | null): Pixbuf;
+    static new_from_data(...args: never[]): never;
     static new_from_file(filename: string): Pixbuf;
+    static new_from_file(...args: never[]): never;
     static new_from_file_at_scale(filename: string, width: number, height: number, preserve_aspect_ratio: boolean): Pixbuf;
+    static new_from_file_at_scale(...args: never[]): never;
     static new_from_file_at_size(filename: string, width: number, height: number): Pixbuf;
+    static new_from_file_at_size(...args: never[]): never;
     static new_from_inline(data_length: number, data: number[], copy_pixels: boolean): Pixbuf;
+    static new_from_inline(...args: never[]): never;
     static new_from_resource(resource_path: string): Pixbuf;
+    static new_from_resource(...args: never[]): never;
     static new_from_resource_at_scale(resource_path: string, width: number, height: number, preserve_aspect_ratio: boolean): Pixbuf;
+    static new_from_resource_at_scale(...args: never[]): never;
     static new_from_stream(stream: Gio.InputStream, cancellable: Gio.Cancellable | null): Pixbuf;
+    static new_from_stream(...args: never[]): never;
     static new_from_stream_at_scale(stream: Gio.InputStream, width: number, height: number, preserve_aspect_ratio: boolean, cancellable: Gio.Cancellable | null): Pixbuf;
+    static new_from_stream_at_scale(...args: never[]): never;
     static new_from_stream_finish(async_result: Gio.AsyncResult): Pixbuf;
+    static new_from_stream_finish(...args: never[]): never;
     static new_from_xpm_data(data: string[]): Pixbuf;
+    static new_from_xpm_data(...args: never[]): never;
     add_alpha(substitute_color: boolean, r: number, g: number, b: number): Pixbuf;
     apply_embedded_orientation(): Pixbuf;
     composite(dest: Pixbuf, dest_x: number, dest_y: number, dest_width: number, dest_height: number, offset_x: number, offset_y: number, scale_x: number, scale_y: number, interp_type: InterpType, overall_alpha: number): void;
@@ -119,9 +133,13 @@ export class Pixbuf extends GObject.Object {
 export class PixbufAnimation extends GObject.Object {
     constructor(config?: properties);
     static new_from_file(filename: string): PixbufAnimation;
+    static new_from_file(...args: never[]): never;
     static new_from_resource(resource_path: string): PixbufAnimation;
+    static new_from_resource(...args: never[]): never;
     static new_from_stream(stream: Gio.InputStream, cancellable: Gio.Cancellable | null): PixbufAnimation;
+    static new_from_stream(...args: never[]): never;
     static new_from_stream_finish(async_result: Gio.AsyncResult): PixbufAnimation;
+    static new_from_stream_finish(...args: never[]): never;
     get_height(): number;
     get_iter(start_time: GLib.TimeVal | null): PixbufAnimationIter;
     get_static_image(): Pixbuf;
@@ -139,7 +157,9 @@ export class PixbufAnimationIter  {
 export class PixbufLoader extends GObject.Object {
     constructor(config?: properties);
     static new_with_mime_type(mime_type: string): PixbufLoader;
+    static new_with_mime_type(...args: never[]): never;
     static new_with_type(image_type: string): PixbufLoader;
+    static new_with_type(...args: never[]): never;
     close(): boolean;
     get_animation(): PixbufAnimation;
     get_format(): PixbufFormat | null;

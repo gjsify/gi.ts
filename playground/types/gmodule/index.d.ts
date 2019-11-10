@@ -1,15 +1,15 @@
 
+/**
+ * gmodule
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as GModule from "gmodule";
 /**
- * gmodule.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ModuleCheckInit = (module: Module) => string;
-export type ModuleUnload = (module: Module) => void;
 /**
  * A portable way to build the filename of a module. The platform-specifi
  * c
@@ -34,6 +34,8 @@ export function module_error(): string;
  * Checks if modules are supported on the current platform.
  */
 export function module_supported(): boolean;
+export type ModuleCheckInit = (module: Module) => string;
+export type ModuleUnload = (module: Module) => void;
 export enum ModuleFlags {
     LAZY = 1,
     LOCAL = 2,

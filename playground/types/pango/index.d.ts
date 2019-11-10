@@ -1,17 +1,16 @@
 
+/**
+ * pango
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as cairo from "cairo";
-import * as Pango from "pango";
 /**
- * pango.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type AttrDataCopyFunc = (user_data: object | null) => object | null;
-export type AttrFilterFunc = (attribute: Attribute, user_data: object | null) => boolean;
-export type FontsetForeachFunc = (fontset: Fontset, font: Font, user_data: object | null) => boolean;
 export const ANALYSIS_FLAG_CENTERED_BASELINE: number;
 export const ANALYSIS_FLAG_IS_ELLIPSIS: number;
 export const ANALYSIS_FLAG_NEED_HYPHEN: number;
@@ -683,6 +682,12 @@ export function version_check(required_major: number, required_minor: number, re
  * the version available at compile-time.
  */
 export function version_string(): string;
+export type AttrDataCopyFunc = (user_data: object | null) => object | null;
+export type AttrFilterFunc = (attribute: Attribute, user_data: object | null) => boolean;
+export type FontsetForeachFunc = (fontset: Fontset, font: Font, user_data: object | null) => boolean;
+export type Glyph = number;
+export type GlyphUnit = number;
+export type LayoutRun = GlyphItem;
 export enum Alignment {
     LEFT = 0,
     CENTER = 1,
@@ -948,9 +953,6 @@ export enum WrapMode {
     CHAR = 1,
     WORD_CHAR = 2,
 }
-export type Glyph = number;
-export type GlyphUnit = number;
-export type LayoutRun = GlyphItem;
 export enum FontMask {
     FAMILY = 1,
     STYLE = 2,
@@ -1182,13 +1184,13 @@ export class AttrFontDesc  {
     constructor(config?: properties);
     attr: Attribute;
     desc: FontDescription;
-    static _new(desc: FontDescription): Attribute;
+    static new(desc: FontDescription): Attribute;
 }
 export class AttrFontFeatures  {
     constructor(config?: properties);
     attr: Attribute;
     features: string;
-    static _new(features: string): Attribute;
+    static new(features: string): Attribute;
 }
 export class AttrInt  {
     constructor(config?: properties);
@@ -1209,7 +1211,7 @@ export class AttrLanguage  {
     constructor(config?: properties);
     attr: Attribute;
     value: Language;
-    static _new(language: Language): Attribute;
+    static new(language: Language): Attribute;
 }
 export class AttrList  {
     constructor(config?: properties);
@@ -1233,7 +1235,7 @@ export class AttrShape  {
     data: object;
     copy_func: AttrDataCopyFunc;
     destroy_func: GLib.DestroyNotify;
-    static _new(ink_rect: Rectangle, logical_rect: Rectangle): Attribute;
+    static new(ink_rect: Rectangle, logical_rect: Rectangle): Attribute;
     static new_with_data(ink_rect: Rectangle, logical_rect: Rectangle, data: object | null, copy_func: AttrDataCopyFunc | null, destroy_func: GLib.DestroyNotify | null): Attribute;
 }
 export class AttrSize  {
@@ -1241,7 +1243,7 @@ export class AttrSize  {
     attr: Attribute;
     size: number;
     absolute: number;
-    static _new(size: number): Attribute;
+    static new(size: number): Attribute;
     static new_absolute(size: number): Attribute;
 }
 export class AttrString  {

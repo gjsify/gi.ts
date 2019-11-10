@@ -1,18 +1,15 @@
 
+/**
+ * gconf
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as GConf from "gconf";
 /**
- * gconf.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ChangeSetForeachFunc = (cs: ChangeSet, key: string, value: Value, user_data: object | null) => void;
-export type ClientErrorHandlerFunc = (client: Client, error: GLib.Error) => void;
-export type ClientNotifyFunc = (client: Client, cnxn_id: number, entry: Entry, user_data: object | null) => void;
-export type ListenersForeach = (location: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => void;
-export type ListenersPredicate = (location: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => boolean;
 /**
  * 
  */
@@ -80,6 +77,11 @@ export function valid_key(key: string, why_invalid: string): boolean;
  * 
  */
 export function value_decode(encoded: string): Value;
+export type ChangeSetForeachFunc = (cs: ChangeSet, key: string, value: Value, user_data: object | null) => void;
+export type ClientErrorHandlerFunc = (client: Client, error: GLib.Error) => void;
+export type ClientNotifyFunc = (client: Client, cnxn_id: number, entry: Entry, user_data: object | null) => void;
+export type ListenersForeach = (location: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => void;
+export type ListenersPredicate = (location: string, cnxn_id: number, listener_data: object | null, user_data: object | null) => boolean;
 export enum ClientErrorHandlingMode {
     HANDLE_NONE = 0,
     HANDLE_UNRETURNED = 1,

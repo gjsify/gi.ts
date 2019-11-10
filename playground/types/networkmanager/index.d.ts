@@ -1,18 +1,16 @@
 
+/**
+ * networkmanager
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as DBusGLib from "dbusglib";
-import * as NetworkManager from "networkmanager";
 /**
- * networkmanager.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type SettingClearSecretsWithFlagsFn = (setting: Setting, secret: string, flags: SettingSecretFlags, user_data: object | null) => boolean;
-export type SettingValueIterFn = (setting: Setting, key: string, value: GObject.Value, flags: GObject.ParamFlags, user_data: object | null) => void;
-export type UtilsFileSearchInPathsPredicate = (filename: string, user_data: object | null) => boolean;
-export type VPNIterFunc = (key: string, value: string, user_data: object | null) => void;
 export const CONNECTION_CHANGED: string;
 export const CONNECTION_NORMALIZE_PARAM_IP6_CONFIG_METHOD: string;
 export const CONNECTION_PATH: string;
@@ -836,6 +834,10 @@ export function utils_wifi_is_channel_valid(channel: number, band: string): bool
  * Checks if @psk is a valid WPA PSK
  */
 export function utils_wpa_psk_valid(psk: string): boolean;
+export type SettingClearSecretsWithFlagsFn = (setting: Setting, secret: string, flags: SettingSecretFlags, user_data: object | null) => boolean;
+export type SettingValueIterFn = (setting: Setting, key: string, value: GObject.Value, flags: GObject.ParamFlags, user_data: object | null) => void;
+export type UtilsFileSearchInPathsPredicate = (filename: string, user_data: object | null) => boolean;
+export type VPNIterFunc = (key: string, value: string, user_data: object | null) => void;
 export enum Gjs_80211Mode {
     UNKNOWN = 0,
     ADHOC = 1,
@@ -1086,14 +1088,14 @@ export enum SettingGsmNetworkBand {
     U1900 = 4096,
     U2600 = 8192,
 }
-export enum SettingGsmNetworkType {
-    ANY = -1,
-    UMTS_HSPA = 0,
-    GPRS_EDGE = 1,
-    PREFER_UMTS_HSPA = 2,
-    PREFER_GPRS_EDGE = 3,
-    PREFER_4G = 4,
-    "4G" = 5,
+export class SettingGsmNetworkType  {
+    static ANY: number;
+    static UMTS_HSPA: number;
+    static GPRS_EDGE: number;
+    static PREFER_UMTS_HSPA: number;
+    static PREFER_GPRS_EDGE: number;
+    static PREFER_4G: number;
+    static "4G": number;
 }
 export enum SettingHashFlags {
     ALL = 0,
@@ -1326,6 +1328,7 @@ export enum DeviceWifiCapabilities {
 export class Connection extends GObject.Object {
     constructor(config?: properties);
     path: string;static new_from_hash(hash: GLib.HashTable): Connection;
+    static new_from_hash(...args: never[]): never;
     add_setting(setting: Setting): void;
     clear_secrets(): void;
     clear_secrets_with_flags(func: SettingClearSecretsWithFlagsFn, user_data: object | null): void;
@@ -1387,6 +1390,7 @@ export class Connection extends GObject.Object {
 export class Setting extends GObject.Object {
     constructor(config?: properties);
     name: string;static new_from_hash(setting_type: GType, hash: GLib.HashTable): Setting;
+    static new_from_hash(...args: never[]): never;
     clear_secrets(): void;
     clear_secrets_with_flags(func: SettingClearSecretsWithFlagsFn, user_data: object | null): void;
     compare(b: Setting, flags: SettingCompareFlags): boolean;

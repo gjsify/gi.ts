@@ -1,10 +1,12 @@
 
+/**
+ * girepository
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as GIRepository from "girepository";
 /**
- * girepository.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
@@ -735,6 +737,23 @@ export function vfunc_info_get_offset(info: VFuncInfo): number;
  * this virtual function belongs.
  */
 export function vfunc_info_get_signal(info: VFuncInfo): SignalInfo;
+export type ArgInfo = BaseInfo;
+export type CallableInfo = BaseInfo;
+export type CallbackInfo = BaseInfo;
+export type ConstantInfo = BaseInfo;
+export type EnumInfo = BaseInfo;
+export type FieldInfo = BaseInfo;
+export type FunctionInfo = BaseInfo;
+export type InterfaceInfo = BaseInfo;
+export type ObjectInfo = BaseInfo;
+export type PropertyInfo = BaseInfo;
+export type RegisteredTypeInfo = BaseInfo;
+export type SignalInfo = BaseInfo;
+export type StructInfo = BaseInfo;
+export type TypeInfo = BaseInfo;
+export type UnionInfo = BaseInfo;
+export type VFuncInfo = BaseInfo;
+export type ValueInfo = BaseInfo;
 export enum ArrayType {
     C = 0,
     ARRAY = 1,
@@ -814,23 +833,6 @@ export enum nvokeError {
     SYMBOL_NOT_FOUND = 1,
     ARGUMENT_MISMATCH = 2,
 }
-export type ArgInfo = BaseInfo;
-export type CallableInfo = BaseInfo;
-export type CallbackInfo = BaseInfo;
-export type ConstantInfo = BaseInfo;
-export type EnumInfo = BaseInfo;
-export type FieldInfo = BaseInfo;
-export type FunctionInfo = BaseInfo;
-export type InterfaceInfo = BaseInfo;
-export type ObjectInfo = BaseInfo;
-export type PropertyInfo = BaseInfo;
-export type RegisteredTypeInfo = BaseInfo;
-export type SignalInfo = BaseInfo;
-export type StructInfo = BaseInfo;
-export type TypeInfo = BaseInfo;
-export type UnionInfo = BaseInfo;
-export type VFuncInfo = BaseInfo;
-export type ValueInfo = BaseInfo;
 export enum FieldInfoFlags {
     READABLE = 1,
     WRITABLE = 2,

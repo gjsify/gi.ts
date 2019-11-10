@@ -1,13 +1,15 @@
 
+/**
+ * coglpango
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Cogl from "cogl";
 import * as Pango from "pango";
 import * as PangoCairo from "pangocairo";
-import * as CoglPango from "coglpango";
 /**
- * coglpango.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;

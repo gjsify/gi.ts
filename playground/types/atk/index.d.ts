@@ -1,19 +1,15 @@
 
+/**
+ * atk
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as Atk from "atk";
 /**
- * atk.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type EventListener = (obj: Object) => void;
-export type EventListenerInit = () => void;
-export type FocusHandler = (object: Object, focus_in: boolean) => void;
-export type Function = (user_data: object | null) => boolean;
-export type KeySnoopFunc = (event: KeyEventStruct, user_data: object | null) => number;
-export type PropertyChangeHandler = (obj: Object, vals: PropertyValues) => void;
 export const BINARY_AGE: number;
 export const INTERFACE_AGE: number;
 export const MAJOR_VERSION: number;
@@ -196,6 +192,14 @@ export function value_type_get_localized_name(value_type: ValueType): string;
  * Gets the description string describing the #AtkValueType @value_type.
  */
 export function value_type_get_name(value_type: ValueType): string;
+export type EventListener = (obj: Object) => void;
+export type EventListenerInit = () => void;
+export type FocusHandler = (object: Object, focus_in: boolean) => void;
+export type Function = (user_data: object | null) => boolean;
+export type KeySnoopFunc = (event: KeyEventStruct, user_data: object | null) => number;
+export type PropertyChangeHandler = (obj: Object, vals: PropertyValues) => void;
+export type AttributeSet = string[];
+export type State = number;
 export enum CoordType {
     SCREEN = 0,
     WINDOW = 1,
@@ -494,8 +498,6 @@ export enum ValueType {
     BEST = 14,
     LAST_DEFINED = 15,
 }
-export type AttributeSet = string[];
-export type State = number;
 export enum HyperlinkStateFlags {
     INLINE = 1,
 }

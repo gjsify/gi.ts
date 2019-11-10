@@ -1,11 +1,13 @@
 
+/**
+ * gstinsertbin
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Gst from "gst";
-import * as GstInsertBin from "gstinsertbin";
 /**
- * gstinsertbin.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;

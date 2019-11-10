@@ -1,42 +1,14 @@
 
+/**
+ * gio
+ */
 import * as GObject from "gobject";
 import * as GLib from "glib";
-import * as Gio from "gio";
 /**
- * gio.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type AsyncReadyCallback = (source_object: GObject.Object | null, res: AsyncResult, user_data: object | null) => void;
-export type BusAcquiredCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
-export type BusNameAcquiredCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
-export type BusNameAppearedCallback = (connection: DBusConnection, name: string, name_owner: string, user_data: object | null) => void;
-export type BusNameLostCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
-export type BusNameVanishedCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
-export type CancellableSourceFunc = (cancellable: Cancellable | null, user_data: object | null) => boolean;
-export type DBusInterfaceGetPropertyFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, error: GLib.Error, user_data: object | null) => GLib.Variant;
-export type DBusInterfaceMethodCallFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant, invocation: DBusMethodInvocation, user_data: object | null) => void;
-export type DBusInterfaceSetPropertyFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, value: GLib.Variant, error: GLib.Error, user_data: object | null) => boolean;
-export type DBusMessageFilterFunction = (connection: DBusConnection, message: DBusMessage, incoming: boolean, user_data: object | null) => DBusMessage | null;
-export type DBusProxyTypeFunc = (manager: DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null) => GType;
-export type DBusSignalCallback = (connection: DBusConnection, sender_name: string, object_path: string, interface_name: string, signal_name: string, parameters: GLib.Variant, user_data: object | null) => void;
-export type DBusSubtreeDispatchFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, node: string, out_user_data: object, user_data: object | null) => DBusInterfaceVTable;
-export type DBusSubtreeIntrospectFunc = (connection: DBusConnection, sender: string, object_path: string, node: string, user_data: object | null) => DBusInterfaceInfo;
-export type DatagramBasedSourceFunc = (datagram_based: DatagramBased, condition: GLib.IOCondition, user_data: object | null) => boolean;
-export type DesktopAppLaunchCallback = (appinfo: DesktopAppInfo, pid: GLib.Pid, user_data: object | null) => void;
-export type FileMeasureProgressCallback = (reporting: boolean, current_size: number, num_dirs: number, num_files: number, user_data: object | null) => void;
-export type FileProgressCallback = (current_num_bytes: number, total_num_bytes: number, user_data: object | null) => void;
-export type FileReadMoreCallback = (file_contents: string, file_size: number, callback_data: object | null) => boolean;
-export type IOSchedulerJobFunc = (job: IOSchedulerJob, cancellable: Cancellable | null, user_data: object | null) => boolean;
-export type PollableSourceFunc = (pollable_stream: GObject.Object, user_data: object | null) => boolean;
-export type ReallocFunc = (data: object | null, size: number) => object | null;
-export type SettingsBindGetMapping = (value: GObject.Value, variant: GLib.Variant, user_data: object | null) => boolean;
-export type SettingsBindSetMapping = (value: GObject.Value, expected_type: GLib.VariantType, user_data: object | null) => GLib.Variant;
-export type SettingsGetMapping = (value: GLib.Variant, user_data: object | null) => boolean;
-export type SimpleAsyncThreadFunc = (res: SimpleAsyncResult, object: GObject.Object, cancellable: Cancellable | null) => void;
-export type SocketSourceFunc = (socket: Socket, condition: GLib.IOCondition, user_data: object | null) => boolean;
-export type TaskThreadFunc = (task: Task, source_object: GObject.Object, task_data: object | null, cancellable: Cancellable | null) => void;
-export type VfsFileLookupFunc = (vfs: Vfs, identifier: string, user_data: object | null) => File;
 export const DESKTOP_APP_INFO_LOOKUP_EXTENSION_POINT_NAME: string;
 export const DRIVE_IDENTIFIER_KIND_UNIX_DEVICE: string;
 export const FILE_ATTRIBUTE_ACCESS_CAN_DELETE: string;
@@ -1252,6 +1224,36 @@ export function unix_mounts_changed_since(time: number): boolean;
  * with g_unix_mounts_changed_since().
  */
 export function unix_mounts_get(): [GLib.List, number | null];
+export type AsyncReadyCallback = (source_object: GObject.Object | null, res: AsyncResult, user_data: object | null) => void;
+export type BusAcquiredCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
+export type BusNameAcquiredCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
+export type BusNameAppearedCallback = (connection: DBusConnection, name: string, name_owner: string, user_data: object | null) => void;
+export type BusNameLostCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
+export type BusNameVanishedCallback = (connection: DBusConnection, name: string, user_data: object | null) => void;
+export type CancellableSourceFunc = (cancellable: Cancellable | null, user_data: object | null) => boolean;
+export type DBusInterfaceGetPropertyFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, error: GLib.Error, user_data: object | null) => GLib.Variant;
+export type DBusInterfaceMethodCallFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant, invocation: DBusMethodInvocation, user_data: object | null) => void;
+export type DBusInterfaceSetPropertyFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, property_name: string, value: GLib.Variant, error: GLib.Error, user_data: object | null) => boolean;
+export type DBusMessageFilterFunction = (connection: DBusConnection, message: DBusMessage, incoming: boolean, user_data: object | null) => DBusMessage | null;
+export type DBusProxyTypeFunc = (manager: DBusObjectManagerClient, object_path: string, interface_name: string | null, user_data: object | null) => GType;
+export type DBusSignalCallback = (connection: DBusConnection, sender_name: string, object_path: string, interface_name: string, signal_name: string, parameters: GLib.Variant, user_data: object | null) => void;
+export type DBusSubtreeDispatchFunc = (connection: DBusConnection, sender: string, object_path: string, interface_name: string, node: string, out_user_data: object, user_data: object | null) => DBusInterfaceVTable;
+export type DBusSubtreeIntrospectFunc = (connection: DBusConnection, sender: string, object_path: string, node: string, user_data: object | null) => DBusInterfaceInfo;
+export type DatagramBasedSourceFunc = (datagram_based: DatagramBased, condition: GLib.IOCondition, user_data: object | null) => boolean;
+export type DesktopAppLaunchCallback = (appinfo: DesktopAppInfo, pid: GLib.Pid, user_data: object | null) => void;
+export type FileMeasureProgressCallback = (reporting: boolean, current_size: number, num_dirs: number, num_files: number, user_data: object | null) => void;
+export type FileProgressCallback = (current_num_bytes: number, total_num_bytes: number, user_data: object | null) => void;
+export type FileReadMoreCallback = (file_contents: string, file_size: number, callback_data: object | null) => boolean;
+export type IOSchedulerJobFunc = (job: IOSchedulerJob, cancellable: Cancellable | null, user_data: object | null) => boolean;
+export type PollableSourceFunc = (pollable_stream: GObject.Object, user_data: object | null) => boolean;
+export type ReallocFunc = (data: object | null, size: number) => object | null;
+export type SettingsBindGetMapping = (value: GObject.Value, variant: GLib.Variant, user_data: object | null) => boolean;
+export type SettingsBindSetMapping = (value: GObject.Value, expected_type: GLib.VariantType, user_data: object | null) => GLib.Variant;
+export type SettingsGetMapping = (value: GLib.Variant, user_data: object | null) => boolean;
+export type SimpleAsyncThreadFunc = (res: SimpleAsyncResult, object: GObject.Object, cancellable: Cancellable | null) => void;
+export type SocketSourceFunc = (socket: Socket, condition: GLib.IOCondition, user_data: object | null) => boolean;
+export type TaskThreadFunc = (task: Task, source_object: GObject.Object, task_data: object | null, cancellable: Cancellable | null) => void;
+export type VfsFileLookupFunc = (vfs: Vfs, identifier: string, user_data: object | null) => File;
 export enum BusType {
     STARTER = -1,
     NONE = 0,
@@ -1999,9 +2001,13 @@ export class DBusConnection extends GObject.Object {
     guid: string;
     stream: IOStream;
     readonly unique_name: string;static new_finish(res: AsyncResult): DBusConnection;
+    static new_finish(...args: never[]): never;
     static new_for_address_finish(res: AsyncResult): DBusConnection;
+    static new_for_address_finish(...args: never[]): never;
     static new_for_address_sync(address: string, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusConnection;
+    static new_for_address_sync(...args: never[]): never;
     static new_sync(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusConnection;
+    static new_sync(...args: never[]): never;
     add_filter(filter_function: DBusMessageFilterFunction, user_data: object | null, user_data_free_func: GLib.DestroyNotify): number;
     call(bus_name: string | null, object_path: string, interface_name: string, method_name: string, parameters: GLib.Variant | null, reply_type: GLib.VariantType | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     call_finish(res: AsyncResult): GLib.Variant;
@@ -2043,14 +2049,14 @@ export class DBusConnection extends GObject.Object {
     unexport_menu_model(export_id: number): void;
     unregister_object(registration_id: number): boolean;
     unregister_subtree(registration_id: number): boolean;
-    static _new(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static new(stream: IOStream, guid: string | null, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     static new_for_address(address: string, flags: DBusConnectionFlags, observer: DBusAuthObserver | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
 }
 export class DBusInterfaceSkeleton  {
     constructor(config?: properties);
     g_flags: DBusInterfaceSkeletonFlags;
     readonly priv: DBusInterfaceSkeletonPrivate;
-    _export(connection: DBusConnection, object_path: string): boolean;
+    ["export"](connection: DBusConnection, object_path: string): boolean;
     flush(): void;
     get_connection(): DBusConnection;
     get_connections(): GLib.List;
@@ -2070,8 +2076,11 @@ export class DBusMenuModel  {
 export class DBusMessage extends GObject.Object {
     constructor(config?: properties);
     readonly locked: boolean;static new_from_blob(blob: number[], blob_len: number, capabilities: DBusCapabilityFlags): DBusMessage;
+    static new_from_blob(...args: never[]): never;
     static new_method_call(name: string | null, path: string, interface_: string | null, method: string): DBusMessage;
+    static new_method_call(...args: never[]): never;
     static new_signal(path: string, interface_: string, signal: string): DBusMessage;
+    static new_signal(...args: never[]): never;
     copy(): DBusMessage;
     get_arg0(): string;
     get_body(): GLib.Variant;
@@ -2144,23 +2153,27 @@ export class DBusObjectManagerClient extends GObject.Object {
     name: string;
     readonly name_owner: string;
     object_path: string;static new_finish(res: AsyncResult): DBusObjectManagerClient;
+    static new_finish(...args: never[]): never;
     static new_for_bus_finish(res: AsyncResult): DBusObjectManagerClient;
+    static new_for_bus_finish(...args: never[]): never;
     static new_for_bus_sync(bus_type: BusType, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null): DBusObjectManagerClient;
+    static new_for_bus_sync(...args: never[]): never;
     static new_sync(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string | null, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null): DBusObjectManagerClient;
+    static new_sync(...args: never[]): never;
     get_connection(): DBusConnection;
     get_flags(): DBusObjectManagerClientFlags;
     get_name(): string;
     get_name_owner(): string | null;
     vfunc_interface_proxy_properties_changed(object_proxy: DBusObjectProxy, interface_proxy: DBusProxy, changed_properties: GLib.Variant, invalidated_properties: string): void;
     vfunc_interface_proxy_signal(object_proxy: DBusObjectProxy, interface_proxy: DBusProxy, sender_name: string, signal_name: string, parameters: GLib.Variant): void;
-    static _new(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static new(connection: DBusConnection, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     static new_for_bus(bus_type: BusType, flags: DBusObjectManagerClientFlags, name: string, object_path: string, get_proxy_type_func: DBusProxyTypeFunc | null, get_proxy_type_user_data: object | null, get_proxy_type_destroy_notify: GLib.DestroyNotify | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
 }
 export class DBusObjectManagerServer extends GObject.Object {
     constructor(config?: properties);
     connection: DBusConnection;
     object_path: string;
-    _export(object: DBusObjectSkeleton): void;
+    ["export"](object: DBusObjectSkeleton): void;
     export_uniquely(object: DBusObjectSkeleton): void;
     get_connection(): DBusConnection;
     is_exported(object: DBusObjectSkeleton): boolean;
@@ -2194,9 +2207,13 @@ export class DBusProxy extends GObject.Object {
     g_name: string;
     readonly g_name_owner: string;
     g_object_path: string;static new_finish(res: AsyncResult): DBusProxy;
+    static new_finish(...args: never[]): never;
     static new_for_bus_finish(res: AsyncResult): DBusProxy;
+    static new_for_bus_finish(...args: never[]): never;
     static new_for_bus_sync(bus_type: BusType, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string, object_path: string, interface_name: string, cancellable: Cancellable | null): DBusProxy;
+    static new_for_bus_sync(...args: never[]): never;
     static new_sync(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null): DBusProxy;
+    static new_sync(...args: never[]): never;
     call(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     call_finish(res: AsyncResult): GLib.Variant;
     call_sync(method_name: string, parameters: GLib.Variant | null, flags: DBusCallFlags, timeout_msec: number, cancellable: Cancellable | null): GLib.Variant;
@@ -2218,7 +2235,7 @@ export class DBusProxy extends GObject.Object {
     set_interface_info(info: DBusInterfaceInfo | null): void;
     vfunc_g_properties_changed(changed_properties: GLib.Variant, invalidated_properties: string): void;
     vfunc_g_signal(sender_name: string, signal_name: string, parameters: GLib.Variant): void;
-    static _new(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
+    static new(connection: DBusConnection, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string | null, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     static new_for_bus(bus_type: BusType, flags: DBusProxyFlags, info: DBusInterfaceInfo | null, name: string, object_path: string, interface_name: string, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
 }
 export class DBusServer extends GObject.Object {
@@ -2229,6 +2246,7 @@ export class DBusServer extends GObject.Object {
     readonly client_address: string;
     flags: DBusServerFlags;
     guid: string;static new_sync(address: string, flags: DBusServerFlags, guid: string, observer: DBusAuthObserver | null, cancellable: Cancellable | null): DBusServer;
+    static new_sync(...args: never[]): never;
     get_client_address(): string;
     get_flags(): DBusServerFlags;
     get_guid(): string;
@@ -2281,7 +2299,9 @@ export class DataOutputStream extends FilterOutputStream {
 export class DesktopAppInfo extends GObject.Object {
     constructor(config?: properties);
     filename: string;static new_from_filename(filename: string): DesktopAppInfo | null;
+    static new_from_filename(...args: never[]): never;
     static new_from_keyfile(key_file: GLib.KeyFile): DesktopAppInfo | null;
+    static new_from_keyfile(...args: never[]): never;
     get_action_name(action_name: string): string;
     get_boolean(key: string): boolean;
     get_categories(): string;
@@ -2308,6 +2328,7 @@ export class Emblem extends GObject.Object {
     constructor(config?: properties);
     icon: GObject.Object;
     origin: EmblemOrigin;static new_with_origin(icon: Icon, origin: EmblemOrigin): Emblem;
+    static new_with_origin(...args: never[]): never;
     get_icon(): Icon;
     get_origin(): EmblemOrigin;
 }
@@ -2500,9 +2521,13 @@ export class InetAddress extends GObject.Object {
     readonly is_mc_site_local: boolean;
     readonly is_multicast: boolean;
     readonly is_site_local: boolean;static new_any(family: SocketFamily): InetAddress;
+    static new_any(...args: never[]): never;
     static new_from_bytes(bytes: number[], family: SocketFamily): InetAddress;
+    static new_from_bytes(...args: never[]): never;
     static new_from_string(string: string): InetAddress;
+    static new_from_string(...args: never[]): never;
     static new_loopback(family: SocketFamily): InetAddress;
+    static new_loopback(...args: never[]): never;
     equal(other_address: InetAddress): boolean;
     get_family(): SocketFamily;
     get_is_any(): boolean;
@@ -2524,6 +2549,7 @@ export class InetAddressMask extends GObject.Object {
     address: InetAddress;
     readonly family: SocketFamily;
     length: number;static new_from_string(mask_string: string): InetAddressMask;
+    static new_from_string(...args: never[]): never;
     equal(mask2: InetAddressMask): boolean;
     get_address(): InetAddress;
     get_family(): SocketFamily;
@@ -2537,6 +2563,7 @@ export class InetSocketAddress extends SocketAddress {
     flowinfo: number;
     port: number;
     scope_id: number;static new_from_string(address: string, port: number): SocketAddress;
+    static new_from_string(...args: never[]): never;
     get_address(): InetAddress;
     get_flowinfo(): number;
     get_port(): number;
@@ -2579,7 +2606,9 @@ export class ListStore extends GObject.Object {
 export class MemoryInputStream extends InputStream {
     constructor(config?: properties);
     static new_from_bytes(bytes: GLib.Bytes): InputStream;
+    static new_from_bytes(...args: never[]): never;
     static new_from_data(data: number[], len: number, destroy: GLib.DestroyNotify | null): InputStream;
+    static new_from_data(...args: never[]): never;
     add_bytes(bytes: GLib.Bytes): void;
     add_data(data: number[], len: number, destroy: GLib.DestroyNotify | null): void;
 }
@@ -2588,6 +2617,7 @@ export class MemoryOutputStream extends OutputStream {
     data: object;
     readonly data_size: number;
     size: number;static new_resizable(): OutputStream;
+    static new_resizable(...args: never[]): never;
     get_data(): object | null;
     get_data_size(): number;
     get_size(): number;
@@ -2623,8 +2653,11 @@ export class MenuAttributeIter  {
 export class MenuItem extends GObject.Object {
     constructor(config?: properties);
     static new_from_model(model: MenuModel, item_index: number): MenuItem;
+    static new_from_model(...args: never[]): never;
     static new_section(label: string | null, section: MenuModel): MenuItem;
+    static new_section(...args: never[]): never;
     static new_submenu(label: string | null, submenu: MenuModel): MenuItem;
+    static new_submenu(...args: never[]): never;
     get_attribute_value(attribute: string, expected_type: GLib.VariantType | null): GLib.Variant;
     get_link(link: string): MenuModel;
     set_action_and_target_value(action: string | null, target_value: GLib.Variant | null): void;
@@ -2700,6 +2733,7 @@ export class NetworkAddress extends GObject.Object {
     hostname: string;
     port: number;
     scheme: string;static new_loopback(port: number): NetworkAddress;
+    static new_loopback(...args: never[]): never;
     get_hostname(): string;
     get_port(): number;
     get_scheme(): string;
@@ -2846,9 +2880,13 @@ export class Settings extends GObject.Object {
     schema: string;
     schema_id: string;
     settings_schema: SettingsSchema;static new_full(schema: SettingsSchema, backend: SettingsBackend | null, path: string | null): Settings;
+    static new_full(...args: never[]): never;
     static new_with_backend(schema_id: string, backend: SettingsBackend): Settings;
+    static new_with_backend(...args: never[]): never;
     static new_with_backend_and_path(schema_id: string, backend: SettingsBackend, path: string): Settings;
+    static new_with_backend_and_path(...args: never[]): never;
     static new_with_path(schema_id: string, path: string): Settings;
+    static new_with_path(...args: never[]): never;
     apply(): void;
     bind(key: string, object: GObject.Object, property: string, flags: SettingsBindFlags): void;
     bind_writable(key: string, object: GObject.Object, property: string, inverted: boolean): void;
@@ -2916,6 +2954,7 @@ export class SimpleAction extends GObject.Object {
     parameter_type: GLib.VariantType;
     state: GLib.Variant;
     readonly state_type: GLib.VariantType;static new_stateful(name: string, parameter_type: GLib.VariantType | null, state: GLib.Variant): SimpleAction;
+    static new_stateful(...args: never[]): never;
     set_enabled(enabled: boolean): void;
     set_state(value: GLib.Variant): void;
     set_state_hint(state_hint: GLib.Variant | null): void;
@@ -2930,6 +2969,7 @@ export class SimpleActionGroup extends GObject.Object {
 export class SimpleAsyncResult extends GObject.Object {
     constructor(config?: properties);
     static new_from_error(source_object: GObject.Object | null, callback: AsyncReadyCallback | null, user_data: object | null, error: GLib.Error): SimpleAsyncResult;
+    static new_from_error(...args: never[]): never;
     complete(): void;
     complete_in_idle(): void;
     get_op_res_gboolean(): boolean;
@@ -2958,7 +2998,7 @@ export class SimpleProxyResolver  {
     set_default_proxy(default_proxy: string): void;
     set_ignore_hosts(ignore_hosts: string): void;
     set_uri_proxy(uri_scheme: string, proxy: string): void;
-    static _new(default_proxy: string | null, ignore_hosts: string | null): ProxyResolver;
+    static new(default_proxy: string | null, ignore_hosts: string | null): ProxyResolver;
 }
 export class Socket extends GObject.Object {
     constructor(config?: properties);
@@ -2976,6 +3016,7 @@ export class Socket extends GObject.Object {
     timeout: number;
     ttl: number;
     type: SocketType;static new_from_fd(fd: number): Socket;
+    static new_from_fd(...args: never[]): never;
     accept(cancellable: Cancellable | null): Socket;
     bind(address: SocketAddress, allow_reuse: boolean): boolean;
     check_connect_result(): boolean;
@@ -3035,6 +3076,7 @@ export class Socket extends GObject.Object {
 export class SocketAddress extends GObject.Object {
     constructor(config?: properties);
     readonly family: SocketFamily;static new_from_native(_native: object, len: number): SocketAddress;
+    static new_from_native(...args: never[]): never;
     get_family(): SocketFamily;
     get_native_size(): number;
     to_native(dest: object | null, destlen: number): boolean;
@@ -3145,7 +3187,7 @@ export class Subprocess extends GObject.Object {
     constructor(config?: properties);
     argv: string[];
     flags: SubprocessFlags;static newv(argv: string[], flags: SubprocessFlags): Subprocess;
-    static newv(...args: never[]): Subprocess;
+    static newv(...args: never[]): never;
     communicate(stdin_buf: GLib.Bytes | null, cancellable: Cancellable | null): [boolean, GLib.Bytes | null,GLib.Bytes | null];
     communicate_async(stdin_buf: GLib.Bytes | null, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     communicate_finish(result: AsyncResult): [boolean, GLib.Bytes | null,GLib.Bytes | null];
@@ -3248,7 +3290,9 @@ export class ThemedIcon extends GObject.Object {
     name: string;
     names: string[];
     use_default_fallbacks: boolean;static new_from_names(iconnames: string[], len: number): ThemedIcon;
+    static new_from_names(...args: never[]): never;
     static new_with_default_fallbacks(iconname: string): ThemedIcon;
+    static new_with_default_fallbacks(...args: never[]): never;
     append_name(iconname: string): void;
     get_names(): string[];
     prepend_name(iconname: string): void;
@@ -3265,8 +3309,11 @@ export class TlsCertificate extends GObject.Object {
     issuer: TlsCertificate;
     private_key: number[];
     private_key_pem: string;static new_from_file(file: string): TlsCertificate;
+    static new_from_file(...args: never[]): never;
     static new_from_files(cert_file: string, key_file: string): TlsCertificate;
+    static new_from_files(...args: never[]): never;
     static new_from_pem(data: string, length: number): TlsCertificate;
+    static new_from_pem(...args: never[]): never;
     get_issuer(): TlsCertificate;
     is_same(cert_two: TlsCertificate): boolean;
     verify(identity: SocketConnectable | null, trusted_ca: TlsCertificate | null): TlsCertificateFlags;
@@ -3376,6 +3423,7 @@ export class UnixCredentialsMessage extends SocketControlMessage {
 export class UnixFDList extends GObject.Object {
     constructor(config?: properties);
     static new_from_array(fds: number[], n_fds: number): UnixFDList;
+    static new_from_array(...args: never[]): never;
     append(fd: number): number;
     get(index_: number): number;
     get_length(): number;
@@ -3416,7 +3464,9 @@ export class UnixSocketAddress extends SocketAddress {
     address_type: UnixSocketAddressType;
     path: string;
     path_as_array: number[];static new_abstract(path: number[], path_len: number): SocketAddress;
+    static new_abstract(...args: never[]): never;
     static new_with_type(path: number[], path_len: number, type: UnixSocketAddressType): SocketAddress;
+    static new_with_type(...args: never[]): never;
     get_address_type(): UnixSocketAddressType;
     get_is_abstract(): boolean;
     get_path(): string;
@@ -3965,7 +4015,7 @@ export interface AppInfo  {
     add_supports_type(content_type: string): boolean;
     can_delete(): boolean;
     can_remove_supports_type(): boolean;
-    _delete(): boolean;
+    ["delete"](): boolean;
     dup(): AppInfo;
     equal(appinfo2: AppInfo): boolean;
     get_commandline(): string;
@@ -4122,7 +4172,7 @@ export interface File  {
     create_readwrite(flags: FileCreateFlags, cancellable: Cancellable | null): FileIOStream;
     create_readwrite_async(flags: FileCreateFlags, io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     create_readwrite_finish(res: AsyncResult): FileIOStream;
-    _delete(cancellable: Cancellable | null): boolean;
+    ["delete"](cancellable: Cancellable | null): boolean;
     delete_async(io_priority: number, cancellable: Cancellable | null, callback: AsyncReadyCallback | null, user_data: object | null): void;
     delete_finish(result: AsyncResult): boolean;
     dup(): File;

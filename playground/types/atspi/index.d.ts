@@ -1,18 +1,16 @@
 
+/**
+ * atspi
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as DBus from "dbus";
-import * as Atspi from "atspi";
 /**
- * atspi.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type DeviceListenerCB = (stroke: DeviceEvent, user_data: object | null) => boolean;
-export type DeviceListenerSimpleCB = (stroke: DeviceEvent) => boolean;
-export type EventListenerCB = (event: Event, user_data: object | null) => void;
-export type EventListenerSimpleCB = (event: Event) => void;
 export const COMPONENTLAYER_COUNT: number;
 export const COORD_TYPE_COUNT: number;
 export const DBUS_INTERFACE_ACCESSIBLE: string;
@@ -188,6 +186,15 @@ export function set_reference_window(accessible: Accessible): void;
  * timeout is set to 15 seconds.
  */
 export function set_timeout(val: number, startup_time: number): void;
+export type DeviceListenerCB = (stroke: DeviceEvent, user_data: object | null) => boolean;
+export type DeviceListenerSimpleCB = (stroke: DeviceEvent) => boolean;
+export type EventListenerCB = (event: Event, user_data: object | null) => void;
+export type EventListenerSimpleCB = (event: Event) => void;
+export type ControllerEventMask = number;
+export type DeviceEventMask = number;
+export type KeyEventMask = number;
+export type KeyMaskType = number;
+export type KeystrokeListener = void;
 export enum CollectionMatchType {
     INVALID = 0,
     ALL = 1,
@@ -499,11 +506,6 @@ export enum TextGranularity {
     LINE = 3,
     PARAGRAPH = 4,
 }
-export type ControllerEventMask = number;
-export type DeviceEventMask = number;
-export type KeyEventMask = number;
-export type KeyMaskType = number;
-export type KeystrokeListener = void;
 export enum Cache {
     NONE = 0,
     PARENT = 1,

@@ -1,16 +1,17 @@
 
+/**
+ * pangocairo
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Pango from "pango";
 import * as cairo from "cairo";
-import * as PangoCairo from "pangocairo";
 /**
- * pangocairo.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ShapeRendererFunc = (cr: cairo.Context, attr: Pango.AttrShape, do_path: boolean, data: object | null) => void;
 /**
  * Retrieves any font rendering options previously set with
  * pango_cairo_context_set_font_options(). This function does not report 
@@ -193,6 +194,7 @@ export function update_context(cr: cairo.Context, context: Pango.Context): void;
  * and target surface of a Cairo context.
  */
 export function update_layout(cr: cairo.Context, layout: Pango.Layout): void;
+export type ShapeRendererFunc = (cr: cairo.Context, attr: Pango.AttrShape, do_path: boolean, data: object | null) => void;
 export interface Font  {
     get_scaled_font(): cairo.ScaledFont | null;
 }

@@ -1,16 +1,17 @@
 
+/**
+ * clutterx11
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Clutter from "clutter";
 import * as xlib from "xlib";
-import * as ClutterX11 from "clutterx11";
 /**
- * clutterx11.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type FilterFunc = (xev: xlib.XEvent, cev: Clutter.Event, data: object | null) => FilterReturn;
 /**
  * Disables the internal polling of X11 events in the main loop.
  * Libraries or applications calling this function will be responsible of
@@ -143,6 +144,7 @@ export function trap_x_errors(): void;
  * Removes the X error trap and returns the current status.
  */
 export function untrap_x_errors(): number;
+export type FilterFunc = (xev: xlib.XEvent, cev: Clutter.Event, data: object | null) => FilterReturn;
 export enum FilterReturn {
     CONTINUE = 0,
     TRANSLATE = 1,
@@ -162,7 +164,9 @@ export class TexturePixmap extends Clutter.Texture {
     window_redirect_automatic: boolean;
     readonly window_x: number;
     readonly window_y: number;static new_with_pixmap(pixmap: xlib.Pixmap): Clutter.Actor;
+    static new_with_pixmap(...args: never[]): never;
     static new_with_window(window: xlib.Window): Clutter.Actor;
+    static new_with_window(...args: never[]): never;
     set_automatic(setting: boolean): void;
     set_pixmap(pixmap: xlib.Pixmap): void;
     set_window(window: xlib.Window, automatic: boolean): void;

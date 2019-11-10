@@ -1,15 +1,16 @@
 
+/**
+ * gstmpegts
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Gst from "gst";
-import * as GstMpegts from "gstmpegts";
 /**
- * gstmpegts.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type PacketizeFunc = (section: Section) => boolean;
 /**
  * Creates a #GstMpegtsDescriptor with custom @tag and @data
  */
@@ -101,6 +102,7 @@ export function section_from_pmt(pmt: PMT, pid: number): Section;
  * gtsSection
  */
 export function section_from_sdt(sdt: SDT): Section;
+export type PacketizeFunc = (section: Section) => boolean;
 export enum ATSCDescriptorType {
     STUFFING = 128,
     AC3 = 131,
@@ -159,20 +161,20 @@ export enum ContentNibbleHi {
     LEISURE_HOBBIES = 10,
     SPECIAL_CHARACTERISTICS = 11,
 }
-export enum DVBCodeRate {
-    NONE = 0,
-    "1_2" = 1,
-    "2_3" = 2,
-    "3_4" = 3,
-    "4_5" = 4,
-    "5_6" = 5,
-    "6_7" = 6,
-    "7_8" = 7,
-    "8_9" = 8,
-    AUTO = 9,
-    "3_5" = 10,
-    "9_10" = 11,
-    "2_5" = 12,
+export class DVBCodeRate  {
+    static NONE: number;
+    static "1_2": number;
+    static "2_3": number;
+    static "3_4": number;
+    static "4_5": number;
+    static "5_6": number;
+    static "6_7": number;
+    static "7_8": number;
+    static "8_9": number;
+    static AUTO: number;
+    static "3_5": number;
+    static "9_10": number;
+    static "2_5": number;
 }
 export enum DVBDescriptorType {
     NETWORK_NAME = 64,
@@ -463,12 +465,12 @@ export enum SatellitePolarizationType {
     CIRCULAR_LEFT = 2,
     CIRCULAR_RIGHT = 3,
 }
-export enum SatelliteRolloff {
-    "35" = 0,
-    "20" = 1,
-    "25" = 2,
-    RESERVED = 3,
-    AUTO = 4,
+export class SatelliteRolloff  {
+    static "35": number;
+    static "20": number;
+    static "25": number;
+    static RESERVED: number;
+    static AUTO: number;
 }
 export enum ScteStreamType {
     SUBTITLING = 130,
@@ -547,22 +549,22 @@ export enum SectionSCTETableID {
     DDB = 228,
     SPLICE = 252,
 }
-export enum SectionTableID {
-    PROGRAM_ASSOCIATION = 0,
-    CONDITIONAL_ACCESS = 1,
-    TS_PROGRAM_MAP = 2,
-    TS_DESCRIPTION = 3,
-    "14496_SCENE_DESCRIPTION" = 4,
-    "14496_OBJET_DESCRIPTOR" = 5,
-    METADATA = 6,
-    IPMP_CONTROL_INFORMATION = 7,
-    DSM_CC_MULTIPROTO_ENCAPSULATED_DATA = 58,
-    DSM_CC_U_N_MESSAGES = 59,
-    DSM_CC_DOWNLOAD_DATA_MESSAGES = 60,
-    DSM_CC_STREAM_DESCRIPTORS = 61,
-    DSM_CC_PRIVATE_DATA = 62,
-    DSM_CC_ADDRESSABLE_SECTIONS = 63,
-    UNSET = 255,
+export class SectionTableID  {
+    static PROGRAM_ASSOCIATION: number;
+    static CONDITIONAL_ACCESS: number;
+    static TS_PROGRAM_MAP: number;
+    static TS_DESCRIPTION: number;
+    static "14496_SCENE_DESCRIPTION": number;
+    static "14496_OBJET_DESCRIPTOR": number;
+    static METADATA: number;
+    static IPMP_CONTROL_INFORMATION: number;
+    static DSM_CC_MULTIPROTO_ENCAPSULATED_DATA: number;
+    static DSM_CC_U_N_MESSAGES: number;
+    static DSM_CC_DOWNLOAD_DATA_MESSAGES: number;
+    static DSM_CC_STREAM_DESCRIPTORS: number;
+    static DSM_CC_PRIVATE_DATA: number;
+    static DSM_CC_ADDRESSABLE_SECTIONS: number;
+    static UNSET: number;
 }
 export enum SectionType {
     UNKNOWN = 0,
@@ -623,36 +625,36 @@ export enum StreamType {
     VIDEO_HEVC = 36,
     IPMP_STREAM = 127,
 }
-export enum TerrestrialGuardInterval {
-    "1_32" = 0,
-    "1_16" = 1,
-    "1_8" = 2,
-    "1_4" = 3,
-    AUTO = 4,
-    "1_128" = 5,
-    "19_128" = 6,
-    "19_256" = 7,
-    PN420 = 8,
-    PN595 = 9,
-    PN945 = 10,
+export class TerrestrialGuardInterval  {
+    static "1_32": number;
+    static "1_16": number;
+    static "1_8": number;
+    static "1_4": number;
+    static AUTO: number;
+    static "1_128": number;
+    static "19_128": number;
+    static "19_256": number;
+    static PN420: number;
+    static PN595: number;
+    static PN945: number;
 }
-export enum TerrestrialHierarchy {
-    NONE = 0,
-    "1" = 1,
-    "2" = 2,
-    "4" = 3,
-    AUTO = 4,
+export class TerrestrialHierarchy  {
+    static NONE: number;
+    static "1": number;
+    static "2": number;
+    static "4": number;
+    static AUTO: number;
 }
-export enum TerrestrialTransmissionMode {
-    "2K" = 0,
-    "8K" = 1,
-    AUTO = 2,
-    "4K" = 3,
-    "1K" = 4,
-    "16K" = 5,
-    "32K" = 6,
-    C1 = 7,
-    C3780 = 8,
+export class TerrestrialTransmissionMode  {
+    static "2K": number;
+    static "8K": number;
+    static AUTO: number;
+    static "4K": number;
+    static "1K": number;
+    static "16K": number;
+    static "32K": number;
+    static C1: number;
+    static C3780: number;
 }
 export class AtscEIT  {
     constructor(config?: properties);

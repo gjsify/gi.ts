@@ -1,80 +1,16 @@
 
+/**
+ * gst
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as GModule from "gmodule";
-import * as Gst from "gst";
 /**
- * gst.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type BufferForeachMetaFunc = (buffer: Buffer, user_data: object | null) => boolean;
-export type BufferListFunc = (idx: number, user_data: object | null) => boolean;
-export type BusFunc = (bus: Bus, message: Message, user_data: object | null) => boolean;
-export type BusSyncHandler = (bus: Bus, message: Message, user_data: object | null) => BusSyncReply;
-export type CapsFilterMapFunc = (features: CapsFeatures, structure: Structure, user_data: object | null) => boolean;
-export type CapsForeachFunc = (features: CapsFeatures, structure: Structure, user_data: object | null) => boolean;
-export type CapsMapFunc = (features: CapsFeatures, structure: Structure, user_data: object | null) => boolean;
-export type ClockCallback = (clock: Clock, time: ClockTime, id: ClockID, user_data: object | null) => boolean;
-export type ControlBindingConvert = (binding: ControlBinding, src_value: number, dest_value: GObject.Value) => void;
-export type ControlSourceGetValue = (self: ControlSource, timestamp: ClockTime, value: number) => boolean;
-export type ControlSourceGetValueArray = (self: ControlSource, timestamp: ClockTime, interval: ClockTime, n_values: number, values: number) => boolean;
-export type DebugFuncPtr = () => void;
-export type ElementCallAsyncFunc = (element: Element, user_data: object | null) => void;
-export type ElementForeachPadFunc = (element: Element, pad: Pad, user_data: object | null) => boolean;
-export type IteratorCopyFunction = (it: Iterator, copy: Iterator) => void;
-export type IteratorFoldFunction = (item: GObject.Value, ret: GObject.Value, user_data: object | null) => boolean;
-export type IteratorForeachFunction = (item: GObject.Value, user_data: object | null) => void;
-export type IteratorFreeFunction = (it: Iterator) => void;
-export type IteratorItemFunction = (it: Iterator, item: GObject.Value) => IteratorItem;
-export type IteratorNextFunction = (it: Iterator, result: GObject.Value) => IteratorResult;
-export type IteratorResyncFunction = (it: Iterator) => void;
-export type LogFunction = (category: DebugCategory, level: DebugLevel, file: string, _function: string, line: number, object: GObject.Object, message: DebugMessage, user_data: object | null) => void;
-export type MemoryCopyFunction = (mem: Memory, offset: number, size: number) => Memory;
-export type MemoryIsSpanFunction = (mem1: Memory, mem2: Memory, offset: number) => boolean;
-export type MemoryMapFullFunction = (mem: Memory, info: MapInfo, maxsize: number) => object | null;
-export type MemoryMapFunction = (mem: Memory, maxsize: number, flags: MapFlags) => object | null;
-export type MemoryShareFunction = (mem: Memory, offset: number, size: number) => Memory;
-export type MemoryUnmapFullFunction = (mem: Memory, info: MapInfo) => void;
-export type MemoryUnmapFunction = (mem: Memory) => void;
-export type MetaFreeFunction = (meta: Meta, buffer: Buffer) => void;
-export type MetaInitFunction = (meta: Meta, params: object | null, buffer: Buffer) => boolean;
-export type MetaTransformFunction = (transbuf: Buffer, meta: Meta, buffer: Buffer, type: GLib.Quark, data: object | null) => boolean;
-export type MiniObjectDisposeFunction = (obj: MiniObject) => boolean;
-export type MiniObjectFreeFunction = (obj: MiniObject) => void;
-export type MiniObjectNotify = (user_data: object | null, obj: MiniObject) => void;
-export type PadActivateFunction = (pad: Pad, parent: Object) => boolean;
-export type PadActivateModeFunction = (pad: Pad, parent: Object, mode: PadMode, active: boolean) => boolean;
-export type PadChainFunction = (pad: Pad, parent: Object | null, buffer: Buffer) => FlowReturn;
-export type PadChainListFunction = (pad: Pad, parent: Object | null, list: BufferList) => FlowReturn;
-export type PadEventFullFunction = (pad: Pad, parent: Object | null, event: Event) => FlowReturn;
-export type PadEventFunction = (pad: Pad, parent: Object | null, event: Event) => boolean;
-export type PadForwardFunction = (pad: Pad, user_data: object | null) => boolean;
-export type PadGetRangeFunction = (pad: Pad, parent: Object | null, offset: number, length: number, buffer: Buffer) => FlowReturn;
-export type PadIterIntLinkFunction = (pad: Pad, parent: Object | null) => Iterator;
-export type PadLinkFunction = (pad: Pad, parent: Object | null, peer: Pad) => PadLinkReturn;
-export type PadProbeCallback = (pad: Pad, info: PadProbeInfo, user_data: object | null) => PadProbeReturn;
-export type PadQueryFunction = (pad: Pad, parent: Object | null, query: Query) => boolean;
-export type PadStickyEventsForeachFunction = (pad: Pad, event: Event | null, user_data: object | null) => boolean;
-export type PadUnlinkFunction = (pad: Pad, parent: Object | null) => void;
-export type PluginFeatureFilter = (feature: PluginFeature, user_data: object | null) => boolean;
-export type PluginFilter = (plugin: Plugin, user_data: object | null) => boolean;
-export type PluginInitFullFunc = (plugin: Plugin, user_data: object | null) => boolean;
-export type PluginInitFunc = (plugin: Plugin) => boolean;
-export type PromiseChangeFunc = (promise: Promise, user_data: object | null) => void;
-export type StructureFilterMapFunc = (field_id: GLib.Quark, value: GObject.Value, user_data: object | null) => boolean;
-export type StructureForeachFunc = (field_id: GLib.Quark, value: GObject.Value, user_data: object | null) => boolean;
-export type StructureMapFunc = (field_id: GLib.Quark, value: GObject.Value, user_data: object | null) => boolean;
-export type TagForeachFunc = (list: TagList, tag: string, user_data: object | null) => void;
-export type TagMergeFunc = (dest: GObject.Value, src: GObject.Value) => void;
-export type TaskFunction = (user_data: object | null) => void;
-export type TaskPoolFunction = (user_data: object | null) => void;
-export type TaskThreadFunc = (task: Task, thread: GLib.Thread, user_data: object | null) => void;
-export type TypeFindFunction = (find: TypeFind, user_data: object | null) => void;
-export type ValueCompareFunc = (value1: GObject.Value, value2: GObject.Value) => number;
-export type ValueDeserializeFunc = (dest: GObject.Value, s: string) => boolean;
-export type ValueSerializeFunc = (value1: GObject.Value) => string;
 export const ALLOCATOR_SYSMEM: string;
 export const BUFFER_COPY_ALL: BufferCopyFlags;
 export const BUFFER_COPY_METADATA: BufferCopyFlags;
@@ -1399,6 +1335,76 @@ export function version(): [number,number,number,number];
  * of GStreamer to the outside world: user agent strings, logging, ...
  */
 export function version_string(): string;
+export type BufferForeachMetaFunc = (buffer: Buffer, user_data: object | null) => boolean;
+export type BufferListFunc = (idx: number, user_data: object | null) => boolean;
+export type BusFunc = (bus: Bus, message: Message, user_data: object | null) => boolean;
+export type BusSyncHandler = (bus: Bus, message: Message, user_data: object | null) => BusSyncReply;
+export type CapsFilterMapFunc = (features: CapsFeatures, structure: Structure, user_data: object | null) => boolean;
+export type CapsForeachFunc = (features: CapsFeatures, structure: Structure, user_data: object | null) => boolean;
+export type CapsMapFunc = (features: CapsFeatures, structure: Structure, user_data: object | null) => boolean;
+export type ClockCallback = (clock: Clock, time: ClockTime, id: ClockID, user_data: object | null) => boolean;
+export type ControlBindingConvert = (binding: ControlBinding, src_value: number, dest_value: GObject.Value) => void;
+export type ControlSourceGetValue = (self: ControlSource, timestamp: ClockTime, value: number) => boolean;
+export type ControlSourceGetValueArray = (self: ControlSource, timestamp: ClockTime, interval: ClockTime, n_values: number, values: number) => boolean;
+export type DebugFuncPtr = () => void;
+export type ElementCallAsyncFunc = (element: Element, user_data: object | null) => void;
+export type ElementForeachPadFunc = (element: Element, pad: Pad, user_data: object | null) => boolean;
+export type IteratorCopyFunction = (it: Iterator, copy: Iterator) => void;
+export type IteratorFoldFunction = (item: GObject.Value, ret: GObject.Value, user_data: object | null) => boolean;
+export type IteratorForeachFunction = (item: GObject.Value, user_data: object | null) => void;
+export type IteratorFreeFunction = (it: Iterator) => void;
+export type IteratorItemFunction = (it: Iterator, item: GObject.Value) => IteratorItem;
+export type IteratorNextFunction = (it: Iterator, result: GObject.Value) => IteratorResult;
+export type IteratorResyncFunction = (it: Iterator) => void;
+export type LogFunction = (category: DebugCategory, level: DebugLevel, file: string, _function: string, line: number, object: GObject.Object, message: DebugMessage, user_data: object | null) => void;
+export type MemoryCopyFunction = (mem: Memory, offset: number, size: number) => Memory;
+export type MemoryIsSpanFunction = (mem1: Memory, mem2: Memory, offset: number) => boolean;
+export type MemoryMapFullFunction = (mem: Memory, info: MapInfo, maxsize: number) => object | null;
+export type MemoryMapFunction = (mem: Memory, maxsize: number, flags: MapFlags) => object | null;
+export type MemoryShareFunction = (mem: Memory, offset: number, size: number) => Memory;
+export type MemoryUnmapFullFunction = (mem: Memory, info: MapInfo) => void;
+export type MemoryUnmapFunction = (mem: Memory) => void;
+export type MetaFreeFunction = (meta: Meta, buffer: Buffer) => void;
+export type MetaInitFunction = (meta: Meta, params: object | null, buffer: Buffer) => boolean;
+export type MetaTransformFunction = (transbuf: Buffer, meta: Meta, buffer: Buffer, type: GLib.Quark, data: object | null) => boolean;
+export type MiniObjectDisposeFunction = (obj: MiniObject) => boolean;
+export type MiniObjectFreeFunction = (obj: MiniObject) => void;
+export type MiniObjectNotify = (user_data: object | null, obj: MiniObject) => void;
+export type PadActivateFunction = (pad: Pad, parent: Object) => boolean;
+export type PadActivateModeFunction = (pad: Pad, parent: Object, mode: PadMode, active: boolean) => boolean;
+export type PadChainFunction = (pad: Pad, parent: Object | null, buffer: Buffer) => FlowReturn;
+export type PadChainListFunction = (pad: Pad, parent: Object | null, list: BufferList) => FlowReturn;
+export type PadEventFullFunction = (pad: Pad, parent: Object | null, event: Event) => FlowReturn;
+export type PadEventFunction = (pad: Pad, parent: Object | null, event: Event) => boolean;
+export type PadForwardFunction = (pad: Pad, user_data: object | null) => boolean;
+export type PadGetRangeFunction = (pad: Pad, parent: Object | null, offset: number, length: number, buffer: Buffer) => FlowReturn;
+export type PadIterIntLinkFunction = (pad: Pad, parent: Object | null) => Iterator;
+export type PadLinkFunction = (pad: Pad, parent: Object | null, peer: Pad) => PadLinkReturn;
+export type PadProbeCallback = (pad: Pad, info: PadProbeInfo, user_data: object | null) => PadProbeReturn;
+export type PadQueryFunction = (pad: Pad, parent: Object | null, query: Query) => boolean;
+export type PadStickyEventsForeachFunction = (pad: Pad, event: Event | null, user_data: object | null) => boolean;
+export type PadUnlinkFunction = (pad: Pad, parent: Object | null) => void;
+export type PluginFeatureFilter = (feature: PluginFeature, user_data: object | null) => boolean;
+export type PluginFilter = (plugin: Plugin, user_data: object | null) => boolean;
+export type PluginInitFullFunc = (plugin: Plugin, user_data: object | null) => boolean;
+export type PluginInitFunc = (plugin: Plugin) => boolean;
+export type PromiseChangeFunc = (promise: Promise, user_data: object | null) => void;
+export type StructureFilterMapFunc = (field_id: GLib.Quark, value: GObject.Value, user_data: object | null) => boolean;
+export type StructureForeachFunc = (field_id: GLib.Quark, value: GObject.Value, user_data: object | null) => boolean;
+export type StructureMapFunc = (field_id: GLib.Quark, value: GObject.Value, user_data: object | null) => boolean;
+export type TagForeachFunc = (list: TagList, tag: string, user_data: object | null) => void;
+export type TagMergeFunc = (dest: GObject.Value, src: GObject.Value) => void;
+export type TaskFunction = (user_data: object | null) => void;
+export type TaskPoolFunction = (user_data: object | null) => void;
+export type TaskThreadFunc = (task: Task, thread: GLib.Thread, user_data: object | null) => void;
+export type TypeFindFunction = (find: TypeFind, user_data: object | null) => void;
+export type ValueCompareFunc = (value1: GObject.Value, value2: GObject.Value) => number;
+export type ValueDeserializeFunc = (dest: GObject.Value, s: string) => boolean;
+export type ValueSerializeFunc = (value1: GObject.Value) => string;
+export type ClockID = object;
+export type ClockTime = number;
+export type ClockTimeDiff = number;
+export type ElementFactoryListType = number;
 export enum BufferingMode {
     STREAM = 0,
     DOWNLOAD = 1,
@@ -1786,10 +1792,6 @@ export enum URIType {
     SINK = 1,
     SRC = 2,
 }
-export type ClockID = object;
-export type ClockTime = number;
-export type ClockTimeDiff = number;
-export type ElementFactoryListType = number;
 export enum AllocatorFlags {
     CUSTOM_ALLOC = 16,
     LAST = 1048576,
@@ -2459,8 +2461,11 @@ export class FractionRange  {
 export class GhostPad extends ProxyPad {
     constructor(config?: properties);
     static new_from_template(name: string | null, target: Pad, templ: PadTemplate): Pad | null;
+    static new_from_template(...args: never[]): never;
     static new_no_target(name: string | null, dir: PadDirection): Pad | null;
+    static new_no_target(...args: never[]): never;
     static new_no_target_from_template(name: string | null, templ: PadTemplate): Pad | null;
+    static new_no_target_from_template(...args: never[]): never;
     construct(): boolean;
     get_target(): Pad | null;
     set_target(newtarget: Pad | null): boolean;
@@ -2516,7 +2521,9 @@ export class Pad extends Object {
     direction: PadDirection;
     offset: number;
     template: PadTemplate;static new_from_static_template(templ: StaticPadTemplate, name: string): Pad;
+    static new_from_static_template(...args: never[]): never;
     static new_from_template(templ: PadTemplate, name: string | null): Pad;
+    static new_from_template(...args: never[]): never;
     activate_mode(mode: PadMode, active: boolean): boolean;
     add_probe(mask: PadProbeType, callback: PadProbeCallback, user_data: object | null, destroy_data: GLib.DestroyNotify): number;
     can_link(sinkpad: Pad): boolean;
@@ -2607,7 +2614,9 @@ export class PadTemplate extends Object {
     gtype: GType;
     name_template: string;
     presence: PadPresence;static new_from_static_pad_template_with_gtype(pad_template: StaticPadTemplate, pad_type: GType): PadTemplate | null;
+    static new_from_static_pad_template_with_gtype(...args: never[]): never;
     static new_with_gtype(name_template: string, direction: PadDirection, presence: PadPresence, caps: Caps, pad_type: GType): PadTemplate | null;
+    static new_with_gtype(...args: never[]): never;
     get_caps(): Caps;
     pad_created(pad: Pad): void;
     vfunc_pad_created(pad: Pad): void;

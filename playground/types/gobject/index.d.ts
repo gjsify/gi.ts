@@ -1,39 +1,14 @@
 
+/**
+ * gobject
+ */
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as GObject from "gobject";
 /**
- * gobject.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type BaseFinalizeFunc = (g_class: TypeClass) => void;
-export type BaseInitFunc = (g_class: TypeClass) => void;
-export type BindingTransformFunc = (binding: Binding, from_value: Value, to_value: Value, user_data: object | null) => boolean;
-export type BoxedCopyFunc = (boxed: object) => object;
-export type BoxedFreeFunc = (boxed: object) => void;
-export type Callback = () => void;
-export type ClassFinalizeFunc = (g_class: TypeClass, class_data: object | null) => void;
-export type ClassInitFunc = (g_class: TypeClass, class_data: object | null) => void;
-export type ClosureMarshal = (closure: Closure, return_value: Value | null, n_param_values: number, param_values: Value[], invocation_hint: object | null, marshal_data: object | null) => void;
-export type ClosureNotify = (data: object | null, closure: Closure) => void;
-export type InstanceInitFunc = (instance: TypeInstance, g_class: TypeClass) => void;
-export type InterfaceFinalizeFunc = (g_iface: TypeInterface, iface_data: object | null) => void;
-export type InterfaceInitFunc = (g_iface: TypeInterface, iface_data: object | null) => void;
-export type ObjectFinalizeFunc = (object: Object) => void;
-export type ObjectGetPropertyFunc = (object: Object, property_id: number, value: Value, pspec: ParamSpec) => void;
-export type ObjectSetPropertyFunc = (object: Object, property_id: number, value: Value, pspec: ParamSpec) => void;
-export type SignalAccumulator = (ihint: SignalInvocationHint, return_accu: Value, handler_return: Value, data: object | null) => boolean;
-export type SignalEmissionHook = (ihint: SignalInvocationHint, n_param_values: number, param_values: Value[], data: object | null) => boolean;
-export type ToggleNotify = (data: object | null, object: Object, is_last_ref: boolean) => void;
-export type TypeClassCacheFunc = (cache_data: object | null, g_class: TypeClass) => boolean;
-export type TypeInterfaceCheckFunc = (check_data: object | null, g_iface: TypeInterface) => void;
-export type TypePluginCompleteInterfaceInfo = (plugin: TypePlugin, instance_type: GType, interface_type: GType, info: InterfaceInfo) => void;
-export type TypePluginCompleteTypeInfo = (plugin: TypePlugin, g_type: GType, info: TypeInfo, value_table: TypeValueTable) => void;
-export type TypePluginUnuse = (plugin: TypePlugin) => void;
-export type TypePluginUse = (plugin: TypePlugin) => void;
-export type ValueTransform = (src_value: Value, dest_value: Value) => void;
-export type WeakNotify = (data: object | null, where_the_object_was: Object) => void;
 export const PARAM_MASK: number;
 export const PARAM_STATIC_STRINGS: number;
 export const PARAM_USER_SHIFT: number;
@@ -1077,6 +1052,33 @@ export function value_type_compatible(src_type: GType, dest_type: GType): boolea
  * transformation function must be registered.
  */
 export function value_type_transformable(src_type: GType, dest_type: GType): boolean;
+export type BaseFinalizeFunc = (g_class: TypeClass) => void;
+export type BaseInitFunc = (g_class: TypeClass) => void;
+export type BindingTransformFunc = (binding: Binding, from_value: Value, to_value: Value, user_data: object | null) => boolean;
+export type BoxedCopyFunc = (boxed: object) => object;
+export type BoxedFreeFunc = (boxed: object) => void;
+export type Callback = () => void;
+export type ClassFinalizeFunc = (g_class: TypeClass, class_data: object | null) => void;
+export type ClassInitFunc = (g_class: TypeClass, class_data: object | null) => void;
+export type ClosureMarshal = (closure: Closure, return_value: Value | null, n_param_values: number, param_values: Value[], invocation_hint: object | null, marshal_data: object | null) => void;
+export type ClosureNotify = (data: object | null, closure: Closure) => void;
+export type InstanceInitFunc = (instance: TypeInstance, g_class: TypeClass) => void;
+export type InterfaceFinalizeFunc = (g_iface: TypeInterface, iface_data: object | null) => void;
+export type InterfaceInitFunc = (g_iface: TypeInterface, iface_data: object | null) => void;
+export type ObjectFinalizeFunc = (object: Object) => void;
+export type ObjectGetPropertyFunc = (object: Object, property_id: number, value: Value, pspec: ParamSpec) => void;
+export type ObjectSetPropertyFunc = (object: Object, property_id: number, value: Value, pspec: ParamSpec) => void;
+export type SignalAccumulator = (ihint: SignalInvocationHint, return_accu: Value, handler_return: Value, data: object | null) => boolean;
+export type SignalEmissionHook = (ihint: SignalInvocationHint, n_param_values: number, param_values: Value[], data: object | null) => boolean;
+export type ToggleNotify = (data: object | null, object: Object, is_last_ref: boolean) => void;
+export type TypeClassCacheFunc = (cache_data: object | null, g_class: TypeClass) => boolean;
+export type TypeInterfaceCheckFunc = (check_data: object | null, g_iface: TypeInterface) => void;
+export type TypePluginCompleteInterfaceInfo = (plugin: TypePlugin, instance_type: GType, interface_type: GType, info: InterfaceInfo) => void;
+export type TypePluginCompleteTypeInfo = (plugin: TypePlugin, g_type: GType, info: TypeInfo, value_table: TypeValueTable) => void;
+export type TypePluginUnuse = (plugin: TypePlugin) => void;
+export type TypePluginUse = (plugin: TypePlugin) => void;
+export type ValueTransform = (src_value: Value, dest_value: Value) => void;
+export type WeakNotify = (data: object | null, where_the_object_was: Object) => void;
 export type SignalCMarshaller = ClosureMarshal;
 export type SignalCVaMarshaller = unknown;
 export type Type = number;
@@ -1440,7 +1442,7 @@ export class ParamSpecPool  {
     list_owned(owner_type: GType): GLib.List;
     lookup(param_name: string, owner_type: GType, walk_ancestors: boolean): ParamSpec;
     remove(pspec: ParamSpec): void;
-    static _new(type_prefixing: boolean): ParamSpecPool;
+    static new(type_prefixing: boolean): ParamSpecPool;
 }
 export class ParamSpecTypeInfo  {
     constructor(config?: properties);

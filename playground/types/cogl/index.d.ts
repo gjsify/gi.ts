@@ -1,27 +1,16 @@
 
+/**
+ * cogl
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as GL from "gl";
-import * as Cogl from "cogl";
 /**
- * cogl.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type DebugObjectForeachTypeCallback = (info: DebugObjectTypeInfo, user_data: object | null) => void;
-export type FeatureCallback = (feature: FeatureID, user_data: object | null) => void;
-export type FenceCallback = (fence: Fence, user_data: object | null) => void;
-export type FrameCallback = (onscreen: Onscreen, event: FrameEvent, info: FrameInfo, user_data: object | null) => void;
-export type FuncPtr = () => void;
-export type MetaTextureCallback = (sub_texture: Texture, sub_texture_coords: number, meta_coords: number, user_data: object | null) => void;
-export type OnscreenDirtyCallback = (onscreen: Onscreen, info: OnscreenDirtyInfo, user_data: object | null) => void;
-export type OnscreenResizeCallback = (onscreen: Onscreen, width: number, height: number, user_data: object | null) => void;
-export type OnscreenX11MaskCallback = (onscreen: Onscreen, event_mask: number, user_data: object | null) => void;
-export type OutputCallback = (output: Output, user_data: object | null) => void;
-export type PipelineLayerCallback = (pipeline: Pipeline, layer_index: number, user_data: object | null) => Bool;
-export type PrimitiveAttributeCallback = (primitive: Primitive, attribute: Attribute, user_data: object | null) => Bool;
-export type SwapBuffersNotify = (framebuffer: Framebuffer, user_data: object | null) => void;
 export const AFIRST_BIT: number;
 export const A_BIT: number;
 export const BGR_BIT: number;
@@ -758,6 +747,26 @@ export function x11_onscreen_get_visual_xid(onscreen: Onscreen): number;
  * renderer.
  */
 export function x11_onscreen_get_window_xid(onscreen: Onscreen): number;
+export type DebugObjectForeachTypeCallback = (info: DebugObjectTypeInfo, user_data: object | null) => void;
+export type FeatureCallback = (feature: FeatureID, user_data: object | null) => void;
+export type FenceCallback = (fence: Fence, user_data: object | null) => void;
+export type FrameCallback = (onscreen: Onscreen, event: FrameEvent, info: FrameInfo, user_data: object | null) => void;
+export type FuncPtr = () => void;
+export type MetaTextureCallback = (sub_texture: Texture, sub_texture_coords: number, meta_coords: number, user_data: object | null) => void;
+export type OnscreenDirtyCallback = (onscreen: Onscreen, info: OnscreenDirtyInfo, user_data: object | null) => void;
+export type OnscreenResizeCallback = (onscreen: Onscreen, width: number, height: number, user_data: object | null) => void;
+export type OnscreenX11MaskCallback = (onscreen: Onscreen, event_mask: number, user_data: object | null) => void;
+export type OutputCallback = (output: Output, user_data: object | null) => void;
+export type PipelineLayerCallback = (pipeline: Pipeline, layer_index: number, user_data: object | null) => Bool;
+export type PrimitiveAttributeCallback = (primitive: Primitive, attribute: Attribute, user_data: object | null) => Bool;
+export type SwapBuffersNotify = (framebuffer: Framebuffer, user_data: object | null) => void;
+export type Angle = number;
+export type Bool = number;
+export type Buffer = void;
+export type Handle = object;
+export type MetaTexture = void;
+export type PrimitiveTexture = void;
+export type UserDataDestroyCallback = GLib.DestroyNotify;
 export enum AttributeType {
     BYTE = 5120,
     UNSIGNED_BYTE = 5121,
@@ -1010,10 +1019,10 @@ export enum TexturePixmapX11ReportLevel {
     BOUNDING_BOX = 2,
     NON_EMPTY = 3,
 }
-export enum TextureType {
-    "2D" = 0,
-    "3D" = 1,
-    RECTANGLE = 2,
+export class TextureType  {
+    static "2D": number;
+    static "3D": number;
+    static RECTANGLE: number;
 }
 export enum VerticesMode {
     POINTS = 0,
@@ -1056,13 +1065,6 @@ export enum WinsysID {
     WGL = 10,
     SDL = 11,
 }
-export type Angle = number;
-export type Bool = number;
-export type Buffer = void;
-export type Handle = object;
-export type MetaTexture = void;
-export type PrimitiveTexture = void;
-export type UserDataDestroyCallback = GLib.DestroyNotify;
 export enum BufferAccess {
     READ = 1,
     WRITE = 2,

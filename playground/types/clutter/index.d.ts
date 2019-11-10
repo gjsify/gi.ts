@@ -1,4 +1,7 @@
 
+/**
+ * clutter
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
@@ -8,26 +11,12 @@ import * as CoglPango from "coglpango";
 import * as GL from "gl";
 import * as Json from "json";
 import * as cairo from "cairo";
-import * as Clutter from "clutter";
 import * as Pango from "pango";
 /**
- * clutter.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ActorCreateChildFunc = (item: GObject.Object, user_data: object | null) => Actor;
-export type AlphaFunc = (alpha: Alpha, user_data: object | null) => number;
-export type BehaviourForeachFunc = (behaviour: Behaviour, actor: Actor, data: object | null) => void;
-export type BindingActionFunc = (gobject: GObject.Object, action_name: string, key_val: number, modifiers: ModifierType, user_data: object | null) => boolean;
-export type Callback = (actor: Actor, data: object | null) => void;
-export type EventFilterFunc = (event: Event, user_data: object | null) => boolean;
-export type ModelFilterFunc = (model: Model, iter: ModelIter, user_data: object | null) => boolean;
-export type ModelForeachFunc = (model: Model, iter: ModelIter, user_data: object | null) => boolean;
-export type ModelSortFunc = (model: Model, a: GObject.Value, b: GObject.Value, user_data: object | null) => number;
-export type PathCallback = (node: PathNode, data: object | null) => void;
-export type ProgressFunc = (a: GObject.Value, b: GObject.Value, progress: number, retval: GObject.Value) => boolean;
-export type ScriptConnectFunc = (script: Script, object: GObject.Object, signal_name: string, handler_name: string, connect_object: GObject.Object, flags: GObject.ConnectFlags, user_data: object | null) => void;
-export type TimelineProgressFunc = (timeline: Timeline, elapsed: number, total: number, user_data: object | null) => number;
 export const Gjs_0: number;
 export const Gjs_1: number;
 export const Gjs_2: number;
@@ -5499,6 +5488,20 @@ export function value_set_units(value: GObject.Value, units: Units): void;
  * current reference count.
  */
 export function value_take_paint_node(value: GObject.Value, node: PaintNode | null): void;
+export type ActorCreateChildFunc = (item: GObject.Object, user_data: object | null) => Actor;
+export type AlphaFunc = (alpha: Alpha, user_data: object | null) => number;
+export type BehaviourForeachFunc = (behaviour: Behaviour, actor: Actor, data: object | null) => void;
+export type BindingActionFunc = (gobject: GObject.Object, action_name: string, key_val: number, modifiers: ModifierType, user_data: object | null) => boolean;
+export type Callback = (actor: Actor, data: object | null) => void;
+export type EventFilterFunc = (event: Event, user_data: object | null) => boolean;
+export type ModelFilterFunc = (model: Model, iter: ModelIter, user_data: object | null) => boolean;
+export type ModelForeachFunc = (model: Model, iter: ModelIter, user_data: object | null) => boolean;
+export type ModelSortFunc = (model: Model, a: GObject.Value, b: GObject.Value, user_data: object | null) => number;
+export type PathCallback = (node: PathNode, data: object | null) => void;
+export type ProgressFunc = (a: GObject.Value, b: GObject.Value, progress: number, retval: GObject.Value) => boolean;
+export type ScriptConnectFunc = (script: Script, object: GObject.Object, signal_name: string, handler_name: string, connect_object: GObject.Object, flags: GObject.ConnectFlags, user_data: object | null) => void;
+export type TimelineProgressFunc = (timeline: Timeline, elapsed: number, total: number, user_data: object | null) => number;
+export type Matrix = Cogl.Matrix;
 export enum ActorAlign {
     FILL = 0,
     START = 1,
@@ -5858,7 +5861,6 @@ export enum ZoomAxis {
     Y_AXIS = 1,
     BOTH = 2,
 }
-export type Matrix = Cogl.Matrix;
 export enum ActorFlags {
     MAPPED = 2,
     REALIZED = 4,
@@ -6641,7 +6643,7 @@ export class Canvas  {
     get_scale_factor(): number;
     set_scale_factor(scale: number): void;
     set_size(width: number, height: number): boolean;
-    static _new(): Content;
+    static new(): Content;
 }
 export class ChildMeta  {
     constructor(config?: properties);
@@ -6839,7 +6841,7 @@ export class Image  {
     set_area(data: number[], pixel_format: Cogl.PixelFormat, rect: cairo.RectangleInt, row_stride: number): boolean;
     set_bytes(data: GLib.Bytes, pixel_format: Cogl.PixelFormat, width: number, height: number, row_stride: number): boolean;
     set_data(data: number[], pixel_format: Cogl.PixelFormat, width: number, height: number, row_stride: number): boolean;
-    static _new(): Content;
+    static new(): Content;
 }
 export class InputDevice  {
     constructor(config?: properties);
@@ -7094,6 +7096,7 @@ export class Rectangle extends Actor {
     border_width: number;
     color: Color;
     has_border: boolean;static new_with_color(color: Color): Actor;
+    static new_with_color(...args: never[]): never;
     get_border_color(): [Color];
     get_border_width(): number;
     get_color(): [Color];
@@ -7377,8 +7380,7 @@ export class Text extends Actor {
     line_wrap_mode: Pango.WrapMode;
     max_length: number;
     password_char: number;
-    position: number;
-    readonly position: never;
+    position: number | any;
     selectable: boolean;
     selected_text_color: Color;
     readonly selected_text_color_set: boolean;
@@ -7388,8 +7390,11 @@ export class Text extends Actor {
     single_line_mode: boolean;
     text: string;
     use_markup: boolean;static new_full(font_name: string, text: string, color: Color): Actor;
+    static new_full(...args: never[]): never;
     static new_with_buffer(buffer: TextBuffer): Actor;
+    static new_with_buffer(...args: never[]): never;
     static new_with_text(font_name: string | null, text: string): Actor;
+    static new_with_text(...args: never[]): never;
     activate(): boolean;
     coords_to_position(x: number, y: number): number;
     delete_chars(n_chars: number): void;
@@ -7466,6 +7471,7 @@ export class TextBuffer extends GObject.Object {
     readonly length: number;
     max_length: number;
     readonly text: string;static new_with_text(text: string | null, text_len: number): TextBuffer;
+    static new_with_text(...args: never[]): never;
     delete_text(position: number, n_chars: number): number;
     emit_deleted_text(position: number, n_chars: number): void;
     emit_inserted_text(position: number, chars: string, n_chars: number): void;
@@ -7500,7 +7506,9 @@ export class Texture extends Actor {
     repeat_y: boolean;
     sync_size: boolean;
     readonly tile_waste: number;static new_from_actor(actor: Actor): Actor;
+    static new_from_actor(...args: never[]): never;
     static new_from_file(filename: string): Actor;
+    static new_from_file(...args: never[]): never;
     get_base_size(): [number,number];
     get_cogl_material(): Cogl.Handle;
     get_cogl_texture(): Cogl.Handle;

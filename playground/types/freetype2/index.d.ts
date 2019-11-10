@@ -1,9 +1,12 @@
 
+/**
+ * freetype2
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 /**
- * freetype2.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;

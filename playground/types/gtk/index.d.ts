@@ -1,82 +1,21 @@
 
+/**
+ * gtk
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Atk from "atk";
 import * as Gdk from "gdk";
 import * as xlib from "xlib";
-import * as Gtk from "gtk";
+import * as cairo from "cairo";
 import * as GdkPixbuf from "gdkpixbuf";
 import * as Pango from "pango";
-import * as cairo from "cairo";
 /**
- * gtk.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type AccelGroupActivate = (accel_group: AccelGroup, acceleratable: GObject.Object, keyval: number, modifier: Gdk.ModifierType) => boolean;
-export type AccelGroupFindFunc = (key: AccelKey, closure: GObject.Closure, data: object | null) => boolean;
-export type AccelMapForeach = (data: object | null, accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType, changed: boolean) => void;
-export type AssistantPageFunc = (current_page: number, data: object | null) => number;
-export type BuilderConnectFunc = (builder: Builder, object: GObject.Object, signal_name: string, handler_name: string, connect_object: GObject.Object | null, flags: GObject.ConnectFlags, user_data: object | null) => void;
-export type CalendarDetailFunc = (calendar: Calendar, year: number, month: number, day: number, user_data: object | null) => string | null;
-export type Callback = (widget: Widget, data: object | null) => void;
-export type CellAllocCallback = (renderer: CellRenderer, cell_area: Gdk.Rectangle, cell_background: Gdk.Rectangle, data: object | null) => boolean;
-export type CellCallback = (renderer: CellRenderer, data: object | null) => boolean;
-export type CellLayoutDataFunc = (cell_layout: CellLayout, cell: CellRenderer, tree_model: TreeModel, iter: TreeIter, data: object | null) => void;
-export type ClipboardClearFunc = (clipboard: Clipboard, user_data_or_owner: object | null) => void;
-export type ClipboardGetFunc = (clipboard: Clipboard, selection_data: SelectionData, info: number, user_data_or_owner: object | null) => void;
-export type ClipboardImageReceivedFunc = (clipboard: Clipboard, pixbuf: GdkPixbuf.Pixbuf, data: object | null) => void;
-export type ClipboardReceivedFunc = (clipboard: Clipboard, selection_data: SelectionData, data: object | null) => void;
-export type ClipboardRichTextReceivedFunc = (clipboard: Clipboard, format: Gdk.Atom, text: string | null, length: number, data: object | null) => void;
-export type ClipboardTargetsReceivedFunc = (clipboard: Clipboard, atoms: Gdk.Atom[] | null, n_atoms: number, data: object | null) => void;
-export type ClipboardTextReceivedFunc = (clipboard: Clipboard, text: string | null, data: object | null) => void;
-export type ClipboardURIReceivedFunc = (clipboard: Clipboard, uris: string[], data: object | null) => void;
-export type ColorSelectionChangePaletteFunc = (colors: Gdk.Color[], n_colors: number) => void;
-export type ColorSelectionChangePaletteWithScreenFunc = (screen: Gdk.Screen, colors: Gdk.Color[], n_colors: number) => void;
-export type EntryCompletionMatchFunc = (completion: EntryCompletion, key: string, iter: TreeIter, user_data: object | null) => boolean;
-export type FileFilterFunc = (filter_info: FileFilterInfo, data: object | null) => boolean;
-export type FlowBoxCreateWidgetFunc = (item: GObject.Object, user_data: object | null) => Widget;
-export type FlowBoxFilterFunc = (child: FlowBoxChild, user_data: object | null) => boolean;
-export type FlowBoxForeachFunc = (box: FlowBox, child: FlowBoxChild, user_data: object | null) => void;
-export type FlowBoxSortFunc = (child1: FlowBoxChild, child2: FlowBoxChild, user_data: object | null) => number;
-export type FontFilterFunc = (family: Pango.FontFamily, face: Pango.FontFace, data: object | null) => boolean;
-export type IconViewForeachFunc = (icon_view: IconView, path: TreePath, data: object | null) => void;
-export type KeySnoopFunc = (grab_widget: Widget, event: Gdk.EventKey, func_data: object | null) => number;
-export type ListBoxCreateWidgetFunc = (item: GObject.Object, user_data: object | null) => Widget;
-export type ListBoxFilterFunc = (row: ListBoxRow, user_data: object | null) => boolean;
-export type ListBoxForeachFunc = (box: ListBox, row: ListBoxRow, user_data: object | null) => void;
-export type ListBoxSortFunc = (row1: ListBoxRow, row2: ListBoxRow, user_data: object | null) => number;
-export type ListBoxUpdateHeaderFunc = (row: ListBoxRow, before: ListBoxRow | null, user_data: object | null) => void;
-export type MenuDetachFunc = (attach_widget: Widget, menu: Menu) => void;
-export type MenuPositionFunc = (menu: Menu, x: number, y: number, user_data: object | null) => void;
-export type ModuleDisplayInitFunc = (display: Gdk.Display) => void;
-export type ModuleInitFunc = (argc: number | null, argv: string[] | null) => void;
-export type PageSetupDoneFunc = (page_setup: PageSetup, data: object | null) => void;
-export type PrintSettingsFunc = (key: string, value: string, user_data: object | null) => void;
-export type RcPropertyParser = (pspec: GObject.ParamSpec, rc_string: GLib.String, property_value: GObject.Value) => boolean;
-export type RecentFilterFunc = (filter_info: RecentFilterInfo, user_data: object | null) => boolean;
-export type RecentSortFunc = (a: RecentInfo, b: RecentInfo, user_data: object | null) => number;
-export type StylePropertyParser = (string: string, value: GObject.Value) => boolean;
-export type TextBufferDeserializeFunc = (register_buffer: TextBuffer, content_buffer: TextBuffer, iter: TextIter, data: number[], length: number, create_tags: boolean, user_data: object | null) => boolean;
-export type TextBufferSerializeFunc = (register_buffer: TextBuffer, content_buffer: TextBuffer, start: TextIter, end: TextIter, length: number, user_data: object | null) => number | null;
-export type TextCharPredicate = (ch: number, user_data: object | null) => boolean;
-export type TextTagTableForeach = (tag: TextTag, data: object | null) => void;
-export type TickCallback = (widget: Widget, frame_clock: Gdk.FrameClock, user_data: object | null) => boolean;
-export type TranslateFunc = (path: string, func_data: object | null) => string;
-export type TreeCellDataFunc = (tree_column: TreeViewColumn, cell: CellRenderer, tree_model: TreeModel, iter: TreeIter, data: object | null) => void;
-export type TreeDestroyCountFunc = (tree_view: TreeView, path: TreePath, children: number, user_data: object | null) => void;
-export type TreeIterCompareFunc = (model: TreeModel, a: TreeIter, b: TreeIter, user_data: object | null) => number;
-export type TreeModelFilterModifyFunc = (model: TreeModel, iter: TreeIter, column: number, data: object | null) => void;
-export type TreeModelFilterVisibleFunc = (model: TreeModel, iter: TreeIter, data: object | null) => boolean;
-export type TreeModelForeachFunc = (model: TreeModel, path: TreePath, iter: TreeIter, data: object | null) => boolean;
-export type TreeSelectionForeachFunc = (model: TreeModel, path: TreePath, iter: TreeIter, data: object | null) => void;
-export type TreeSelectionFunc = (selection: TreeSelection, model: TreeModel, path: TreePath, path_currently_selected: boolean, data: object | null) => boolean;
-export type TreeViewColumnDropFunc = (tree_view: TreeView, column: TreeViewColumn, prev_column: TreeViewColumn, next_column: TreeViewColumn, data: object | null) => boolean;
-export type TreeViewMappingFunc = (tree_view: TreeView, path: TreePath, user_data: object | null) => void;
-export type TreeViewRowSeparatorFunc = (model: TreeModel, iter: TreeIter, data: object | null) => boolean;
-export type TreeViewSearchEqualFunc = (model: TreeModel, column: number, key: string, iter: TreeIter, search_data: object | null) => boolean;
-export type TreeViewSearchPositionFunc = (tree_view: TreeView, search_dialog: Widget, user_data: object | null) => void;
 export const BINARY_AGE: number;
 export const INPUT_ERROR: number;
 export const INTERFACE_AGE: number;
@@ -1812,6 +1751,71 @@ export function tree_set_row_drag_data(selection_data: SelectionData, tree_model
  * ]|
  */
 export function _true(): boolean;
+export type AccelGroupActivate = (accel_group: AccelGroup, acceleratable: GObject.Object, keyval: number, modifier: Gdk.ModifierType) => boolean;
+export type AccelGroupFindFunc = (key: AccelKey, closure: GObject.Closure, data: object | null) => boolean;
+export type AccelMapForeach = (data: object | null, accel_path: string, accel_key: number, accel_mods: Gdk.ModifierType, changed: boolean) => void;
+export type AssistantPageFunc = (current_page: number, data: object | null) => number;
+export type BuilderConnectFunc = (builder: Builder, object: GObject.Object, signal_name: string, handler_name: string, connect_object: GObject.Object | null, flags: GObject.ConnectFlags, user_data: object | null) => void;
+export type CalendarDetailFunc = (calendar: Calendar, year: number, month: number, day: number, user_data: object | null) => string | null;
+export type Callback = (widget: Widget, data: object | null) => void;
+export type CellAllocCallback = (renderer: CellRenderer, cell_area: Gdk.Rectangle, cell_background: Gdk.Rectangle, data: object | null) => boolean;
+export type CellCallback = (renderer: CellRenderer, data: object | null) => boolean;
+export type CellLayoutDataFunc = (cell_layout: CellLayout, cell: CellRenderer, tree_model: TreeModel, iter: TreeIter, data: object | null) => void;
+export type ClipboardClearFunc = (clipboard: Clipboard, user_data_or_owner: object | null) => void;
+export type ClipboardGetFunc = (clipboard: Clipboard, selection_data: SelectionData, info: number, user_data_or_owner: object | null) => void;
+export type ClipboardImageReceivedFunc = (clipboard: Clipboard, pixbuf: GdkPixbuf.Pixbuf, data: object | null) => void;
+export type ClipboardReceivedFunc = (clipboard: Clipboard, selection_data: SelectionData, data: object | null) => void;
+export type ClipboardRichTextReceivedFunc = (clipboard: Clipboard, format: Gdk.Atom, text: string | null, length: number, data: object | null) => void;
+export type ClipboardTargetsReceivedFunc = (clipboard: Clipboard, atoms: Gdk.Atom[] | null, n_atoms: number, data: object | null) => void;
+export type ClipboardTextReceivedFunc = (clipboard: Clipboard, text: string | null, data: object | null) => void;
+export type ClipboardURIReceivedFunc = (clipboard: Clipboard, uris: string[], data: object | null) => void;
+export type ColorSelectionChangePaletteFunc = (colors: Gdk.Color[], n_colors: number) => void;
+export type ColorSelectionChangePaletteWithScreenFunc = (screen: Gdk.Screen, colors: Gdk.Color[], n_colors: number) => void;
+export type EntryCompletionMatchFunc = (completion: EntryCompletion, key: string, iter: TreeIter, user_data: object | null) => boolean;
+export type FileFilterFunc = (filter_info: FileFilterInfo, data: object | null) => boolean;
+export type FlowBoxCreateWidgetFunc = (item: GObject.Object, user_data: object | null) => Widget;
+export type FlowBoxFilterFunc = (child: FlowBoxChild, user_data: object | null) => boolean;
+export type FlowBoxForeachFunc = (box: FlowBox, child: FlowBoxChild, user_data: object | null) => void;
+export type FlowBoxSortFunc = (child1: FlowBoxChild, child2: FlowBoxChild, user_data: object | null) => number;
+export type FontFilterFunc = (family: Pango.FontFamily, face: Pango.FontFace, data: object | null) => boolean;
+export type IconViewForeachFunc = (icon_view: IconView, path: TreePath, data: object | null) => void;
+export type KeySnoopFunc = (grab_widget: Widget, event: Gdk.EventKey, func_data: object | null) => number;
+export type ListBoxCreateWidgetFunc = (item: GObject.Object, user_data: object | null) => Widget;
+export type ListBoxFilterFunc = (row: ListBoxRow, user_data: object | null) => boolean;
+export type ListBoxForeachFunc = (box: ListBox, row: ListBoxRow, user_data: object | null) => void;
+export type ListBoxSortFunc = (row1: ListBoxRow, row2: ListBoxRow, user_data: object | null) => number;
+export type ListBoxUpdateHeaderFunc = (row: ListBoxRow, before: ListBoxRow | null, user_data: object | null) => void;
+export type MenuDetachFunc = (attach_widget: Widget, menu: Menu) => void;
+export type MenuPositionFunc = (menu: Menu, x: number, y: number, user_data: object | null) => void;
+export type ModuleDisplayInitFunc = (display: Gdk.Display) => void;
+export type ModuleInitFunc = (argc: number | null, argv: string[] | null) => void;
+export type PageSetupDoneFunc = (page_setup: PageSetup, data: object | null) => void;
+export type PrintSettingsFunc = (key: string, value: string, user_data: object | null) => void;
+export type RcPropertyParser = (pspec: GObject.ParamSpec, rc_string: GLib.String, property_value: GObject.Value) => boolean;
+export type RecentFilterFunc = (filter_info: RecentFilterInfo, user_data: object | null) => boolean;
+export type RecentSortFunc = (a: RecentInfo, b: RecentInfo, user_data: object | null) => number;
+export type StylePropertyParser = (string: string, value: GObject.Value) => boolean;
+export type TextBufferDeserializeFunc = (register_buffer: TextBuffer, content_buffer: TextBuffer, iter: TextIter, data: number[], length: number, create_tags: boolean, user_data: object | null) => boolean;
+export type TextBufferSerializeFunc = (register_buffer: TextBuffer, content_buffer: TextBuffer, start: TextIter, end: TextIter, length: number, user_data: object | null) => number | null;
+export type TextCharPredicate = (ch: number, user_data: object | null) => boolean;
+export type TextTagTableForeach = (tag: TextTag, data: object | null) => void;
+export type TickCallback = (widget: Widget, frame_clock: Gdk.FrameClock, user_data: object | null) => boolean;
+export type TranslateFunc = (path: string, func_data: object | null) => string;
+export type TreeCellDataFunc = (tree_column: TreeViewColumn, cell: CellRenderer, tree_model: TreeModel, iter: TreeIter, data: object | null) => void;
+export type TreeDestroyCountFunc = (tree_view: TreeView, path: TreePath, children: number, user_data: object | null) => void;
+export type TreeIterCompareFunc = (model: TreeModel, a: TreeIter, b: TreeIter, user_data: object | null) => number;
+export type TreeModelFilterModifyFunc = (model: TreeModel, iter: TreeIter, column: number, data: object | null) => void;
+export type TreeModelFilterVisibleFunc = (model: TreeModel, iter: TreeIter, data: object | null) => boolean;
+export type TreeModelForeachFunc = (model: TreeModel, path: TreePath, iter: TreeIter, data: object | null) => boolean;
+export type TreeSelectionForeachFunc = (model: TreeModel, path: TreePath, iter: TreeIter, data: object | null) => void;
+export type TreeSelectionFunc = (selection: TreeSelection, model: TreeModel, path: TreePath, path_currently_selected: boolean, data: object | null) => boolean;
+export type TreeViewColumnDropFunc = (tree_view: TreeView, column: TreeViewColumn, prev_column: TreeViewColumn, next_column: TreeViewColumn, data: object | null) => boolean;
+export type TreeViewMappingFunc = (tree_view: TreeView, path: TreePath, user_data: object | null) => void;
+export type TreeViewRowSeparatorFunc = (model: TreeModel, iter: TreeIter, data: object | null) => boolean;
+export type TreeViewSearchEqualFunc = (model: TreeModel, column: number, key: string, iter: TreeIter, search_data: object | null) => boolean;
+export type TreeViewSearchPositionFunc = (tree_view: TreeView, search_dialog: Widget, user_data: object | null) => void;
+export type Allocation = Gdk.Rectangle;
+export type Stock = string;
 export enum Align {
     FILL = 0,
     START = 1,
@@ -2513,8 +2517,6 @@ export enum WrapMode {
     WORD = 2,
     WORD_CHAR = 3,
 }
-export type Allocation = Gdk.Rectangle;
-export type Stock = string;
 export enum AccelFlags {
     VISIBLE = 1,
     LOCKED = 2,
@@ -2982,6 +2984,7 @@ export class AppChooserDialog extends Dialog {
     constructor(config?: properties);
     gfile: Gio.File;
     heading: string;static new_for_content_type(parent: Window | null, flags: DialogFlags, content_type: string): Widget;
+    static new_for_content_type(...args: never[]): never;
     get_heading(): string | null;
     get_widget(): Widget;
     set_heading(heading: string): void;
@@ -3133,8 +3136,11 @@ export class Box extends Container {
 export class Builder extends GObject.Object {
     constructor(config?: properties);
     translation_domain: string;static new_from_file(filename: string): Builder;
+    static new_from_file(...args: never[]): never;
     static new_from_resource(resource_path: string): Builder;
+    static new_from_resource(...args: never[]): never;
     static new_from_string(string: string, length: number): Builder;
+    static new_from_string(...args: never[]): never;
     add_callback_symbol(callback_name: string, callback_symbol: GObject.Callback): void;
     add_from_file(filename: string): number;
     add_from_resource(resource_path: string): number;
@@ -3499,9 +3505,13 @@ export class CellView extends Widget {
     draw_sensitive: boolean;
     fit_model: boolean;
     model: TreeModel;static new_with_context(area: CellArea, context: CellAreaContext): Widget;
+    static new_with_context(...args: never[]): never;
     static new_with_markup(markup: string): Widget;
+    static new_with_markup(...args: never[]): never;
     static new_with_pixbuf(pixbuf: GdkPixbuf.Pixbuf): Widget;
+    static new_with_pixbuf(...args: never[]): never;
     static new_with_text(text: string): Widget;
+    static new_with_text(...args: never[]): never;
     get_displayed_row(): TreePath | null;
     get_draw_sensitive(): boolean;
     get_fit_model(): boolean;
@@ -3517,7 +3527,9 @@ export class CellView extends Widget {
 export class CheckButton extends ToggleButton {
     constructor(config?: properties);
     static new_with_label(label: string): Widget;
+    static new_with_label(...args: never[]): never;
     static new_with_mnemonic(label: string): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     vfunc_draw_indicator(cr: cairo.Context): void;
 }
 export class CheckMenuItem extends MenuItem {
@@ -3525,7 +3537,9 @@ export class CheckMenuItem extends MenuItem {
     active: boolean;
     draw_as_radio: boolean;
     inconsistent: boolean;static new_with_label(label: string): Widget;
+    static new_with_label(...args: never[]): never;
     static new_with_mnemonic(label: string): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     get_active(): boolean;
     get_draw_as_radio(): boolean;
     get_inconsistent(): boolean;
@@ -3578,7 +3592,9 @@ export class ColorButton extends Button {
     show_editor: boolean;
     title: string;
     use_alpha: boolean;static new_with_color(color: Gdk.Color): Widget;
+    static new_with_color(...args: never[]): never;
     static new_with_rgba(rgba: Gdk.RGBA): Widget;
+    static new_with_rgba(...args: never[]): never;
     get_alpha(): number;
     get_color(): [Gdk.Color];
     get_title(): string;
@@ -3699,6 +3715,7 @@ export class ComboBoxAccessible  {
 export class ComboBoxText extends ComboBox {
     constructor(config?: properties);
     static new_with_entry(): Widget;
+    static new_with_entry(...args: never[]): never;
     append(id: string | null, text: string): void;
     append_text(text: string): void;
     get_active_text(): string;
@@ -3840,6 +3857,7 @@ export class Entry extends Widget {
     visibility: boolean;
     width_chars: number;
     xalign: number;static new_with_buffer(buffer: EntryBuffer): Widget;
+    static new_with_buffer(...args: never[]): never;
     get_activates_default(): boolean;
     get_alignment(): number;
     get_attributes(): Pango.AttrList | null;
@@ -3915,7 +3933,7 @@ export class Entry extends Widget {
     text_index_to_layout_index(text_index: number): number;
     unset_invisible_char(): void;
     vfunc_activate(): void;
-    activate(...args: never[]): never;
+    vfunc_activate(...args: never[]): never;
     vfunc_backspace(): void;
     vfunc_copy_clipboard(): void;
     vfunc_cut_clipboard(): void;
@@ -3966,6 +3984,7 @@ export class EntryCompletion extends GObject.Object {
     popup_set_width: boolean;
     popup_single_match: boolean;
     text_column: number;static new_with_area(area: CellArea): EntryCompletion;
+    static new_with_area(...args: never[]): never;
     complete(): void;
     compute_prefix(key: string): string | null;
     delete_action(index_: number): void;
@@ -4072,6 +4091,7 @@ export class FileChooserButton extends Box {
     dialog: FileChooser;
     title: string;
     width_chars: number;static new_with_dialog(dialog: Dialog): Widget;
+    static new_with_dialog(...args: never[]): never;
     get_focus_on_click(): boolean;
     get_title(): string;
     get_width_chars(): number;
@@ -4184,6 +4204,7 @@ export class FontButton extends Button {
     title: string;
     use_font: boolean;
     use_size: boolean;static new_with_font(fontname: string): Widget;
+    static new_with_font(...args: never[]): never;
     get_font_name(): string;
     get_show_size(): boolean;
     get_show_style(): boolean;
@@ -4409,7 +4430,7 @@ export class HSV extends Widget {
 export class HScale extends Scale {
     constructor(config?: properties);
     static new_with_range(min: number, max: number, step: number): Widget;
-    static new_with_range(...args: never[]): Widget;
+    static new_with_range(...args: never[]): never;
 }
 export class HScrollbar extends Scrollbar {
     constructor(config?: properties);
@@ -4498,6 +4519,7 @@ export class IconFactory extends GObject.Object {
 export class IconInfo extends GObject.Object {
     constructor(config?: properties);
     static new_for_pixbuf(icon_theme: IconTheme, pixbuf: GdkPixbuf.Pixbuf): IconInfo;
+    static new_for_pixbuf(...args: never[]): never;
     get_attach_points(): [boolean, Gdk.Point[] | null,number | null];
     get_base_scale(): number;
     get_base_size(): number;
@@ -4567,7 +4589,9 @@ export class IconView extends Container {
     spacing: number;
     text_column: number;
     tooltip_column: number;static new_with_area(area: CellArea): Widget;
+    static new_with_area(...args: never[]): never;
     static new_with_model(model: TreeModel): Widget;
+    static new_with_model(...args: never[]): never;
     convert_widget_to_bin_window_coords(wx: number, wy: number): [number,number];
     create_drag_icon(path: TreePath): cairo.Surface;
     enable_model_drag_dest(targets: TargetEntry[], n_targets: number, actions: Gdk.DragAction): void;
@@ -4657,14 +4681,23 @@ export class Image extends Misc {
     readonly storage_type: ImageType;
     surface: cairo.Surface;
     use_fallback: boolean;static new_from_animation(animation: GdkPixbuf.PixbufAnimation): Widget;
+    static new_from_animation(...args: never[]): never;
     static new_from_file(filename: string): Widget;
+    static new_from_file(...args: never[]): never;
     static new_from_gicon(icon: Gio.Icon, size: number): Widget;
+    static new_from_gicon(...args: never[]): never;
     static new_from_icon_name(icon_name: string | null, size: number): Widget;
+    static new_from_icon_name(...args: never[]): never;
     static new_from_icon_set(icon_set: IconSet, size: number): Widget;
+    static new_from_icon_set(...args: never[]): never;
     static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf | null): Widget;
+    static new_from_pixbuf(...args: never[]): never;
     static new_from_resource(resource_path: string): Widget;
+    static new_from_resource(...args: never[]): never;
     static new_from_stock(stock_id: string, size: number): Widget;
+    static new_from_stock(...args: never[]): never;
     static new_from_surface(surface: cairo.Surface | null): Widget;
+    static new_from_surface(...args: never[]): never;
     clear(): void;
     get_animation(): GdkPixbuf.PixbufAnimation | null;
     get_gicon(): [Gio.Icon | null,number | null];
@@ -4699,8 +4732,11 @@ export class ImageMenuItem extends MenuItem {
     always_show_image: boolean;
     image: Widget;
     use_stock: boolean;static new_from_stock(stock_id: string, accel_group: AccelGroup | null): Widget;
+    static new_from_stock(...args: never[]): never;
     static new_with_label(label: string): Widget;
+    static new_with_label(...args: never[]): never;
     static new_with_mnemonic(label: string): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     get_always_show_image(): boolean;
     get_image(): Widget;
     get_use_stock(): boolean;
@@ -4733,6 +4769,7 @@ export class InfoBar extends Box {
 export class Invisible extends Widget {
     constructor(config?: properties);
     screen: Gdk.Screen;static new_for_screen(screen: Gdk.Screen): Widget;
+    static new_for_screen(...args: never[]): never;
     get_screen(): Gdk.Screen;
     set_screen(screen: Gdk.Screen): void;
 }
@@ -4760,6 +4797,7 @@ export class Label extends Misc {
     wrap_mode: Pango.WrapMode;
     xalign: number;
     yalign: number;static new_with_mnemonic(str: string | null): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     get_angle(): number;
     get_attributes(): Pango.AttrList | null;
     get_current_uri(): string;
@@ -4838,6 +4876,7 @@ export class LevelBar extends Widget {
     min_value: number;
     mode: LevelBarMode;
     value: number;static new_for_interval(min_value: number, max_value: number): Widget;
+    static new_for_interval(...args: never[]): never;
     add_offset_value(name: string, value: number): void;
     get_inverted(): boolean;
     get_max_value(): number;
@@ -4861,7 +4900,7 @@ export class LinkButton extends Button {
     constructor(config?: properties);
     uri: string;
     visited: boolean;static new_with_label(uri: string, label: string | null): Widget;
-    static new_with_label(...args: never[]): Widget;
+    static new_with_label(...args: never[]): never;
     get_uri(): string;
     get_visited(): boolean;
     set_uri(uri: string): void;
@@ -4937,7 +4976,7 @@ export class ListBoxRowAccessible  {
 export class ListStore extends GObject.Object {
     constructor(config?: properties);
     static newv(n_columns: number, types: GType): ListStore;
-    static newv(...args: never[]): ListStore;
+    static newv(...args: never[]): never;
     append(): [TreeIter];
     clear(): void;
     insert(position: number): [TreeIter];
@@ -5280,7 +5319,7 @@ export class NumerableIcon  {
     set_count(count: number): void;
     set_label(label: string | null): void;
     set_style_context(style: StyleContext): void;
-    static _new(base_icon: Gio.Icon): Gio.Icon;
+    static new(base_icon: Gio.Icon): Gio.Icon;
     static new_with_style_context(base_icon: Gio.Icon, context: StyleContext): Gio.Icon;
 }
 export class OffscreenWindow extends Window {
@@ -5306,8 +5345,11 @@ export class PadController extends EventController {
 export class PageSetup extends GObject.Object {
     constructor(config?: properties);
     static new_from_file(file_name: string): PageSetup;
+    static new_from_file(...args: never[]): never;
     static new_from_gvariant(variant: GLib.Variant): PageSetup;
+    static new_from_gvariant(...args: never[]): never;
     static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PageSetup;
+    static new_from_key_file(...args: never[]): never;
     copy(): PageSetup;
     get_bottom_margin(unit: Unit): number;
     get_left_margin(unit: Unit): number;
@@ -5403,6 +5445,7 @@ export class PlacesSidebar extends ScrolledWindow {
 export class Plug extends Window {
     constructor(config?: properties);
     readonly socket_window: Gdk.Window;static new_for_display(display: Gdk.Display, socket_id: xlib.Window): Widget;
+    static new_for_display(...args: never[]): never;
     construct(socket_id: xlib.Window): void;
     construct_for_display(display: Gdk.Display, socket_id: xlib.Window): void;
     get_embedded(): boolean;
@@ -5522,8 +5565,11 @@ export class PrintOperation extends GObject.Object {
 export class PrintSettings extends GObject.Object {
     constructor(config?: properties);
     static new_from_file(file_name: string): PrintSettings;
+    static new_from_file(...args: never[]): never;
     static new_from_gvariant(variant: GLib.Variant): PrintSettings;
+    static new_from_gvariant(...args: never[]): never;
     static new_from_key_file(key_file: GLib.KeyFile, group_name: string | null): PrintSettings;
+    static new_from_key_file(...args: never[]): never;
     copy(): PrintSettings;
     foreach(func: PrintSettingsFunc, user_data: object | null): void;
     get(key: string): string;
@@ -5638,12 +5684,15 @@ export class RadioAction extends ToggleAction {
 export class RadioButton extends CheckButton {
     constructor(config?: properties);
     group: RadioButton;static new_from_widget(radio_group_member: RadioButton | null): Widget;
+    static new_from_widget(...args: never[]): never;
     static new_with_label(group: string[], label: string): Widget;
-    static new_with_label(...args: never[]): Widget;
+    static new_with_label(...args: never[]): never;
     static new_with_label_from_widget(radio_group_member: RadioButton | null, label: string): Widget;
+    static new_with_label_from_widget(...args: never[]): never;
     static new_with_mnemonic(group: string[], label: string): Widget;
-    static new_with_mnemonic(...args: never[]): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     static new_with_mnemonic_from_widget(radio_group_member: RadioButton | null, label: string): Widget;
+    static new_with_mnemonic_from_widget(...args: never[]): never;
     get_group(): string[];
     join_group(group_source: RadioButton | null): void;
     set_group(group: string[]): void;
@@ -5656,12 +5705,15 @@ export class RadioButtonAccessible  {
 export class RadioMenuItem extends CheckMenuItem {
     constructor(config?: properties);
     group: RadioMenuItem;static new_from_widget(group: RadioMenuItem | null): Widget;
+    static new_from_widget(...args: never[]): never;
     static new_with_label(group: string[], label: string): Widget;
-    static new_with_label(...args: never[]): Widget;
+    static new_with_label(...args: never[]): never;
     static new_with_label_from_widget(group: RadioMenuItem | null, label: string | null): Widget;
+    static new_with_label_from_widget(...args: never[]): never;
     static new_with_mnemonic(group: string[], label: string): Widget;
-    static new_with_mnemonic(...args: never[]): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     static new_with_mnemonic_from_widget(group: RadioMenuItem | null, label: string | null): Widget;
+    static new_with_mnemonic_from_widget(...args: never[]): never;
     get_group(): string[];
     join_group(group_source: RadioMenuItem | null): void;
     set_group(group: string[]): void;
@@ -5674,7 +5726,7 @@ export class RadioMenuItemAccessible  {
 export class RadioToolButton extends ToggleToolButton {
     constructor(config?: properties);
     group: RadioToolButton;static new_from_stock(group: string[], stock_id: string): ToolItem;
-    static new_from_stock(...args: never[]): ToolItem;
+    static new_from_stock(...args: never[]): never;
     static new_from_widget(group: RadioToolButton | null): ToolItem;
     static new_with_stock_from_widget(group: RadioToolButton | null, stock_id: string): ToolItem;
     get_group(): string[];
@@ -5734,6 +5786,7 @@ export class RcStyle extends GObject.Object {
 export class RecentAction extends Action {
     constructor(config?: properties);
     show_numbers: boolean;static new_for_manager(name: string, label: string | null, tooltip: string | null, stock_id: string | null, manager: RecentManager | null): Action;
+    static new_for_manager(...args: never[]): never;
     get_show_numbers(): boolean;
     set_show_numbers(show_numbers: boolean): void;
 }
@@ -5749,6 +5802,7 @@ export class RecentChooserMenu extends Menu {
 export class RecentChooserWidget extends Box {
     constructor(config?: properties);
     static new_for_manager(manager: RecentManager): Widget;
+    static new_for_manager(...args: never[]): never;
 }
 export class RecentFilter extends GObject.InitiallyUnowned {
     constructor(config?: properties);
@@ -5802,6 +5856,7 @@ export class Scale extends Range {
     digits: number;
     has_origin: boolean;
     value_pos: PositionType;static new_with_range(orientation: Orientation, min: number, max: number, step: number): Widget;
+    static new_with_range(...args: never[]): never;
     add_mark(value: number, position: PositionType, markup: string | null): void;
     clear_marks(): void;
     get_digits(): number;
@@ -6102,6 +6157,7 @@ export class SpinButton extends Entry {
     update_policy: SpinButtonUpdatePolicy;
     value: number;
     wrap: boolean;static new_with_range(min: number, max: number, step: number): Widget;
+    static new_with_range(...args: never[]): never;
     configure(adjustment: Adjustment | null, climb_rate: number, digits: number): void;
     get_adjustment(): Adjustment;
     get_digits(): number;
@@ -6210,10 +6266,15 @@ export class StatusIcon extends GObject.Object {
     tooltip_markup: string;
     tooltip_text: string;
     visible: boolean;static new_from_file(filename: string): StatusIcon;
+    static new_from_file(...args: never[]): never;
     static new_from_gicon(icon: Gio.Icon): StatusIcon;
+    static new_from_gicon(...args: never[]): never;
     static new_from_icon_name(icon_name: string): StatusIcon;
+    static new_from_icon_name(...args: never[]): never;
     static new_from_pixbuf(pixbuf: GdkPixbuf.Pixbuf): StatusIcon;
+    static new_from_pixbuf(...args: never[]): never;
     static new_from_stock(stock_id: string): StatusIcon;
+    static new_from_stock(...args: never[]): never;
     get_geometry(): [boolean, Gdk.Screen | null,Gdk.Rectangle | null,Orientation | null];
     get_gicon(): Gio.Icon | null;
     get_has_tooltip(): boolean;
@@ -6388,7 +6449,7 @@ export class Switch extends Widget {
     set_state(state: boolean): void;
     set_state(...args: never[]): never;
     vfunc_activate(): void;
-    activate(...args: never[]): never;
+    vfunc_activate(...args: never[]): never;
     vfunc_state_set(state: boolean): boolean;
 }
 export class SwitchAccessible  {
@@ -6438,7 +6499,7 @@ export class TextBuffer extends GObject.Object {
     create_child_anchor(iter: TextIter): TextChildAnchor;
     create_mark(mark_name: string | null, where: TextIter, left_gravity: boolean): TextMark;
     cut_clipboard(clipboard: Clipboard, default_editable: boolean): void;
-    _delete(start: TextIter, end: TextIter): void;
+    ["delete"](start: TextIter, end: TextIter): void;
     delete_interactive(start_iter: TextIter, end_iter: TextIter, default_editable: boolean): boolean;
     delete_mark(mark: TextMark): void;
     delete_mark_by_name(name: string): void;
@@ -6648,6 +6709,7 @@ export class TextView extends Container {
     tabs: Pango.TabArray;
     top_margin: number;
     wrap_mode: WrapMode;static new_with_buffer(buffer: TextBuffer): Widget;
+    static new_with_buffer(...args: never[]): never;
     add_child_at_anchor(child: Widget, anchor: TextChildAnchor): void;
     add_child_in_window(child: Widget, which_window: TextWindowType, xpos: number, ypos: number): void;
     backward_display_line(iter: TextIter): boolean;
@@ -6778,7 +6840,9 @@ export class ToggleButton extends Button {
     active: boolean;
     draw_indicator: boolean;
     inconsistent: boolean;static new_with_label(label: string): Widget;
+    static new_with_label(...args: never[]): never;
     static new_with_mnemonic(label: string): Widget;
+    static new_with_mnemonic(...args: never[]): never;
     get_active(): boolean;
     get_inconsistent(): boolean;
     get_mode(): boolean;
@@ -7004,7 +7068,7 @@ export class TreeSelection  {
 export class TreeStore extends GObject.Object {
     constructor(config?: properties);
     static newv(n_columns: number, types: GType): TreeStore;
-    static newv(...args: never[]): TreeStore;
+    static newv(...args: never[]): never;
     append(parent: TreeIter | null): [TreeIter];
     clear(): void;
     insert(parent: TreeIter | null, position: number): [TreeIter];
@@ -7043,6 +7107,7 @@ export class TreeView extends Container {
     search_column: number;
     show_expanders: boolean;
     tooltip_column: number;static new_with_model(model: TreeModel): Widget;
+    static new_with_model(...args: never[]): never;
     append_column(column: TreeViewColumn): number;
     collapse_all(): void;
     collapse_row(path: TreePath): boolean;
@@ -7272,7 +7337,7 @@ export class VPaned extends Paned {
 export class VScale extends Scale {
     constructor(config?: properties);
     static new_with_range(min: number, max: number, step: number): Widget;
-    static new_with_range(...args: never[]): Widget;
+    static new_with_range(...args: never[]): never;
 }
 export class VScrollbar extends Scrollbar {
     constructor(config?: properties);

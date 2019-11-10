@@ -1,11 +1,14 @@
 
+/**
+ * cluttergdk
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as Clutter from "clutter";
 import * as Gdk from "gdk";
 /**
- * cluttergdk.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;

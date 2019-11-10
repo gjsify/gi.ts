@@ -1,15 +1,16 @@
 
+/**
+ * notify
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
 import * as GdkPixbuf from "gdkpixbuf";
-import * as Notify from "notify";
 /**
- * notify.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ActionCallback = (notification: Notification, action: string, user_data: object | null) => void;
 export const EXPIRES_DEFAULT: number;
 export const EXPIRES_NEVER: number;
 export const VERSION_MAJOR: number;
@@ -50,6 +51,7 @@ export function set_app_name(app_name: string): void;
  * the rest of its lifecycle, typically just before exitting.
  */
 export function uninit(): void;
+export type ActionCallback = (notification: Notification, action: string, user_data: object | null) => void;
 export enum Urgency {
     LOW = 0,
     NORMAL = 1,

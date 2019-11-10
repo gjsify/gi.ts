@@ -1,16 +1,15 @@
 
+/**
+ * dbusmenu
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as Dbusmenu from "dbusmenu";
 /**
- * dbusmenu.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ClientTypeHandler = (newitem: Menuitem, parent: Menuitem, client: Client, user_data: object | null) => boolean;
-export type menuitem_about_to_show_cb = (mi: Menuitem, user_data: object | null) => void;
-export type menuitem_buildvariant_slot_t = (mi: Menuitem, properties: string | null) => GLib.Variant;
 export const CLIENT_PROP_DBUS_NAME: string;
 export const CLIENT_PROP_DBUS_OBJECT: string;
 export const CLIENT_PROP_GROUP_EVENTS: string;
@@ -73,6 +72,9 @@ export const SERVER_SIGNAL_ID_PROP_UPDATE: string;
 export const SERVER_SIGNAL_ID_UPDATE: string;
 export const SERVER_SIGNAL_ITEM_ACTIVATION: string;
 export const SERVER_SIGNAL_LAYOUT_UPDATED: string;
+export type ClientTypeHandler = (newitem: Menuitem, parent: Menuitem, client: Client, user_data: object | null) => boolean;
+export type menuitem_about_to_show_cb = (mi: Menuitem, user_data: object | null) => void;
+export type menuitem_buildvariant_slot_t = (mi: Menuitem, properties: string | null) => GLib.Variant;
 export enum Status {
     NORMAL = 0,
     NOTICE = 1,
@@ -97,6 +99,7 @@ export class Client extends GObject.Object {
 export class Menuitem extends GObject.Object {
     constructor(config?: properties);
     id: number;static new_with_id(id: number): Menuitem;
+    static new_with_id(...args: never[]): never;
     child_add_position(child: Menuitem, position: number): boolean;
     child_append(child: Menuitem): boolean;
     child_delete(child: Menuitem): boolean;

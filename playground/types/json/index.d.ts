@@ -1,17 +1,15 @@
 
+/**
+ * json
+ */
 import * as GObject from "gobject";
 import * as Gio from "gio";
 import * as GLib from "glib";
-import * as Json from "json";
 /**
- * json.d.ts
+ * 
  */
 type properties = { [key: string]: any };
 type GType = object;
-export type ArrayForeach = (array: Array, index_: number, element_node: Node, user_data: object | null) => void;
-export type BoxedDeserializeFunc = (node: Node) => object | null;
-export type BoxedSerializeFunc = (boxed: object | null) => Node;
-export type ObjectForeach = (object: Object, member_name: string, member_node: Node, user_data: object | null) => void;
 export const MAJOR_VERSION: number;
 export const MICRO_VERSION: number;
 export const MINOR_VERSION: number;
@@ -170,6 +168,10 @@ export function string_hash(key: string): number;
  * the passed @node.
  */
 export function to_string(node: Node, pretty: boolean): string;
+export type ArrayForeach = (array: Array, index_: number, element_node: Node, user_data: object | null) => void;
+export type BoxedDeserializeFunc = (node: Node) => object | null;
+export type BoxedSerializeFunc = (boxed: object | null) => Node;
+export type ObjectForeach = (object: Object, member_name: string, member_node: Node, user_data: object | null) => void;
 export enum NodeType {
     OBJECT = 0,
     ARRAY = 1,
@@ -201,6 +203,7 @@ export enum ReaderError {
 export class Builder extends GObject.Object {
     constructor(config?: properties);
     immutable: boolean;static new_immutable(): Builder;
+    static new_immutable(...args: never[]): never;
     add_boolean_value(value: boolean): Builder | null;
     add_double_value(value: number): Builder | null;
     add_int_value(value: number): Builder | null;
@@ -237,6 +240,7 @@ export class Generator extends GObject.Object {
 export class Parser extends GObject.Object {
     constructor(config?: properties);
     immutable: boolean;static new_immutable(): Parser;
+    static new_immutable(...args: never[]): never;
     get_current_line(): number;
     get_current_pos(): number;
     get_root(): Node | null;
