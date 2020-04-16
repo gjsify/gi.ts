@@ -41,7 +41,7 @@ export class GirNSRegistry {
   }
 }
 
-const isIntrospectable = (e: Element<{}>) => !e.$.introspectable || e.$.introspectable === "1";
+const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
 
 export class GirNamespace {
   readonly name: string;

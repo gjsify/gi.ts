@@ -2,8 +2,8 @@
     "Object": {
         "member": {
             "_classInit": "static _classInit: (klass: any) => any;",
-            "connect": "connect(id: string, callback: (...args: any[]) => void): number;",
-            "connect_after": "connect_after(id: string, callback: (...args: any[]) => void): number;",
+            "connect": "connect(id: string, callback: (...args: any[]) => any): number;",
+            "connect_after": "connect_after(id: string, callback: (...args: any[]) => any): number;",
             "emit": "emit(id: string, ...args: any[]): void;",
             "disconnect": "disconnect(id: number): void;",
             "set": "set<T = any>(params: T): void",

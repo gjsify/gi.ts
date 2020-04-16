@@ -10,15 +10,8 @@ import {
 } from "../xml";
 
 import { GirNamespace, GirNSRegistry } from "./namespace";
-import {
-  getType,
-  resolveType,
-  isInvalid,
-  sanitizeMemberName,
-  sanitizeIdentifierName,
-  resolvePrimitiveType
-} from "./util";
-import { GirClass, GirBaseClass } from "./class";
+import { getType, resolveType, isInvalid, sanitizeMemberName, sanitizeIdentifierName } from "./util";
+import { GirBaseClass } from "./class";
 import { GirEnum } from "./enum";
 
 function hasShadow(obj: Function | Method): obj is Function {
@@ -36,13 +29,18 @@ function generateReturn(
   registry: GirNSRegistry
 ) {
   const type = resolveType(name, registry, return_type);
+
   if (output_parameters.length > 0) {
     const exclude_first = type === "void" || type === "";
     const returns = [
       ...(exclude_first ? [] : [`${type}`]),
-      output_parameters.map(op => resolveType(name, registry, op.type))
+      ...output_parameters.map(op => resolveType(name, registry, op.type))
     ];
-    return `[${returns.join(", ")}]`;
+    if (returns.length > 1) {
+      return `[${returns.join(", ")}]`;
+    } else {
+      return `${returns[0]}`;
+    }
   }
 
   return type;
@@ -96,34 +94,24 @@ export class GirFunction extends GirBase {
     }
 
     let parameters: GirFunctionParameter[] = [];
-    let output_parameters: GirFunctionParameter[] = [];
+
     if (func.parameters) {
       const param = func.parameters[0].parameter;
 
       if (param) {
-        const inputs = param
-          .filter(p => p.$.name !== "user_data")
-          .filter(
-            parameter =>
-              !parameter.$.direction ||
-              parameter.$.direction === Direction.In ||
-              parameter.$.direction === Direction.Inout
-          );
+        const inputs = param;
 
         parameters.push(...inputs.map(i => GirFunctionParameter.fromXML(modName, ns, null, i)));
 
+        const length_params = [] as number[];
+
         parameters = parameters
           .map((p, i, a) => {
-            // We remove any suspected length parameters.
-            if (i > 0) {
-              const type = parameters[i - 1].type;
-              if (
-                type &&
-                type instanceof ArrayVariableType &&
-                resolvePrimitiveType(p.type.name) === "number"
-              ) {
-                return null;
-              }
+            const type = p.type;
+            if (type && type instanceof ArrayVariableType && type.length != null) {
+              length_params.push(type.length);
+
+              return p;
             }
 
             // In TypeScript only the last parameter can be optional.
@@ -143,16 +131,21 @@ export class GirFunction extends GirBase {
 
             return p;
           })
+          .filter((_, i) => {
+            // We remove any length parameters.
+            return !length_params.includes(i);
+          })
+          .filter(p => p.name !== "user_data")
           .filter((p): p is GirFunctionParameter => p != null);
-
-        const outputs = param.filter(
-          parameter =>
-            parameter.$.direction && (parameter.$.direction === "out" || parameter.$.direction === "inout")
-        );
-
-        output_parameters.push(...outputs.map(i => GirFunctionParameter.fromXML(modName, ns, null, i)));
       }
     }
+
+    let input_parameters = parameters.filter(
+      param => !param.direction || param.direction === Direction.In || param.direction === Direction.Inout
+    );
+    let output_parameters = parameters.filter(
+      param => param.direction && (param.direction === Direction.Out || param.direction === Direction.Inout)
+    );
 
     let return_type;
 
@@ -163,7 +156,7 @@ export class GirFunction extends GirBase {
     }
 
     const fn = new GirFunction({
-      parameters,
+      parameters: input_parameters,
       output_parameters,
       return_type,
       name,
@@ -175,12 +168,6 @@ export class GirFunction extends GirBase {
 
   return(_namespace: string | null, _registry: GirNSRegistry) {
     return this.return_type;
-  }
-
-  asConstructor(): GirConstructor {
-    const { raw_name: name, parameters, return_type } = this;
-
-    return new GirConstructor({ name, parameters, return_type });
   }
 
   asCallback(): GirCallback {
@@ -258,8 +245,13 @@ export class GirConstructor extends GirBase {
     constr.parameters.push(...this.parameters.map(p => p.copy()));
   }
 
-  static fromXML(modName: string, ns: GirNamespace, parent: GirBaseClass, m: ClassConstructor): GirConstructor {
-    return GirFunction.fromXML(modName, ns, parent, m as Function).asConstructor();
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    parent: GirBaseClass,
+    m: ClassConstructor
+  ): GirConstructor {
+    return GirClassFunction.fromXML(modName, ns, parent, m as Function).asConstructor();
   }
 
   asConstructor(modName: string, registry: GirNSRegistry) {
@@ -412,6 +404,19 @@ export class GirClassFunction extends GirBase {
     this.parent = parent;
   }
 
+  asConstructor(): GirConstructor {
+    const { name, parameters } = this;
+
+    if (this.parent instanceof GirBaseClass) {
+      // Always force constructors to have the correct return type.
+      return new GirConstructor({ name, parameters, return_type: this.parent.getType() });
+    }
+
+    throw new Error(
+      `Attempted to convert GirClassFunction into GirConstructor from invalid parent: ${this.parent.name}`
+    );
+  }
+
   copy({ parent = this.parent }: { parent?: GirBaseClass | GirEnum } = {}): GirClassFunction {
     let constr = GirClassFunction;
 
@@ -543,7 +548,12 @@ export class GirStaticClassFunction extends GirClassFunction {
     )};`;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, parent: GirBaseClass, m: Function): GirStaticClassFunction {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    parent: GirBaseClass,
+    m: Function
+  ): GirStaticClassFunction {
     const fn = GirFunction.fromXML(modName, ns, parent, m);
 
     return fn.asStaticClassFunction(parent);

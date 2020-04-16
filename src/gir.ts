@@ -90,27 +90,31 @@ export class NativeType extends VariableType {
 
 export class ArrayVariableType extends VariableType {
   arrayDepth: number = 1;
+  length: number | null = null;
 
   copy(): ArrayVariableType {
-    const { arrayDepth, anyified, nullable, name, namespace } = this;
+    const { arrayDepth, length, anyified, nullable, name, namespace } = this;
 
-    return ArrayVariableType.new({ arrayDepth, anyified, nullable, name, namespace });
+    return ArrayVariableType.new({ arrayDepth, length, anyified, nullable, name, namespace });
   }
 
   static new({
     name,
     namespace = null,
     arrayDepth = 1,
+    length = null,
     anyified = false,
     nullable = false
   }: {
     name: string;
     namespace?: string | null;
+    length?: number | null,
     arrayDepth?: number;
     anyified?: boolean;
     nullable?: boolean;
   }) {
     const vt = new ArrayVariableType(name, namespace);
+    vt.length = length;
     vt.anyified = anyified;
     vt.nullable = nullable;
     vt.arrayDepth = arrayDepth;

@@ -82,12 +82,6 @@ function filterConflicts<T extends GirClassField>(
           if (p.name && p.name == next.name) {
             const conflict = isTypeConflict(next.type, p.type, ns, resolved_parent.ns, registry);
 
-            if (!conflict) {
-              console.log(
-                `No conflict on ${p.name}: ${p.type.name} on ${next.type.name} from ${resolved_parent.ns} and ${ns}`
-              );
-            }
-
             return conflict;
           }
           return false;
@@ -389,7 +383,7 @@ export abstract class GirBaseClass extends GirBase {
   abstract asString(modName: string, registry: GirNSRegistry, injection?: ClassInjection): string;
 }
 
-const isIntrospectable = (e: Element<{}>) => !e.$.introspectable || e.$.introspectable === "1";
+const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
 
 // These are inserted by the gobject injection
 const GOBJECT_CONFLICT_IDS = [
@@ -485,13 +479,42 @@ export class GirClass extends GirBaseClass {
         );
       }
 
+      // Properties
+      if (klass.property) {
+        klass.property.filter(isIntrospectable).forEach(prop => {
+          const property = GirProperty.fromXML(modName, ns, null, prop);
+          if (!PROTECTED_IDS.includes(property.name)) {
+            clazz.props.push(property);
+          }
+        });
+      }
+
       // Instance Methods
       if (klass.method) {
         clazz.members.push(
           ...klass.method
             .filter(isIntrospectable)
             .map(method => GirClassFunction.fromXML(modName, ns, clazz, method))
+            .filter(m => !clazz.props.some(n => n.name === m.name))
         );
+      }
+
+      // Fields (for "non-class" records)
+      if (klass.field) {
+        klass.field
+          .filter(isIntrospectable)
+          .filter(field => !field.$.private || field.$.private !== "1")
+          .filter(field => !("callback" in field) && !field.$.name.startsWith("_"))
+          .forEach(field => {
+            const f = GirField.fromXML(modName, ns, null, field);
+            if (
+              !clazz.members.some(n => n.name === f.name) &&
+              !clazz.props.some(n => n.name === f.name) &&
+              !PROTECTED_IDS.includes(f.name)
+            ) {
+              clazz.fields.push(f);
+            }
+          });
       }
 
       if (klass.implements) {
@@ -539,34 +562,6 @@ export class GirClass extends GirBaseClass {
             .filter(func => func.$["name"] !== "newv")
             .map(func => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
         );
-      }
-
-      // Properties
-      if (klass.property) {
-        klass.property.filter(isIntrospectable).forEach(prop => {
-          const property = GirProperty.fromXML(modName, ns, null, prop);
-          if (!clazz.members.some(n => n.name === property.name) && !PROTECTED_IDS.includes(property.name)) {
-            clazz.props.push(property);
-          }
-        });
-      }
-
-      // Fields (for "non-class" records)
-      if (klass.field) {
-        klass.field
-          .filter(isIntrospectable)
-          .filter(field => !field.$.private || field.$.private !== "1")
-          .filter(field => !("callback" in field) && !field.$.name.startsWith("_"))
-          .forEach(field => {
-            const f = GirField.fromXML(modName, ns, null, field);
-            if (
-              !clazz.members.some(n => n.name === f.name) &&
-              !clazz.props.some(n => n.name === f.name) &&
-              !PROTECTED_IDS.includes(f.name)
-            ) {
-              clazz.fields.push(f);
-            }
-          });
       }
     } catch (e) {
       console.error(`Failed to parse class: ${clazz.name}.`);
@@ -1031,10 +1026,24 @@ export class GirInterface extends GirBaseClass {
         }
       }
 
+      // Properties
+      if (klass.property) {
+        clazz.props.push(
+          ...klass.property
+            .filter(isIntrospectable)
+            .map(prop => GirProperty.fromXML(modName, ns, null, prop))
+            .filter(property => !PROTECTED_IDS.includes(property.name))
+        );
+      }
+
       // Instance Methods
       if (klass.method) {
         for (let method of klass.method.filter(isIntrospectable)) {
-          clazz.members.push(GirClassFunction.fromXML(modName, ns, clazz, method));
+          const m = GirClassFunction.fromXML(modName, ns, clazz, method);
+
+          if (!clazz.props.some(n => n.name === m.name)) {
+            clazz.members.push(m);
+          }
         }
       }
 
@@ -1061,19 +1070,6 @@ export class GirInterface extends GirBaseClass {
 
           clazz.members.push(GirStaticClassFunction.fromXML(modName, ns, clazz, func));
         }
-      }
-
-      // Properties
-      if (klass.property) {
-        clazz.props.push(
-          ...klass.property
-            .filter(isIntrospectable)
-            .map(prop => GirProperty.fromXML(modName, ns, null, prop))
-            .filter(
-              property =>
-                !clazz.members.some(n => n.name === property.name) && !PROTECTED_IDS.includes(property.name)
-            )
-        );
       }
     } catch (e) {
       console.error(`Failed to parse interface: ${clazz.name}.`);

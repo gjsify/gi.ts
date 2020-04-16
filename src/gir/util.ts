@@ -71,28 +71,25 @@ const reservedWords = [
   "yield"
 ];
 
-// TODO Fix upstream bugs! (and add support for C type resolution maybe?)
-const patches = {
-  "Gee.FutureMapFunc": "Gee.MapFunc",
-  "Gee.FutureLightMapFunc": "Gee.LightMapFunc",
-  "Gee.FutureFlatMapFunc": "Gee.FlatMapFunc",
-  "Gee.FutureZipFunc": "Gee.ZipFunc",
-  "Granite.WidgetsSourceListVisibleFunc": "Granite.VisibleFunc",
-  "Gitg.AsyncThreadFunc": "Gitg.ThreadFunc",
-  "Gitg.WhenMappedOnMapped": "Gitg.OnMapped",
-  "Tracker.SparqlError": "Tracker.Error"
-};
-
 /* Decode the type */
 export function getType(modName: string, _ns: GirNamespace, param: any): VariableType | ArrayVariableType {
   let name = "";
-  let arrayDepth = -1;
+  let arrayDepth: number | null = null;
+  let length: number | null = null;
 
   let parameter = param as ClassMethodParameter;
   if (parameter.array && parameter.array[0]) {
     arrayDepth = 1;
 
     const [array] = parameter.array;
+
+    if (array.$.length != null) {
+      try {
+        length = Number.parseInt(array.$.length);
+      } catch (err) {
+        console.error(`Error parsing array length: ${array.$.length}`);
+      }
+    }
 
     if (array.type && array.type[0].$ && array.type[0].$["name"]) {
       name = array.type[0].$["name"];
@@ -151,8 +148,8 @@ export function getType(modName: string, _ns: GirNamespace, param: any): Variabl
     }
   }
 
-  if (arrayDepth > 0) {
-    return ArrayVariableType.new({ ...variableType, arrayDepth });
+  if (arrayDepth != null) {
+    return ArrayVariableType.new({ ...variableType, arrayDepth, length });
   } else {
     return variableType;
   }
