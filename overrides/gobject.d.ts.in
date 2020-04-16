@@ -1,0 +1,102 @@
+export class Interface {
+    static _classInit: (klass: any) => any;
+    __name__: string;
+    _construct: (params: any, ...otherArgs: any[]) => any;
+    _init: (params: any) => void;
+    $gtype?: GType;
+}
+
+export interface SignalMatch {
+    signalId: string;
+    detail: string;
+    func: Function;
+}
+
+export function signal_connect (object: Object, name: string, handler: Function);
+export function signal_connect_after(object: Object, name: string, handler: Function);
+export function signal_emit_by_name(object: Object, name: string, ...args: any[]);
+
+export let __gtkCssName__: symbol;
+export let __gtkTemplate__: symbol;
+export let __gtkChildren__: symbol;
+export let __gtkInternalChildren__: symbol;
+
+// Expose GObject static properties for ES6 classes
+
+export let GTypeName: symbol;
+export let requires: symbol;
+export let interfaces: symbol;
+export let properties: symbol;
+export let signals: symbol;
+
+export enum AccumulatorType {
+  NONE,
+  FIRST_WINS,
+  TRUE_HANDLED
+}
+
+export class NotImplementedError extends Error {
+}
+
+export let gtypeNameBasedOnJSPath: boolean;
+
+export let TYPE_BOOLEAN: GType;
+export let Boolean: BooleanConstructor;
+
+export let TYPE_ENUM: GType;
+export let TYPE_FLAGS: GType;
+
+export let TYPE_DOUBLE: object;
+export let Double: NumberConstructor;
+
+export let TYPE_STRING: GType;
+export let String: StringConstructor;
+
+declare global {
+    interface BooleanConstructor {
+        $gtype: GType;
+    }
+
+    interface NumberConstructor {
+        $gtype: GType;
+    }
+
+    interface StringConstructor {
+        $gtype: GType;
+    }
+}
+
+export let TYPE_NONE: GType;
+export let TYPE_POINTER: GType;
+export let TYPE_BOXED: GType;
+export let TYPE_PARAM: GType;
+export let TYPE_INTERFACE: GType;
+export let TYPE_OBJECT: GType;
+export let TYPE_VARIANT: GType;
+
+export function registerClass<
+  K,
+  P extends { _init(...args: K[]): void },
+  T extends { prototype: P }
+>(
+  klass: T
+): {
+  new (...args: Parameters<T["prototype"]["_init"]>): T["prototype"];
+  prototype: T["prototype"];
+};
+
+export function registerClass<
+  K,
+  P extends { _init(...args: K[]): void },
+  T extends { prototype: P }
+>(
+  options: {
+    GTypeName?: string;
+    Properties?: { [key: string]: ParamSpec };
+    Signals?: { [key: string]: {} };
+  },
+  klass: T
+): {
+  new (...args: Parameters<T["prototype"]["_init"]>): T["prototype"];
+  prototype: T["prototype"];
+};

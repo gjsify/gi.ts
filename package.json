@@ -6,16 +6,22 @@
   "dependencies": {
     "express": "^4.17.1",
     "glob": "^7.1.4",
-    "typescript": "^3.5.3",
+    "typescript": "^3.8.3",
     "xml2js": "^0.4.22"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
-    "@types/xml2js": "^0.4.4"
+    "@types/xml2js": "^0.4.4",
+    "readable-stream": "^3.4.0"
   },
   "scripts": {
-    "init": "gjs config.js",
-    "generate": "gjs generate.js playground/types",
-    "build": "tsc"
+    "init": "gi-ts init",
+    "generate": "gi-ts generate types",
+    "standard": "gi-ts init --overwrite --include atk,atspi,cairo,clutter,cluttergdk,clutterx11,cogl,coglpango,dbusglib,dbus,dbusmenu,fontconfig,freetype2,gconf,gdk,gdkpixbuf,gdkpixdata,gio,girepository,gl,glib,gmodule,gobject,graphene,gsk,gst,gstinsertbin,gstmpegts,gtk,gtkclutter,json,networkmanager,notify,ostree,pango,pangocairo,soup,xft,xkl,xlib",
+    "build": "tsc",
+    "test": "tsc test"
+  },
+  "bin": {
+    "gi-ts": "cli.js"
   }
 }

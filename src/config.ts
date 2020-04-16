@@ -1,9 +1,8 @@
-/**
- */
 // Depends on fs.realpath, inflight, inherits, minimatch, once, path-is-absolute
 import { sync as Dirglob } from "glob";
 
 import * as fs from "fs";
+
 // Depends on: sax, xmlbuilder, util.promisify
 import { Parser as XMLParser } from "xml2js";
 
@@ -12,9 +11,7 @@ const parser = new XMLParser();
 function read_gir(path) {
   const data = fs.readFileSync(path);
 
-  return new Promise((res, rej) =>
-    parser.parseString(data, (err, result) => (err ? rej(err) : res(result)))
-  );
+  return new Promise((res, rej) => parser.parseString(data, (err, result) => (err ? rej(err) : res(result))));
 }
 
 interface Namespace {
@@ -51,7 +48,7 @@ type GirInfo = Namespace & {
   slug: string;
 };
 
-async function generate(gir_path): Promise<(GirInfo) | null> {
+async function generate(gir_path): Promise<GirInfo | null> {
   if (typeof gir_path === "object") return gir_path;
 
   let gir;
@@ -81,24 +78,32 @@ async function generate(gir_path): Promise<(GirInfo) | null> {
   return scraper_info;
 }
 
+let force = false;
+
 function generate_all(gir_dir?: string): string[] {
   const { XDG_DATA_DIRS } = process.env;
 
   if (fs.existsSync("./docs.json")) {
-    console.log("Using cached docs.json");
-    return JSON.parse(fs.readFileSync("./docs.json").toString());
+    if (force) {
+      fs.unlinkSync("./docs.json");
+    } else {
+      console.log("Using cached docs.json");
+      return JSON.parse(fs.readFileSync("./docs.json").toString());
+    }
   }
 
   let glob: string[];
 
   if (gir_dir) {
     glob = Dirglob(`${gir_dir}/gir-1.0/*.gir`);
-  } else {
+  } else if (XDG_DATA_DIRS) {
     glob = XDG_DATA_DIRS.split(":")
       .map(dir => {
-        return dir + "gir-1.0/*.gir"
+        return [`${dir}/*.gir`, `${dir}/gir-1.0/*.gir`];
       })
-      .reduce((prev, dir) => [...prev, ...Dirglob(dir)], []);
+      .reduce((prev, [dir, girdir]) => [...prev, ...Dirglob(dir), ...Dirglob(girdir)], []);
+  } else {
+    throw new Error(`No directory passed and XDG_DATA_DIRS is undefined.`);
   }
 
   console.log(glob);
@@ -106,10 +111,56 @@ function generate_all(gir_dir?: string): string[] {
   return glob;
 }
 
+let includeNames: null | string[] = null;
+let excludeNames = [] as string[];
+
+if (process.argv.length > 2) {
+  for (let x = 2; x < process.argv.length; x++) {
+    const arg = process.argv[x];
+    let val;
+
+    switch (arg) {
+      case "--overwrite":
+        console.log("Overwriting...");
+        force = true;
+        break;
+      case "--include":
+        if (x + 1 >= process.argv.length) {
+          console.log("No argument provided for --include.");
+          break;
+        }
+
+        val = process.argv[x + 1];
+        includeNames = val.split(",");
+        x++;
+        break;
+      case "--exclude":
+        if (x + 1 >= process.argv.length) {
+          console.log("No argument provided for --exclude.");
+          break;
+        }
+        val = process.argv[x + 1];
+        excludeNames = val.split(",");
+        x++;
+        break;
+      default:
+        console.log(`Invalid flag ${arg}`);
+    }
+  }
+}
+
+function filter(configs) {
+  return configs.filter(
+    c =>
+      !excludeNames.includes(c.name.toLowerCase()) &&
+      (includeNames == null || includeNames.includes(c.name.toLowerCase()))
+  );
+}
+
 Promise.all(generate_all().map(l => generate(l)))
   .then(res => {
     const x = async () => {
-      const compiled = res.filter(a => a != null);
+      const compiled = filter(res.filter(a => a != null));
 
       fs.writeFileSync("./docs.json", JSON.stringify(compiled, null, 4));
     };

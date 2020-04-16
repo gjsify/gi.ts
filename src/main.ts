@@ -3,8 +3,10 @@ import { join as buildPath } from "path";
 import { parseString, convertableToString } from "xml2js";
 import { promisify as $ } from "util";
 
+import { SanitizedIdentifiers } from "./gir/util";
+
 import { GirXML } from "./xml";
-import { GirNSRegistry } from "./gir";
+import { GirNSRegistry } from "./gir/namespace";
 
 export interface DocDescription {
   name: string;
@@ -17,11 +19,11 @@ export interface DocDescription {
 }
 
 // Promisify xml2js' parseString
-const parseStringAsync = async <T>(str) =>
-  await $<convertableToString, T>(parseString)(str);
+const parseStringAsync = async <T>(str) => await $<convertableToString, T>(parseString)(str);
 
-// Todo fix this in node/common.js (the ARGV doesn't include the first two arguments!)
-const output_base = process.argv[2] || process.argv[0];
+const output_base = process.argv[2] || "./types";
+const overrides_base = buildPath(__dirname, "../overrides");
+const overrides_local_base = "./overrides";
 
 console.log("Loading docs.json...");
 const docs: DocDescription[] = JSON.parse(
@@ -54,9 +56,7 @@ Promise.all(
       const result = await parseStringAsync<GirXML>(src);
 
       if (gir.has(name)) {
-        console.log(
-          `${i} ${name}: Not generating ${doc.id} as another API version was already generated.`
-        );
+        console.log(`${i} ${name}: Not generating ${doc.id} as another API version was already generated.`);
 
         return null;
       }
@@ -71,7 +71,12 @@ Promise.all(
     }
   })
 )
-  .then(cfg => build(cfg.filter(c => c !== null), gir))
+  .then(cfg =>
+    build(
+      cfg.filter(c => c !== null),
+      gir
+    )
+  )
   .catch(err => console.error(err));
 
 const registry = new GirNSRegistry();
@@ -92,23 +97,32 @@ function build(docs, gir) {
   for (let doc of docs) {
     const { name } = doc;
 
-    const contents = generateModule(name);
+    let contents = generateModule(name);
 
     const output = doc.name as string;
-    const dir = buildPath(output_base, output.toLowerCase());
-    const file = buildPath(dir, "index.d.ts");
+    const dir = buildPath(output_base);
+    const file = buildPath(output_base, `${output.toLowerCase()}.d.ts`);
+    const overrides_files = [
+      buildPath(overrides_base, `${output.toLowerCase()}.d.ts.in`),
+      buildPath(overrides_local_base, `${output.toLowerCase()}.d.ts.in`)
+    ];
+
+    for (const overrides_file of overrides_files) {
+      if (existsSync(overrides_file)) {
+        console.log(`Adding overrides to ${output} from ${overrides_file}...`);
+        contents += readFileSync(overrides_file, { encoding: "utf-8" });
+      }
+    }
 
     if (!existsSync(dir)) {
-      mkdirSync(dir);
+      mkdirSync(dir, { recursive: true });
     }
 
     writeFileSync(file, contents);
+  }
 
-    const jsAdapter = buildPath(dir, "index.js");
-
-    writeFileSync(
-      jsAdapter,
-      `/** @type {import('${name}')} */\nexport default ({});`
-    );
+  console.error("The following types were prefixed with __ to preserve valid JavaScript identifiers.");
+  for (const [sanitized, unsanitized] of SanitizedIdentifiers.entries()) {
+    console.error(`${unsanitized} = ${sanitized}`);
   }
 }

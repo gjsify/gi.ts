@@ -1,0 +1,31 @@
+{
+    "Error": {
+        "mainConstructor": "constructor({ message: string, code: number });"
+    },
+    "Variant": {
+        "mainConstructor": "constructor(sig: any, value: any);",
+        "_constructor": {
+            "_new_internal": "static _new_internal: (sig: any, value: any) => any;",
+            "new": "static new: (sig: any, value: any) => Variant;"
+        },
+        "member": {
+            "unpack": "unpack<T= any>(): T;",
+            "deepUnpack": "deepUnpack<T = any>(): T;",
+            "deep_unpack": "deep_unpack: any;",
+            "recursiveUnpack": "recursiveUnpack: () => any;",
+            "_init": "_init(sig: any, value: any): Variant;"
+        }
+    },
+    "VariantDict": {
+        "member": {
+            "lookup": "lookup(key: any, variantType?: any, deep?: any): any;"
+        }
+    },
+    "Bytes": {
+        "member": {
+            "toArray": "toArray(): Uint8Array;"
+        }
+    },
+    "log_structured": "export function log_structured(logDomain, logLevel, stringFields);",
+    "strstrip": "export function strstrip(str: string): string;"
+}

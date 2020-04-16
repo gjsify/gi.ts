@@ -1,15 +1,27 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2017",
     "module": "commonjs",
     "rootDir": "src",
-    "allowJs": true,
     "outDir": "_build",
+    "resolveJsonModule": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictBindCallApply": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "esModuleInterop": true,
     "lib": [
-      "es2019"
-    ]
+      "ES2019"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "*": [
+        "types/*.d.ts"
+      ]
+    }
   },
   "include": [
-    "src/*"
+    "src/**/*"
   ]
 }

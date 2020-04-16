@@ -1,3 +1,6 @@
 node_modules/**
 _build/**
 docs.json
+
+playground/**
+types/**

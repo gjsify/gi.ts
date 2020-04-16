@@ -1,0 +1,12 @@
+{
+    "DBusNodeInfo": {
+        "member": {
+            "new_for_xml": "static new_for_xml(info: string): DBusNodeInfo;"
+        }
+    },
+    "DBusInterfaceInfo": {
+        "member": {
+            "new_for_xml": "static new_for_xml(info: string): DBusInterfaceInfo;"
+        }
+    }
+}

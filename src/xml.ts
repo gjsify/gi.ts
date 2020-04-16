@@ -1,24 +1,25 @@
 type Version = string;
 
-type Parameter<T> = [
+type ParameterContainer<T> = [
   {
     parameter?: T[];
   }
 ];
 
-type Element<T> = {
-  $: T & { introspectable?: "0" | "1" };
+export type binary = "0" | "1";
+
+export type Element<T> = {
+  $: T & { introspectable?: binary };
 };
 
 export interface GirXML {
   repository: Repository;
 }
 
-type SourcePositionElement = Element<SourcePosition>;
-type CIncludeElement = Element<CInclude>;
+export interface SourcePositionElement extends Element<SourcePosition> {}
+export interface CIncludeElement extends Element<CInclude> {}
 
-export interface Repository {
-  $: RepositoryClass;
+export interface Repository extends Element<RepositoryMeta> {
   include: Element<Include>[];
   package: CIncludeElement[];
   "c:include": CIncludeElement[];
@@ -29,7 +30,7 @@ export interface CInclude {
   name: string;
 }
 
-export interface RepositoryClass {
+export interface RepositoryMeta {
   version: string;
   xmlns: string;
   "xmlns:c": string;
@@ -42,17 +43,16 @@ export interface Include {
 }
 
 export interface NamespaceElement extends Element<Namespace> {
-  $: Namespace;
   alias: AliasElement[];
   class: ClassElement[];
   record: RecordElement[];
   union: RecordElement[]; // TODO Anything unions do differently?
   bitfield: BitfieldElement[];
-  callback: NamespaceCallback[];
-  interface: Interface[];
+  callback: Callback[];
+  interface: InterfaceElement[];
   enumeration: Enumeration[];
   constant: ConstantElement[];
-  function: NamespaceFunction[];
+  function: Function[];
   ["glib:boxed"]: GLibBoxedElement[];
 }
 
@@ -103,9 +103,7 @@ export interface SourcePosition {
   line: string;
 }
 
-export interface AliasType {
-  $: Alias;
-}
+export interface AliasType extends Element<Alias> {}
 
 export interface BitfieldElement extends Element<Bitfield> {
   doc?: DocElement[];
@@ -134,10 +132,10 @@ export interface Member {
   "glib:nick": string;
 }
 
-export interface NamespaceCallback extends Element<Constant> {
+export interface Callback extends Element<Constant> {
   "source-position": SourcePositionElement[];
   "return-value": FunctionReturnValue[];
-  parameters: Parameter<CallbackParameter>;
+  parameters: ParameterContainer<CallbackParameter>;
   doc?: DocElement[];
   "doc-deprecated"?: DocDeprecatedElement[];
 }
@@ -152,13 +150,13 @@ export interface Constant {
   value?: string;
 }
 
-export interface CallbackParameter extends Element<Callback> {
+export interface CallbackParameter extends Element<Parameter> {
   type?: AliasType[];
   doc?: DocElement[];
   array?: Arrays[];
 }
 
-export interface Callback {
+export interface Parameter {
   name: string;
   "transfer-ownership": TransferOwnership;
   nullable?: string;
@@ -189,8 +187,7 @@ export enum TransferOwnership {
   None = "none"
 }
 
-export interface Arrays {
-  $: XmlArray;
+export interface Arrays extends Element<XmlArray> {
   type: AliasType[];
   array?: Arrays[];
 }
@@ -206,18 +203,30 @@ export interface FunctionReturnValueMeta {
   nullable?: string;
 }
 
+export interface InterfaceElement extends Element<Class> {
+  doc?: DocElement[];
+  "source-position"?: SourcePositionElement[];
+  prerequisite?: CIncludeElement[];
+  "virtual-method"?: VirtualMethod[];
+  method: Method[];
+  property?: InterfaceProperty[];
+  "glib:signal"?: InterfaceGLibSignal[];
+  function?: Function[];
+  callback?: Callback[];
+}
+
 export interface ClassElement extends Element<Class> {
   doc?: DocElement[];
   "source-position"?: SourcePositionElement[];
   implements?: CIncludeElement[];
-  constructor?: Array<ClassConstructor | null>;
-  "virtual-method"?: ClassVirtualMethod[];
-  method?: ClassMethod[];
+  "constructor"?: ClassConstructor[];
+  "virtual-method"?: VirtualMethod[];
+  method?: Method[];
   property?: ClassProperty[];
   field?: ClassField[];
   "glib:signal"?: ClassGLibSignal[];
-  function?: ClassFunction[];
-  callback?: NamespaceCallback[]; // TODO Rename now!
+  function?: Function[];
+  callback?: Callback[]; // TODO Rename now!
 }
 
 export interface Class {
@@ -232,22 +241,20 @@ export interface Class {
   version?: Version;
 }
 
-export interface ClassConstructor {
-  $: Constructor;
+export interface ClassConstructor extends Element<FunctionMeta> {
   doc?: DocElement[];
   "source-position": SourcePositionElement[];
   "return-value": ConstructorReturnValue[];
-  parameters?: Parameter<ClassConstructorParameter>;
+  parameters?: ParameterContainer<ClassConstructorParameter>;
   "doc-deprecated"?: DocDeprecatedElement[];
 }
 
-export interface Constructor {
+export interface FunctionMeta {
   name: string;
   "c:identifier"?: string;
   version?: Version;
   deprecated?: string;
   "deprecated-version"?: Version;
-  introspectable?: string;
   "shadowed-by"?: string;
   shadows?: string;
   throws?: string;
@@ -257,7 +264,6 @@ export interface Constructor {
 
 export interface DocDeprecatedElement extends Element<DocDeprecated> {
   _: string;
-  $: DocDeprecated;
 }
 
 export interface DocDeprecated {
@@ -265,38 +271,27 @@ export interface DocDeprecated {
 }
 
 export interface ClassConstructorParameter extends ClassMethodParameter {
-  $: ClassConstructorMeta;
   doc?: DocElement[];
   type?: ParameterType[];
   varargs?: string[];
   array?: Arrays[];
 }
 
-export interface ClassConstructorMeta {
+export interface ConstructorMeta {
   name: string;
   "transfer-ownership": TransferOwnership;
   nullable?: string;
   "allow-none"?: string;
 }
 
-export interface ParameterType {
-  $: Alias;
+export interface ParameterType extends Element<Alias> {
   type?: CIncludeElement[];
 }
 
-export interface ClassField {
-  $: ClassFieldMeta;
+export interface ClassField extends Element<FieldMeta> {
   type?: ClassFieldType[];
   doc?: DocElement[];
   array?: ClassFieldArray[];
-}
-
-export interface ClassFieldMeta {
-  name: string;
-  readable?: string;
-  private?: string;
-  bits?: string;
-  writable?: string;
 }
 
 export interface ClassFieldArray {
@@ -372,35 +367,24 @@ export enum When {
   Last = "last"
 }
 
-export interface ClassMethod {
-  $: Constructor;
-  doc?: DocElement[];
-  "source-position": SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters?: Parameter<ClassMethodParameter>;
-  "doc-deprecated"?: DocDeprecatedElement[];
-}
-
-export interface ClassMethodParameterContainer {
+export interface MethodParameterContainer {
   "instance-parameter": ClassMethodInstanceParameter[];
   parameter?: ClassMethodParameter[];
 }
 
-export interface ClassMethodInstanceParameter {
-  $: ClassConstructorMeta;
+export interface ClassMethodInstanceParameter extends Element<ConstructorMeta> {
   doc?: DocElement[];
   type: AliasType[];
 }
 
-export interface ClassMethodParameter {
-  $: Callback;
+export interface ClassMethodParameter extends Element<Parameter> {
   doc?: DocElement[];
   type?: ParameterType[];
   array?: Arrays[];
   varargs?: string[];
 }
 
-export interface ClassMethodReturnValue {
+export interface ReturnValue {
   $?: FunctionReturnValueMeta;
   type?: ParameterType[];
   doc?: DocElement[];
@@ -417,7 +401,7 @@ export interface ClassProperty extends Element<Property> {
 export interface Property {
   name: string;
   version?: Version;
-  writable?: string;
+  writable?: binary;
   "transfer-ownership"?: TransferOwnership;
   deprecated?: string;
   "deprecated-version"?: Version;
@@ -430,39 +414,12 @@ export interface PropertyArray {
   type: CIncludeElement[];
 }
 
-export interface ClassVirtualMethod extends ClassFunction {
-  $: ClassVirtualMethodMeta;
+export interface VirtualMethod extends Method {
   "source-position": SourcePositionElement[];
   "return-value": FunctionReturnValue[];
-  parameters: Parameter<ClassVirtualMethodParameter>;
+  parameters: MethodParameterContainer[];
   doc?: DocElement[];
   "doc-deprecated"?: DocDeprecatedElement[];
-}
-
-export interface ClassVirtualMethodMeta {
-  name: string;
-  invoker?: string;
-  deprecated?: string;
-  "deprecated-version"?: Version;
-  version?: Version;
-  introspectable?: string;
-}
-
-export interface ClassVirtualMethodInstanceParameter {
-  $: ClassVirtualMethodInstanceParameterMeta;
-  type: AliasType[];
-  doc?: DocElement[];
-}
-
-export interface ClassVirtualMethodInstanceParameterMeta {
-  name: string;
-  "transfer-ownership": TransferOwnership;
-}
-
-export interface ClassVirtualMethodParameter {
-  $: Callback;
-  type: AliasType[];
-  doc?: DocElement[];
 }
 
 export interface ConstantElement extends Element<Constant> {
@@ -472,65 +429,25 @@ export interface ConstantElement extends Element<Constant> {
   "doc-deprecated"?: DocDeprecatedElement[];
 }
 
-export interface Enumeration {
-  $: Bitfield;
+export interface Enumeration extends Element<Bitfield> {
   doc?: DocElement[];
   member: MemberElement[];
-  function?: EnumerationFunction[];
+  function?: Function[];
   "doc-deprecated"?: DocDeprecatedElement[];
 }
 
-export interface EnumerationFunction {
-  $: EnumerationFunctionMeta;
-  "return-value": ConstructorReturnValue[];
-  doc?: DocElement[];
-  "doc-deprecated"?: DocDeprecatedElement[];
-  "source-position"?: SourcePositionElement[];
-  parameters?: Parameter<ClassVirtualMethodParameter>;
-}
-
-export interface EnumerationFunctionMeta {
-  name: string;
-  "c:identifier": string;
-  version?: Version;
-  deprecated?: string;
-  "deprecated-version"?: Version;
-}
-
-export interface NamespaceFunction {
-  $: Constructor;
+export interface Function extends Element<FunctionMeta> {
   doc?: DocElement[];
   "source-position"?: SourcePositionElement[];
-  "return-value": FunctionReturnValue[];
-  parameters?: Parameter<ClassMethodParameter>;
+  "return-value": ReturnValue[];
+  parameters?: ParameterContainer<ClassMethodParameter>;
   "doc-deprecated"?: DocDeprecatedElement[];
 }
 
-export interface ClassFunction {
-  $: Constructor;
-  doc?: DocElement[];
-  "source-position"?: SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters?: Parameter<ClassMethodParameter>;
-  "doc-deprecated"?: DocDeprecatedElement[];
-}
-
-export interface Interface {
-  $: Class;
-  doc?: DocElement[];
-  "source-position"?: SourcePositionElement[];
-  prerequisite?: CIncludeElement[];
-  "virtual-method"?: InterfaceVirtualMethod[];
-  method: InterfaceMethod[];
-  property?: InterfaceProperty[];
-  "glib:signal"?: InterfaceGLibSignal[];
-}
-
-export interface InterfaceGLibSignal {
-  $: InterfaceGLibSignalMeta;
+export interface InterfaceGLibSignal extends Element<InterfaceGLibSignalMeta> {
   doc: DocElement[];
   "return-value": ConstructorReturnValue[];
-  parameters?: Parameter<ClassVirtualMethodParameter>;
+  parameters?: ParameterContainer<ClassMethodParameter>;
 }
 
 export interface InterfaceGLibSignalMeta {
@@ -541,37 +458,9 @@ export interface InterfaceGLibSignalMeta {
   "c:identifier"?: string;
 }
 
-export interface InterfaceMethod {
-  $: Constructor;
-  doc?: DocElement[];
-  "source-position": SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters: InterfaceMethodParameter[];
-  "doc-deprecated"?: DocDeprecatedElement[];
-}
-
-export interface InterfaceMethodParameter {
-  "instance-parameter": ClassVirtualMethodInstanceParameter[];
-  parameter?: ClassMethodParameter[];
-}
-
 export interface InterfaceProperty extends Element<Property> {
   type: AliasType[];
   doc?: DocElement[];
-}
-
-export interface InterfaceVirtualMethod {
-  $: Constructor;
-  doc?: DocElement[];
-  "source-position": SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters: InterfaceVirtualMethodParameter[];
-  "doc-deprecated"?: DocDeprecatedElement[];
-}
-
-export interface InterfaceVirtualMethodParameter {
-  "instance-parameter": ClassVirtualMethodInstanceParameter[];
-  parameter?: CallbackParameter[];
 }
 
 export interface RecordElement extends Element<Record> {
@@ -580,12 +469,12 @@ export interface RecordElement extends Element<Record> {
   doc?: DocElement[];
   union?: Union[];
   function?: RecordFunction[];
-  method?: RecordMethod[];
-  constructor?: Array<RecordConstructor | null>;
+  method?: Method[];
+  "constructor"?: RecordConstructor[];
 }
 
 export interface Record {
-  foreign: "0" | "1";
+  foreign: binary;
   name: string;
   "c:type": string;
   "glib:is-gtype-struct-for"?: string;
@@ -598,34 +487,30 @@ export interface Record {
   "c:symbol-prefix"?: string;
 }
 
-export interface RecordConstructor {
-  $: Constructor;
+export interface RecordConstructor extends Element<FunctionMeta> {
   doc: DocElement[];
   "source-position": SourcePositionElement[];
   "return-value": ConstructorReturnValue[];
   "doc-deprecated"?: DocDeprecatedElement[];
-  parameters?: Parameter<RecordConstructorParameter>;
+  parameters?: ParameterContainer<RecordConstructorParameter>;
 }
 
-export interface RecordConstructorParameter {
-  $: ClassConstructorMeta;
+export interface RecordConstructorParameter extends Element<ConstructorMeta> {
   doc: DocElement[];
   type?: AliasType[];
   array?: Arrays[];
   varargs?: string[];
 }
 
-export interface RecordField {
-  $: RecordFieldMeta;
+export interface RecordField extends Element<FieldMeta> {
   type?: ClassFieldType[];
   callback?: FieldCallback[];
   doc?: DocElement[];
   array?: ClassFieldArray[];
 }
 
-export interface RecordFieldMeta {
+export interface FieldMeta {
   name: string;
-  introspectable?: string;
   writable?: string;
   bits?: string;
   readable?: string;
@@ -635,8 +520,8 @@ export interface RecordFieldMeta {
 export interface FieldCallback {
   $: FieldCallbackMeta;
   "source-position": SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters?: Parameter<CallbackParameter>;
+  "return-value": ReturnValue[];
+  parameters?: ParameterContainer<CallbackParameter>;
 }
 
 export interface FieldCallbackMeta {
@@ -645,16 +530,14 @@ export interface FieldCallbackMeta {
   throws?: string;
 }
 
-export interface RecordFunction {
-  $: InterfaceGLibSignalMeta;
+export interface RecordFunction extends Element<InterfaceGLibSignalMeta> {
   doc: DocElement[];
   "source-position": SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters?: Parameter<RecordFunctionParameter>;
+  "return-value": ReturnValue[];
+  parameters?: ParameterContainer<RecordFunctionParameter>;
 }
 
-export interface RecordFunctionParameter {
-  $: ClassConstructorMeta;
+export interface RecordFunctionParameter extends Element<ConstructorMeta> {
   doc: DocElement[];
   type?: ParameterType[];
   varargs?: string[];
@@ -662,7 +545,6 @@ export interface RecordFunctionParameter {
 }
 
 export interface StickyArrayElement extends Element<StickyArray> {
-  $: StickyArray;
   type: AliasType[];
 }
 
@@ -671,12 +553,11 @@ export interface StickyArray {
   "c:type": string;
 }
 
-export interface RecordMethod {
-  $: Constructor;
+export interface Method extends Element<FunctionMeta> {
   doc?: DocElement[];
   "source-position": SourcePositionElement[];
-  "return-value": ClassMethodReturnValue[];
-  parameters: ClassMethodParameterContainer[];
+  "return-value": ReturnValue[];
+  parameters: MethodParameterContainer[];
   "doc-deprecated"?: DocDeprecatedElement[];
 }
 
@@ -686,14 +567,12 @@ export interface Union {
   field: UnionField[];
 }
 
-export interface UnionField {
-  $: ClassFieldMeta;
+export interface UnionField extends Element<FieldMeta> {
   type?: AliasType[];
   array?: UnionArrayElement[];
 }
 
 export interface UnionArrayElement extends Element<UnionArray> {
-  $: UnionArray;
   type: AliasType[];
 }
 

@@ -1,0 +1,65 @@
+{
+    "Object": {
+        "member": {
+            "_classInit": "static _classInit: (klass: any) => any;",
+            "connect": "connect(id: string, callback: (...args: any[]) => void): number;",
+            "connect_after": "connect_after(id: string, callback: (...args: any[]) => void): number;",
+            "emit": "emit(id: string, ...args: any[]): void;",
+            "disconnect": "disconnect(id: number): void;",
+            "set": "set<T = any>(params: T): void",
+            "block_signal_handler": "block_signal_handler(id: number);",    
+            "unblock_signal_handler": "unblock_signal_handler(id: number);",
+            "stop_emission_by_name": "stop_emission_by_name(detailedName: string);"
+        }
+    },
+    "Closure": "export type Closure<R = any, P = any> = (...args: P[]) => R;",
+    "ParamSpec": {
+        "member": {
+            "char": "static char(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "uchar": "static uchar(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any):ParamSpec;",
+            "int": "static int(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "uint": "static uint(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "long": "static long(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "ulong": "static ulong(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "int64": "static int64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "uint64": "static uint64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "float": "static float(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "boolean": "static boolean(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
+            "flags": "static flags(name: any, nick: any, blurb: any, flags: any, flagsType: any, defaultValue: any): ParamSpec;",
+            "enum": "static enum(name: any, nick: any, blurb: any, flags: any, enumType: any, defaultValue: any): ParamSpec;",
+            "double": "static double(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
+            "string": "static string(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
+            "boxed": "static boxed(name: any, nick: any, blurb: any, flags: any, boxedType: any): ParamSpec;",
+            "object": "static object(name: any, nick: any, blurb: any, flags: any, objectType: any): ParamSpec;",
+            "param": "static param(name: any, nick: any, blurb: any, flags: any, paramType: any): ParamSpec;",
+            "override": "static override: any;"
+        }
+    },
+    "signal_handlers_block_by_func": "export function signal_handlers_block_by_func(instance: Object, func: Function);",
+    "signal_handlers_unblock_by_func": "export function signal_handlers_unblock_by_func  (instance: Object, func: Function);",
+    "signal_handlers_disconnect_by_func": "export function signal_handlers_disconnect_by_func(instance: Object, func: Function);",
+    "signal_handler_find": [
+        "export function signal_handler_find(...args: [Object, SignalMatch] | [Object, SignalMatchType, number, GLib.Quark, Closure | null, object | null, object | null]): number;",
+        "export function signal_handler_find(instance: Object, match: SignalMatch): number;",
+        "export function _real_signal_handler_find(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;",
+        "export function signal_handler_find(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;"
+    ],
+    "signal_handlers_block_matched": [
+        "export function signal_handlers_block_matched(...args: [Object, SignalMatch] | [Object, SignalMatchType, number, GLib.Quark, Closure | null, object | null, object | null]): number;",
+        "export function signal_handlers_block_matched(instance: Object, match: SignalMatch): number;",
+        "export function _real_signal_handlers_block_matched(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;",
+        "export function signal_handlers_block_matched(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;"
+    ],
+    "signal_handlers_disconnect_matched": [
+        "export function signal_handlers_disconnect_matched(...args: [Object, SignalMatch] | [Object, SignalMatchType, number, GLib.Quark, Closure | null, object | null, object | null]): number;",
+        "export function signal_handlers_disconnect_matched(instance: Object, match: SignalMatch): number;",
+        "export function signal_handlers_disconnect_matched(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;",
+        "export function _real_signal_handlers_disconnect_matched(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;"
+    ],
+    "signal_handlers_unblock_matched": [
+        "export function signal_handlers_unblock_matched(...args: [Object, SignalMatch] | [Object, SignalMatchType, number, GLib.Quark, Closure | null, object | null, object | null]): number;",
+        "export function signal_handlers_unblock_matched(instance: Object, match: SignalMatch): number;",
+        "export function signal_handlers_unblock_matched(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;",
+        "export function _real_signal_handlers_unblock_matched(instance: Object, mask: SignalMatchType, signal_id: number, detail: GLib.Quark, closure: Closure | null, func: object | null, data: object | null): number;"
+    ]
+}
