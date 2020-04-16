@@ -575,13 +575,13 @@ export class GirCallback extends GirFunction {
     return cb;
   }
 
-  asString(modName: string, registry: GirNSRegistry): string {
+  asTypeString(modName: string, registry: GirNSRegistry): string {
     const Parameters = generateParameters(this.parameters, modName, registry);
 
-    return `export type ${this.name} = (${Parameters}) => ${resolveType(
-      modName,
-      registry,
-      this.return_type
-    )};`;
+    return `(${Parameters}) => ${resolveType(modName, registry, this.return_type)}`;
+  }
+
+  asString(modName: string, registry: GirNSRegistry): string {
+    return `export type ${this.name} = ${this.asTypeString(modName, registry)};`;
   }
 }

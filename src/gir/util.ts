@@ -236,6 +236,7 @@ export function resolvePrimitiveType(name: string): string | null {
     case "utf8":
       typeName = "string";
       break;
+    case "void": // Support TS "void"
     case "none":
       typeName = "void";
       break;

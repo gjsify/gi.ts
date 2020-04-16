@@ -1,7 +1,9 @@
 gi.ts
 =====
 
-## Rough Overview
+> Checkout the demo repository [here](https://gitlab.gnome.org/rockon999/playground.gi.ts/)!
+
+## Overview
 
 This project converts GObject Introspection XML files into highly accurate TypeScript definition files (.d.ts)!
 

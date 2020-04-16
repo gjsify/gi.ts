@@ -224,7 +224,7 @@ export interface ClassElement extends Element<Class> {
   method?: Method[];
   property?: ClassProperty[];
   field?: ClassField[];
-  "glib:signal"?: ClassGLibSignal[];
+  "glib:signal"?: ClassGLibSignalElement[];
   function?: Function[];
   callback?: Callback[]; // TODO Rename now!
 }
@@ -244,7 +244,7 @@ export interface Class {
 export interface ClassConstructor extends Element<FunctionMeta> {
   doc?: DocElement[];
   "source-position": SourcePositionElement[];
-  "return-value": ConstructorReturnValue[];
+  "return-value": ReturnValue[];
   parameters?: ParameterContainer<ClassConstructorParameter>;
   "doc-deprecated"?: DocDeprecatedElement[];
 }
@@ -312,21 +312,11 @@ export interface ClassFieldType {
   type?: AliasType[];
 }
 
-export interface ConstructorReturnValue {
-  $: ConstructorReturnValueMeta;
-  doc?: DocElement[];
-  type: AliasType[];
-}
-
 export interface FunctionReturnValue {
   $?: FunctionReturnValueMeta;
   doc?: DocElement[];
   type?: ParameterType[];
   array?: FunctionReturnValueArray[];
-}
-
-export interface ConstructorReturnValueMeta {
-  "transfer-ownership": TransferOwnership;
 }
 
 export interface FunctionReturnValueArray {
@@ -344,8 +334,8 @@ export interface FunctionReturnValueMeta {
 export interface ClassGLibSignalElement extends Element<ClassGLibSignal> {
   $: ClassGLibSignal;
   doc?: DocElement[];
-  "return-value": ConstructorReturnValue[];
-  parameters?: ClassMethodParameter[];
+  "return-value": ReturnValue[];
+  parameters?: MethodParameterContainer[];
   "doc-deprecated"?: DocDeprecatedElement[];
 }
 
@@ -446,7 +436,7 @@ export interface Function extends Element<FunctionMeta> {
 
 export interface InterfaceGLibSignal extends Element<InterfaceGLibSignalMeta> {
   doc: DocElement[];
-  "return-value": ConstructorReturnValue[];
+  "return-value": ReturnValue[];
   parameters?: ParameterContainer<ClassMethodParameter>;
 }
 
@@ -490,7 +480,7 @@ export interface Record {
 export interface RecordConstructor extends Element<FunctionMeta> {
   doc: DocElement[];
   "source-position": SourcePositionElement[];
-  "return-value": ConstructorReturnValue[];
+  "return-value": ReturnValue[];
   "doc-deprecated"?: DocDeprecatedElement[];
   parameters?: ParameterContainer<RecordConstructorParameter>;
 }

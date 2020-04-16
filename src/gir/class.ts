@@ -1,6 +1,6 @@
 import { EOL } from "os";
 
-import { GirBase, ClassType, GirClassField, VariableType } from "../gir";
+import { GirBase, ClassType, GirClassField, VariableType, NativeType } from "../gir";
 import { InterfaceElement, Element, ClassElement, RecordElement, Direction } from "../xml";
 import {
   GirClassFunction,
@@ -14,6 +14,7 @@ import {
 import { GirProperty, GirField } from "./property";
 import { GirNSRegistry, GirNamespace, ClassInjection } from "./namespace";
 import { resolveType, parseTypeString, resolvePrimitiveType, sanitizeIdentifierName } from "./util";
+import { GirSignal, GirSignalType } from "./signal";
 
 function resolveParent(modName: string, rns: GirNSRegistry, parent: ClassType): GirBaseClass | null {
   const ns = parent.namespace || modName;
@@ -68,18 +69,24 @@ function isTypeConflict(
   );
 }
 
-function filterConflicts<T extends GirClassField>(
+enum FilterBehavior {
+  DELETE,
+  ANYIFY
+}
+
+function filterConflicts<T extends GirBase | GirClassField>(
   ns: string,
   elements: T[],
   resolved_parents: GirBaseClass[],
-  registry: GirNSRegistry
+  registry: GirNSRegistry,
+  behavior = FilterBehavior.ANYIFY
 ) {
   return elements
     .filter(p => p.name)
     .reduce((prev, next) => {
       const conflicts = resolved_parents.some(resolved_parent => {
         return [...resolved_parent.props, ...resolved_parent.fields].some(p => {
-          if (p.name && p.name == next.name) {
+          if (p.name && p.name == next.name && (next instanceof GirProperty || next instanceof GirField)) {
             const conflict = isTypeConflict(next.type, p.type, ns, resolved_parent.ns, registry);
 
             return conflict;
@@ -99,8 +106,12 @@ function filterConflicts<T extends GirClassField>(
       );
 
       if (conflicts || function_conflicts) {
-        next.type.anyified = true;
-        prev.push(next);
+        if (behavior === FilterBehavior.ANYIFY) {
+          if (next instanceof GirProperty || next instanceof GirField) {
+            next.type.anyified = true;
+          }
+          prev.push(next);
+        }
       } else {
         prev.push(next);
       }
@@ -403,6 +414,7 @@ const GOBJECT_CONFLICT_IDS = [
 const PROTECTED_IDS = ["draw", "show_all", "parent_instance", "parent", "parent_class", "object_class"];
 
 export class GirClass extends GirBaseClass {
+  signals: GirSignal[] = [];
   isAbstract: boolean = false;
 
   constructor(name: string, namespace: string) {
@@ -421,7 +433,8 @@ export class GirClass extends GirBaseClass {
       fields,
       callbacks,
       isAbstract,
-      mainConstructor
+      mainConstructor,
+      signals
     } = this;
 
     const clazz = new GirClass(name, ns);
@@ -430,6 +443,7 @@ export class GirClass extends GirBaseClass {
       clazz.parent = parent.copy();
     }
 
+    clazz.signals = signals.map(s => s.copy());
     clazz.interfaces = interfaces.map(i => i.copy());
     clazz.props = props.map(p => p.copy());
     clazz.fields = fields.map(f => f.copy());
@@ -476,6 +490,12 @@ export class GirClass extends GirBaseClass {
           ...klass.constructor
             .filter(isIntrospectable)
             .map(constructor => GirConstructor.fromXML(modName, ns, clazz, constructor))
+        );
+      }
+
+      if (klass["glib:signal"]) {
+        clazz.signals.push(
+          ...klass["glib:signal"].map(signal => GirSignal.fromXML(modName, ns, clazz, signal))
         );
       }
 
@@ -668,6 +688,110 @@ export class GirClass extends GirBaseClass {
       .map(m => m.asString(modName, registry))
       .join(EOL);
 
+    // TODO Move these to a cleaner place.
+
+    const Connect = new GirClassFunction({
+      name: "connect",
+      parent: this,
+      parameters: [
+        new GirFunctionParameter({
+          name: "id",
+          type: new VariableType("string"),
+          direction: Direction.In
+        }),
+        new GirFunctionParameter({
+          name: "callback",
+          type: new NativeType("(...args: any[]) => any"),
+          direction: Direction.In
+        })
+      ],
+      return_type: new VariableType("number")
+    });
+
+    const ConnectAfter = new GirClassFunction({
+      name: "connect_after",
+      parent: this,
+      parameters: [
+        new GirFunctionParameter({
+          name: "id",
+          type: new VariableType("string"),
+          direction: Direction.In
+        }),
+        new GirFunctionParameter({
+          name: "callback",
+          type: new NativeType("(...args: any[]) => any"),
+          direction: Direction.In
+        })
+      ],
+      return_type: new VariableType("number")
+    });
+
+    const Emit = new GirClassFunction({
+      name: "emit",
+      parent: this,
+      parameters: [
+        new GirFunctionParameter({
+          name: "id",
+          type: new VariableType("string"),
+          direction: Direction.In
+        }),
+        new GirFunctionParameter({
+          name: "args",
+          isVarArgs: true,
+          type: new VariableType("any"),
+          direction: Direction.In
+        })
+      ],
+      return_type: new VariableType("void")
+    });
+
+    let default_signals = [] as GirClassFunction[];
+    let hasConnect, hasConnectAfter, hasEmit;
+
+    if (this.signals.length > 0) {
+      hasConnect = this.members.some(m => m.name === "connect");
+      hasConnectAfter = this.members.some(m => m.name === "connect_after");
+      hasEmit = this.members.some(m => m.name === "emit");
+
+      if (!hasConnect) {
+        default_signals.push(Connect);
+      }
+      if (!hasConnectAfter) {
+        default_signals.push(ConnectAfter);
+      }
+      if (!hasEmit) {
+        default_signals.push(Emit);
+      }
+
+      default_signals = filterConflicts(
+        modName,
+        default_signals,
+        resolved_parents,
+        registry,
+        FilterBehavior.DELETE
+      );
+
+      hasConnect = !default_signals.some(s => s.name === "connect");
+      hasConnectAfter = !default_signals.some(s => s.name === "connect_after");
+      hasEmit = !default_signals.some(s => s.name === "emit");
+    }
+
+    const Signals = [
+      // TODO Relocate these.
+      ...default_signals.map(s => s.asString(modName, registry)),
+      ...this.signals
+        .map(s => {
+          const methods = [] as string[];
+
+          if (!hasConnect) methods.push(s.asString(modName, registry, GirSignalType.CONNECT));
+          if (!hasConnectAfter) methods.push(s.asString(modName, registry, GirSignalType.CONNECT_AFTER));
+          if (!hasEmit) methods.push(s.asString(modName, registry, GirSignalType.EMIT));
+
+          return methods;
+        })
+        .flat()
+    ].join(EOL);
+
     const hasCallbacks = this.callbacks.length > 0;
     const hasModule = injectConstructorBucket || hasCallbacks;
 
@@ -697,6 +821,9 @@ export class GirClass extends GirBaseClass {
     
     ${this.fields.length > 0 ? `// Fields` : ""}
     ${Fields}
+
+    ${this.signals.length > 0 ? `// Signals\n` : ""}
+    ${Signals}
   
     ${implementedProperties.length > 0 ? `// Implemented Properties\n` : ""}
     ${ImplementedProperties}
