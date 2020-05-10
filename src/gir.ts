@@ -88,6 +88,36 @@ export class NativeType extends VariableType {
   }
 }
 
+export class ClosureVariableType extends VariableType {
+  user_data: number | null = null;
+
+  copy(): ClosureVariableType {
+    const { user_data, anyified, nullable, name, namespace } = this;
+
+    return ClosureVariableType.new({ user_data, anyified, nullable, name, namespace });
+  }
+
+  static new({
+    name,
+    namespace = null,
+    user_data = null,
+    anyified = false,
+    nullable = false
+  }: {
+    name: string;
+    namespace?: string | null;
+    user_data?: number | null,
+    anyified?: boolean;
+    nullable?: boolean;
+  }) {
+    const vt = new ClosureVariableType(name, namespace);
+    vt.user_data = user_data;
+    vt.anyified = anyified;
+    vt.nullable = nullable;
+    return vt;
+  }
+}
+
 export class ArrayVariableType extends VariableType {
   arrayDepth: number = 1;
   length: number | null = null;

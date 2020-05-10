@@ -6,27 +6,31 @@ import { GirNSRegistry, GirNamespace } from "./namespace";
 
 export class GirField extends GirBase {
   readonly type: VariableType;
+  optional: boolean = false;
 
   copy(): GirField {
-    const { type, name } = this;
+    const { type, name, optional } = this;
 
     return new GirField({
       name,
-      type: type.copy()
+      type: type.copy(),
+      optional,
     });
   }
 
-  constructor({ name, type }: { name: string; type: VariableType }) {
+  constructor({ name, type, optional = false }: { name: string; type: VariableType; optional?: boolean }) {
     super(name);
 
     this.type = type;
+    this.optional = optional;
   }
 
   asString(namespace: string, registry: GirNSRegistry): string {
     const invalid = isInvalid(this.name);
 
-    return `${invalid ? `"${this.name}"` : this.name}: ${resolveType(namespace, registry, this.type) ||
-      "any"};`;
+    return `${invalid ? `"${this.name}"` : this.name}${this.optional ? "?" : ""}: ${
+      resolveType(namespace, registry, this.type) || "any"
+    };`;
   }
 
   static fromXML(namespace: string, ns: GirNamespace, _parent, field: ClassField): GirField {
@@ -52,7 +56,7 @@ export class GirProperty extends GirBase {
       writable,
       type: type.copy(),
       isStatic,
-      constructOnly
+      constructOnly,
     });
   }
 
@@ -61,7 +65,7 @@ export class GirProperty extends GirBase {
     isStatic,
     type,
     writable,
-    constructOnly
+    constructOnly,
   }: {
     name: string;
     isStatic: boolean;
@@ -82,11 +86,13 @@ export class GirProperty extends GirBase {
     const Static = this.isStatic ? "static" : "";
     const ReadOnly = this.writable || construct ? "" : "readonly";
 
-    const Modifier = [Static, ReadOnly].filter(a => a !== "").join(" ");
+    const Modifier = [Static, ReadOnly].filter((a) => a !== "").join(" ");
 
     const Name = invalid ? `"${this.name}"` : this.name;
 
-    return `${Modifier} ${Name}: ${resolveType(namespace, registry, this.type) || "any"};`;
+    let Type = resolveType(namespace, registry, this.type) || "any";
+
+    return `${Modifier} ${Name}: ${Type};`;
   }
 
   static fromXML(namespace: string, ns: GirNamespace, _parent, prop: ClassProperty): GirProperty {
@@ -97,7 +103,7 @@ export class GirProperty extends GirBase {
       writable: !("writable" in prop.$) || prop.$["writable"] === "1",
       constructOnly: !("construct-only" in prop.$) || prop.$["construct-only"] === "1",
       type: getType(namespace, ns, prop),
-      isStatic: false
+      isStatic: false,
     });
 
     return property;

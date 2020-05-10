@@ -1,6 +1,7 @@
 {
     "Object": {
         "member": {
+            "$gtype": "static $gtype: GType;",
             "_classInit": "static _classInit: (klass: any) => any;",
             "connect": "connect(id: string, callback: (...args: any[]) => any): number;",
             "connect_after": "connect_after(id: string, callback: (...args: any[]) => any): number;",

@@ -1,6 +1,6 @@
 import { GirNSRegistry, GirNamespace } from "./namespace";
 import { ClassMethodParameter } from "../xml";
-import { VariableType, Type, ClassType, ArrayVariableType, NativeType } from "../gir";
+import { VariableType, Type, ClassType, ArrayVariableType, NativeType, ClosureVariableType } from "../gir";
 
 const reservedWords = [
   // For now, at least, the typescript compiler doesn't throw on numerical types like int, float, etc.
@@ -68,7 +68,7 @@ const reservedWords = [
   "volatile",
   "while",
   "with",
-  "yield"
+  "yield",
 ];
 
 /* Decode the type */
@@ -83,11 +83,11 @@ export function getType(modName: string, _ns: GirNamespace, param: any): Variabl
 
     const [array] = parameter.array;
 
-    if (array.$.length != null) {
-      try {
-        length = Number.parseInt(array.$.length);
-      } catch (err) {
-        console.error(`Error parsing array length: ${array.$.length}`);
+    if (array.$ && array.$.length != null) {
+      length = Number.parseInt(array.$.length, 10);
+
+      if (Number.isNaN(length)) {
+        throw new Error(`Error parsing array length: ${array.$.length}`);
       }
     }
 
@@ -117,6 +117,16 @@ export function getType(modName: string, _ns: GirNamespace, param: any): Variabl
     console.log("Unknown type: ", JSON.stringify(parameter.$, null, 4), "\nMarking as unknown!");
   }
 
+  let closure = null as null | number;
+
+  if (parameter.$ && parameter.$.closure) {
+    closure = Number.parseInt(parameter.$.closure, 10);
+
+    if (Number.isNaN(closure)) {
+      throw new Error(`Error parsing closure data position: ${parameter.$.closure}`);
+    }
+  }
+
   const nullable = parameter.$ && (parameter.$["allow-none"] === "1" || parameter.$["nullable"] === "1");
 
   let x = name.split(" ");
@@ -143,13 +153,15 @@ export function getType(modName: string, _ns: GirNamespace, param: any): Variabl
       variableType = VariableType.new({
         name: baseType.name,
         namespace: modName,
-        nullable
+        nullable,
       });
     }
   }
 
   if (arrayDepth != null) {
     return ArrayVariableType.new({ ...variableType, arrayDepth, length });
+  } else if (closure != null) {
+    return ClosureVariableType.new({ ...variableType, user_data: closure });
   } else {
     return variableType;
   }
@@ -216,6 +228,24 @@ export function parseTypeString(type: string): ClassType {
     return new ClassType(name, namespace);
   } else {
     return new ClassType(type, null);
+  }
+}
+
+export function resolvePrimitiveArrayType(name: string, arrayDepth: number): [string, number] | null {
+  if (arrayDepth > 0) {
+    switch (name) {
+      case "gint8":
+      case "guint8":
+        return ["Uint8Array", arrayDepth - 1];
+    }
+  }
+
+  const resolvedName = resolvePrimitiveType(name);
+
+  if (resolvedName) {
+    return [resolvedName, arrayDepth];
+  } else {
+    return null;
   }
 }
 
@@ -338,12 +368,24 @@ export function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
   let typeSuffix: string = "";
 
   if (type instanceof ArrayVariableType) {
-    if (type.arrayDepth === 1) {
+    let depth = type.arrayDepth;
+
+    const resolved = resolvePrimitiveArrayType(type.name, depth);
+
+    if (resolved) {
+      [, depth] = resolved;
+    }
+
+    if (depth === 0) {
+      typeSuffix = "";
+    } else if (depth === 1) {
       typeSuffix = "[]";
     } else {
-      typeSuffix = "".padStart(2 * type.arrayDepth, "[]");
+      typeSuffix = "".padStart(2 * depth, "[]");
     }
   }
+
+  let typeName: string;
 
   if (type instanceof VariableType) {
     if (type.anyified) {
@@ -354,14 +396,19 @@ export function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
     typeSuffix = type.nullable ? typeSuffix + " | null" : typeSuffix;
   }
 
-  let typeName: string;
-
   // Some "primitives" are converted from namespaced types (e.g. GLib.SList)
-  const primitive = resolvePrimitiveType(type.name) || resolvePrimitiveType(`${ns_name}.${name}`);
+  const primitive =
+    (type instanceof ArrayVariableType && resolvePrimitiveArrayType(type.name, type.arrayDepth)) ||
+    resolvePrimitiveType(type.name) ||
+    resolvePrimitiveType(`${ns_name}.${name}`);
 
   // Handle primitive overrides (w/ namespace)
   if (primitive != null) {
-    typeName = primitive;
+    if (Array.isArray(primitive)) {
+      [typeName] = primitive;
+    } else {
+      typeName = primitive;
+    }
   } else {
     if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
       if (current_rns) {

@@ -81,22 +81,54 @@ export function registerClass<
 >(
   klass: T
 ): {
+  $gtype: GType;
   new (...args: Parameters<T["prototype"]["_init"]>): T["prototype"];
   prototype: T["prototype"];
+};
+
+export type Property<K extends ParamSpec> = K extends ParamSpecBoolean
+  ? boolean
+  : K extends ParamSpecDouble | ParamSpecInt | ParamSpecUInt | ParamSpecFloat | ParamSpecLong
+  ? number
+  : K extends ParamSpecInt64 | ParamSpecUInt64 | ParamSpecULong
+  ? number
+  : K extends ParamSpecFlags | ParamSpecEnum
+  ? number
+  : K extends ParamSpecString | ParamSpecUnichar
+  ? string
+  : K extends ParamSpecValueArray
+  ? any[]
+  : K extends ParamSpecObject
+  ? any
+  : K extends ParamSpecVariant
+  ? GLib.Variant
+  : any;
+
+export type Properties<
+  Properties extends { [key: string]: ParamSpec }
+> = {
+  [key in keyof Properties]: Property<Properties["key"]>;
 };
 
 export function registerClass<
   K,
   P extends { _init(...args: K[]): void },
-  T extends { prototype: P }
+  T extends { prototype: P },
+  Props extends { [key: string]: ParamSpec }
 >(
   options: {
     GTypeName?: string;
-    Properties?: { [key: string]: ParamSpec };
+    Properties?: Props;
     Signals?: { [key: string]: {} };
+    Implements?: any[];
+    CssName?: string;
+    Template?: string;
+    Children?: string[];
+    InternalChildren?: string[];
   },
   klass: T
 ): {
-  new (...args: Parameters<T["prototype"]["_init"]>): T["prototype"];
-  prototype: T["prototype"];
+  $gtype: GType;
+  new (...args: Parameters<T["prototype"]["_init"]>): T["prototype"] & Properties<Props>;
+  prototype: T["prototype"] & Properties<Props>;
 };

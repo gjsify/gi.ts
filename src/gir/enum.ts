@@ -1,9 +1,9 @@
 import { EOL } from "os";
 
-import { GirBase, VariableType, ClassType, NativeType } from "../gir";
+import { GirBase, VariableType, NativeType } from "../gir";
 import { MemberElement, Enumeration, BitfieldElement, Direction } from "../xml";
 
-import { GirClass, GirRecord } from "./class";
+import { GirRecord } from "./class";
 import { GirProperty } from "./property";
 import { GirClassFunction, GirConstructor, GirFunctionParameter } from "./function";
 import { GirNSRegistry, GirNamespace } from "./namespace";
@@ -11,6 +11,7 @@ import { isInvalid, sanitizeIdentifierName, sanitizeMemberName } from "./util";
 
 export class GirEnum extends GirBase {
   members = new Map<string, GirEnumMember>();
+  flags: boolean = false;
   ns: string;
 
   constructor(name: string, ns: string) {
@@ -19,13 +20,15 @@ export class GirEnum extends GirBase {
   }
 
   copy(): GirEnum {
-    const { members, ns, name } = this;
+    const { members, ns, name, flags } = this;
 
     const en = new GirEnum(name, ns);
 
     for (const [key, member] of members.entries()) {
       en.members.set(key, member.copy());
     }
+
+    en.flags = flags;
 
     return en;
   }
@@ -40,10 +43,10 @@ export class GirEnum extends GirBase {
       }
 
       return `export enum ${this.name} {
-  ${Array.from(this.members.values())
-    .map(member => `${member.asString(modName, registry)}`)
-    .join(EOL)}
-  }`;
+                  ${Array.from(this.members.values())
+                    .map(member => `${member.asString(modName, registry)}`)
+                    .join(EOL)}
+              }`;
     } catch (e) {
       console.error(`Failed to generate enum: ${this.name}.`);
       console.error(e);
@@ -69,7 +72,7 @@ export class GirEnum extends GirBase {
     return clazz;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, m: Enumeration | BitfieldElement): GirEnum {
+  static fromXML(modName: string, ns: GirNamespace, _parent, m: Enumeration | BitfieldElement, flags = false): GirEnum {
     const em = new GirEnum(sanitizeMemberName(m.$.name), ns.name);
 
     if (m.$["glib:type-name"]) {
@@ -88,6 +91,8 @@ export class GirEnum extends GirBase {
       const member = GirEnumMember.fromXML(modName, ns, em, m);
       em.members.set(member.name, member);
     });
+
+    em.flags = flags;
 
     return em;
   }

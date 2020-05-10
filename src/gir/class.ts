@@ -1,6 +1,6 @@
 import { EOL } from "os";
 
-import { GirBase, ClassType, GirClassField, VariableType, NativeType } from "../gir";
+import { GirBase, ClassType, GirClassField, VariableType, NativeType, ArrayVariableType } from "../gir";
 import { InterfaceElement, Element, ClassElement, RecordElement, Direction } from "../xml";
 import {
   GirClassFunction,
@@ -9,7 +9,7 @@ import {
   GirCallback,
   GirFunctionParameter,
   GirFunction,
-  GirConstructor
+  GirConstructor,
 } from "./function";
 import { GirProperty, GirField } from "./property";
 import { GirNSRegistry, GirNamespace, ClassInjection } from "./namespace";
@@ -71,7 +71,7 @@ function isTypeConflict(
 
 enum FilterBehavior {
   DELETE,
-  ANYIFY
+  ANYIFY,
 }
 
 function filterConflicts<T extends GirBase | GirClassField>(
@@ -82,10 +82,10 @@ function filterConflicts<T extends GirBase | GirClassField>(
   behavior = FilterBehavior.ANYIFY
 ) {
   return elements
-    .filter(p => p.name)
+    .filter((p) => p.name)
     .reduce((prev, next) => {
-      const conflicts = resolved_parents.some(resolved_parent => {
-        return [...resolved_parent.props, ...resolved_parent.fields].some(p => {
+      const conflicts = resolved_parents.some((resolved_parent) => {
+        return [...resolved_parent.props, ...resolved_parent.fields].some((p) => {
           if (p.name && p.name == next.name && (next instanceof GirProperty || next instanceof GirField)) {
             const conflict = isTypeConflict(next.type, p.type, ns, resolved_parent.ns, registry);
 
@@ -95,9 +95,9 @@ function filterConflicts<T extends GirBase | GirClassField>(
         });
       });
 
-      let function_conflicts = resolved_parents.some(resolved_parent =>
+      let function_conflicts = resolved_parents.some((resolved_parent) =>
         [...resolved_parent.constructors, ...resolved_parent.members].some(
-          p =>
+          (p) =>
             p.name &&
             p.name == next.name &&
             (!(next instanceof GirCallback) ||
@@ -155,21 +155,21 @@ function filterFunctionConflict<
   registry: GirNSRegistry
 ) {
   return elements
-    .filter(m => m.name)
+    .filter((m) => m.name)
     .reduce((prev, next) => {
       // TODO This should catch most of them.
       let conflicts =
         conflict_ids.includes(next.name) ||
-        resolved_parents.some(resolved_parent =>
-          [...resolved_parent.constructors, ...resolved_parent.members].some(p => {
+        resolved_parents.some((resolved_parent) =>
+          [...resolved_parent.constructors, ...resolved_parent.members].some((p) => {
             let conflicting = isConflictingFunction(ns, next, p, resolved_parent.ns, registry);
             return p.name && p.name == next.name && conflicting;
           })
         );
 
-      let field_conflicts = resolved_parents.some(resolved_parent =>
+      let field_conflicts = resolved_parents.some((resolved_parent) =>
         [...resolved_parent.props, ...resolved_parent.fields].some(
-          p =>
+          (p) =>
             p.name &&
             p.name == next.name &&
             (!(p instanceof GirCallback) || isConflictingFunction(ns, next, p, resolved_parent.ns, registry))
@@ -183,13 +183,13 @@ function filterFunctionConflict<
           name: "args",
           direction: Direction.In,
           isVarArgs: true,
-          type: new VariableType("never")
+          type: new VariableType("never"),
         });
 
         const neverOptions = {
           name: next.name,
           parameters: [never_param],
-          return_type: new VariableType("never")
+          return_type: new VariableType("never"),
         };
 
         if (next instanceof GirConstructor) {
@@ -226,7 +226,7 @@ export const enum ClassInjectionMember {
   CONSTRUCTOR = "_constructor",
   PROPERTY = "prop",
   FIELD = "field",
-  MAIN_CONSTRUCTOR = "constructor"
+  MAIN_CONSTRUCTOR = "constructor",
 }
 
 function handleInjection(
@@ -259,7 +259,7 @@ function handleInjection(
   });
 
   const modifiedElements = elements.map(([name, val]) => {
-    const injection = injections.find(i => i[0] === name);
+    const injection = injections.find((i) => i[0] === name);
 
     if (injection) {
       const [, newVal] = injection;
@@ -271,7 +271,7 @@ function handleInjection(
   });
 
   injections.forEach(([name, val]) => {
-    const isInjected = modifiedElements.find(m => m[0] === name);
+    const isInjected = modifiedElements.find((m) => m[0] === name);
 
     if (!isInjected) {
       modifiedElements.push([name, val]);
@@ -313,7 +313,7 @@ export abstract class GirBaseClass extends GirBase {
 
   protected implements(modName: string, registry: GirNSRegistry) {
     if (this.interfaces.length > 0) {
-      return ` implements ${this.interfaces.map(i => resolveType(modName, registry, i)).join(", ")}`;
+      return ` implements ${this.interfaces.map((i) => resolveType(modName, registry, i)).join(", ")}`;
     }
     return "";
   }
@@ -330,7 +330,7 @@ export abstract class GirBaseClass extends GirBase {
     const class_parents = resolveParents(this.parent, modName, registry);
 
     const class_parent_interface_parents = class_parents
-      .map(i => i.interfaces.map(t => resolveParents(t, modName, registry)))
+      .map((i) => i.interfaces.map((t) => resolveParents(t, modName, registry)))
       .flat(2)
       .reduce((prev, next) => {
         if (!prev.includes(next) && !class_parents.includes(next)) {
@@ -341,7 +341,7 @@ export abstract class GirBaseClass extends GirBase {
       }, [] as GirBaseClass[]);
 
     const interface_parents = this.interfaces
-      .map(i => resolveParents(i, modName, registry))
+      .map((i) => resolveParents(i, modName, registry))
       .flat()
       .reduce((prev, next) => {
         if (
@@ -360,32 +360,32 @@ export abstract class GirBaseClass extends GirBase {
 
   protected implementedMethods(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
     return interfaces
-      .map(i =>
+      .map((i) =>
         i.members
-          .filter(i => !(i instanceof GirStaticClassFunction))
+          .filter((i) => !(i instanceof GirStaticClassFunction))
           .filter(
-            i =>
-              potentialConflicts.every(p => i.name !== p.name) &&
-              this.members.every(p => i.name !== p.name) &&
-              this.props.every(p => i.name !== p.name) &&
-              this.fields.every(p => i.name !== p.name)
+            (i) =>
+              potentialConflicts.every((p) => i.name !== p.name) &&
+              this.members.every((p) => i.name !== p.name) &&
+              this.props.every((p) => i.name !== p.name) &&
+              this.fields.every((p) => i.name !== p.name)
           )
       )
       .flat()
-      .map(m => m.copy({ parent: this }));
+      .map((m) => m.copy({ parent: this }));
   }
 
   protected implementedProperties(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
     return interfaces
-      .map(i =>
+      .map((i) =>
         i.props
-          .filter(i => !i.isStatic)
+          .filter((i) => !i.isStatic)
           .filter(
-            i =>
-              potentialConflicts.every(p => i.name !== p.name) &&
-              this.members.every(p => i.name !== p.name) &&
-              this.props.every(p => i.name !== p.name) &&
-              this.fields.every(p => i.name !== p.name)
+            (i) =>
+              potentialConflicts.every((p) => i.name !== p.name) &&
+              this.members.every((p) => i.name !== p.name) &&
+              this.props.every((p) => i.name !== p.name) &&
+              this.fields.every((p) => i.name !== p.name)
           )
       )
       .flat();
@@ -406,7 +406,7 @@ const GOBJECT_CONFLICT_IDS = [
   "set",
   "block_signal_handler",
   "unblock_signal_handler",
-  "stop_emission_by_name"
+  "stop_emission_by_name",
 ];
 
 // These should never be overriden by fields/methods
@@ -434,7 +434,7 @@ export class GirClass extends GirBaseClass {
       callbacks,
       isAbstract,
       mainConstructor,
-      signals
+      signals,
     } = this;
 
     const clazz = new GirClass(name, ns);
@@ -443,15 +443,15 @@ export class GirClass extends GirBaseClass {
       clazz.parent = parent.copy();
     }
 
-    clazz.signals = signals.map(s => s.copy());
-    clazz.interfaces = interfaces.map(i => i.copy());
-    clazz.props = props.map(p => p.copy());
-    clazz.fields = fields.map(f => f.copy());
-    clazz.callbacks = callbacks.map(c => c.copy());
+    clazz.signals = signals.map((s) => s.copy());
+    clazz.interfaces = interfaces.map((i) => i.copy());
+    clazz.props = props.map((p) => p.copy());
+    clazz.fields = fields.map((f) => f.copy());
+    clazz.callbacks = callbacks.map((c) => c.copy());
     clazz.isAbstract = isAbstract;
     clazz.mainConstructor = mainConstructor;
-    clazz.constructors = constructors.map(c => c.copy());
-    clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.constructors = constructors.map((c) => c.copy());
+    clazz.members = members.map((m) => m.copy({ parent: clazz }));
 
     return clazz;
   }
@@ -489,19 +489,19 @@ export class GirClass extends GirBaseClass {
         clazz.constructors.push(
           ...klass.constructor
             .filter(isIntrospectable)
-            .map(constructor => GirConstructor.fromXML(modName, ns, clazz, constructor))
+            .map((constructor) => GirConstructor.fromXML(modName, ns, clazz, constructor))
         );
       }
 
       if (klass["glib:signal"]) {
         clazz.signals.push(
-          ...klass["glib:signal"].map(signal => GirSignal.fromXML(modName, ns, clazz, signal))
+          ...klass["glib:signal"].map((signal) => GirSignal.fromXML(modName, ns, clazz, signal))
         );
       }
 
       // Properties
       if (klass.property) {
-        klass.property.filter(isIntrospectable).forEach(prop => {
+        klass.property.filter(isIntrospectable).forEach((prop) => {
           const property = GirProperty.fromXML(modName, ns, null, prop);
           if (!PROTECTED_IDS.includes(property.name)) {
             clazz.props.push(property);
@@ -514,8 +514,8 @@ export class GirClass extends GirBaseClass {
         clazz.members.push(
           ...klass.method
             .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, ns, clazz, method))
-            .filter(m => !clazz.props.some(n => n.name === m.name))
+            .map((method) => GirClassFunction.fromXML(modName, ns, clazz, method))
+            .filter((m) => !clazz.props.some((n) => n.name === m.name))
         );
       }
 
@@ -523,13 +523,13 @@ export class GirClass extends GirBaseClass {
       if (klass.field) {
         klass.field
           .filter(isIntrospectable)
-          .filter(field => !field.$.private || field.$.private !== "1")
-          .filter(field => !("callback" in field) && !field.$.name.startsWith("_"))
-          .forEach(field => {
+          .filter((field) => !field.$.private || field.$.private !== "1")
+          .filter((field) => !("callback" in field) && !field.$.name.startsWith("_"))
+          .forEach((field) => {
             const f = GirField.fromXML(modName, ns, null, field);
             if (
-              !clazz.members.some(n => n.name === f.name) &&
-              !clazz.props.some(n => n.name === f.name) &&
+              !clazz.members.some((n) => n.name === f.name) &&
+              !clazz.props.some((n) => n.name === f.name) &&
               !PROTECTED_IDS.includes(f.name)
             ) {
               clazz.fields.push(f);
@@ -538,7 +538,7 @@ export class GirClass extends GirBaseClass {
       }
 
       if (klass.implements) {
-        klass.implements.filter(isIntrospectable).forEach(implementee => {
+        klass.implements.filter(isIntrospectable).forEach((implementee) => {
           const name = implementee.$.name;
           const type = parseTypeString(name);
 
@@ -557,7 +557,7 @@ export class GirClass extends GirBaseClass {
       // Callback Types
       if (klass.callback) {
         clazz.callbacks.push(
-          ...klass.callback.filter(isIntrospectable).map(callback => {
+          ...klass.callback.filter(isIntrospectable).map((callback) => {
             console.log(`Adding callback ${callback.$.name} for ${modName}`);
 
             return GirCallback.fromXML(modName, ns, clazz, callback);
@@ -570,7 +570,7 @@ export class GirClass extends GirBaseClass {
         clazz.members.push(
           ...klass["virtual-method"]
             .filter(isIntrospectable)
-            .map(method => GirVirtualClassFunction.fromXML(modName, ns, clazz, method))
+            .map((method) => GirVirtualClassFunction.fromXML(modName, ns, clazz, method))
         );
       }
 
@@ -579,8 +579,7 @@ export class GirClass extends GirBaseClass {
         clazz.members.push(
           ...klass.function
             .filter(isIntrospectable)
-            .filter(func => func.$["name"] !== "newv")
-            .map(func => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
+            .map((func) => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
         );
       }
     } catch (e) {
@@ -616,48 +615,50 @@ export class GirClass extends GirBaseClass {
     } else if (injection && injection.mainConstructor) {
       MainConstructor = `\n${injection.mainConstructor}`;
     } else {
-      MainConstructor = `\nconstructor(properties: Partial<${name}.ConstructorProperties>, ...args: any[]);
-                _init(properties: Partial<${name}.ConstructorProperties>);\n`;
+      MainConstructor = `\nconstructor(properties?: Partial<${name}.ConstructorProperties>, ...args: any[]);
+                _init(properties?: Partial<${name}.ConstructorProperties>, ...args: any[]): void;\n`;
     }
 
     const ConstructorProps = handleInjection(
       filterConflicts(
         this.ns,
-        this.props.filter(prop => !prop.isStatic),
+        this.props.filter((prop) => !prop.isStatic),
         // Only filter for extends, not implements.
         class_parents,
         registry
-      ).map(v => [v.name, v.asString(modName, registry, true)]),
+      ).map((v) => [v.name, v.asString(modName, registry, true)]),
       ClassInjectionMember.PROPERTY,
       injection
     ).join(EOL);
 
     const Properties = handleInjection(
-      filterConflicts(this.ns, this.props, resolved_parents, registry).map(v => [
+      filterConflicts(this.ns, this.props, resolved_parents, registry).map((v) => [
         v.name,
-        v.asString(modName, registry)
+        v.asString(modName, registry),
       ]),
       ClassInjectionMember.PROPERTY,
       injection
     ).join(EOL);
 
     const Fields = handleInjection(
-      filterConflicts(this.ns, this.fields, resolved_parents, registry).map(v => [
+      filterConflicts(this.ns, this.fields, resolved_parents, registry).map((v) => [
         v.name,
-        v.asString(modName, registry)
+        v.asString(modName, registry),
       ]),
       ClassInjectionMember.FIELD,
       injection
     ).join(EOL);
+
+    const isGObject = resolved_parents.some((p) => p.ns === "GObject" && p.name === "Object");
 
     const Constructors = handleInjection(
       filterFunctionConflict(
         this.ns,
         this.constructors,
         resolved_parents,
-        GOBJECT_CONFLICT_IDS,
+        isGObject ? GOBJECT_CONFLICT_IDS : [],
         registry
-      ).map(v => [v.name, v.asString(modName, registry)]),
+      ).map((v) => [v.name, v.asString(modName, registry)]),
       ClassInjectionMember.CONSTRUCTOR,
       injection
     ).join(EOL);
@@ -667,15 +668,15 @@ export class GirClass extends GirBaseClass {
         this.ns,
         this.members,
         resolved_parents,
-        GOBJECT_CONFLICT_IDS,
+        isGObject ? GOBJECT_CONFLICT_IDS : [],
         registry
-      ).map(v => [v.name, v.asString(modName, registry)]),
+      ).map((v) => [v.name, v.asString(modName, registry)]),
       ClassInjectionMember.MEMBER,
       injection
     ).join(EOL);
 
     const ImplementedProperties = filterConflicts(this.ns, implementedProperties, resolved_parents, registry)
-      .map(m => m.asString(modName, registry))
+      .map((m) => m.asString(modName, registry))
       .join(EOL);
 
     const ImplementedMethods = filterFunctionConflict(
@@ -685,7 +686,7 @@ export class GirClass extends GirBaseClass {
       GOBJECT_CONFLICT_IDS,
       registry
     )
-      .map(m => m.asString(modName, registry))
+      .map((m) => m.asString(modName, registry))
       .join(EOL);
 
     // TODO Move these to a cleaner place.
@@ -697,15 +698,15 @@ export class GirClass extends GirBaseClass {
         new GirFunctionParameter({
           name: "id",
           type: new VariableType("string"),
-          direction: Direction.In
+          direction: Direction.In,
         }),
         new GirFunctionParameter({
           name: "callback",
           type: new NativeType("(...args: any[]) => any"),
-          direction: Direction.In
-        })
+          direction: Direction.In,
+        }),
       ],
-      return_type: new VariableType("number")
+      return_type: new VariableType("number"),
     });
 
     const ConnectAfter = new GirClassFunction({
@@ -715,15 +716,15 @@ export class GirClass extends GirBaseClass {
         new GirFunctionParameter({
           name: "id",
           type: new VariableType("string"),
-          direction: Direction.In
+          direction: Direction.In,
         }),
         new GirFunctionParameter({
           name: "callback",
           type: new NativeType("(...args: any[]) => any"),
-          direction: Direction.In
-        })
+          direction: Direction.In,
+        }),
       ],
-      return_type: new VariableType("number")
+      return_type: new VariableType("number"),
     });
 
     const Emit = new GirClassFunction({
@@ -733,25 +734,25 @@ export class GirClass extends GirBaseClass {
         new GirFunctionParameter({
           name: "id",
           type: new VariableType("string"),
-          direction: Direction.In
+          direction: Direction.In,
         }),
         new GirFunctionParameter({
           name: "args",
           isVarArgs: true,
           type: new VariableType("any"),
-          direction: Direction.In
-        })
+          direction: Direction.In,
+        }),
       ],
-      return_type: new VariableType("void")
+      return_type: new VariableType("void"),
     });
 
     let default_signals = [] as GirClassFunction[];
     let hasConnect, hasConnectAfter, hasEmit;
 
     if (this.signals.length > 0) {
-      hasConnect = this.members.some(m => m.name === "connect");
-      hasConnectAfter = this.members.some(m => m.name === "connect_after");
-      hasEmit = this.members.some(m => m.name === "emit");
+      hasConnect = this.members.some((m) => m.name === "connect");
+      hasConnectAfter = this.members.some((m) => m.name === "connect_after");
+      hasEmit = this.members.some((m) => m.name === "emit");
 
       if (!hasConnect) {
         default_signals.push(Connect);
@@ -771,16 +772,16 @@ export class GirClass extends GirBaseClass {
         FilterBehavior.DELETE
       );
 
-      hasConnect = !default_signals.some(s => s.name === "connect");
-      hasConnectAfter = !default_signals.some(s => s.name === "connect_after");
-      hasEmit = !default_signals.some(s => s.name === "emit");
+      hasConnect = !default_signals.some((s) => s.name === "connect");
+      hasConnectAfter = !default_signals.some((s) => s.name === "connect_after");
+      hasEmit = !default_signals.some((s) => s.name === "emit");
     }
 
     const Signals = [
       // TODO Relocate these.
-      ...default_signals.map(s => s.asString(modName, registry)),
+      ...default_signals.map((s) => s.asString(modName, registry)),
       ...this.signals
-        .map(s => {
+        .map((s) => {
           const methods = [] as string[];
 
           if (!hasConnect) methods.push(s.asString(modName, registry, GirSignalType.CONNECT));
@@ -789,7 +790,7 @@ export class GirClass extends GirBaseClass {
 
           return methods;
         })
-        .flat()
+        .flat(),
     ].join(EOL);
 
     const hasCallbacks = this.callbacks.length > 0;
@@ -798,7 +799,7 @@ export class GirClass extends GirBaseClass {
     return `${
       hasModule
         ? `export module ${name} {
-              ${hasCallbacks ? this.callbacks.map(c => c.asString(modName, registry)).join(EOL) : ""}
+              ${hasCallbacks ? this.callbacks.map((c) => c.asString(modName, registry)).join(EOL) : ""}
               ${
                 injectConstructorBucket
                   ? `export interface ConstructorProperties${
@@ -859,7 +860,7 @@ export class GirRecord extends GirBaseClass {
       props,
       fields,
       callbacks,
-      mainConstructor
+      mainConstructor,
     } = this;
 
     const clazz = new GirRecord(name, ns);
@@ -869,13 +870,13 @@ export class GirRecord extends GirBaseClass {
     }
 
     clazz._isForeign = _isForeign;
-    clazz.interfaces = interfaces.map(i => i.copy());
-    clazz.props = props.map(p => p.copy());
-    clazz.fields = fields.map(f => f.copy());
-    clazz.callbacks = callbacks.map(c => c.copy());
+    clazz.interfaces = interfaces.map((i) => i.copy());
+    clazz.props = props.map((p) => p.copy());
+    clazz.fields = fields.map((f) => f.copy());
+    clazz.callbacks = callbacks.map((c) => c.copy());
     clazz.mainConstructor = !mainConstructor || mainConstructor.copy();
-    clazz.constructors = constructors.map(c => c.copy());
-    clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.constructors = constructors.map((c) => c.copy());
+    clazz.members = members.map((m) => m.copy({ parent: clazz }));
 
     return clazz;
   }
@@ -914,13 +915,13 @@ export class GirRecord extends GirBaseClass {
         clazz.members.push(
           ...klass.method
             .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, ns, clazz, method))
+            .map((method) => GirClassFunction.fromXML(modName, ns, clazz, method))
         );
       }
 
       // Constructors
       if (Array.isArray(klass.constructor)) {
-        klass.constructor.filter(isIntrospectable).forEach(constructor => {
+        klass.constructor.filter(isIntrospectable).forEach((constructor) => {
           const c = GirConstructor.fromXML(modName, ns, clazz, constructor);
 
           // Records prefer to use a "new" constructor if one is introspectable
@@ -937,10 +938,7 @@ export class GirRecord extends GirBaseClass {
         clazz.members.push(
           ...klass.function
             .filter(isIntrospectable)
-            // "newv" constructors generally cause compatibility issues.
-            // TODO Resolve
-            .filter(func => func.$["name"] !== "newv")
-            .map(func => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
+            .map((func) => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
         );
       }
 
@@ -955,15 +953,15 @@ export class GirRecord extends GirBaseClass {
             .filter(isIntrospectable)
             // TODO investigate these field callbacks.
             // Record fields can just be mirrors of existing functions.
-            .filter(field => !("callback" in field))
+            .filter((field) => !("callback" in field))
             // If it starts with "_" it is most likely a private member of the class.
-            .filter(field => !field.$.name.startsWith("_"))
-            .map(field => GirField.fromXML(modName, ns, null, field))
+            .filter((field) => !field.$.name.startsWith("_"))
+            .map((field) => GirField.fromXML(modName, ns, null, field))
             // Ensure identifiers don't overlap
             .filter(
-              f =>
-                !clazz.members.some(n => n.name === f.name) &&
-                !clazz.props.some(n => n.name === f.name) &&
+              (f) =>
+                !clazz.members.some((n) => n.name === f.name) &&
+                !clazz.props.some((n) => n.name === f.name) &&
                 !PROTECTED_IDS.includes(f.name)
             )
         );
@@ -974,6 +972,35 @@ export class GirRecord extends GirBaseClass {
     }
 
     return clazz;
+  }
+
+  isSimple(modName: string, registry: GirNSRegistry) {
+    if (this.fields.length === 0) {
+      return false;
+    }
+
+    const isSimpleType = (type: VariableType) => {
+      // Primitive types can be directly allocated.
+      if (type.namespace === null && resolvePrimitiveType(type.name) !== null) {
+        return true;
+      }
+
+      const child_ns = registry.namespace(type.namespace || modName);
+      const child = child_ns ? child_ns.getClass(type.name) : null;
+
+      // TODO Handle Unions
+      if (child instanceof GirRecord) {
+        if (child === this) {
+          return false;
+        }
+
+        return child.isSimple(modName, registry);
+      } else {
+        return false;
+      }
+    };
+
+    return this.fields.every((f) => isSimpleType(f.type));
   }
 
   asString(modName: string, registry: GirNSRegistry, injection?: ClassInjection): string {
@@ -1003,41 +1030,52 @@ export class GirRecord extends GirBaseClass {
     } else if (this.constructors.length > 0) {
       const [firstConstructor] = this.constructors;
       MainConstructor = firstConstructor.asConstructor(modName, registry);
+    } else if (this.isSimple(modName, registry)) {
+      const ConstructorFields = this.fields.map((v) => {
+        const copied = v.copy();
+
+        copied.optional = true;
+
+        return copied.asString(modName, registry)
+      }).join(EOL);
+      MainConstructor = `constructor(properties?: {
+        ${ConstructorFields}
+      });`;
     }
 
     const hasCallbacks = this.callbacks.length > 0;
 
     const Properties = handleInjection(
-      filterConflicts(this.ns, this.props, resolved_parents, registry).map(v => [
+      filterConflicts(this.ns, this.props, resolved_parents, registry).map((v) => [
         v.name,
-        v.asString(modName, registry)
+        v.asString(modName, registry),
       ]),
       ClassInjectionMember.PROPERTY,
       injection
     ).join(EOL);
 
     const Fields = handleInjection(
-      filterConflicts(this.ns, this.fields, resolved_parents, registry).map(v => [
+      filterConflicts(this.ns, this.fields, resolved_parents, registry).map((v) => [
         v.name,
-        v.asString(modName, registry)
+        v.asString(modName, registry),
       ]),
       ClassInjectionMember.FIELD,
       injection
     ).join(EOL);
 
     const Constructors = handleInjection(
-      filterFunctionConflict(this.ns, this.constructors, resolved_parents, [], registry).map(v => [
+      filterFunctionConflict(this.ns, this.constructors, resolved_parents, [], registry).map((v) => [
         v.name,
-        v.asString(modName, registry)
+        v.asString(modName, registry),
       ]),
       ClassInjectionMember.CONSTRUCTOR,
       injection
     ).join(EOL);
 
     const Members = handleInjection(
-      filterFunctionConflict(this.ns, this.members, resolved_parents, [], registry).map(v => [
+      filterFunctionConflict(this.ns, this.members, resolved_parents, [], registry).map((v) => [
         v.name,
-        v.asString(modName, registry)
+        v.asString(modName, registry),
       ]),
       ClassInjectionMember.MEMBER,
       injection
@@ -1050,17 +1088,17 @@ export class GirRecord extends GirBaseClass {
       [],
       registry
     )
-      .map(m => m.asString(modName, registry))
+      .map((m) => m.asString(modName, registry))
       .join(EOL);
 
     const ImplementedProperties = filterConflicts(this.ns, implementedProperties, resolved_parents, registry)
-      .map(m => m.asString(modName, registry))
+      .map((m) => m.asString(modName, registry))
       .join(EOL);
 
     return `${
       hasCallbacks
         ? `export module ${name} {
-              ${this.callbacks.map(c => c.asString(modName, registry)).join(EOL)}
+              ${this.callbacks.map((c) => c.asString(modName, registry)).join(EOL)}
            }`
         : ``
     }
@@ -1103,7 +1141,7 @@ export class GirInterface extends GirBaseClass {
       props,
       fields,
       callbacks,
-      mainConstructor
+      mainConstructor,
     } = this;
 
     const clazz = new GirInterface(name, ns);
@@ -1112,13 +1150,13 @@ export class GirInterface extends GirBaseClass {
       clazz.parent = parent.copy();
     }
 
-    clazz.interfaces = interfaces.map(i => i.copy());
-    clazz.props = props.map(p => p.copy());
-    clazz.fields = fields.map(f => f.copy());
-    clazz.callbacks = callbacks.map(c => c.copy());
+    clazz.interfaces = interfaces.map((i) => i.copy());
+    clazz.props = props.map((p) => p.copy());
+    clazz.fields = fields.map((f) => f.copy());
+    clazz.callbacks = callbacks.map((c) => c.copy());
     clazz.mainConstructor = !mainConstructor || mainConstructor.copy();
-    clazz.constructors = constructors.map(c => c.copy());
-    clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.constructors = constructors.map((c) => c.copy());
+    clazz.members = members.map((m) => m.copy({ parent: clazz }));
 
     return clazz;
   }
@@ -1142,9 +1180,11 @@ export class GirInterface extends GirBaseClass {
     }
 
     try {
-      // Setup parent type if this is an interface or class.
-      if (klass.$.parent) {
-        clazz.parent = parseTypeString(klass.$.parent);
+      // Setup the "parent" (prerequisite) for this interface.
+      if (klass.prerequisite && klass.prerequisite[0]) {
+        const [prerequisite] = klass.prerequisite;
+
+        clazz.parent = parseTypeString(prerequisite.$.name);
       }
 
       if (Array.isArray(klass.constructor)) {
@@ -1158,8 +1198,8 @@ export class GirInterface extends GirBaseClass {
         clazz.props.push(
           ...klass.property
             .filter(isIntrospectable)
-            .map(prop => GirProperty.fromXML(modName, ns, null, prop))
-            .filter(property => !PROTECTED_IDS.includes(property.name))
+            .map((prop) => GirProperty.fromXML(modName, ns, null, prop))
+            .filter((property) => !PROTECTED_IDS.includes(property.name))
         );
       }
 
@@ -1168,7 +1208,7 @@ export class GirInterface extends GirBaseClass {
         for (let method of klass.method.filter(isIntrospectable)) {
           const m = GirClassFunction.fromXML(modName, ns, clazz, method);
 
-          if (!clazz.props.some(n => n.name === m.name)) {
+          if (!clazz.props.some((n) => n.name === m.name)) {
             clazz.members.push(m);
           }
         }
@@ -1193,8 +1233,6 @@ export class GirInterface extends GirBaseClass {
       // Static methods (functions)
       if (klass.function) {
         for (let func of klass.function.filter(isIntrospectable)) {
-          if (func.$["name"] === "newv") continue; // TODO
-
           clazz.members.push(GirStaticClassFunction.fromXML(modName, ns, clazz, func));
         }
       }
@@ -1206,44 +1244,72 @@ export class GirInterface extends GirBaseClass {
   }
 
   asString(modName: string, registry: GirNSRegistry): string {
+    // If an interface does not list a prerequisite type, we fill it with GObject.Object
+    if (this.parent == null) {
+      const gobject = registry.namespace("GObject");
+
+      // TODO Optimize GObject.Object
+      if (!gobject) {
+        throw new Error("GObject not generated, all interfaces extend from GObject.Object!");
+      }
+
+      const GObject = gobject.getClass("Object");
+
+      if (!GObject) {
+        throw new Error(`GObject.Object could not be found while generating ${modName}.${this.name}`);
+      }
+
+      this.parent = GObject.getType();
+    }
+
     const resolved_parents = resolveParents(this.parent, modName, registry);
+
+    const isGObject = resolved_parents.some((p) => p.ns === "GObject" && p.name === "Object");
 
     const name = this.name;
 
-    const functions = filterFunctionConflict(this.ns, this.members, resolved_parents, [], registry);
-    const staticFunctions = functions.filter(f => f instanceof GirStaticClassFunction);
-    const nonstaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
-    const hasNamespace = staticFunctions.length > 0 || this.callbacks.length > 0;
+    const functions = filterFunctionConflict(
+      this.ns,
+      this.members,
+      resolved_parents,
+      isGObject ? GOBJECT_CONFLICT_IDS : [],
+      registry
+    );
+
+    const staticFunctions = functions.filter((f) => f instanceof GirStaticClassFunction);
+    const nonstaticFunctions = functions.filter((f) => !(f instanceof GirStaticClassFunction));
+    const hasNamespace = isGObject || staticFunctions.length > 0 || this.callbacks.length > 0;
     return `
       ${
         this.callbacks.length > 0
           ? `export module ${name} {
-${this.callbacks.map(c => c.asString(modName, registry)).join(EOL)}
+${this.callbacks.map((c) => c.asString(modName, registry)).join(EOL)}
 }`
           : ""
       }
     ${
       hasNamespace
         ? `export interface ${name}Namespace {
+  ${isGObject ? "$gtype: GType;" : ""}
   ${
     staticFunctions.length > 0
-      ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, modName, registry)).join(EOL)
+      ? staticFunctions.map((sf) => GirClassFunction.prototype.asString.call(sf, modName, registry)).join(EOL)
       : ""
   }    
   }`
         : ""
     }
-  export interface ${name} ${this.extends(modName, registry)} {
+  export interface ${name}${this.extends(modName, registry)} {
   ${this.props.length > 0 ? `// Properties` : ""}
   ${filterConflicts(this.ns, this.props, resolved_parents, registry)
-    .map(p => p.asString(modName, registry))
+    .map((p) => p.asString(modName, registry))
     .join(EOL)}
   ${this.fields.length > 0 ? `// Fields` : ""}
   ${filterConflicts(this.ns, this.fields, resolved_parents, registry)
-    .map(p => p.asString(modName, registry))
+    .map((p) => p.asString(modName, registry))
     .join(EOL)}
   ${nonstaticFunctions.length > 0 ? `// Members\n` : ""}
-  ${nonstaticFunctions.map(m => m.asString(modName, registry)).join(EOL)}
+  ${nonstaticFunctions.map((m) => m.asString(modName, registry)).join(EOL)}
   }${hasNamespace ? `\n\nexport const ${name}: ${name}Namespace;` : ""}`;
   }
 }
