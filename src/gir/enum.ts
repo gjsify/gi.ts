@@ -1,6 +1,6 @@
 import { EOL } from "os";
 
-import { GirBase, VariableType, NativeType } from "../gir";
+import { GirBase, NumberType, NativeType, TypeIdentifier } from "../gir";
 import { MemberElement, Enumeration, BitfieldElement, Direction } from "../xml";
 
 import { GirRecord } from "./class";
@@ -17,6 +17,10 @@ export class GirEnum extends GirBase {
   constructor(name: string, ns: string) {
     super(sanitizeIdentifierName(ns, name));
     this.ns = ns;
+  }
+
+  getType(): TypeIdentifier {
+    return new TypeIdentifier(this.name, this.ns);
   }
 
   copy(): GirEnum {
@@ -61,7 +65,7 @@ export class GirEnum extends GirBase {
       ...Array.from(this.members.values()).map(m => {
         return new GirProperty({
           name: m.name,
-          type: new VariableType("number"),
+          type: NumberType,
           writable: true,
           isStatic: true,
           constructOnly: false
@@ -72,7 +76,13 @@ export class GirEnum extends GirBase {
     return clazz;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, m: Enumeration | BitfieldElement, flags = false): GirEnum {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    _parent,
+    m: Enumeration | BitfieldElement,
+    flags = false
+  ): GirEnum {
     const em = new GirEnum(sanitizeMemberName(m.$.name), ns.name);
 
     if (m.$["glib:type-name"]) {
@@ -166,7 +176,7 @@ export class GirError extends GirEnum {
       parameters: [
         new GirFunctionParameter({
           name: "options",
-          type: new NativeType("{ message: string, code: number}"),
+          type: NativeType.of("{ message: string, code: number}"),
           direction: Direction.In
         })
       ],

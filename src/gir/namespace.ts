@@ -1,8 +1,8 @@
 import { EOL } from "os";
 
-import { GirBase, VariableType } from "../gir";
+import { GirBase, TypeIdentifier } from "../gir";
 import { GirXML, Element } from "../xml";
-import { resolvePrimitiveType } from "./util";
+import { isPrimitiveType } from "./util";
 
 import { GirClass, GirInterface, GirRecord, GirBaseClass } from "./class";
 import { GirFunction, GirCallback } from "./function";
@@ -56,6 +56,10 @@ export class GirNamespace {
     if (ns_name !== this.name && !this.imports.includes(ns_name)) {
       this.imports.push(ns_name);
     }
+  }
+
+  getMember(name: string): GirBase | null {
+    return this.members.get(name) || null;
   }
 
   getClass(name: string) {
@@ -283,7 +287,7 @@ type GType = object;
     if (ns["glib:boxed"]) {
       ns["glib:boxed"]
         .filter(isIntrospectable)
-        .map((boxed) => new GirAlias({ name: boxed.$["glib:name"], type: VariableType.nullable("object") }))
+        .map((boxed) => new GirAlias({ name: boxed.$["glib:name"], type: TypeIdentifier.nullable("object") }))
         .forEach((c) => building.members.set(c.name, c));
     }
 
@@ -352,7 +356,7 @@ type GType = object;
             .map((t) => {
               if (
                 !building.hasSymbol(t.$.name) &&
-                !resolvePrimitiveType(t.$.name) &&
+                !isPrimitiveType(t.$.name) &&
                 !t.$.name.includes(".")
               ) {
                 return { $: { name: "unknown", "c:type": "unknown" } };

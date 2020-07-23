@@ -1,5 +1,6 @@
 import { GirNamespace, GirNSRegistry } from "./gir/namespace";
 import { GirProperty, GirField } from "./gir/property";
+import { resolveType } from "./gir/util";
 
 export abstract class GirBase {
   name: string;
@@ -11,149 +12,267 @@ export abstract class GirBase {
 
   abstract copy(options?: { parent?: GirBase }): GirBase;
 
-  static fromXML(_modName: string, _ns: GirNamespace, parent: GirBase, _gir: object): GirBase | null {
+  static fromXML(_modName: string, _ns: GirNamespace, _parent: GirBase | null, _gir: object): GirBase | null {
     throw new Error("GirBase cannot be instantiated");
   }
 
   abstract asString(modName: string, registry: GirNSRegistry): string | null;
 }
 
-export class Type {
-  name: string;
-  namespace: string | null;
+export abstract class TypeExpression {
+  abstract equals(type: TypeExpression): boolean;
+  abstract unwrap(): TypeExpression;
+  abstract resolve(ns: string, rns: GirNSRegistry): string;
+
+  rootResolve(ns: string, rns: GirNSRegistry): string {
+    return this.resolve(ns, rns);
+  }
+}
+
+export class TypeIdentifier extends TypeExpression {
+  readonly name: string;
+  readonly namespace: string | null;
 
   constructor(name: string, namespace: string | null = null) {
+    super();
     this.name = name;
     this.namespace = namespace;
   }
 
-  copy(): Type {
-    const { name, namespace } = this;
-
-    return new Type(name, namespace);
-  }
-}
-
-export class ClassType extends Type {
-  copy(): ClassType {
-    const { name, namespace } = this;
-
-    return new ClassType(name, namespace);
-  }
-}
-
-export class VariableType extends Type {
-  anyified?: boolean = false;
-  nullable: boolean = false;
-
-  copy(): VariableType {
-    const { anyified, nullable, name, namespace } = this;
-
-    return VariableType.new({ anyified, nullable, name, namespace });
+  equals(type: TypeExpression): boolean {
+    return type instanceof TypeIdentifier && type.name === this.name && type.namespace === this.namespace;
   }
 
-  static new({
-    name,
-    namespace = null,
-    anyified = false,
-    nullable = false
-  }: {
-    name: string;
-    namespace?: string | null;
-    anyified?: boolean;
-    nullable?: boolean;
-  }) {
-    const vt = new VariableType(name, namespace);
-    vt.anyified = anyified;
-    vt.nullable = nullable;
-    return vt;
+  is(namespace: string | null, name: string) {
+    return this.namespace === namespace && this.name === name;
   }
 
-  static nullable(name: string, namespace: string | null = null): VariableType {
-    const vt = new VariableType(name, namespace);
-    vt.nullable = true;
+  unwrap() {
+    return this;
+  }
+
+  resolve(ns: string, rns: GirNSRegistry): string {
+    return resolveType(ns, rns, this);
+  }
+
+  static new({ name, namespace }: { name: string; namespace: string | null }) {
+    return new TypeIdentifier(name, namespace);
+  }
+
+  static nullable(name: string, namespace: string | null = null): NullableType {
+    const vt = new NullableType(new TypeIdentifier(name, namespace));
+
     return vt;
   }
 }
 
-export class NativeType extends VariableType {
-  constructor(typeString: string) {
-    super(typeString, null);
+export class OrType extends TypeExpression {
+  readonly types: ReadonlyArray<TypeExpression>;
+
+  constructor(type: TypeExpression, ...types: TypeExpression[]) {
+    super();
+    this.types = [type, ...types];
   }
 
-  copy(): NativeType {
-    const { name } = this;
+  unwrap(): TypeExpression {
+    return this;
+  }
 
-    return new NativeType(name);
+  resolve(ns: string, rns: GirNSRegistry) {
+    return `(${this.types.map(t => t.resolve(ns, rns)).join(" | ")})`;
+  }
+
+  rootResolve(ns: string, rns: GirNSRegistry) {
+    return `${this.types.map(t => t.resolve(ns, rns)).join(" | ")}`;
+  }
+
+  equals(type: TypeExpression) {
+    if (type instanceof OrType) {
+      return this.types.every(t => type.types.some(type => type.equals(t)));
+    } else {
+      return false;
+    }
   }
 }
 
-export class ClosureVariableType extends VariableType {
+export class BinaryType extends OrType {
+  constructor(primary: TypeExpression, secondary: TypeExpression) {
+    super(primary, secondary);
+  }
+
+  unwrap(): TypeExpression {
+    return this;
+  }
+
+  is(_namespace: string | null, _name: string) {
+    return false;
+  }
+
+  get a() {
+    return this.types[0];
+  }
+
+  get b() {
+    return this.types[1];
+  }
+}
+
+export class NullableType extends BinaryType {
+  constructor(type: TypeExpression) {
+    super(type, NullType);
+  }
+
+  unwrap() {
+    return this.type;
+  }
+
+  get type() {
+    return this.a;
+  }
+}
+
+export class AnyifiedType extends BinaryType {
+  constructor(type: TypeExpression) {
+    super(type, AnyType);
+  }
+
+  unwrap() {
+    return this.type;
+  }
+
+  get type() {
+    return this.a;
+  }
+
+  equals(_type: TypeExpression) {
+    return true;
+  }
+}
+
+export class NativeType extends TypeExpression {
+  readonly expression: string;
+
+  constructor(expression: string) {
+    super();
+    this.expression = expression;
+  }
+
+  resolve(): string {
+    return this.expression;
+  }
+
+  equals(type: TypeExpression): boolean {
+    return type instanceof NativeType && this.expression === type.expression;
+  }
+
+  unwrap(): TypeExpression {
+    return this;
+  }
+
+  static of(nativeType: string) {
+    return new NativeType(nativeType);
+  }
+}
+
+export class ClosureType extends TypeExpression {
+  type: TypeExpression;
   user_data: number | null = null;
 
-  copy(): ClosureVariableType {
-    const { user_data, anyified, nullable, name, namespace } = this;
-
-    return ClosureVariableType.new({ user_data, anyified, nullable, name, namespace });
+  constructor(type: TypeExpression) {
+    super();
+    this.type = type;
   }
 
-  static new({
-    name,
-    namespace = null,
-    user_data = null,
-    anyified = false,
-    nullable = false
-  }: {
-    name: string;
-    namespace?: string | null;
-    user_data?: number | null,
-    anyified?: boolean;
-    nullable?: boolean;
-  }) {
-    const vt = new ClosureVariableType(name, namespace);
+  equals(type: TypeExpression): boolean {
+    if (type instanceof ClosureType) {
+      const closureType = type;
+      return this.type.equals(closureType.type);
+    }
+
+    return false;
+  }
+
+  unwrap(): TypeExpression {
+    return this;
+  }
+
+  resolve(ns: string, rns: GirNSRegistry): string {
+    return this.type.resolve(ns, rns);
+  }
+
+  static new({ type, user_data = null }: { type: TypeExpression; user_data?: number | null }) {
+    const vt = new ClosureType(type);
     vt.user_data = user_data;
-    vt.anyified = anyified;
-    vt.nullable = nullable;
     return vt;
   }
 }
 
-export class ArrayVariableType extends VariableType {
+export class ArrayType extends TypeExpression {
+  type: TypeExpression;
   arrayDepth: number = 1;
   length: number | null = null;
 
-  copy(): ArrayVariableType {
-    const { arrayDepth, length, anyified, nullable, name, namespace } = this;
+  constructor(type: TypeExpression) {
+    super();
+    this.type = type;
+  }
 
-    return ArrayVariableType.new({ arrayDepth, length, anyified, nullable, name, namespace });
+  unwrap(): TypeExpression {
+    return this;
+  }
+
+  equals(type: TypeExpression) {
+    if (type instanceof ArrayType) {
+      const arrayType = type;
+
+      return arrayType.type.equals(this.type) && type.arrayDepth === this.arrayDepth;
+    }
+
+    return false;
+  }
+
+  resolve(ns: string, rns: GirNSRegistry) {
+    const depth = this.arrayDepth;
+    let typeSuffix: string = "";
+
+    if (depth === 0) {
+      typeSuffix = "";
+    } else if (depth === 1) {
+      typeSuffix = "[]";
+    } else {
+      typeSuffix = "".padStart(2 * depth, "[]");
+    }
+
+    return `${this.type.resolve(ns, rns)}${typeSuffix}`;
   }
 
   static new({
-    name,
-    namespace = null,
+    type,
     arrayDepth = 1,
-    length = null,
-    anyified = false,
-    nullable = false
+    length = null
   }: {
-    name: string;
-    namespace?: string | null;
-    length?: number | null,
+    type: TypeExpression;
+    length?: number | null;
     arrayDepth?: number;
-    anyified?: boolean;
-    nullable?: boolean;
   }) {
-    const vt = new ArrayVariableType(name, namespace);
+    const vt = new ArrayType(type);
     vt.length = length;
-    vt.anyified = anyified;
-    vt.nullable = nullable;
     vt.arrayDepth = arrayDepth;
     return vt;
   }
 }
 
-export const VoidType = new Type("void");
-
-export const UnknownType = new Type("unknown");
+export const GTypeType = new NativeType("GType");
+export const ThisType = new NativeType("this");
+export const ObjectType = new NativeType("object");
+export const AnyType = new NativeType("any");
+export const NeverType = new NativeType("never");
+export const Uint8ArrayType = new NativeType("Uint8Array");
+export const BooleanType = new NativeType("boolean");
+export const StringType = new NativeType("string");
+export const NumberType = new NativeType("number");
+export const NullType = new NativeType("null");
+export const VoidType = new NativeType("void");
+export const UnknownType = new NativeType("unknown");
 
 export type GirClassField = GirProperty | GirField;

@@ -1,24 +1,24 @@
-import { GirBase, VariableType } from "../gir";
+import { GirBase, TypeExpression } from "../gir";
 import { ClassField, ClassProperty } from "../xml";
 
-import { resolveType, getType, isInvalid } from "./util";
+import { getType, isInvalid } from "./util";
 import { GirNSRegistry, GirNamespace } from "./namespace";
 
 export class GirField extends GirBase {
-  readonly type: VariableType;
+  readonly type: TypeExpression;
   optional: boolean = false;
 
-  copy(): GirField {
+  copy(options?: { parent?: GirBase; type?: TypeExpression }): GirField {
     const { type, name, optional } = this;
 
     return new GirField({
       name,
-      type: type.copy(),
-      optional,
+      type: options?.type ?? type,
+      optional
     });
   }
 
-  constructor({ name, type, optional = false }: { name: string; type: VariableType; optional?: boolean }) {
+  constructor({ name, type, optional = false }: { name: string; type: TypeExpression; optional?: boolean }) {
     super(name);
 
     this.type = type;
@@ -29,7 +29,7 @@ export class GirField extends GirBase {
     const invalid = isInvalid(this.name);
 
     return `${invalid ? `"${this.name}"` : this.name}${this.optional ? "?" : ""}: ${
-      resolveType(namespace, registry, this.type) || "any"
+      this.type.rootResolve(namespace, registry) || "any"
     };`;
   }
 
@@ -44,19 +44,19 @@ export class GirField extends GirBase {
 
 export class GirProperty extends GirBase {
   readonly writable: boolean = false;
-  readonly type: VariableType;
+  readonly type: TypeExpression;
   readonly isStatic: boolean = false;
   constructOnly: boolean;
 
-  copy(): GirProperty {
+  copy(options?: { parent?: GirBase; type?: TypeExpression }): GirProperty {
     const { writable, type, isStatic, name, constructOnly } = this;
 
     return new GirProperty({
       name,
       writable,
-      type: type.copy(),
+      type: options?.type ?? type,
       isStatic,
-      constructOnly,
+      constructOnly
     });
   }
 
@@ -65,11 +65,11 @@ export class GirProperty extends GirBase {
     isStatic,
     type,
     writable,
-    constructOnly,
+    constructOnly
   }: {
     name: string;
     isStatic: boolean;
-    type: VariableType;
+    type: TypeExpression;
     writable: boolean;
     constructOnly: boolean;
   }) {
@@ -86,11 +86,11 @@ export class GirProperty extends GirBase {
     const Static = this.isStatic ? "static" : "";
     const ReadOnly = this.writable || construct ? "" : "readonly";
 
-    const Modifier = [Static, ReadOnly].filter((a) => a !== "").join(" ");
+    const Modifier = [Static, ReadOnly].filter(a => a !== "").join(" ");
 
     const Name = invalid ? `"${this.name}"` : this.name;
 
-    let Type = resolveType(namespace, registry, this.type) || "any";
+    let Type = this.type.rootResolve(namespace, registry) || "any";
 
     return `${Modifier} ${Name}: ${Type};`;
   }
@@ -103,7 +103,7 @@ export class GirProperty extends GirBase {
       writable: !("writable" in prop.$) || prop.$["writable"] === "1",
       constructOnly: !("construct-only" in prop.$) || prop.$["construct-only"] === "1",
       type: getType(namespace, ns, prop),
-      isStatic: false,
+      isStatic: false
     });
 
     return property;

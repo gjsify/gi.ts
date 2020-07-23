@@ -1,4 +1,4 @@
-import { GirBase, NativeType, VoidType, VariableType, UnknownType, Type } from "../gir";
+import { GirBase, VoidType, UnknownType, NativeType, TypeExpression, ThisType } from "../gir";
 import { GirNSRegistry, GirNamespace } from "./namespace";
 import { GirClass } from "./class";
 import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
@@ -8,23 +8,23 @@ import { getType } from "./util";
 export enum GirSignalType {
   CONNECT,
   CONNECT_AFTER,
-  EMIT,
+  EMIT
 }
 
 export class GirSignal extends GirBase {
   parameters: GirFunctionParameter[];
-  return_type: Type;
+  return_type: TypeExpression;
   parent: GirClass;
 
   constructor({
     name,
     parameters = [],
     return_type = UnknownType,
-    parent,
+    parent
   }: {
     name: string;
     parameters?: GirFunctionParameter[];
-    return_type?: Type;
+    return_type?: TypeExpression;
     parent: GirClass;
   }) {
     super(name);
@@ -42,12 +42,12 @@ export class GirSignal extends GirBase {
   ): GirSignal {
     const signal = new GirSignal({
       name: sig.$.name,
-      parent,
+      parent
     });
 
     if (sig.parameters && sig.parameters[0].parameter) {
       signal.parameters.push(
-        ...sig.parameters[0].parameter.map((p) => GirFunctionParameter.fromXML(modName, ns, signal, p))
+        ...sig.parameters[0].parameter.map(p => GirFunctionParameter.fromXML(modName, ns, signal, p))
       );
     }
 
@@ -59,11 +59,11 @@ export class GirSignal extends GirBase {
   copy({ parent = this.parent }: { parent?: GirClass } = {}): GirSignal {
     const fn = new GirSignal({
       name: this.name,
-      parent,
+      parent
     });
 
-    fn.parameters.push(...this.parameters.map((p) => p.copy()));
-    fn.return_type = this.return_type.copy();
+    fn.parameters.push(...this.parameters.map(p => p.copy()));
+    fn.return_type = this.return_type;
 
     return fn;
   }
@@ -73,26 +73,26 @@ export class GirSignal extends GirBase {
 
     const parent = this.parent;
 
-    const prefix_signal = emit.parameters.some((p) => {
+    const prefix_signal = emit.parameters.some(p => {
       return p.name === "signal";
     });
 
     const parameters = [
       new GirFunctionParameter({
         name: prefix_signal ? "$signal" : "signal",
-        type: new NativeType(`'${this.name}'`),
-        direction: Direction.In,
+        type: NativeType.of(`'${this.name}'`),
+        direction: Direction.In
       }),
-      ...emit.parameters,
+      ...emit.parameters
     ];
 
-    const return_type = VoidType.copy();
+    const return_type = VoidType;
 
     return new GirClassFunction({
       return_type,
       parameters,
       name: "emit",
-      parent,
+      parent
     });
   }
 
@@ -107,32 +107,32 @@ export class GirSignal extends GirBase {
       name: "callback",
       output_parameters: [],
       parameters: [
-        new GirFunctionParameter({ name: "_source", type: new NativeType("this"), direction: Direction.In }),
-        ...connect.parameters.map((p) => p.copy()),
+        new GirFunctionParameter({ name: "_source", type: ThisType, direction: Direction.In }),
+        ...connect.parameters.map(p => p.copy())
       ],
-      return_type: connect.return_type.copy(),
+      return_type: connect.return_type
     });
 
     const parameters = [
       new GirFunctionParameter({
         name: "signal",
-        type: new NativeType(`'${this.name}'`),
-        direction: Direction.In,
+        type: NativeType.of(`'${this.name}'`),
+        direction: Direction.In
       }),
       new GirFunctionParameter({
         name: "callback",
-        type: new NativeType(`${cb.asTypeString(modName, registry)}`),
-        direction: Direction.In,
-      }),
+        type: NativeType.of(`${cb.asTypeString(modName, registry)[1]}`),
+        direction: Direction.In
+      })
     ];
 
-    const return_type = new VariableType("number");
+    const return_type = NativeType.of("number");
 
     return new GirClassFunction({
       return_type,
       parameters,
       name,
-      parent,
+      parent
     });
   }
 

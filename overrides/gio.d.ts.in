@@ -52,10 +52,6 @@ export interface DBusExportedObject {
   
 export let DBusExportedObject: DBusExportedObject;
   
-export interface ListStore<T = any> {
-  [Symbol.iterator]: () => IterableIterator<T>;
-}
-  
 export function _promisify();
   
 export let _LocalFilePrototype: File;

@@ -1,6 +1,26 @@
 import { GirNSRegistry, GirNamespace } from "./namespace";
-import { ClassMethodParameter } from "../xml";
-import { VariableType, Type, ClassType, ArrayVariableType, NativeType, ClosureVariableType } from "../gir";
+import { ClassMethodParameter, Direction, AliasElement } from "../xml";
+import {
+  TypeIdentifier,
+  ThisType,
+  ArrayType,
+  ClosureType,
+  GTypeType,
+  BinaryType,
+  ObjectType,
+  OrType,
+  NativeType,
+  NullableType,
+  TypeExpression,
+  StringType,
+  NumberType,
+  BooleanType,
+  Uint8ArrayType,
+  AnyType,
+  UnknownType,
+  NeverType,
+  VoidType
+} from "../gir";
 
 const reservedWords = [
   // For now, at least, the typescript compiler doesn't throw on numerical types like int, float, etc.
@@ -68,11 +88,42 @@ const reservedWords = [
   "volatile",
   "while",
   "with",
-  "yield",
+  "yield"
 ];
 
+export function getAliasType(modName: string, _ns: GirNamespace, param: AliasElement): TypeExpression {
+  let parameter = param as AliasElement;
+  let name: string = parameter.type[0].$["name"] || "unknown";
+
+  let x = name.split(" ");
+
+  if (x.length === 1) {
+    name = x[0];
+  } else {
+    name = x[1];
+  }
+
+  const baseType = parseTypeString(name);
+
+  if (!baseType) {
+    throw new Error(`Un-parsable type: ${name}`);
+  }
+
+  if (baseType.namespace) {
+    return baseType;
+  } else {
+    const primitiveType = resolvePrimitiveType(name);
+
+    if (primitiveType !== null) {
+      return primitiveType;
+    } else {
+      return new TypeIdentifier(baseType.name, modName);
+    }
+  }
+}
+
 /* Decode the type */
-export function getType(modName: string, _ns: GirNamespace, param: any): VariableType | ArrayVariableType {
+export function getType(modName: string, _ns: GirNamespace, param: any): TypeExpression {
   let name = "";
   let arrayDepth: number | null = null;
   let length: number | null = null;
@@ -109,6 +160,7 @@ export function getType(modName: string, _ns: GirNamespace, param: any): Variabl
     }
   } else if (parameter.type && parameter.type[0] && parameter.type[0].$) {
     name = parameter.type[0].$["name"] || "unknown";
+    // todo one sec
   } else if (parameter.varargs || (parameter.$ && parameter.$.name === "...")) {
     arrayDepth = 1;
     name = "any";
@@ -142,29 +194,43 @@ export function getType(modName: string, _ns: GirNamespace, param: any): Variabl
     throw new Error(`Un-parsable type: ${name}`);
   }
 
-  let variableType: VariableType;
+  let variableType: TypeExpression;
 
   if (baseType.namespace) {
-    variableType = VariableType.new({ ...baseType, nullable });
+    variableType = baseType;
   } else {
-    if (resolvePrimitiveType(name)) {
-      variableType = VariableType.new({ name: baseType.name, nullable });
+    const primitiveType = resolvePrimitiveType(name);
+
+    if (primitiveType !== null) {
+      variableType = primitiveType;
     } else {
-      variableType = VariableType.new({
-        name: baseType.name,
-        namespace: modName,
-        nullable,
-      });
+      variableType = new TypeIdentifier(baseType.name, modName);
     }
   }
 
   if (arrayDepth != null) {
-    return ArrayVariableType.new({ ...variableType, arrayDepth, length });
+    const primitiveArrayType = resolvePrimitiveArrayType(name, arrayDepth);
+
+    if (primitiveArrayType) {
+      const [primitiveName, primitiveArrayDepth] = primitiveArrayType;
+
+      variableType = ArrayType.new({
+        type: primitiveName,
+        arrayDepth: primitiveArrayDepth,
+        length
+      });
+    } else {
+      variableType = ArrayType.new({ type: variableType, arrayDepth, length });
+    }
   } else if (closure != null) {
-    return ClosureVariableType.new({ ...variableType, user_data: closure });
-  } else {
-    return variableType;
+    variableType = ClosureType.new({ type: variableType, user_data: closure });
   }
+
+  if (nullable) {
+    return new NullableType(variableType);
+  }
+
+  return variableType;
 }
 
 export const SanitizedIdentifiers = new Map();
@@ -215,7 +281,7 @@ export function isInvalid(name: string): boolean {
   return false;
 }
 
-export function parseTypeString(type: string): ClassType {
+export function parseTypeString(type: string): TypeIdentifier {
   if (type.includes(".")) {
     const parts = type.split(".");
 
@@ -225,18 +291,18 @@ export function parseTypeString(type: string): ClassType {
 
     const [namespace, name] = parts;
 
-    return new ClassType(name, namespace);
+    return new TypeIdentifier(name, namespace);
   } else {
-    return new ClassType(type, null);
+    return new TypeIdentifier(type, null);
   }
 }
 
-export function resolvePrimitiveArrayType(name: string, arrayDepth: number): [string, number] | null {
+export function resolvePrimitiveArrayType(name: string, arrayDepth: number): [NativeType, number] | null {
   if (arrayDepth > 0) {
     switch (name) {
       case "gint8":
       case "guint8":
-        return ["Uint8Array", arrayDepth - 1];
+        return [Uint8ArrayType, arrayDepth - 1];
     }
   }
 
@@ -249,27 +315,25 @@ export function resolvePrimitiveArrayType(name: string, arrayDepth: number): [st
   }
 }
 
-export function resolvePrimitiveType(name: string): string | null {
-  let typeName: string | null = null;
+export function isPrimitiveType(name: string): boolean {
+  return resolvePrimitiveType(name) !== null;
+}
 
+export function resolvePrimitiveType(name: string): NativeType | null {
   switch (name) {
     case "":
       console.error("Resolving '' to any on " + name);
-      typeName = "any";
-      break;
+      return AnyType;
     case "filename":
-      typeName = "string";
-      break;
+      return StringType;
     // Pass this through
     case "GType":
-      return "GType";
+      return GTypeType;
     case "utf8":
-      typeName = "string";
-      break;
+      return StringType;
     case "void": // Support TS "void"
     case "none":
-      typeName = "void";
-      break;
+      return VoidType;
     // TODO Some libraries are bad and don't use g-prefixed numerical types
     case "uint32":
     case "int32":
@@ -296,120 +360,96 @@ export function resolvePrimitiveType(name: string): string | null {
     case "gssize":
     case "gsize":
     case "long":
-      typeName = "number";
-      break;
+      return NumberType;
     case "gboolean":
-      typeName = "boolean";
-      break;
+      return BooleanType;
     case "gpointer": // This is typically used in callbacks to pass data, so we'll allow anything.
-      typeName = "any";
-      break;
+      return AnyType;
     case "object":
-      typeName = "object";
-      break;
+      return ObjectType;
     case "va_list":
-      typeName = "any";
-      break;
+      return AnyType;
     case "guintptr": // You can't use pointers in GJS! (at least that I'm aware of)
-      typeName = "never";
-      break;
+      return NeverType;
     case "never": // Support TS "never"
-      typeName = "never";
-      break;
+      return NeverType;
     case "unknown": // Support TS "unknown"
-      typeName = "unknown";
-      break;
+      return UnknownType;
     case "any": // Support TS "any"
-      typeName = "any";
-      break;
+      return AnyType;
     case "this": // Support TS "this"
-      typeName = "this";
-      break;
+      return ThisType;
     case "number": // Support TS "number"
-      typeName = "number";
-      break;
+      return NumberType;
     case "string": // Support TS "string"
-      typeName = "string";
-      break;
+      return StringType;
     case "boolean": // Support TS "boolean"
-      typeName = "boolean";
-      break;
+      return BooleanType;
     case "object": // Support TS "object"
-      typeName = "object";
-      break;
-    case "GLib.SList":
-      // GJS translates GLib lists to JS arrays
-      typeName = "string[]";
-      break;
-    // TODO Support struct-for directives
-    case "GObject.ObjectClass":
-      typeName = "any";
-      break;
+      return ObjectType;
   }
-  return typeName;
+
+  return null;
+}
+
+function jsifyType(_modName: string, type: TypeIdentifier): TypeExpression | null {
+  if (type.is("GLib", "List")) {
+    return new ArrayType(AnyType);
+  }
+
+  if (type.is("GLib", "SList")) {
+    return new ArrayType(StringType);
+  }
+
+  return null;
+}
+export function resolveDirectedType(type: TypeExpression, direction: Direction): TypeExpression | null {
+  if (type instanceof ArrayType) {
+    if (
+      (direction === Direction.In || direction === Direction.Inout) &&
+      type.type.equals(Uint8ArrayType) &&
+      type.arrayDepth === 0
+    ) {
+      return new BinaryType(type, StringType);
+    }
+  } else if (type instanceof TypeIdentifier) {
+    if ((direction === Direction.In || direction === Direction.Inout) && type.is("GLib", "Bytes")) {
+      return new BinaryType(type, Uint8ArrayType);
+    } else if ((direction === Direction.In || direction === Direction.Inout) && type.is("GObject", "Value")) {
+      return new OrType(type, StringType, BooleanType, NumberType);
+    }
+  }
+
+  return null;
 }
 
 // Inspired by gir2dts' resolveType
-export function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
-  let ns_name = modName;
-  let name: string = sanitizeIdentifierName(null, type.name);
-
+export function resolveType(modName: string, rns: GirNSRegistry, type: TypeExpression): string {
   if (type instanceof NativeType) {
-    return type.name;
+    return type.expression;
   }
 
-  if (type.namespace) {
-    ns_name = type.namespace;
+  if (!(type instanceof TypeIdentifier)) {
+    throw new Error(`Unknown type expression: ${type.constructor.name}`);
   }
 
-  let current_rns = rns.namespace(modName);
-  let ns = rns.namespace(ns_name);
+  const jsified = jsifyType(modName, type);
 
-  let typeSuffix: string = "";
-
-  if (type instanceof ArrayVariableType) {
-    let depth = type.arrayDepth;
-
-    const resolved = resolvePrimitiveArrayType(type.name, depth);
-
-    if (resolved) {
-      [, depth] = resolved;
-    }
-
-    if (depth === 0) {
-      typeSuffix = "";
-    } else if (depth === 1) {
-      typeSuffix = "[]";
-    } else {
-      typeSuffix = "".padStart(2 * depth, "[]");
-    }
+  if (jsified) {
+    return jsified.resolve(modName, rns);
   }
 
+  let name: string = sanitizeIdentifierName(null, type.name);
   let typeName: string;
 
-  if (type instanceof VariableType) {
-    if (type.anyified) {
-      typeSuffix += " | any";
-    }
-
-    // TODO Check that this doesn't mean the array type itself can be null.
-    typeSuffix = type.nullable ? typeSuffix + " | null" : typeSuffix;
-  }
-
-  // Some "primitives" are converted from namespaced types (e.g. GLib.SList)
-  const primitive =
-    (type instanceof ArrayVariableType && resolvePrimitiveArrayType(type.name, type.arrayDepth)) ||
-    resolvePrimitiveType(type.name) ||
-    resolvePrimitiveType(`${ns_name}.${name}`);
-
-  // Handle primitive overrides (w/ namespace)
-  if (primitive != null) {
-    if (Array.isArray(primitive)) {
-      [typeName] = primitive;
-    } else {
-      typeName = primitive;
-    }
+  if (type.namespace === null) {
+    typeName = type.name;
   } else {
+    let ns_name = type.namespace || modName;
+
+    let current_rns = rns.namespace(modName);
+    let ns = rns.namespace(ns_name);
+
     if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
       if (current_rns) {
         current_rns.addImport(ns_name);
@@ -484,5 +524,5 @@ export function resolveType(modName: string, rns: GirNSRegistry, type: Type) {
     }
   }
 
-  return `${typeName}${typeSuffix}`;
+  return `${typeName}`;
 }

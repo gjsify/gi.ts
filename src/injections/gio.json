@@ -8,5 +8,10 @@
         "member": {
             "new_for_xml": "static new_for_xml(info: string): DBusInterfaceInfo;"
         }
+    },
+    "ListStore": {
+        "member": {
+            "[Symbol.iterator]": "[Symbol.iterator]: () => IterableIterator<A>;"
+        }
     }
 }

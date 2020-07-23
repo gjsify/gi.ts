@@ -1,11 +1,15 @@
 import {
   GirBase,
-  Type,
+  TypeIdentifier,
   UnknownType,
   VoidType,
-  VariableType,
-  ArrayVariableType,
-  ClosureVariableType,
+  ArrayType,
+  ClosureType,
+  NativeType,
+  NullableType,
+  TypeExpression,
+  AnyifiedType,
+  ThisType
 } from "../gir";
 import {
   Function,
@@ -14,35 +18,48 @@ import {
   ClassMethodParameter,
   Callback,
   VirtualMethod,
-  ClassConstructor,
+  ClassConstructor
 } from "../xml";
 
 import { GirNamespace, GirNSRegistry } from "./namespace";
-import { getType, resolveType, isInvalid, sanitizeMemberName, sanitizeIdentifierName } from "./util";
+import {
+  getType,
+  resolveType,
+  isInvalid,
+  sanitizeMemberName,
+  sanitizeIdentifierName,
+  resolveDirectedType
+} from "./util";
 import { GirBaseClass } from "./class";
 import { GirEnum } from "./enum";
+import { GenericNameGenerator } from "./generics";
+import { GirSignal } from "./signal";
 
 function hasShadow(obj: Function | Method): obj is Function & { $: { shadows: string } } {
   return obj.$["shadows"] != null;
 }
 
 function generateParameters(parameters: GirFunctionParameter[], name, registry): string {
-  return parameters.map((p) => p.asString(name, registry)).join(", ");
+  return parameters
+    .map(p => {
+      return p.asString(name, registry);
+    })
+    .join(", ");
 }
 
 function generateReturn(
-  return_type: Type,
+  return_type: TypeExpression,
   output_parameters: GirFunctionParameter[],
   name: string,
   registry: GirNSRegistry
 ) {
-  const type = resolveType(name, registry, return_type);
+  const type = return_type.rootResolve(name, registry);
 
   if (output_parameters.length > 0) {
     const exclude_first = type === "void" || type === "";
     const returns = [
       ...(exclude_first ? [] : [`${type}`]),
-      ...output_parameters.map((op) => resolveType(name, registry, op.type)),
+      ...output_parameters.map(op => op.type.rootResolve(name, registry))
     ];
     if (returns.length > 1) {
       return `[${returns.join(", ")}]`;
@@ -58,7 +75,7 @@ export class GirFunction extends GirBase {
   readonly parameters: GirFunctionParameter[];
   readonly output_parameters: GirFunctionParameter[];
 
-  protected readonly return_type: Type;
+  protected readonly return_type: TypeExpression;
   readonly raw_name: string;
 
   constructor({
@@ -66,19 +83,19 @@ export class GirFunction extends GirBase {
     raw_name,
     return_type = UnknownType,
     parameters = [],
-    output_parameters = [],
+    output_parameters = []
   }: {
     name: string;
     raw_name: string;
-    return_type?: Type;
+    return_type?: TypeExpression;
     parameters?: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
   }) {
     super(name);
 
     this.raw_name = raw_name;
-    this.parameters = parameters;
-    this.output_parameters = output_parameters;
+    this.parameters = parameters.map(p => p.copy({ parent: this }));
+    this.output_parameters = output_parameters.map(p => p.copy({ parent: this }));
     this.return_type = return_type;
   }
 
@@ -86,11 +103,11 @@ export class GirFunction extends GirBase {
     const fn = new GirFunction({
       raw_name: this.raw_name,
       name: this.name,
-      return_type: this.return_type.copy(),
+      return_type: this.return_type
     });
 
-    fn.output_parameters.push(...this.output_parameters.map((p) => p.copy()));
-    fn.parameters.push(...this.parameters.map((p) => p.copy()));
+    fn.output_parameters.push(...this.output_parameters.map(p => p.copy()));
+    fn.parameters.push(...this.parameters.map(p => p.copy()));
   }
 
   static fromXML(modName: string, ns: GirNamespace, _parent, func: Function | Method): GirFunction {
@@ -102,7 +119,7 @@ export class GirFunction extends GirBase {
       name = sanitizeIdentifierName(null, func.$["shadows"]);
     }
 
-    let return_type;
+    let return_type: TypeExpression;
 
     if ("return-value" in func && func["return-value"] && func["return-value"].length > 0) {
       const value = func["return-value"][0];
@@ -120,25 +137,26 @@ export class GirFunction extends GirBase {
       if (param) {
         const inputs = param;
 
-        parameters.push(...inputs.map((i) => GirFunctionParameter.fromXML(modName, ns, null, i)));
+        parameters.push(...inputs.map(i => GirFunctionParameter.fromXML(modName, ns, null, i)));
+
+        const unwrapped = return_type.unwrap();
 
         const length_params =
-          return_type instanceof ArrayVariableType && return_type.length != null
-            ? [return_type.length]
-            : ([] as number[]);
+          unwrapped instanceof ArrayType && unwrapped.length != null ? [unwrapped.length] : ([] as number[]);
         const user_data_params = [] as number[];
 
         parameters = parameters
           .map((p, i, a) => {
-            const type = p.type;
-            if (type && type instanceof ArrayVariableType && type.length != null) {
-              length_params.push(type.length);
+            const unwrapped_type = p.type.unwrap();
+
+            if (unwrapped_type instanceof ArrayType && unwrapped_type.length != null) {
+              length_params.push(unwrapped_type.length);
 
               return p;
             }
 
-            if (type && type instanceof ClosureVariableType && type.user_data != null) {
-              user_data_params.push(type.user_data);
+            if (unwrapped_type instanceof ClosureType && unwrapped_type.user_data != null) {
+              user_data_params.push(unwrapped_type.user_data);
 
               return p;
             }
@@ -147,14 +165,11 @@ export class GirFunction extends GirBase {
             if (p.isOptional && i < a.length) {
               const { type, name, direction } = p;
 
-              // TODO
-              p.type.nullable = true;
-
               return new GirFunctionParameter({
-                type,
+                type: new NullableType(type),
                 name,
                 isOptional: false,
-                direction,
+                direction
               });
             }
 
@@ -169,10 +184,10 @@ export class GirFunction extends GirBase {
     }
 
     let input_parameters = parameters.filter(
-      (param) => param.direction === Direction.In || param.direction === Direction.Inout
+      param => param.direction === Direction.In || param.direction === Direction.Inout
     );
     let output_parameters = parameters.filter(
-      (param) => param.direction && (param.direction === Direction.Out || param.direction === Direction.Inout)
+      param => param.direction && (param.direction === Direction.Out || param.direction === Direction.Inout)
     );
 
     const fn = new GirFunction({
@@ -180,7 +195,7 @@ export class GirFunction extends GirBase {
       output_parameters,
       return_type,
       name,
-      raw_name,
+      raw_name
     });
 
     return fn;
@@ -198,7 +213,7 @@ export class GirFunction extends GirBase {
       name,
       output_parameters,
       parameters,
-      return_type,
+      return_type
     });
   }
 
@@ -240,29 +255,29 @@ export class GirFunction extends GirBase {
 export class GirConstructor extends GirBase {
   readonly output_parameters: GirFunctionParameter[] = [];
   readonly parameters: GirFunctionParameter[] = [];
-  protected readonly return_type: Type = UnknownType;
+  protected readonly return_type: TypeExpression = UnknownType;
 
   constructor({
     name,
     parameters = [],
-    return_type,
+    return_type
   }: {
     name: string;
     parameters?: GirFunctionParameter[];
-    return_type: Type;
+    return_type: TypeExpression;
   }) {
     super(name);
     this.return_type = return_type;
-    this.parameters = parameters;
+    this.parameters = parameters.map(p => p.copy({ parent: this }));
   }
 
   copy(): any {
     const constr = new GirConstructor({
       name: this.name,
-      return_type: this.return_type.copy(),
+      return_type: this.return_type
     });
 
-    constr.parameters.push(...this.parameters.map((p) => p.copy()));
+    constr.parameters.push(...this.parameters.map(p => p.copy()));
   }
 
   static fromXML(
@@ -289,69 +304,89 @@ export class GirConstructor extends GirBase {
 
     const invalid = isInvalid(this.name);
     const name = invalid ? `["${this.name}"]` : this.name;
-    return `static ${name}(${Parameters}): ${resolveType(
-      modName,
-      registry,
-      this.return(modName, registry)
-    )};`;
+    return `static ${name}(${Parameters}): ${this.return(modName, registry).rootResolve(modName, registry)};`;
   }
 }
 
 export class GirFunctionParameter extends GirBase {
-  readonly type: VariableType;
+  readonly type: TypeExpression;
   readonly direction: Direction;
   readonly isVarArgs: boolean = false;
   readonly isOptional: boolean = false;
+  parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
 
   constructor({
     name,
     direction,
     type,
+    parent,
     isVarArgs = false,
-    isOptional = false,
+    isOptional = false
   }: {
     name: string;
-    type: VariableType;
+    parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
+    type: TypeExpression;
     direction: Direction;
     isVarArgs?: boolean;
     isOptional?: boolean;
   }) {
     super(name);
 
+    this.parent = parent;
     this.type = type;
     this.direction = direction;
     this.isVarArgs = isVarArgs;
     this.isOptional = isOptional;
   }
 
-  copy(): GirFunctionParameter {
-    const { type, direction, isVarArgs, isOptional, name } = this;
+  copy(
+    options: {
+      parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
+      type?: TypeExpression;
+    } = {
+      parent: this.parent
+    }
+  ): GirFunctionParameter {
+    const { type, parent, direction, isVarArgs, isOptional, name } = this;
 
     return new GirFunctionParameter({
+      parent: options.parent ?? parent,
       name,
       direction,
       isVarArgs,
       isOptional,
-      type: type.copy(),
+      type: options.type ?? type
     });
   }
 
   asString(modName, registry: GirNSRegistry): string {
-    let type = resolveType(modName, registry, this.type);
-    if (this.isVarArgs) {
-      return `...args: ${type}[]`;
+    let type: string =
+      resolveDirectedType(this.type, this.direction)?.rootResolve(modName, registry) ??
+      this.type.rootResolve(modName, registry);
+
+    const unwrapped = this.type.unwrap();
+
+    // TODO I need a better system for this, but handling Gio.AsyncReadyCallback is the most common.
+    if (
+      this.parent instanceof GirClassFunction &&
+      !(this.parent instanceof GirStaticClassFunction) &&
+      unwrapped instanceof ClosureType
+    ) {
+      const internal = unwrapped.type;
+
+      if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
+        type = unwrapped.rootResolve(modName, registry);
+
+        if (this.type instanceof NullableType) {
+          return `${this.name}: ${type}<this> | null`;
+        } else {
+          return `${this.name}: ${type}<this>`;
+        }
+      }
     }
 
-    if (
-      (this.direction === Direction.In || this.direction === Direction.Inout) &&
-      type.startsWith("Uint8Array")
-    ) {
-      type = type.replace("Uint8Array", "(Uint8Array | string)");
-    } else if (
-      (this.direction === Direction.In || this.direction === Direction.Inout) &&
-      ((modName === "GLib" && type.startsWith("Bytes")) || type.startsWith("GLib.Bytes"))
-    ) {
-      type = type.replace(/^GLib.Bytes/, "(GLib.Bytes | Uint8Array)").replace(/^Bytes/, "(Bytes | Uint8Array)");
+    if (this.isVarArgs) {
+      return `...args: ${type}[]`;
     }
 
     if (this.isOptional) {
@@ -364,7 +399,7 @@ export class GirFunctionParameter extends GirBase {
   static fromXML(
     modName: string,
     ns: GirNamespace,
-    _parent,
+    parent: GirSignal | GirClassFunction | GirFunction | GirConstructor | null,
     parameter: ClassMethodParameter
   ): GirFunctionParameter {
     let name = sanitizeMemberName(parameter.$.name);
@@ -376,7 +411,7 @@ export class GirFunctionParameter extends GirBase {
     let isVarArgs: boolean = false;
     let isOptional: boolean = false;
 
-    let type: VariableType;
+    let type: TypeExpression;
     let direction: Direction;
 
     if (
@@ -410,8 +445,9 @@ export class GirFunctionParameter extends GirBase {
       isVarArgs,
       type,
       direction,
+      parent: parent ?? undefined,
       isOptional,
-      name,
+      name
     });
 
     return fp;
@@ -420,29 +456,30 @@ export class GirFunctionParameter extends GirBase {
 
 export class GirClassFunction extends GirBase {
   readonly parameters: GirFunctionParameter[];
-  protected return_type: Type;
+  protected return_type: TypeExpression;
   readonly output_parameters: GirFunctionParameter[];
   protected _anyify: boolean = false;
   protected _generify: boolean = false;
   parent: GirBaseClass | GirEnum;
+  interfaceParent: GirBaseClass | GirEnum | null = null;
 
   constructor({
     name,
     parameters = [],
     output_parameters = [],
     return_type = UnknownType,
-    parent,
+    parent
   }: {
     name: string;
     parameters?: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
-    return_type?: Type;
+    return_type?: TypeExpression;
     parent: GirBaseClass | GirEnum;
   }) {
     super(name);
 
-    this.parameters = parameters;
-    this.output_parameters = output_parameters;
+    this.parameters = parameters.map(p => p.copy({ parent: this }));
+    this.output_parameters = output_parameters.map(p => p.copy({ parent: this }));
     this.return_type = return_type;
     this.parent = parent;
   }
@@ -460,7 +497,10 @@ export class GirClassFunction extends GirBase {
     );
   }
 
-  copy({ parent = this.parent }: { parent?: GirBaseClass | GirEnum } = {}): GirClassFunction {
+  copy({
+    parent = this.parent,
+    interfaceParent
+  }: { parent?: GirBaseClass | GirEnum; interfaceParent?: GirBaseClass | GirEnum } = {}): GirClassFunction {
     let constr = GirClassFunction;
 
     if (this instanceof GirVirtualClassFunction) {
@@ -471,12 +511,16 @@ export class GirClassFunction extends GirBase {
 
     const fn = new constr({
       name: this.name,
-      parent,
+      parent
     });
 
-    fn.parameters.push(...this.parameters.map((p) => p.copy()));
-    fn.output_parameters.push(...this.output_parameters.map((o) => o.copy()));
-    fn.return_type = this.return_type.copy();
+    if (interfaceParent) {
+      fn.interfaceParent = interfaceParent;
+    }
+
+    fn.parameters.push(...this.parameters.map(p => p.copy()));
+    fn.output_parameters.push(...this.output_parameters.map(o => o.copy()));
+    fn.return_type = this.return_type;
 
     return fn;
   }
@@ -489,18 +533,13 @@ export class GirClassFunction extends GirBase {
     this._generify = true;
   }
 
-  shouldGenerify() {
-    const input = this.parameters.some((p) => {
-      return p.type.name === "Object" && p.type.namespace === "GObject";
-    });
+  shouldGenerifyReturnType() {
+    const unwrapped = this.return_type.unwrap();
+    if (unwrapped instanceof TypeIdentifier) {
+      return unwrapped.is("GObject", "Object");
+    }
 
-    const output =
-      this.output_parameters.some((p) => {
-        return p.type.name === "Object" && p.type.namespace === "GObject";
-      }) ||
-      (this.return_type.name === "Object" && this.return_type.namespace === "GObject");
-
-    return input || output;
+    return false;
   }
 
   static fromXML(
@@ -514,26 +553,109 @@ export class GirClassFunction extends GirBase {
     return fn.asClassFunction(parent);
   }
 
-  return(_namespace: string | null, _registry: GirNSRegistry): Type {
+  return(_namespace: string | null, _registry: GirNSRegistry): TypeExpression {
     return this.return_type;
   }
 
   asString(modName: string, registry: GirNSRegistry) {
     const invalid = isInvalid(this.name);
 
-    const Parameters = generateParameters(this.parameters, modName, registry);
-    const ReturnType = generateReturn(
-      this.return(modName, registry),
-      this.output_parameters,
-      modName,
-      registry
-    );
+    const parent = this.parent;
 
-    if (this._anyify) {
-      return `${invalid ? `["${this.name}"]` : this.name}: ((${Parameters}) => ${ReturnType}) | any;`;
+    let parameters = this.parameters;
+    let output_parameters = this.output_parameters;
+    let return_type = this.return(modName, registry);
+
+    let shouldGenerify = this.shouldGenerifyReturnType();
+
+    if (parent instanceof GirBaseClass) {
+      const resolvedParentType = resolveType(modName, registry, parent.getType());
+      const resolvedInterfaceParentTypes = parent.interfaces.map(i => resolveType(modName, registry, i));
+
+      const replaceType = (t: TypeExpression, genericName?: string): TypeExpression | null => {
+        const resolvedType = t.unwrap().resolve(modName, registry);
+        const interfaceType = this.interfaceParent?.getType().resolve(modName, registry) ?? null;
+        let replacement: string | null = null;
+
+        if (genericName) {
+          replacement = genericName;
+        } else {
+          const mapping = parent.generic_override_types.get(resolvedType);
+
+          if (mapping) {
+            const r1 = resolvedInterfaceParentTypes.filter(t => mapping[t]);
+            let r0: string;
+
+            if (interfaceType) {
+              r0 = r1.find(r => r === interfaceType) ?? r1[0];
+            } else {
+              r0 = r1[0];
+            }
+
+            replacement = mapping[resolvedParentType] || (r0 && mapping[r0]) || null;
+          }
+        }
+
+        if (replacement) {
+          let replacementType = new NativeType(replacement);
+
+          if (t instanceof NullableType) {
+            return new NullableType(replacementType);
+          } else if (t instanceof AnyifiedType) {
+            return new AnyifiedType(replacementType);
+          } else if (t.unwrap() !== t) {
+            throw new Error("Attempted to generify unknown wrapped type.");
+          } else {
+            return replacementType;
+          }
+        }
+
+        return null;
+      };
+
+      const replace = (p: GirFunctionParameter) => {
+        const replacement = p.type.unwrap() instanceof TypeIdentifier ? replaceType(p.type) : null;
+
+        if (replacement) {
+          return p.copy({ type: replacement });
+        } else {
+          return p;
+        }
+      };
+
+      // Insert generics.
+
+      const class_replaced = replaceType(return_type);
+
+      if (class_replaced) {
+        return_type = class_replaced;
+        shouldGenerify = false;
+      } else if (shouldGenerify) {
+        const function_replaced = replaceType(return_type, "T");
+
+        if (function_replaced) {
+          return_type = function_replaced;
+        }
+      }
+
+      parameters = parameters.map(replace);
+      output_parameters = output_parameters.map(replace);
     }
 
-    return `${invalid ? `["${this.name}"]` : this.name}(${Parameters}): ${ReturnType};`;
+    const Parameters = generateParameters(parameters, modName, registry);
+    const ReturnType = generateReturn(return_type, output_parameters, modName, registry);
+
+    const GenericBaseType = shouldGenerify ? (modName === "GObject" ? "Object" : "GObject.Object") : "";
+
+    if (this._anyify) {
+      return `${invalid ? `["${this.name}"]` : this.name}: ${
+        shouldGenerify ? `<T = ${GenericBaseType}>` : ""
+      }((${Parameters}) => ${ReturnType}) | any;`;
+    }
+
+    return `${invalid ? `["${this.name}"]` : this.name}${
+      shouldGenerify ? `<T = ${GenericBaseType}>` : ""
+    }(${Parameters}): ${ReturnType};`;
   }
 }
 
@@ -543,12 +665,12 @@ export class GirVirtualClassFunction extends GirClassFunction {
     parameters = [],
     output_parameters = [],
     return_type = UnknownType,
-    parent,
+    parent
   }: {
     name: string;
     parameters: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
-    return_type?: Type;
+    return_type?: TypeExpression;
     parent: GirBaseClass;
   }) {
     super({
@@ -556,32 +678,24 @@ export class GirVirtualClassFunction extends GirClassFunction {
       name: name.startsWith("vfunc_") ? name : `vfunc_${name}`,
       parameters,
       output_parameters,
-      return_type,
+      return_type
     });
   }
 
-  return(namespace: string | null, _registry: GirNSRegistry): Type {
+  return(_namespace: string | null, _registry: GirNSRegistry): TypeExpression {
     if (this.parent instanceof GirBaseClass) {
       // Handles the case where a class implements an interface and thus copies its virtual methods.
       if (
-        this.parent.interfaces.some((iface) => {
-          return (
-            this.return_type.name === iface.name &&
-            ((this.return_type.namespace === namespace && iface.namespace == null) ||
-              this.return_type.namespace === iface.namespace)
-          );
+        this.parent.interfaces.some(iface => {
+          return this.return_type.equals(iface);
         })
       ) {
-        return new VariableType("this");
+        return ThisType;
       }
     }
 
-    if (
-      this.parent &&
-      this.return_type.name === this.parent.name &&
-      this.return_type.namespace === this.parent.ns
-    ) {
-      return new VariableType("this");
+    if (this.parent && this.return_type.equals(this.parent.getType())) {
+      return ThisType;
     }
 
     return this.return_type;
@@ -622,6 +736,15 @@ export class GirStaticClassFunction extends GirClassFunction {
 }
 
 export class GirCallback extends GirFunction {
+  shouldGenerifyParameters() {
+    const input = this.parameters.filter(p => {
+      const type = p.type.unwrap();
+      return type instanceof TypeIdentifier && type.is("GObject", "Object");
+    });
+
+    return [input.length > 0, input.length, input] as const;
+  }
+
   static fromXML(modName: string, ns: GirNamespace, _parent, func: Callback): GirCallback {
     const cb = GirFunction.fromXML(modName, ns, null, func).asCallback();
 
@@ -636,13 +759,48 @@ export class GirCallback extends GirFunction {
     return cb;
   }
 
-  asTypeString(modName: string, registry: GirNSRegistry): string {
+  asTypeString(modName: string, registry: GirNSRegistry, useGenerics = false): [string, string] {
     const Parameters = generateParameters(this.parameters, modName, registry);
+    if (useGenerics) {
+      const generateName = GenericNameGenerator.new();
+      const [, , genericParameters] = this.shouldGenerifyParameters();
+      const namedParameters = genericParameters.map(p => [p, generateName()] as const);
 
-    return `(${Parameters}) => ${resolveType(modName, registry, this.return_type)}`;
+      const GObject = modName === "GObject" ? "Object" : "GObject.Object";
+
+      const iterator = namedParameters[Symbol.iterator]();
+      let genericParameter = iterator.next();
+      const GenerifiedParameters = generateParameters(
+        [...this.parameters].map(p => {
+          if (!genericParameter.done && p === genericParameter.value[0]) {
+            const generified = p.copy({ type: new NativeType(genericParameter.value[1]) });
+            genericParameter = iterator.next();
+            return generified;
+          }
+
+          return p;
+        }),
+        modName,
+        registry
+      );
+
+      const names = namedParameters.map(([, name]) => name);
+
+      if (names.length > 0) {
+        const GenericDefinitions = names.map(name => `${name} = ${GObject}`).join(", ");
+        return [
+          `<${GenericDefinitions}>`,
+          `(${GenerifiedParameters}) => ${this.return_type.resolve(modName, registry)}`
+        ];
+      } else {
+        return [``, `(${Parameters}) => ${this.return_type.resolve(modName, registry)}`];
+      }
+    } else {
+      return [``, `(${Parameters}) => ${this.return_type.resolve(modName, registry)}`];
+    }
   }
 
   asString(modName: string, registry: GirNSRegistry): string {
-    return `export type ${this.name} = ${this.asTypeString(modName, registry)};`;
+    return `export type ${this.name}${this.asTypeString(modName, registry, true).join(" = ")};`;
   }
 }

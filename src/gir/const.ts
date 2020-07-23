@@ -1,13 +1,13 @@
-import { GirBase, Type } from "../gir";
+import { GirBase, TypeExpression } from "../gir";
 import { ConstantElement } from "../xml";
 
 import { GirNamespace, GirNSRegistry } from "./namespace";
-import { getType, resolveType, sanitizeIdentifierName } from "./util";
+import { getType, sanitizeIdentifierName } from "./util";
 
 export class GirConst extends GirBase {
-  type: Type;
+  type: TypeExpression;
 
-  constructor({ name, type }: { name: string; type: Type }) {
+  constructor({ name, type }: { name: string; type: TypeExpression }) {
     super(name);
 
     this.type = type;
@@ -18,15 +18,18 @@ export class GirConst extends GirBase {
 
     return new GirConst({
       name,
-      type: type.copy()
+      type
     });
   }
 
   static fromXML(modName: string, ns: GirNamespace, _parent, constant: ConstantElement): GirConst {
-    return new GirConst({ name: sanitizeIdentifierName(ns.name, constant.$.name), type: getType(modName, ns, constant) });
+    return new GirConst({
+      name: sanitizeIdentifierName(ns.name, constant.$.name),
+      type: getType(modName, ns, constant)
+    });
   }
 
   asString(modName: string, registry: GirNSRegistry): string {
-    return `export const ${this.name}: ${resolveType(modName, registry, this.type)};`;
+    return `export const ${this.name}: ${this.type.resolve(modName, registry)};`;
   }
 }

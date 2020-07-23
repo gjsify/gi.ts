@@ -8,6 +8,8 @@ import { SanitizedIdentifiers } from "./gir/util";
 import { GirXML } from "./xml";
 import { GirNSRegistry } from "./gir/namespace";
 
+import { generify } from "./generics";
+
 export interface DocDescription {
   name: string;
   api_version: string;
@@ -92,6 +94,8 @@ function build(docs, gir) {
     const { name } = doc;
     registry.load(name, gir.get(name));
   }
+
+  generify(registry);
 
   // Generate the content
   for (let doc of docs) {

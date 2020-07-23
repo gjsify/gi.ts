@@ -3,6 +3,8 @@
         "member": {
             "$gtype": "static $gtype: GType;",
             "_classInit": "static _classInit: (klass: any) => any;",
+            "get_property": "get_property(property_name: string, value: Value | null): any;",
+            "set_property": "set_property(property_name: string, value: any): void;",
             "connect": "connect(id: string, callback: (...args: any[]) => any): number;",
             "connect_after": "connect_after(id: string, callback: (...args: any[]) => any): number;",
             "emit": "emit(id: string, ...args: any[]): void;",
