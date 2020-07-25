@@ -1,9 +1,10 @@
 import { GirBase, VoidType, UnknownType, NativeType, TypeExpression, ThisType } from "../gir";
-import { GirNSRegistry, GirNamespace } from "./namespace";
+import { GirNamespace } from "./namespace";
 import { GirClass } from "./class";
 import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
 import { ClassGLibSignalElement, Direction } from "../xml";
 import { getType } from "./util";
+import { FormatGenerator } from "../generators/generator";
 
 export enum GirSignalType {
   CONNECT,
@@ -68,7 +69,7 @@ export class GirSignal extends GirBase {
     return fn;
   }
 
-  asEmit(_modName: string, _registry: GirNSRegistry) {
+  asEmit() {
     const emit = this.copy();
 
     const parent = this.parent;
@@ -96,7 +97,7 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asConnect(modName: string, registry: GirNSRegistry, after = false) {
+  asConnect(generator: FormatGenerator, after = false) {
     const connect = this.copy();
 
     const name = after ? "connect_after" : "connect";
@@ -121,7 +122,7 @@ export class GirSignal extends GirBase {
       }),
       new GirFunctionParameter({
         name: "callback",
-        type: NativeType.of(`${cb.asTypeString(modName, registry)[1]}`),
+        type: NativeType.of(`${generator.generateCallbackType(cb, false)[1]}`),
         direction: Direction.In
       })
     ];
@@ -136,14 +137,7 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asString(modName: string, registry: GirNSRegistry, type: GirSignalType = GirSignalType.CONNECT): string {
-    switch (type) {
-      case GirSignalType.CONNECT:
-        return this.asConnect(modName, registry, false).asString(modName, registry);
-      case GirSignalType.CONNECT_AFTER:
-        return this.asConnect(modName, registry, true).asString(modName, registry);
-      case GirSignalType.EMIT:
-        return this.asEmit(modName, registry).asString(modName, registry);
-    }
+  asString(generator: FormatGenerator, type?: GirSignalType): string {
+    return generator.generateSignal(this, type);
   }
 }

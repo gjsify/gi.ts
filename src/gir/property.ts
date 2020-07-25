@@ -1,36 +1,57 @@
 import { GirBase, TypeExpression } from "../gir";
 import { ClassField, ClassProperty } from "../xml";
 
-import { getType, isInvalid } from "./util";
-import { GirNSRegistry, GirNamespace } from "./namespace";
+import { getType } from "./util";
+import { GirNamespace } from "./namespace";
+import { FormatGenerator } from "../generators/generator";
 
 export class GirField extends GirBase {
   readonly type: TypeExpression;
   optional: boolean = false;
+  computed: boolean;
+  isStatic: boolean;
+  writable: boolean;
 
   copy(options?: { parent?: GirBase; type?: TypeExpression }): GirField {
-    const { type, name, optional } = this;
+    const { type, name, optional, computed, isStatic, writable } = this;
 
     return new GirField({
       name,
       type: options?.type ?? type,
-      optional
+      optional,
+      computed,
+      isStatic,
+      writable
     });
   }
 
-  constructor({ name, type, optional = false }: { name: string; type: TypeExpression; optional?: boolean }) {
+  constructor({
+    name,
+    type,
+    computed = false,
+    optional = false,
+    isStatic = false,
+    writable = true
+  }: {
+    name: string;
+    type: TypeExpression;
+    computed?: boolean;
+    optional?: boolean;
+    isStatic?: boolean;
+    writable?: boolean;
+  }) {
     super(name);
 
     this.type = type;
+    this.computed = computed;
     this.optional = optional;
+
+    this.isStatic = isStatic;
+    this.writable = writable;
   }
 
-  asString(namespace: string, registry: GirNSRegistry): string {
-    const invalid = isInvalid(this.name);
-
-    return `${invalid ? `"${this.name}"` : this.name}${this.optional ? "?" : ""}: ${
-      this.type.rootResolve(namespace, registry) || "any"
-    };`;
+  asString(generator: FormatGenerator): string {
+    return generator.generateField(this);
   }
 
   static fromXML(namespace: string, ns: GirNamespace, _parent, field: ClassField): GirField {
@@ -81,18 +102,8 @@ export class GirProperty extends GirBase {
     this.constructOnly = constructOnly;
   }
 
-  asString(namespace: string, registry: GirNSRegistry, construct = false): string {
-    const invalid = isInvalid(this.name);
-    const Static = this.isStatic ? "static" : "";
-    const ReadOnly = this.writable || construct ? "" : "readonly";
-
-    const Modifier = [Static, ReadOnly].filter(a => a !== "").join(" ");
-
-    const Name = invalid ? `"${this.name}"` : this.name;
-
-    let Type = this.type.rootResolve(namespace, registry) || "any";
-
-    return `${Modifier} ${Name}: ${Type};`;
+  asString(generator: FormatGenerator): string {
+    return generator.generateProperty(this);
   }
 
   static fromXML(namespace: string, ns: GirNamespace, _parent, prop: ClassProperty): GirProperty {

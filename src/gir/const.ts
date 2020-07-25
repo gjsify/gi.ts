@@ -1,8 +1,9 @@
 import { GirBase, TypeExpression } from "../gir";
 import { ConstantElement } from "../xml";
 
-import { GirNamespace, GirNSRegistry } from "./namespace";
+import { GirNamespace } from "./namespace";
 import { getType, sanitizeIdentifierName } from "./util";
+import { FormatGenerator } from "../generators/generator";
 
 export class GirConst extends GirBase {
   type: TypeExpression;
@@ -29,7 +30,7 @@ export class GirConst extends GirBase {
     });
   }
 
-  asString(modName: string, registry: GirNSRegistry): string {
-    return `export const ${this.name}: ${this.type.resolve(modName, registry)};`;
+  asString(generator: FormatGenerator): string {
+    return generator.generateConst(this);
   }
 }

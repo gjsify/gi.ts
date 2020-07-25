@@ -1,6 +1,8 @@
 import { GirNamespace, GirNSRegistry } from "./gir/namespace";
 import { GirProperty, GirField } from "./gir/property";
 import { resolveType } from "./gir/util";
+import { FormatGenerator } from "./generators/generator";
+import { GenerationOptions } from "./main";
 
 export abstract class GirBase {
   name: string;
@@ -16,16 +18,16 @@ export abstract class GirBase {
     throw new Error("GirBase cannot be instantiated");
   }
 
-  abstract asString(modName: string, registry: GirNSRegistry): string | null;
+  abstract asString(generator: FormatGenerator): string | null;
 }
 
 export abstract class TypeExpression {
   abstract equals(type: TypeExpression): boolean;
   abstract unwrap(): TypeExpression;
-  abstract resolve(ns: string, rns: GirNSRegistry): string;
+  abstract resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): string;
 
-  rootResolve(ns: string, rns: GirNSRegistry): string {
-    return this.resolve(ns, rns);
+  rootResolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
+    return this.resolve(ns, rns, options);
   }
 }
 
@@ -51,8 +53,8 @@ export class TypeIdentifier extends TypeExpression {
     return this;
   }
 
-  resolve(ns: string, rns: GirNSRegistry): string {
-    return resolveType(ns, rns, this);
+  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
+    return resolveType(ns, rns, this, options);
   }
 
   static new({ name, namespace }: { name: string; namespace: string | null }) {
@@ -78,17 +80,35 @@ export class OrType extends TypeExpression {
     return this;
   }
 
-  resolve(ns: string, rns: GirNSRegistry) {
-    return `(${this.types.map(t => t.resolve(ns, rns)).join(" | ")})`;
+  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions) {
+    return `(${this.types.map(t => t.resolve(ns, rns, options)).join(" | ")})`;
   }
 
-  rootResolve(ns: string, rns: GirNSRegistry) {
-    return `${this.types.map(t => t.resolve(ns, rns)).join(" | ")}`;
+  rootResolve(ns: string, rns: GirNSRegistry, options: GenerationOptions) {
+    return `${this.types.map(t => t.resolve(ns, rns, options)).join(" | ")}`;
   }
 
   equals(type: TypeExpression) {
     if (type instanceof OrType) {
       return this.types.every(t => type.types.some(type => type.equals(t)));
+    } else {
+      return false;
+    }
+  }
+}
+
+export class TupleType extends OrType {
+  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions) {
+    return `[${this.types.map(t => t.resolve(ns, rns, options)).join(", ")}]`;
+  }
+
+  rootResolve(ns: string, rns: GirNSRegistry, options: GenerationOptions) {
+    return this.resolve(ns, rns, options);
+  }
+
+  equals(type: TypeExpression) {
+    if (type instanceof TupleType) {
+      return this.types.length === type.types.length && this.types.every((t, i) => type.types[i].equals(t));
     } else {
       return false;
     }
@@ -150,23 +170,35 @@ export class AnyifiedType extends BinaryType {
 }
 
 export class NativeType extends TypeExpression {
-  readonly expression: string;
+  readonly expression: (options: GenerationOptions) => string;
 
-  constructor(expression: string) {
+  constructor(expression: ((options: GenerationOptions) => string) | string) {
     super();
-    this.expression = expression;
+
+    this.expression = typeof expression === "string" ? () => expression : expression;
   }
 
-  resolve(): string {
-    return this.expression;
+  resolve(_ns: string, _rns: GirNSRegistry, options: GenerationOptions): string {
+    return this.expression(options);
   }
 
   equals(type: TypeExpression): boolean {
-    return type instanceof NativeType && this.expression === type.expression;
+    // TODO This is hacky.
+    const options = {
+      inferGenerics: false,
+      resolveTypeConflicts: true,
+      format: "dts"
+    } as GenerationOptions;
+
+    return type instanceof NativeType && this.expression(options) === type.expression(options);
   }
 
   unwrap(): TypeExpression {
     return this;
+  }
+
+  static withGenerator(generator: (options: GenerationOptions) => string): TypeExpression {
+    return new NativeType(generator);
   }
 
   static of(nativeType: string) {
@@ -196,8 +228,8 @@ export class ClosureType extends TypeExpression {
     return this;
   }
 
-  resolve(ns: string, rns: GirNSRegistry): string {
-    return this.type.resolve(ns, rns);
+  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
+    return this.type.resolve(ns, rns, options);
   }
 
   static new({ type, user_data = null }: { type: TypeExpression; user_data?: number | null }) {
@@ -223,7 +255,7 @@ export class ArrayType extends TypeExpression {
 
   equals(type: TypeExpression) {
     if (type instanceof ArrayType) {
-      const arrayType = type;
+      const arrayType: ArrayType = type;
 
       return arrayType.type.equals(this.type) && type.arrayDepth === this.arrayDepth;
     }
@@ -231,7 +263,7 @@ export class ArrayType extends TypeExpression {
     return false;
   }
 
-  resolve(ns: string, rns: GirNSRegistry) {
+  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions) {
     const depth = this.arrayDepth;
     let typeSuffix: string = "";
 
@@ -243,7 +275,7 @@ export class ArrayType extends TypeExpression {
       typeSuffix = "".padStart(2 * depth, "[]");
     }
 
-    return `${this.type.resolve(ns, rns)}${typeSuffix}`;
+    return `${this.type.resolve(ns, rns, options)}${typeSuffix}`;
   }
 
   static new({

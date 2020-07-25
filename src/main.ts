@@ -8,7 +8,10 @@ import { SanitizedIdentifiers } from "./gir/util";
 import { GirXML } from "./xml";
 import { GirNSRegistry } from "./gir/namespace";
 
-import { generify } from "./generics";
+import { DtsGenerator } from "./generators/dts";
+
+import { generify } from "./generics/generify";
+import { inject } from "./injections/inject";
 
 export interface DocDescription {
   name: string;
@@ -18,6 +21,46 @@ export interface DocDescription {
   id: string;
   slug: string;
   version: string;
+}
+
+export interface GenerationOptions {
+  resolveTypeConflicts: boolean;
+  inferGenerics: boolean;
+  format: "dts";
+}
+
+let resolveTypeConflicts = true;
+let inferGenerics = true;
+let format: "dts" = "dts" as const;
+
+if (process.argv.length > 2) {
+  for (const argn of process.argv.slice(2)) {
+    const [arg, value = null] = argn.split("=");
+    switch (arg) {
+      case "--resolveTypeConflicts":
+        if (value !== "true" && value !== "false") {
+          throw new Error(`--resolveTypeConflicts accepts either 'true' or 'false'`);
+        }
+        resolveTypeConflicts = value === "true";
+        break;
+      case "--inferGenerics":
+        if (value !== "true" && value !== "false") {
+          throw new Error(`--inferGenerics accepts either 'true' or 'false'`);
+        }
+
+        inferGenerics = value === "true";
+        break;
+      case "--format":
+        if (value && (["dts"].includes as (v: string) => v is "dts")(value)) {
+          format = value;
+        } else {
+          throw new Error(`Unknown format: ${value}`);
+        }
+        break;
+      default:
+        throw new Error(`Unknown argument: ${arg}.`);
+    }
+  }
 }
 
 // Promisify xml2js' parseString
@@ -84,8 +127,15 @@ Promise.all(
 const registry = new GirNSRegistry();
 
 function generateModule(name) {
-  const x = registry.namespace(name);
-  return x ? x.asString(name, registry) : "";
+  const ns = registry.namespace(name);
+
+  const generator = new DtsGenerator(name, registry, {
+    format,
+    inferGenerics,
+    resolveTypeConflicts
+  });
+
+  return ns ? generator.generateNamespace(ns) : "";
 }
 
 function build(docs, gir) {
@@ -95,7 +145,13 @@ function build(docs, gir) {
     registry.load(name, gir.get(name));
   }
 
-  generify(registry);
+  if (inferGenerics) {
+    console.log("Adding generics...");
+    generify(registry);
+  }
+
+  console.log("Injecting overrides...");
+  inject(registry);
 
   // Generate the content
   for (let doc of docs) {

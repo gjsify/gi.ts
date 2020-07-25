@@ -21,6 +21,7 @@ import {
   NeverType,
   VoidType
 } from "../gir";
+import { GenerationOptions } from "../main";
 
 const reservedWords = [
   // For now, at least, the typescript compiler doesn't throw on numerical types like int, float, etc.
@@ -424,9 +425,14 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
 }
 
 // Inspired by gir2dts' resolveType
-export function resolveType(modName: string, rns: GirNSRegistry, type: TypeExpression): string {
+export function resolveType(
+  modName: string,
+  rns: GirNSRegistry,
+  type: TypeExpression,
+  options: GenerationOptions
+): string {
   if (type instanceof NativeType) {
-    return type.expression;
+    return type.expression(options);
   }
 
   if (!(type instanceof TypeIdentifier)) {
@@ -436,7 +442,7 @@ export function resolveType(modName: string, rns: GirNSRegistry, type: TypeExpre
   const jsified = jsifyType(modName, type);
 
   if (jsified) {
-    return jsified.resolve(modName, rns);
+    return jsified.resolve(modName, rns, options);
   }
 
   let name: string = sanitizeIdentifierName(null, type.name);

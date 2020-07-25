@@ -1,13 +1,12 @@
-import { EOL } from "os";
-
-import { GirBase, NumberType, NativeType, TypeIdentifier } from "../gir";
-import { MemberElement, Enumeration, BitfieldElement, Direction } from "../xml";
+import { GirBase, NumberType, TypeIdentifier } from "../gir";
+import { MemberElement, Enumeration, BitfieldElement } from "../xml";
 
 import { GirRecord } from "./class";
 import { GirProperty } from "./property";
-import { GirClassFunction, GirConstructor, GirFunctionParameter } from "./function";
-import { GirNSRegistry, GirNamespace } from "./namespace";
-import { isInvalid, sanitizeIdentifierName, sanitizeMemberName } from "./util";
+import { GirClassFunction } from "./function";
+import { GirNamespace } from "./namespace";
+import { sanitizeIdentifierName, sanitizeMemberName } from "./util";
+import { FormatGenerator } from "../generators/generator";
 
 export class GirEnum extends GirBase {
   members = new Map<string, GirEnumMember>();
@@ -37,25 +36,8 @@ export class GirEnum extends GirBase {
     return en;
   }
 
-  asString(modName: string, registry: GirNSRegistry): string | null {
-    try {
-      const isInvalidEnum = Array.from(this.members.keys()).some(
-        name => !Number.isNaN(Number.parseFloat(name)) || name === "NaN" || name === "Infinity"
-      );
-      if (isInvalidEnum) {
-        return this.asClass().asString(modName, registry);
-      }
-
-      return `export enum ${this.name} {
-                  ${Array.from(this.members.values())
-                    .map(member => `${member.asString(modName, registry)}`)
-                    .join(EOL)}
-              }`;
-    } catch (e) {
-      console.error(`Failed to generate enum: ${this.name}.`);
-      console.error(e);
-      return null;
-    }
+  asString(generator: FormatGenerator): string | null {
+    return generator.generateEnum(this);
   }
 
   asClass(): GirRecord {
@@ -128,18 +110,8 @@ export class GirEnumMember extends GirBase {
     return new GirEnumMember(upper, m.$.value);
   }
 
-  asString(_: string, __: GirNSRegistry): string {
-    const invalid = isInvalid(this.name);
-    if (
-      this.value != null &&
-      !Number.isNaN(Number.parseInt(this.value, 10)) &&
-      Number.isNaN(Number.parseInt(this.name, 10)) &&
-      this.name !== "NaN"
-    ) {
-      return invalid ? `"${this.name}" = ${this.value},` : `${this.name} = ${this.value},`;
-    } else {
-      return invalid ? `"${this.name}",` : `${this.name},`;
-    }
+  asString(generator: FormatGenerator): string {
+    return generator.generateEnumMember(this);
   }
 }
 
@@ -150,40 +122,8 @@ function isEnumeration(e: unknown): e is Enumeration {
 export class GirError extends GirEnum {
   functions: Map<string, GirClassFunction> = new Map();
 
-  asString(modName: string, registry: GirNSRegistry): string {
-    const clazz = super.asClass();
-
-    clazz.members = [];
-    clazz.members.push(...Array.from(this.functions.values()));
-
-    const GLib = registry.namespace("GLib");
-
-    if (!GLib) {
-      throw new Error(`Attempted to generate a subclass of GLib.Error without GLib loaded!`);
-    }
-
-    const GLibError = GLib.getClass("Error");
-
-    if (!GLibError) {
-      throw new Error(`GLib.Error is not defined. This should not occur.`);
-    }
-
-    clazz.parent = GLibError.getType();
-
-    // Manually construct a GLib.Error constructor.
-    clazz.mainConstructor = new GirConstructor({
-      name: "new",
-      parameters: [
-        new GirFunctionParameter({
-          name: "options",
-          type: NativeType.of("{ message: string, code: number}"),
-          direction: Direction.In
-        })
-      ],
-      return_type: clazz.getType()
-    });
-
-    return clazz.asString(modName, registry);
+  asString(generator: FormatGenerator): string {
+    return generator.generateError(this);
   }
 
   static fromXML(modName: string, ns: GirNamespace, parent, m: Enumeration | BitfieldElement): GirEnum {

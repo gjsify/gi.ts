@@ -1,5 +1,3 @@
-import { EOL } from "os";
-
 import { GirBase, TypeIdentifier } from "../gir";
 import { GirXML, Element } from "../xml";
 import { isPrimitiveType } from "./util";
@@ -10,23 +8,6 @@ import { GirEnum, GirError } from "./enum";
 import { GirConst } from "./const";
 import { GirAlias } from "./alias";
 
-import Gio from "../injections/gio.json";
-import GLib from "../injections/glib.json";
-import GObject from "../injections/gobject.json";
-
-type ArrayInjection = string[];
-type StringInjection = string;
-export interface ClassInjection {
-  _constructor?: { [key: string]: ArrayInjection | StringInjection };
-  member?: { [key: string]: ArrayInjection | StringInjection };
-  prop?: { [key: string]: StringInjection };
-  field?: { [key: string]: StringInjection };
-  mainConstructor?: string;
-}
-type Injection = { [key: string]: ClassInjection | StringInjection | ArrayInjection };
-
-const injections: { [key: string]: Injection } = { GLib, Gio, GObject };
-
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 
 export class GirNSRegistry {
@@ -34,6 +15,16 @@ export class GirNSRegistry {
 
   namespace(name: string): GirNamespace | null {
     return this.mapping.get(name) || null;
+  }
+
+  assertNamespace(name: string): GirNamespace {
+    const namespace = this.mapping.get(name);
+
+    if (!namespace) {
+      throw new Error(`Namespace '${name}' not found.`);
+    }
+
+    return namespace;
   }
 
   load(name: string, gir: GirXML) {
@@ -46,7 +37,7 @@ const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable ||
 export class GirNamespace {
   readonly name: string;
   readonly imports: string[] = [];
-  readonly members: Map<string, GirNSMember> = new Map<string, GirNSMember>();
+  readonly members: Map<string, GirNSMember | GirNSMember[]> = new Map<string, GirNSMember | GirNSMember[]>();
 
   constructor(name: string) {
     this.name = name;
@@ -58,11 +49,21 @@ export class GirNamespace {
     }
   }
 
-  getMember(name: string): GirBase | null {
+  getMember(name: string): GirBase | GirBase[] | null {
     return this.members.get(name) || null;
   }
 
-  getClass(name: string) {
+  assertClass(name: string): GirBaseClass {
+    const clazz = this.getClass(name);
+
+    if (!clazz) {
+      throw new Error(`Class ${name} does not exist in namespace ${this.name}.`);
+    }
+
+    return clazz;
+  }
+
+  getClass(name: string): GirBaseClass | null {
     if (this.members.has(name)) {
       const member = this.members.get(name);
 
@@ -121,9 +122,9 @@ export class GirNamespace {
       (m): m is GirBaseClass => m instanceof GirBaseClass
     );
     const res = clazzes
-      .map<[GirBaseClass, GirCallback | undefined]>((m) => [
+      .map<[GirBaseClass, GirCallback | undefined]>(m => [
         m,
-        m.callbacks.find((c) => c.name === name || c.resolve_names.includes(name)),
+        m.callbacks.find(c => c.name === name || c.resolve_names.includes(name))
       ])
       .find((r): r is [GirBaseClass, GirCallback] => r[1] != null);
 
@@ -134,122 +135,9 @@ export class GirNamespace {
     }
   }
 
-  asString(modName: string, registry: GirNSRegistry): string | null {
-    console.log(`Resolving the types of ${modName}...`);
-    try {
-      const name = this.name;
-      const injected = [] as string[];
-      const ns_injection = name in injections ? injections[this.name] : null;
-      const header = `
-/**
- * ${name}
- */
-`;
-      const base = `
-
-type GType = object;
-
-`;
-
-      const content = Array.from(this.members.values())
-        .map((m) => {
-          if (ns_injection && m.name in ns_injection) {
-            injected.push(m.name);
-
-            const injection = ns_injection[m.name];
-
-            if (typeof injection === "string") {
-              return injection;
-            } else if (Array.isArray(injection)) {
-              return injection.join(`${EOL}`);
-            } else if (typeof injection === "object") {
-              if (m instanceof GirBaseClass) {
-                return `${m.asString(modName, registry, injection)}`;
-              } else {
-                throw new Error(`Attempted to apply a class injection to a non-class: ${m.name}`);
-              }
-            } else {
-              throw new Error(`Unknown injection type: ${JSON.stringify(injection)}`);
-            }
-          }
-
-          return `${m.asString(modName, registry)}`;
-        })
-        .concat(
-          Object.entries(ns_injection || {})
-            .filter(([l]) => !injected.includes(l))
-            .map(([, l]) => {
-              if (Array.isArray(l)) {
-                return l.join(EOL);
-              } else if (typeof l === "string") {
-                return l;
-              } else {
-                throw new Error("Attempted to apply class injection to root namespace.");
-              }
-            })
-        )
-        .join(EOL);
-
-      // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = this.imports
-        .filter((i) => registry.namespace(i) != null)
-        .map((i) => `import * as ${i} from "${i.toLowerCase()}";`)
-        .join(`${EOL}`);
-
-      const raw_output = [header, imports, base, content].join(`\n\n`);
-
-      // Cleanup and indent the output
-      const [, output] = raw_output.split("\n").reduce(
-        (prev, next) => {
-          const trimmed = next.trim();
-
-          if (trimmed === "") {
-            return prev;
-          }
-
-          let [indent, str] = prev;
-
-          if (
-            !trimmed.startsWith("/*") &&
-            !trimmed.startsWith("*") &&
-            (trimmed.startsWith("}") || trimmed.endsWith("}"))
-          ) {
-            indent--;
-          }
-
-          const indented = trimmed.padStart(trimmed.length + indent * 4, " ");
-
-          if (!trimmed.startsWith("/*") && !trimmed.startsWith("*") && trimmed.endsWith("{")) {
-            indent++;
-          }
-
-          if (
-            indent < 1 &&
-            ((trimmed.startsWith("export") && !str.endsWith("*/")) || trimmed.startsWith("/**"))
-          ) {
-            return [indent, `${str}\n\n${indented}`];
-          }
-
-          const isJSDoc = trimmed.startsWith("*");
-
-          return [indent, `${str}\n${isJSDoc ? " " : ""}${indented}`];
-        },
-        [0, ""] as [number, string]
-      );
-
-      console.log(`Printing ${modName}...`);
-
-      return output;
-    } catch (err) {
-      console.error(`Failed to generate namespace: ${this.name}`);
-      console.error(err);
-      return null;
-    }
-  }
-
   static fromXML(modName: string, repo: GirXML): GirNamespace {
     console.log(`Parsing ${modName}...`);
-    const defaultImports = ["GObject", "Gio", "GLib"].filter((a) => a !== modName);
+    const defaultImports = ["GObject", "Gio", "GLib"].filter(a => a !== modName);
 
     const building = new GirNamespace(modName);
     const includes = repo.repository.include || [];
@@ -258,90 +146,90 @@ type GType = object;
     building.imports.push(...defaultImports);
 
     building.imports.push(
-      ...includes.map((i) => i.$.name).filter((name) => !defaultImports.includes(name) && modName !== name)
+      ...includes.map(i => i.$.name).filter(name => !defaultImports.includes(name) && modName !== name)
     );
 
     // Constants
     if (ns.constant) {
       ns.constant
         .filter(isIntrospectable)
-        .map((constant) => GirConst.fromXML(modName, building, null, constant))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(constant => GirConst.fromXML(modName, building, null, constant))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     // Get the requested functions
     if (ns.function) {
       ns.function
         .filter(isIntrospectable)
-        .map((func) => GirFunction.fromXML(modName, building, null, func))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(func => GirFunction.fromXML(modName, building, null, func))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.callback) {
       ns.callback
         .filter(isIntrospectable)
-        .map((callback) => GirCallback.fromXML(modName, building, null, callback))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(callback => GirCallback.fromXML(modName, building, null, callback))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns["glib:boxed"]) {
       ns["glib:boxed"]
         .filter(isIntrospectable)
-        .map((boxed) => new GirAlias({ name: boxed.$["glib:name"], type: TypeIdentifier.nullable("object") }))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(boxed => new GirAlias({ name: boxed.$["glib:name"], type: TypeIdentifier.nullable("object") }))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.enumeration) {
       // Get the requested enums
       ns.enumeration
-        .map((enumeration) => {
+        .map(enumeration => {
           if (enumeration.$["glib:error-domain"]) {
             return GirError.fromXML(modName, building, null, enumeration);
           } else {
             return GirEnum.fromXML(modName, building, null, enumeration);
           }
         })
-        .forEach((c) => building.members.set(c.name, c));
+        .forEach(c => building.members.set(c.name, c));
     }
 
     // Bitfield is a type of enum
     if (ns.bitfield) {
       ns.bitfield
         .filter(isIntrospectable)
-        .map((field) => GirEnum.fromXML(modName, building, this, field, true))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(field => GirEnum.fromXML(modName, building, this, field, true))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     // Get the requested classes
     if (ns.class) {
       ns.class
         .filter(isIntrospectable)
-        .map((klass) => GirClass.fromXML(modName, building, this, klass))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(klass => GirClass.fromXML(modName, building, this, klass))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.record) {
       ns.record
         .filter(isIntrospectable)
         // _ marks these records as private.
-        .filter((b) => !b.$.name.startsWith("_"))
+        .filter(b => !b.$.name.startsWith("_"))
         // Don't generate records for structs
-        .filter((b) => typeof b.$["glib:is-gtype-struct-for"] !== "string")
-        .map((record) => GirRecord.fromXML(modName, building, record))
-        .forEach((c) => building.members.set(c.name, c));
+        .filter(b => typeof b.$["glib:is-gtype-struct-for"] !== "string")
+        .map(record => GirRecord.fromXML(modName, building, record))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.union) {
       ns.union
         .filter(isIntrospectable)
-        .map((union) => GirRecord.fromXML(modName, building, union))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(union => GirRecord.fromXML(modName, building, union))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.interface) {
       ns.interface
-        .map((inter) => GirInterface.fromXML(modName, building, inter))
-        .forEach((c) => building.members.set(c.name, c));
+        .map(inter => GirInterface.fromXML(modName, building, inter))
+        .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.alias) {
@@ -350,15 +238,11 @@ type GType = object;
       ns.alias
         .filter(isIntrospectable)
         // Avoid attempting to alias non-introspectable symbols.
-        .map((b) => {
+        .map(b => {
           b.type = b.type
             .filter((t): t is NamedAlias => !!(t && t.$.name))
-            .map((t) => {
-              if (
-                !building.hasSymbol(t.$.name) &&
-                !isPrimitiveType(t.$.name) &&
-                !t.$.name.includes(".")
-              ) {
+            .map(t => {
+              if (!building.hasSymbol(t.$.name) && !isPrimitiveType(t.$.name) && !t.$.name.includes(".")) {
                 return { $: { name: "unknown", "c:type": "unknown" } };
               }
 
@@ -367,9 +251,9 @@ type GType = object;
 
           return b;
         })
-        .map((alias) => GirAlias.fromXML(modName, building, null, alias))
+        .map(alias => GirAlias.fromXML(modName, building, null, alias))
         .filter((alias): alias is GirAlias => alias != null)
-        .forEach((c) => building.members.set(c.name, c));
+        .forEach(c => building.members.set(c.name, c));
     }
 
     return building;

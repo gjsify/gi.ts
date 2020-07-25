@@ -1,17 +1,12 @@
-import { EOL } from "os";
-
 import {
   GirBase,
-  GirClassField,
   NativeType,
-  AnyifiedType,
   TypeIdentifier,
   TypeExpression,
+  GirClassField,
+  AnyifiedType,
   NeverType,
-  StringType,
-  NumberType,
-  AnyType,
-  VoidType
+  ArrayType
 } from "../gir";
 import { InterfaceElement, Element, ClassElement, RecordElement, Direction } from "../xml";
 import {
@@ -19,17 +14,17 @@ import {
   GirVirtualClassFunction,
   GirStaticClassFunction,
   GirCallback,
-  GirFunctionParameter,
   GirFunction,
-  GirConstructor
+  GirConstructor,
+  GirFunctionParameter
 } from "./function";
 import { GirProperty, GirField } from "./property";
-import { GirNSRegistry, GirNamespace, ClassInjection } from "./namespace";
-import { resolveType, parseTypeString, sanitizeIdentifierName } from "./util";
-import { GirSignal, GirSignalType } from "./signal";
-import { GenericNameGenerator } from "./generics";
+import { GirNSRegistry, GirNamespace } from "./namespace";
+import { parseTypeString, sanitizeIdentifierName } from "./util";
+import { GirSignal } from "./signal";
+import { FormatGenerator } from "../generators/generator";
 
-function resolveTypeIdentifier(
+export function resolveTypeIdentifier(
   modName: string,
   rns: GirNSRegistry,
   type: TypeIdentifier
@@ -51,7 +46,7 @@ function resolveTypeIdentifier(
   }
 }
 
-function resolveParents(
+export function resolveParents(
   parent: TypeIdentifier | null,
   modName: string,
   registry: GirNSRegistry
@@ -82,12 +77,21 @@ function isTypeConflict(a: TypeExpression, b: TypeExpression) {
   return !a.equals(b) || !b.equals(a);
 }
 
-enum FilterBehavior {
+export class GenericParameter {
+  default: string;
+  deriveFrom: string | null = null;
+
+  constructor(def) {
+    this.default = def;
+  }
+}
+
+export enum FilterBehavior {
   DELETE,
   ANYIFY
 }
 
-function filterConflicts<T extends GirBase | GirClassField>(
+export function filterConflicts<T extends GirBase | GirClassField>(
   ns: string,
   elements: T[],
   resolved_parents: GirBaseClass[],
@@ -95,7 +99,7 @@ function filterConflicts<T extends GirBase | GirClassField>(
   behavior = FilterBehavior.ANYIFY
 ) {
   return elements
-    .filter(p => p.name)
+    .filter(p => p && p.name)
     .reduce((prev, next) => {
       const conflicts = resolved_parents.some(resolved_parent => {
         return [...resolved_parent.props, ...resolved_parent.fields].some(p => {
@@ -149,7 +153,7 @@ function isConflictingFunction(
   );
 }
 
-function filterFunctionConflict<
+export function filterFunctionConflict<
   T extends GirStaticClassFunction | GirVirtualClassFunction | GirClassFunction | GirConstructor
 >(
   ns: string,
@@ -180,6 +184,12 @@ function filterFunctionConflict<
         )
       );
 
+      const isGObject = resolved_parents.some(p => p.ns === "GObject" && p.name === "Object");
+
+      if (isGObject) {
+        conflicts = conflicts || ["connect", "connect_after", "emit"].includes(next.name);
+      }
+
       if (conflicts) {
         let never: GirConstructor | GirFunction | GirStaticClassFunction | GirVirtualClassFunction;
 
@@ -187,7 +197,7 @@ function filterFunctionConflict<
           name: "args",
           direction: Direction.In,
           isVarArgs: true,
-          type: NeverType
+          type: new ArrayType(NeverType)
         });
 
         const neverOptions = {
@@ -233,67 +243,6 @@ export const enum ClassInjectionMember {
   MAIN_CONSTRUCTOR = "constructor"
 }
 
-function handleInjection(
-  elements: [string, string][],
-  type: keyof ClassInjection,
-  injection?: ClassInjection
-): string[] {
-  // If an injection is not passed, this function is a no-op.
-  if (!injection) {
-    return elements.map(([, val]) => val);
-  }
-
-  const type_injection = injection[type];
-
-  // If there is no type injection for type, this function is a no-op.
-  if (!type_injection) {
-    return elements.map(([, val]) => val);
-  }
-
-  if (typeof type_injection === "string") {
-    throw new Error("mainConstructor injections are not handled by handleInjection");
-  }
-
-  const injections = [...Object.entries(type_injection)].map(([name, val]) => {
-    if (Array.isArray(val)) {
-      return [name, val.join(EOL)] as const;
-    } else {
-      return [name, val] as const;
-    }
-  });
-
-  const modifiedElements = elements.map(([name, val]) => {
-    const injection = injections.find(i => i[0] === name);
-
-    if (injection) {
-      const [, newVal] = injection;
-
-      return [name, newVal] as const;
-    } else {
-      return [name, val] as const;
-    }
-  });
-
-  injections.forEach(([name, val]) => {
-    const isInjected = modifiedElements.find(m => m[0] === name);
-
-    if (!isInjected) {
-      modifiedElements.push([name, val]);
-    }
-  });
-
-  return modifiedElements.map(([, val]) => val);
-}
-
-export class GenericParameter {
-  default: string;
-  deriveFrom: string | null = null;
-
-  constructor(def) {
-    this.default = def;
-  }
-}
-
 export abstract class GirBaseClass extends GirBase {
   ns: string;
 
@@ -337,52 +286,7 @@ export abstract class GirBaseClass extends GirBase {
     throw new Error("fromXML is not implemented on GirBaseClass");
   }
 
-  protected implements(modName: string, registry: GirNSRegistry) {
-    if (this.interfaces.length > 0) {
-      return ` implements ${this.interfaces
-        .map(i => {
-          const Type = resolveType(modName, registry, i);
-          const Generic = this.generic_names.get(Type);
-
-          if (Generic && Generic.length > 0) {
-            return `${Type}<${Generic.join(", ")}>`;
-          } else {
-            return `${Type}`;
-          }
-        })
-        .join(", ")}`;
-    }
-    return "";
-  }
-
-  protected extends(modName, ns: GirNSRegistry) {
-    if (this.parent) {
-      const resolvedParent = this.parent ? resolveTypeIdentifier(modName, ns, this.parent) : null;
-
-      const ParentGeneric =
-        resolvedParent?.interfaces
-          .map(i => {
-            const Type = resolveType(modName, ns, i);
-            const Generic = this.generic_names.get(Type);
-
-            return Generic ?? [];
-          })
-          .flat(1) ?? [];
-
-      const Type = resolveType(modName, ns, this.parent);
-      const Generic = this.generic_names.get(Type) ?? [];
-
-      if (Generic.length > 0 || ParentGeneric.length > 0) {
-        return ` extends ${Type}<${[...ParentGeneric, ...Generic].join(", ")}>`;
-      } else {
-        return ` extends ${Type}`;
-      }
-    }
-
-    return "";
-  }
-
-  protected resolveParents(modName: string, registry: GirNSRegistry) {
+  resolveParents(modName: string, registry: GirNSRegistry) {
     const class_parents = resolveParents(this.parent, modName, registry);
 
     const class_parent_interface_parents = class_parents
@@ -414,7 +318,7 @@ export abstract class GirBaseClass extends GirBase {
     return { class_parents, class_parent_interface_parents, interface_parents };
   }
 
-  protected implementedMethods(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
+  implementedMethods(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
     return interfaces
       .map(i =>
         i.members
@@ -431,7 +335,7 @@ export abstract class GirBaseClass extends GirBase {
       .map(m => m.copy({ parent: this, interfaceParent: m.parent }));
   }
 
-  protected implementedProperties(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
+  implementedProperties(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
     return interfaces
       .map(i =>
         i.props
@@ -447,23 +351,10 @@ export abstract class GirBaseClass extends GirBase {
       .flat();
   }
 
-  abstract asString(modName: string, registry: GirNSRegistry, injection?: ClassInjection): string;
+  abstract asString(generator: FormatGenerator): string;
 }
 
 const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
-
-// These are inserted by the gobject injection
-const GOBJECT_CONFLICT_IDS = [
-  "_init",
-  "connect",
-  "connect_after",
-  "emit",
-  "disconnect",
-  "set",
-  "block_signal_handler",
-  "unblock_signal_handler",
-  "stop_emission_by_name"
-];
 
 // These should never be overriden by fields/methods
 // TODO Do we need "draw" and "show_all" still?
@@ -646,315 +537,8 @@ export class GirClass extends GirBaseClass {
     return clazz;
   }
 
-  asString(modName: string, registry: GirNSRegistry, injection?: ClassInjection): string {
-    const { class_parents, class_parent_interface_parents, interface_parents } = this.resolveParents(
-      modName,
-      registry
-    );
-
-    const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
-
-    const name = this.name;
-
-    let injectConstructorBucket = !this.mainConstructor && (!injection || !injection.mainConstructor);
-
-    const getGenericName = GenericNameGenerator.new();
-
-    const resolvedParent = this.parent ? resolveTypeIdentifier(modName, registry, this.parent) : null;
-    const resolvedInterfaces = this.interfaces
-      .map(i => resolveTypeIdentifier(modName, registry, i))
-      .filter((c): c is GirBaseClass => c != null);
-
-    let type_map = {} as { [key: string]: string };
-
-    let Generics = [...(resolvedParent ? [resolvedParent] : []), ...resolvedInterfaces, this as GirBaseClass]
-      .map(g => {
-        const resolvedType = resolveType(modName, registry, g.getType());
-
-        let types = [] as string[];
-
-        if (!this.generic_names.has(resolvedType)) {
-          this.generic_names.set(resolvedType, types);
-        }
-
-        return g.generics.map(generic => {
-          if (generic.deriveFrom) {
-            const type = parseTypeString(generic.deriveFrom);
-            const typeName = resolveType(modName, registry, type);
-            const name = type_map[typeName];
-            console.log(`Deriving from ${typeName} with name ${name}`);
-            if (name) {
-              types.push(name);
-            } else {
-              throw new Error(`Attempted to derive generic from unknown or non-generic parent: ${typeName}`);
-            }
-
-            return "";
-          }
-
-          const genericName = getGenericName();
-          console.log(`Generic: ${resolvedType} => ${genericName}`);
-          type_map[resolvedType] = genericName;
-          types.push(genericName);
-
-          if (generic.default) {
-            // Override instances of this type!
-            const mapping = this.generic_override_types.get(generic.default) || {};
-
-            mapping[resolvedType] = genericName;
-
-            this.generic_override_types.set(generic.default, mapping);
-
-            return `${genericName} = ${generic.default}`;
-          } else {
-            return `${genericName}`;
-          }
-        });
-      })
-      .flat()
-      .filter(s => s.length > 0)
-      .join(", ");
-
-    if (Generics !== "") {
-      Generics = `<${Generics}>`;
-    }
-
-    const Extends = this.extends(modName, registry);
-    const Implements = this.implements(modName, registry);
-
-    const implementedProperties = this.implementedProperties(interface_parents);
-    const implementedMethods = this.implementedMethods(interface_parents, implementedProperties);
-
-    let MainConstructor: string = "";
-
-    if (this.mainConstructor) {
-      MainConstructor = `\n${this.mainConstructor.asConstructor(modName, registry)}`;
-    } else if (injection && injection.mainConstructor) {
-      MainConstructor = `\n${injection.mainConstructor}`;
-    } else {
-      MainConstructor = `\nconstructor(properties?: Partial<${name}.ConstructorProperties>, ...args: any[]);
-                _init(properties?: Partial<${name}.ConstructorProperties>, ...args: any[]): void;\n`;
-    }
-
-    const ConstructorProps = handleInjection(
-      filterConflicts(
-        this.ns,
-        this.props.filter(prop => !prop.isStatic),
-        // Only filter for extends, not implements.
-        class_parents,
-        registry
-      ).map(v => [v.name, v.asString(modName, registry, true)]),
-      ClassInjectionMember.PROPERTY,
-      injection
-    ).join(EOL);
-
-    const Properties = handleInjection(
-      filterConflicts(this.ns, this.props, resolved_parents, registry).map(v => [
-        v.name,
-        v.asString(modName, registry)
-      ]),
-      ClassInjectionMember.PROPERTY,
-      injection
-    ).join(EOL);
-
-    const Fields = handleInjection(
-      filterConflicts(this.ns, this.fields, resolved_parents, registry).map(v => [
-        v.name,
-        v.asString(modName, registry)
-      ]),
-      ClassInjectionMember.FIELD,
-      injection
-    ).join(EOL);
-
-    const isGObject = resolved_parents.some(p => p.ns === "GObject" && p.name === "Object");
-
-    const Constructors = handleInjection(
-      filterFunctionConflict(
-        this.ns,
-        this.constructors,
-        resolved_parents,
-        isGObject ? GOBJECT_CONFLICT_IDS : [],
-        registry
-      ).map(v => [v.name, v.asString(modName, registry)]),
-      ClassInjectionMember.CONSTRUCTOR,
-      injection
-    ).join(EOL);
-
-    const Members = handleInjection(
-      filterFunctionConflict(
-        this.ns,
-        this.members,
-        resolved_parents,
-        isGObject ? GOBJECT_CONFLICT_IDS : [],
-        registry
-      ).map(v => [v.name, v.asString(modName, registry)]),
-      ClassInjectionMember.MEMBER,
-      injection
-    ).join(EOL);
-
-    const ImplementedProperties = filterConflicts(this.ns, implementedProperties, resolved_parents, registry)
-      .map(m => m.asString(modName, registry))
-      .join(EOL);
-
-    const ImplementedMethods = filterFunctionConflict(
-      this.ns,
-      implementedMethods,
-      resolved_parents,
-      GOBJECT_CONFLICT_IDS,
-      registry
-    )
-      .map(m => m.asString(modName, registry))
-      .join(EOL);
-
-    // TODO Move these to a cleaner place.
-
-    const Connect = new GirClassFunction({
-      name: "connect",
-      parent: this,
-      parameters: [
-        new GirFunctionParameter({
-          name: "id",
-          type: StringType,
-          direction: Direction.In
-        }),
-        new GirFunctionParameter({
-          name: "callback",
-          type: NativeType.of("(...args: any[]) => any"),
-          direction: Direction.In
-        })
-      ],
-      return_type: NumberType
-    });
-
-    const ConnectAfter = new GirClassFunction({
-      name: "connect_after",
-      parent: this,
-      parameters: [
-        new GirFunctionParameter({
-          name: "id",
-          type: StringType,
-          direction: Direction.In
-        }),
-        new GirFunctionParameter({
-          name: "callback",
-          type: NativeType.of("(...args: any[]) => any"),
-          direction: Direction.In
-        })
-      ],
-      return_type: NumberType
-    });
-
-    const Emit = new GirClassFunction({
-      name: "emit",
-      parent: this,
-      parameters: [
-        new GirFunctionParameter({
-          name: "id",
-          type: StringType,
-          direction: Direction.In
-        }),
-        new GirFunctionParameter({
-          name: "args",
-          isVarArgs: true,
-          type: AnyType,
-          direction: Direction.In
-        })
-      ],
-      return_type: VoidType
-    });
-
-    let default_signals = [] as GirClassFunction[];
-    let hasConnect, hasConnectAfter, hasEmit;
-
-    if (this.signals.length > 0) {
-      hasConnect = this.members.some(m => m.name === "connect");
-      hasConnectAfter = this.members.some(m => m.name === "connect_after");
-      hasEmit = this.members.some(m => m.name === "emit");
-
-      if (!hasConnect) {
-        default_signals.push(Connect);
-      }
-      if (!hasConnectAfter) {
-        default_signals.push(ConnectAfter);
-      }
-      if (!hasEmit) {
-        default_signals.push(Emit);
-      }
-
-      default_signals = filterConflicts(
-        modName,
-        default_signals,
-        resolved_parents,
-        registry,
-        FilterBehavior.DELETE
-      );
-
-      hasConnect = !default_signals.some(s => s.name === "connect");
-      hasConnectAfter = !default_signals.some(s => s.name === "connect_after");
-      hasEmit = !default_signals.some(s => s.name === "emit");
-    }
-
-    const Signals = [
-      // TODO Relocate these.
-      ...default_signals.map(s => s.asString(modName, registry)),
-      ...this.signals
-        .map(s => {
-          const methods = [] as string[];
-
-          if (!hasConnect) methods.push(s.asString(modName, registry, GirSignalType.CONNECT));
-          if (!hasConnectAfter) methods.push(s.asString(modName, registry, GirSignalType.CONNECT_AFTER));
-          if (!hasEmit) methods.push(s.asString(modName, registry, GirSignalType.EMIT));
-
-          return methods;
-        })
-        .flat()
-    ].join(EOL);
-
-    const hasCallbacks = this.callbacks.length > 0;
-    const hasModule = injectConstructorBucket || hasCallbacks;
-
-    return `${
-      hasModule
-        ? `export module ${name} {
-              ${hasCallbacks ? this.callbacks.map(c => c.asString(modName, registry)).join(EOL) : ""}
-              ${
-                injectConstructorBucket
-                  ? `export interface ConstructorProperties${
-                      Extends ? `${Extends.split("<")[0]}.ConstructorProperties` : ""
-                    } {
-                        [key: string]: any;
-                        ${ConstructorProps}
-                      }`
-                  : ""
-              }
-            }`
-        : ""
-    }
-    export ${this.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {
-      
-    ${MainConstructor}
-    
-    ${this.props.length > 0 ? `// Properties` : ""}
-    ${Properties}
-    
-    ${this.fields.length > 0 ? `// Fields` : ""}
-    ${Fields}
-
-    ${this.signals.length > 0 ? `// Signals\n` : ""}
-    ${Signals}
-  
-    ${implementedProperties.length > 0 ? `// Implemented Properties\n` : ""}
-    ${ImplementedProperties}
-  
-    ${this.constructors.length > 0 ? `// Constructors\n` : ""}
-    ${Constructors}
-    
-    ${this.members.length > 0 ? `// Members\n` : ""}
-    ${Members}
-    
-    ${implementedMethods.length > 0 ? `// Implemented Members\n` : ""}
-    ${ImplementedMethods}
-  }`;
+  asString(generator: FormatGenerator): string {
+    return generator.generateClass(this);
   }
 }
 
@@ -1124,131 +708,8 @@ export class GirRecord extends GirBaseClass {
     return this.fields.every(f => isSimpleType(f.type));
   }
 
-  asString(modName: string, registry: GirNSRegistry, injection?: ClassInjection): string {
-    const { class_parents, class_parent_interface_parents, interface_parents } = this.resolveParents(
-      modName,
-      registry
-    );
-
-    const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
-
-    const name = this.name;
-
-    const implementedProperties = this.implementedProperties(interface_parents);
-    const implementedMethods = this.implementedMethods(interface_parents, implementedProperties);
-
-    const Extends = this.extends(modName, registry);
-    const Implements = this.implements(modName, registry);
-
-    let MainConstructor: string = "";
-
-    if (this.isForeign()) {
-      MainConstructor = "";
-    } else if (injection && injection.mainConstructor) {
-      MainConstructor = `${injection.mainConstructor}`;
-    } else if (this.mainConstructor) {
-      MainConstructor = this.mainConstructor.asConstructor(modName, registry);
-    } else if (this.constructors.length > 0) {
-      const [firstConstructor] = this.constructors;
-      MainConstructor = firstConstructor.asConstructor(modName, registry);
-    } else if (this.isSimple(modName, registry)) {
-      const ConstructorFields = this.fields
-        .map(v => {
-          const copied = v.copy();
-
-          copied.optional = true;
-
-          return copied.asString(modName, registry);
-        })
-        .join(EOL);
-      MainConstructor = `constructor(properties?: {
-        ${ConstructorFields}
-      });`;
-    }
-
-    const hasCallbacks = this.callbacks.length > 0;
-
-    const Properties = handleInjection(
-      filterConflicts(this.ns, this.props, resolved_parents, registry).map(v => [
-        v.name,
-        v.asString(modName, registry)
-      ]),
-      ClassInjectionMember.PROPERTY,
-      injection
-    ).join(EOL);
-
-    const Fields = handleInjection(
-      filterConflicts(this.ns, this.fields, resolved_parents, registry).map(v => [
-        v.name,
-        v.asString(modName, registry)
-      ]),
-      ClassInjectionMember.FIELD,
-      injection
-    ).join(EOL);
-
-    const Constructors = handleInjection(
-      filterFunctionConflict(this.ns, this.constructors, resolved_parents, [], registry).map(v => [
-        v.name,
-        v.asString(modName, registry)
-      ]),
-      ClassInjectionMember.CONSTRUCTOR,
-      injection
-    ).join(EOL);
-
-    const Members = handleInjection(
-      filterFunctionConflict(this.ns, this.members, resolved_parents, [], registry).map(v => [
-        v.name,
-        v.asString(modName, registry)
-      ]),
-      ClassInjectionMember.MEMBER,
-      injection
-    ).join(EOL);
-
-    const ImplementedMethods = filterFunctionConflict(
-      this.ns,
-      implementedMethods,
-      resolved_parents,
-      [],
-      registry
-    )
-      .map(m => m.asString(modName, registry))
-      .join(EOL);
-
-    const ImplementedProperties = filterConflicts(this.ns, implementedProperties, resolved_parents, registry)
-      .map(m => m.asString(modName, registry))
-      .join(EOL);
-
-    return `${
-      hasCallbacks
-        ? `export module ${name} {
-              ${this.callbacks.map(c => c.asString(modName, registry)).join(EOL)}
-           }`
-        : ``
-    }
-
-    export class ${name}${Extends}${Implements} {
-    
-      ${MainConstructor}
-      constructor(copy: ${this.name});
-  
-      ${this.props.length > 0 ? `// Properties` : ""}
-      ${Properties}
-      
-      ${this.fields.length > 0 ? `// Fields` : ""}
-      ${Fields}
-      
-      ${implementedProperties.length > 0 ? `// Implemented Properties` : ""}
-      ${ImplementedProperties}
-      
-      ${this.constructors.length > 0 ? `// Constructors` : ""}
-      ${Constructors}
-      
-      ${this.members.length > 0 ? `// Members` : ""}
-      ${Members}
-      
-      ${implementedMethods.length > 0 ? `// Implemented Members` : ""}
-      ${ImplementedMethods}
-  }`;
+  asString(generator: FormatGenerator): string {
+    return generator.generateRecord(this);
   }
 }
 
@@ -1366,133 +827,7 @@ export class GirInterface extends GirBaseClass {
     return clazz;
   }
 
-  asString(modName: string, registry: GirNSRegistry): string {
-    // If an interface does not list a prerequisite type, we fill it with GObject.Object
-    if (this.parent == null) {
-      const gobject = registry.namespace("GObject");
-
-      // TODO Optimize GObject.Object
-      if (!gobject) {
-        throw new Error("GObject not generated, all interfaces extend from GObject.Object!");
-      }
-
-      const GObject = gobject.getClass("Object");
-
-      if (!GObject) {
-        throw new Error(`GObject.Object could not be found while generating ${modName}.${this.name}`);
-      }
-
-      this.parent = GObject.getType();
-    }
-
-    const resolved_parents = resolveParents(this.parent, modName, registry);
-
-    const isGObject = resolved_parents.some(p => p.ns === "GObject" && p.name === "Object");
-
-    const name = this.name;
-
-    const getGenericName = GenericNameGenerator.new();
-
-    const resolvedParent = this.parent ? resolveTypeIdentifier(modName, registry, this.parent) : null;
-
-    let type_map = {} as { [key: string]: string };
-
-    let Generics = [...(resolvedParent ? [resolvedParent] : []), this as GirBaseClass]
-      .map(g => {
-        const resolvedType = resolveType(modName, registry, g.getType());
-
-        let types = [] as string[];
-
-        if (!this.generic_names.has(resolvedType)) {
-          this.generic_names.set(resolvedType, types);
-        }
-
-        return g.generics.map(generic => {
-          if (generic.deriveFrom) {
-            const type = parseTypeString(generic.deriveFrom);
-            const typeName = resolveType(modName, registry, type);
-            const name = type_map[typeName];
-
-            if (name) {
-              types.push(name);
-            } else {
-              throw new Error(`Attempted to derive generic from unknown or non-generic parent: ${typeName}`);
-            }
-
-            return "";
-          }
-
-          const genericName = getGenericName();
-
-          type_map[resolvedType] = genericName;
-          types.push(genericName);
-
-          if (generic.default) {
-            // Override instances of this type!
-            const mapping = this.generic_override_types.get(generic.default) || {};
-
-            mapping[resolvedType] = genericName;
-
-            this.generic_override_types.set(generic.default, mapping);
-
-            return `${genericName} = ${generic.default}`;
-          } else {
-            return `${genericName}`;
-          }
-        });
-      })
-      .flat()
-      .filter(s => s.length > 0)
-      .join(", ");
-
-    if (Generics !== "") {
-      Generics = `<${Generics}>`;
-    }
-
-    const Extends = this.extends(modName, registry);
-
-    const functions = filterFunctionConflict(
-      this.ns,
-      this.members,
-      resolved_parents,
-      isGObject ? GOBJECT_CONFLICT_IDS : [],
-      registry
-    );
-
-    const staticFunctions = functions.filter(f => f instanceof GirStaticClassFunction);
-    const nonstaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
-    const hasNamespace = isGObject || staticFunctions.length > 0 || this.callbacks.length > 0;
-    return `
-      ${
-        this.callbacks.length > 0
-          ? `export module ${name} {
-${this.callbacks.map(c => c.asString(modName, registry)).join(EOL)}
-}`
-          : ""
-      }
-    ${
-      hasNamespace
-        ? `export interface ${name}Namespace {
-  ${isGObject ? "$gtype: GType;" : ""}
-  ${
-    staticFunctions.length > 0
-      ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, modName, registry)).join(EOL)
-      : ""
-  }    
-  }`
-        : ""
-    }
-  export interface ${name}${Generics}${Extends} {
-  ${this.props.length > 0 ? `// Properties` : ""}
-  ${filterConflicts(this.ns, this.props, resolved_parents, registry)
-    .map(p => p.asString(modName, registry))
-    .join(EOL)}
-  ${this.fields.length > 0 ? `// Fields` : ""}
-  ${filterConflicts(this.ns, this.fields, resolved_parents, registry)
-    .map(p => p.asString(modName, registry))
-    .join(EOL)}
-  ${nonstaticFunctions.length > 0 ? `// Members\n` : ""}
-  ${nonstaticFunctions.map(m => m.asString(modName, registry)).join(EOL)}
-  }${hasNamespace ? `\n\nexport const ${name}: ${name}Namespace;\n` : ""}`;
+  asString(generator: FormatGenerator): string {
+    return generator.generateInterface(this);
   }
 }
