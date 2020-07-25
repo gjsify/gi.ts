@@ -17,6 +17,11 @@ This project converts GObject Introspection XML files into highly accurate TypeS
 ## Usage 
 
 1. `npm i` (download dependencies)
-2. `npm link` (make cli available)
+2. `npm run build` (build the project)
+3. `npm link` (make cli available)
 2. `gi-ts config` (generate docs.json)
 3. `gi-ts generate` (generate files)
+
+> Selecting Versions
+
+In `sample-versions.json` you can find an example of how to select which versions `gi.ts` generates for a given library. Rename this file to `versions.json` in your generation directory for `gi.ts` to use it.
