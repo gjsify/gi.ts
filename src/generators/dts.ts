@@ -21,13 +21,7 @@ import { GirProperty, GirField } from "../gir/property";
 import { GirSignal, GirSignalType } from "../gir/signal";
 import { GirFunction, GirConstructor, GirFunctionParameter, GirCallback } from "../gir/function";
 import { GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
-import {
-  sanitizeIdentifierName,
-  isInvalid,
-  resolveDirectedType,
-  resolveType,
-  parseTypeString
-} from "../gir/util";
+import { sanitizeIdentifierName, isInvalid, resolveDirectedType, parseTypeExpression } from "../gir/util";
 import {
   TypeExpression,
   NullableType,
@@ -39,13 +33,14 @@ import {
   VoidType,
   StringType,
   NumberType,
-  ArrayType
+  ArrayType,
+  GirBase
 } from "../gir";
 import { GenericNameGenerator } from "../gir/generics";
 import { Direction } from "../xml";
 import { GirAlias } from "../gir/alias";
 
-export class DtsGenerator extends FormatGenerator {
+export class DtsGenerator extends FormatGenerator<string> {
   modName: string;
   registry: GirNSRegistry;
   options: GenerationOptions;
@@ -97,16 +92,28 @@ export class DtsGenerator extends FormatGenerator {
         const GenericDefinitions = names.map(name => `${name} = ${GObject}`).join(", ");
         return [
           `<${GenericDefinitions}>`,
-          `(${GenerifiedParameters}) => ${node.return(modName, registry).resolve(modName, registry, options)}`
+          `(${GenerifiedParameters}) => ${node
+            .return(modName, registry)
+            .resolve(modName, registry, options)
+            .print(modName, registry, options)}`
         ];
       } else {
         return [
           ``,
-          `(${Parameters}) => ${node.return(modName, registry).resolve(modName, registry, options)}`
+          `(${Parameters}) => ${node
+            .return(modName, registry)
+            .resolve(modName, registry, options)
+            .print(modName, registry, options)}`
         ];
       }
     } else {
-      return [``, `(${Parameters}) => ${node.return(modName, registry).resolve(modName, registry, options)}`];
+      return [
+        ``,
+        `(${Parameters}) => ${node
+          .return(modName, registry)
+          .resolve(modName, registry, options)
+          .print(modName, registry, options)}`
+      ];
     }
   }
 
@@ -116,13 +123,15 @@ export class DtsGenerator extends FormatGenerator {
 
   generateReturn(return_type: TypeExpression, output_parameters: GirFunctionParameter[]) {
     const { modName: name, registry, options } = this;
-    const type = return_type.rootResolve(name, registry, options);
+    const type = return_type.resolve(name, registry, options).rootPrint(name, registry, options);
 
     if (output_parameters.length > 0) {
       const exclude_first = type === "void" || type === "";
       const returns = [
         ...(exclude_first ? [] : [`${type}`]),
-        ...output_parameters.map(op => op.type.rootResolve(name, registry, options))
+        ...output_parameters.map(op =>
+          op.type.resolve(name, registry, options).rootPrint(name, registry, options)
+        )
       ];
       if (returns.length > 1) {
         return `[${returns.join(", ")}]`;
@@ -195,7 +204,9 @@ export class DtsGenerator extends FormatGenerator {
   generateConst(node: GirConst): string {
     const { modName, registry, options } = this;
 
-    return `export const ${node.name}: ${node.type.resolve(modName, registry, options)};`;
+    return `export const ${node.name}: ${node.type
+      .resolve(modName, registry, options)
+      .print(modName, registry, options)};`;
   }
 
   private implements(node: GirBaseClass) {
@@ -203,8 +214,10 @@ export class DtsGenerator extends FormatGenerator {
     if (node.interfaces.length > 0) {
       return ` implements ${node.interfaces
         .map(i => {
-          const Type = resolveType(modName, registry, i, options);
-          const Generic = node.generic_names.get(Type);
+          const BareType = i.resolve(modName, registry, options).print('', registry, options);
+          const Type = i.resolve(modName, registry, options).print(modName, registry, options);
+
+          const Generic = node.generic_names.get(BareType);
 
           if (Generic && Generic.length > 0) {
             return `${Type}<${Generic.join(", ")}>`;
@@ -225,14 +238,14 @@ export class DtsGenerator extends FormatGenerator {
       const ParentGeneric =
         resolvedParent?.interfaces
           .map(i => {
-            const Type = resolveType(modName, ns, i, options);
+            const Type = i.resolve(modName, ns, options).print(modName, ns, options);
             const Generic = node.generic_names.get(Type);
 
             return Generic ?? [];
           })
           .flat(1) ?? [];
 
-      const Type = resolveType(modName, ns, node.parent, options);
+      const Type = node.parent.resolve(modName, ns, options).print(modName, ns, options);
       const Generic = node.generic_names.get(Type) ?? [];
 
       if (Generic.length > 0 || ParentGeneric.length > 0) {
@@ -279,7 +292,10 @@ export class DtsGenerator extends FormatGenerator {
 
     let Generics = [...(resolvedParent ? [resolvedParent] : []), node as GirBaseClass]
       .map(g => {
-        const resolvedType = resolveType(modName, registry, g.getType(), options);
+        const resolvedType = g
+          .getType()
+          .resolve(modName, registry, options)
+          .print(modName, registry, options);
 
         let types = [] as string[];
 
@@ -289,8 +305,8 @@ export class DtsGenerator extends FormatGenerator {
 
         return g.generics.map(generic => {
           if (generic.deriveFrom) {
-            const type = parseTypeString(generic.deriveFrom);
-            const typeName = resolveType(modName, registry, type, options);
+            const type = parseTypeExpression(modName, generic.deriveFrom);
+            const typeName = type.resolve(modName, registry, options).print('', registry, options);
             const name = type_map[typeName];
 
             if (name) {
@@ -500,7 +516,10 @@ export class DtsGenerator extends FormatGenerator {
 
     let Generics = [...(resolvedParent ? [resolvedParent] : []), ...resolvedInterfaces, node as GirBaseClass]
       .map(g => {
-        const resolvedType = resolveType(modName, registry, g.getType(), options);
+        const resolvedType = g
+          .getType()
+          .resolve(modName, registry, options)
+          .print('', registry, options);
 
         let types = [] as string[];
 
@@ -510,8 +529,8 @@ export class DtsGenerator extends FormatGenerator {
 
         return g.generics.map(generic => {
           if (generic.deriveFrom) {
-            const type = parseTypeString(generic.deriveFrom);
-            const typeName = resolveType(modName, registry, type, options);
+            const type = parseTypeExpression(modName, generic.deriveFrom);
+            const typeName = type.resolve(modName, registry, options).print('', registry, options);
             const name = type_map[typeName];
             console.log(`Deriving from ${typeName} with name ${name}`);
             if (name) {
@@ -524,7 +543,7 @@ export class DtsGenerator extends FormatGenerator {
           }
 
           const genericName = getGenericName();
-          console.log(`Generic: ${resolvedType} => ${genericName}`);
+
           type_map[resolvedType] = genericName;
           types.push(genericName);
 
@@ -772,7 +791,7 @@ export class DtsGenerator extends FormatGenerator {
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
     return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${
-      node.type.rootResolve(namespace, registry, options) || "any"
+      node.type.resolve(namespace, registry, options).rootPrint(namespace, registry, options) || "any"
     };`;
   }
 
@@ -787,7 +806,8 @@ export class DtsGenerator extends FormatGenerator {
 
     const Name = invalid ? `"${node.name}"` : node.name;
 
-    let Type = node.type.rootResolve(namespace, registry, options) || "any";
+    let Type =
+      node.type.resolve(namespace, registry, options).rootPrint(namespace, registry, options) || "any";
 
     return `${Modifier} ${Name}: ${Type};`;
   }
@@ -821,13 +841,16 @@ export class DtsGenerator extends FormatGenerator {
     const { modName, registry, options } = this;
 
     let type: string =
-      resolveDirectedType(node.type, node.direction)?.rootResolve(modName, registry, options) ??
-      node.type.rootResolve(modName, registry, options);
+      resolveDirectedType(node.type, node.direction)
+        ?.resolve(modName, registry, options)
+        .rootPrint(modName, registry, options) ??
+      node.type.resolve(modName, registry, options).rootPrint(modName, registry, options);
 
     const unwrapped = node.type.unwrap();
 
     // TODO I need a better system for this, but handling Gio.AsyncReadyCallback is the most common.
     if (
+      options.inferGenerics &&
       node.parent instanceof GirClassFunction &&
       !(node.parent instanceof GirStaticClassFunction) &&
       unwrapped instanceof ClosureType
@@ -835,7 +858,7 @@ export class DtsGenerator extends FormatGenerator {
       const internal = unwrapped.type;
 
       if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
-        type = unwrapped.rootResolve(modName, registry, options);
+        type = unwrapped.resolve(modName, registry, options).rootPrint(modName, registry, options);
 
         if (node.type instanceof NullableType) {
           return `${node.name}: ${type}<this> | null`;
@@ -877,7 +900,8 @@ export class DtsGenerator extends FormatGenerator {
     const name = invalid ? `["${node.name}"]` : node.name;
     return `static ${name}(${Parameters}): ${node
       .return(modName, registry)
-      .rootResolve(modName, registry, options)};`;
+      .resolve(modName, registry, options)
+      .rootPrint(modName, registry, options)};`;
   }
 
   generateConstructor(node: GirConstructor): string {
@@ -899,14 +923,21 @@ export class DtsGenerator extends FormatGenerator {
     let shouldGenerify = node.shouldGenerifyReturnType();
 
     if (parent instanceof GirBaseClass) {
-      const resolvedParentType = resolveType(modName, registry, parent.getType(), options);
+      const resolvedParentType = parent
+        .getType()
+        .resolve(modName, registry, options)
+        .print(modName, registry, options);
       const resolvedInterfaceParentTypes = parent.interfaces.map(i =>
-        resolveType(modName, registry, i, options)
+        i.resolve(modName, registry, options).print(modName, registry, options)
       );
 
       const replaceType = (t: TypeExpression, genericName?: string): TypeExpression | null => {
-        const resolvedType = t.unwrap().resolve(modName, registry, options);
-        const interfaceType = node.interfaceParent?.getType().resolve(modName, registry, options) ?? null;
+        const resolvedType = t.unwrap().resolve(modName, registry, options).print(modName, registry, options);
+        const interfaceType =
+          node.interfaceParent
+            ?.getType()
+            .resolve(modName, registry, options)
+            .print(modName, registry, options) ?? null;
         let replacement: string | null = null;
 
         if (genericName) {
@@ -1000,11 +1031,13 @@ export class DtsGenerator extends FormatGenerator {
 
   generateAlias(node: GirAlias): string {
     const { modName, registry, options } = this;
-    const Type = node.type.resolve(modName, registry, options);
+    const Type = node.type.resolve(modName, registry, options).print(modName, registry, options);
     const GenericBase = node.generics
       .map(g => {
         if (g.type) {
-          return `${g.name} = ${g.type.rootResolve(modName, registry, options)}`;
+          return `${g.name} = ${g.type
+            .resolve(modName, registry, options)
+            .rootPrint(modName, registry, options)}`;
         }
 
         return `${g.name}`;
@@ -1038,7 +1071,7 @@ type GType = object;
 
       const content = Array.from(node.members.values())
         .map(m => {
-          return `${(Array.isArray(m) ? m : [m]).map(m => m.asString(this)).join(EOL)}`;
+          return `${(Array.isArray(m) ? m : [m]).map(m => (m as GirBase).asString(this)).join(EOL)}`;
         })
         .join(EOL);
 

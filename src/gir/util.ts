@@ -104,23 +104,7 @@ export function getAliasType(modName: string, _ns: GirNamespace, param: AliasEle
     name = x[1];
   }
 
-  const baseType = parseTypeString(name);
-
-  if (!baseType) {
-    throw new Error(`Un-parsable type: ${name}`);
-  }
-
-  if (baseType.namespace) {
-    return baseType;
-  } else {
-    const primitiveType = resolvePrimitiveType(name);
-
-    if (primitiveType !== null) {
-      return primitiveType;
-    } else {
-      return new TypeIdentifier(baseType.name, modName);
-    }
-  }
+  return parseTypeExpression(modName, name);
 }
 
 /* Decode the type */
@@ -195,19 +179,7 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
     throw new Error(`Un-parsable type: ${name}`);
   }
 
-  let variableType: TypeExpression;
-
-  if (baseType.namespace) {
-    variableType = baseType;
-  } else {
-    const primitiveType = resolvePrimitiveType(name);
-
-    if (primitiveType !== null) {
-      variableType = primitiveType;
-    } else {
-      variableType = new TypeIdentifier(baseType.name, modName);
-    }
-  }
+  let variableType: TypeExpression = parseTypeExpression(modName, name);
 
   if (arrayDepth != null) {
     const primitiveArrayType = resolvePrimitiveArrayType(name, arrayDepth);
@@ -282,7 +254,7 @@ export function isInvalid(name: string): boolean {
   return false;
 }
 
-export function parseTypeString(type: string): TypeIdentifier {
+export function parseTypeString(type: string): { namespace: string | null; name: string } {
   if (type.includes(".")) {
     const parts = type.split(".");
 
@@ -292,9 +264,35 @@ export function parseTypeString(type: string): TypeIdentifier {
 
     const [namespace, name] = parts;
 
-    return new TypeIdentifier(name, namespace);
+    return { name, namespace };
   } else {
-    return new TypeIdentifier(type, null);
+    return { name: type, namespace: null };
+  }
+}
+
+export function parseTypeIdentifier(modName: string, type: string): TypeIdentifier {
+  const baseType = parseTypeString(type);
+
+  if (baseType.namespace) {
+    return new TypeIdentifier(baseType.name, baseType.namespace);
+  } else {
+    return new TypeIdentifier(baseType.name, modName);
+  }
+}
+
+export function parseTypeExpression(modName: string, type: string): TypeExpression {
+  const baseType = parseTypeString(type);
+
+  if (baseType.namespace) {
+    return new TypeIdentifier(baseType.name, baseType.namespace);
+  } else {
+    const primitiveType = resolvePrimitiveType(baseType.name);
+
+    if (primitiveType !== null) {
+      return primitiveType;
+    } else {
+      return new TypeIdentifier(baseType.name, modName);
+    }
   }
 }
 
@@ -393,7 +391,7 @@ export function resolvePrimitiveType(name: string): NativeType | null {
   return null;
 }
 
-function jsifyType(_modName: string, type: TypeIdentifier): TypeExpression | null {
+export function jsifyType(_modName: string, type: TypeIdentifier): TypeExpression | null {
   if (type.is("GLib", "List")) {
     return new ArrayType(AnyType);
   }
@@ -404,6 +402,7 @@ function jsifyType(_modName: string, type: TypeIdentifier): TypeExpression | nul
 
   return null;
 }
+
 export function resolveDirectedType(type: TypeExpression, direction: Direction): TypeExpression | null {
   if (type instanceof ArrayType) {
     if (
@@ -422,113 +421,4 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
   }
 
   return null;
-}
-
-// Inspired by gir2dts' resolveType
-export function resolveType(
-  modName: string,
-  rns: GirNSRegistry,
-  type: TypeExpression,
-  options: GenerationOptions
-): string {
-  if (type instanceof NativeType) {
-    return type.expression(options);
-  }
-
-  if (!(type instanceof TypeIdentifier)) {
-    throw new Error(`Unknown type expression: ${type.constructor.name}`);
-  }
-
-  const jsified = jsifyType(modName, type);
-
-  if (jsified) {
-    return jsified.resolve(modName, rns, options);
-  }
-
-  let name: string = sanitizeIdentifierName(null, type.name);
-  let typeName: string;
-
-  if (type.namespace === null) {
-    typeName = type.name;
-  } else {
-    let ns_name = type.namespace || modName;
-
-    let current_rns = rns.namespace(modName);
-    let ns = rns.namespace(ns_name);
-
-    if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
-      if (current_rns) {
-        current_rns.addImport(ns_name);
-      }
-
-      if (modName === ns_name) {
-        typeName = `${name}`;
-      } else {
-        typeName = `${ns_name}.${name}`;
-      }
-    } else if (ns) {
-      // Handle "class callback" types (they're in a definition-merged module)
-      let [cb, corrected_name] = ns.findClassCallback(name);
-      let resolved_name: string | null = null;
-
-      if (!cb) {
-        resolved_name = ns.resolveSymbolFromTypeName(name);
-      }
-
-      let c_resolved_name: string | null = null;
-
-      if (!c_resolved_name) {
-        c_resolved_name = ns.resolveSymbolFromTypeName(`${ns_name}${name}`);
-      }
-
-      if (!cb && !resolved_name && !c_resolved_name) {
-        // Don't warn if a missing import is at fault, this will be dealt with later.
-        if (modName === ns_name) {
-          console.error(`Attempting to fall back on c:type inference for ${ns_name}.${name}.`);
-        }
-
-        [cb, corrected_name] = ns.findClassCallback(`${ns_name}${name}`);
-
-        if (cb) {
-          console.error(
-            `Falling back on c:type inference for ${ns_name}.${name} and found ${ns_name}.${corrected_name}.`
-          );
-        }
-      }
-
-      if (cb) {
-        console.log(`Callback found: ${cb}.${corrected_name}`);
-        typeName = `${cb}.${corrected_name}`;
-      } else if (resolved_name) {
-        if (modName === ns_name) {
-          typeName = `${resolved_name}`;
-        } else {
-          typeName = `${ns_name}.${resolved_name}`;
-        }
-      } else if (c_resolved_name) {
-        console.error(
-          `Fell back on c:type inference for ${ns_name}.${name} and found ${ns_name}.${corrected_name}.`
-        );
-        if (modName === ns_name) {
-          typeName = `${c_resolved_name}`;
-        } else {
-          typeName = `${ns_name}.${c_resolved_name}`;
-        }
-      } else if (modName === ns_name) {
-        throw new Error(`Unable to resolve type ${type.name} in same namespace ${ns_name}!`);
-      } else {
-        if (current_rns) {
-          current_rns.addImport(ns_name);
-        } else {
-          console.log("Failed to add implicit import for current namespace.");
-        }
-
-        typeName = `any`;
-      }
-    } else {
-      typeName = `any`;
-    }
-  }
-
-  return `${typeName}`;
 }

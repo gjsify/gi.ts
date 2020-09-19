@@ -20,9 +20,10 @@ import {
 } from "./function";
 import { GirProperty, GirField } from "./property";
 import { GirNSRegistry, GirNamespace } from "./namespace";
-import { parseTypeString, sanitizeIdentifierName } from "./util";
+import { sanitizeIdentifierName, parseTypeIdentifier } from "./util";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
+import { LoadOptions } from "../main";
 
 export function resolveTypeIdentifier(
   modName: string,
@@ -280,6 +281,7 @@ export abstract class GirBaseClass extends GirBase {
   static fromXML(
     _modName: string,
     _ns: GirNamespace,
+    options: LoadOptions,
     _parent,
     _klass: ClassElement | InterfaceElement | RecordElement
   ): GirBaseClass {
@@ -351,7 +353,7 @@ export abstract class GirBaseClass extends GirBase {
       .flat();
   }
 
-  abstract asString(generator: FormatGenerator): string;
+  abstract asString<T = string>(generator: FormatGenerator<T>): T;
 }
 
 const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
@@ -403,12 +405,22 @@ export class GirClass extends GirBaseClass {
     return clazz;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, klass: ClassElement): GirClass {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    _parent,
+    klass: ClassElement
+  ): GirClass {
     const name = sanitizeIdentifierName(ns.name, klass.$.name);
 
     console.log(`  >> GirClass: Parsing definition ${klass.$.name} (${name})...`);
 
     const clazz = new GirClass(name, ns.name);
+
+    if (options.loadDocs) {
+      clazz.doc = klass.doc?.[0]?._ ?? "";
+    }
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
@@ -425,7 +437,7 @@ export class GirClass extends GirBaseClass {
     try {
       // Setup parent type if this is an interface or class.
       if (klass.$.parent) {
-        clazz.parent = parseTypeString(klass.$.parent);
+        clazz.parent = parseTypeIdentifier(modName, klass.$.parent);
       }
 
       if (klass.$.abstract) {
@@ -436,20 +448,20 @@ export class GirClass extends GirBaseClass {
         clazz.constructors.push(
           ...klass.constructor
             .filter(isIntrospectable)
-            .map(constructor => GirConstructor.fromXML(modName, ns, clazz, constructor))
+            .map(constructor => GirConstructor.fromXML(modName, ns, options, clazz, constructor))
         );
       }
 
       if (klass["glib:signal"]) {
         clazz.signals.push(
-          ...klass["glib:signal"].map(signal => GirSignal.fromXML(modName, ns, clazz, signal))
+          ...klass["glib:signal"].map(signal => GirSignal.fromXML(modName, ns, options, clazz, signal))
         );
       }
 
       // Properties
       if (klass.property) {
         klass.property.filter(isIntrospectable).forEach(prop => {
-          const property = GirProperty.fromXML(modName, ns, null, prop);
+          const property = GirProperty.fromXML(modName, ns, options, null, prop);
           if (!PROTECTED_IDS.includes(property.name)) {
             clazz.props.push(property);
           }
@@ -461,7 +473,7 @@ export class GirClass extends GirBaseClass {
         clazz.members.push(
           ...klass.method
             .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, ns, clazz, method))
+            .map(method => GirClassFunction.fromXML(modName, ns, options, clazz, method))
             .filter(m => !clazz.props.some(n => n.name === m.name))
         );
       }
@@ -473,7 +485,7 @@ export class GirClass extends GirBaseClass {
           .filter(field => !field.$.private || field.$.private !== "1")
           .filter(field => !("callback" in field) && !field.$.name.startsWith("_"))
           .forEach(field => {
-            const f = GirField.fromXML(modName, ns, null, field);
+            const f = GirField.fromXML(modName, ns, options, null, field);
             if (
               !clazz.members.some(n => n.name === f.name) &&
               !clazz.props.some(n => n.name === f.name) &&
@@ -487,7 +499,7 @@ export class GirClass extends GirBaseClass {
       if (klass.implements) {
         klass.implements.filter(isIntrospectable).forEach(implementee => {
           const name = implementee.$.name;
-          const type = parseTypeString(name);
+          const type = parseTypeIdentifier(modName, name);
 
           // Sometimes namespaces will implicitely import
           // other namespaces like Atk via interface implements.
@@ -507,7 +519,7 @@ export class GirClass extends GirBaseClass {
           ...klass.callback.filter(isIntrospectable).map(callback => {
             console.log(`Adding callback ${callback.$.name} for ${modName}`);
 
-            return GirCallback.fromXML(modName, ns, clazz, callback);
+            return GirCallback.fromXML(modName, ns, options, clazz, callback);
           })
         );
       }
@@ -517,7 +529,7 @@ export class GirClass extends GirBaseClass {
         clazz.members.push(
           ...klass["virtual-method"]
             .filter(isIntrospectable)
-            .map(method => GirVirtualClassFunction.fromXML(modName, ns, clazz, method))
+            .map(method => GirVirtualClassFunction.fromXML(modName, ns, options, clazz, method))
         );
       }
 
@@ -526,7 +538,7 @@ export class GirClass extends GirBaseClass {
         clazz.members.push(
           ...klass.function
             .filter(isIntrospectable)
-            .map(func => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
+            .map(func => GirStaticClassFunction.fromXML(modName, ns, options, clazz, func))
         );
       }
     } catch (e) {
@@ -537,7 +549,7 @@ export class GirClass extends GirBaseClass {
     return clazz;
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateClass(this);
   }
 }
@@ -588,7 +600,7 @@ export class GirRecord extends GirBaseClass {
     return foreignRecord;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, klass: RecordElement): GirRecord {
+  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, klass: RecordElement): GirRecord {
     console.log(
       `  >> GirRecord: Parsing definition ${klass.$.name} (${sanitizeIdentifierName(
         ns.name,
@@ -616,14 +628,14 @@ export class GirRecord extends GirBaseClass {
         clazz.members.push(
           ...klass.method
             .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, ns, clazz, method))
+            .map(method => GirClassFunction.fromXML(modName, ns, options, clazz, method))
         );
       }
 
       // Constructors
       if (Array.isArray(klass.constructor)) {
         klass.constructor.filter(isIntrospectable).forEach(constructor => {
-          const c = GirConstructor.fromXML(modName, ns, clazz, constructor);
+          const c = GirConstructor.fromXML(modName, ns, options, clazz, constructor);
 
           // Records prefer to use a "new" constructor if one is introspectable
           if (constructor.$.name === "new" && constructor.parameters) {
@@ -639,7 +651,7 @@ export class GirRecord extends GirBaseClass {
         clazz.members.push(
           ...klass.function
             .filter(isIntrospectable)
-            .map(func => GirStaticClassFunction.fromXML(modName, ns, clazz, func))
+            .map(func => GirStaticClassFunction.fromXML(modName, ns, options, clazz, func))
         );
       }
 
@@ -657,7 +669,7 @@ export class GirRecord extends GirBaseClass {
             .filter(field => !("callback" in field))
             // If it starts with "_" it is most likely a private member of the class.
             .filter(field => !field.$.name.startsWith("_"))
-            .map(field => GirField.fromXML(modName, ns, null, field))
+            .map(field => GirField.fromXML(modName, ns, options, null, field))
             // Ensure identifiers don't overlap
             .filter(
               f =>
@@ -708,7 +720,7 @@ export class GirRecord extends GirBaseClass {
     return this.fields.every(f => isSimpleType(f.type));
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateRecord(this);
   }
 }
@@ -745,7 +757,12 @@ export class GirInterface extends GirBaseClass {
     return clazz;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, klass: InterfaceElement): GirInterface {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    klass: InterfaceElement
+  ): GirInterface {
     const name = sanitizeIdentifierName(ns.name, klass.$.name);
     console.log(`  >> GirInterface: Parsing definition ${klass.$.name} (${name})...`);
 
@@ -768,12 +785,12 @@ export class GirInterface extends GirBaseClass {
       if (klass.prerequisite && klass.prerequisite[0]) {
         const [prerequisite] = klass.prerequisite;
 
-        clazz.parent = parseTypeString(prerequisite.$.name);
+        clazz.parent = parseTypeIdentifier(modName, prerequisite.$.name);
       }
 
       if (Array.isArray(klass.constructor)) {
         for (let constructor of klass.constructor.filter(isIntrospectable)) {
-          clazz.constructors.push(GirConstructor.fromXML(modName, ns, clazz, constructor));
+          clazz.constructors.push(GirConstructor.fromXML(modName, ns, options, clazz, constructor));
         }
       }
 
@@ -782,7 +799,7 @@ export class GirInterface extends GirBaseClass {
         clazz.props.push(
           ...klass.property
             .filter(isIntrospectable)
-            .map(prop => GirProperty.fromXML(modName, ns, null, prop))
+            .map(prop => GirProperty.fromXML(modName, ns, options, null, prop))
             .filter(property => !PROTECTED_IDS.includes(property.name))
         );
       }
@@ -790,7 +807,7 @@ export class GirInterface extends GirBaseClass {
       // Instance Methods
       if (klass.method) {
         for (let method of klass.method.filter(isIntrospectable)) {
-          const m = GirClassFunction.fromXML(modName, ns, clazz, method);
+          const m = GirClassFunction.fromXML(modName, ns, options, clazz, method);
 
           if (!clazz.props.some(n => n.name === m.name)) {
             clazz.members.push(m);
@@ -801,7 +818,7 @@ export class GirInterface extends GirBaseClass {
       // Virtual Methods
       if (klass["virtual-method"]) {
         for (let method of klass["virtual-method"].filter(isIntrospectable)) {
-          clazz.members.push(GirVirtualClassFunction.fromXML(modName, ns, clazz, method));
+          clazz.members.push(GirVirtualClassFunction.fromXML(modName, ns, options, clazz, method));
         }
       }
 
@@ -810,14 +827,14 @@ export class GirInterface extends GirBaseClass {
         for (let callback of klass.callback.filter(isIntrospectable)) {
           console.log(`Adding callback ${callback.$.name} for ${modName}`);
 
-          clazz.callbacks.push(GirCallback.fromXML(modName, ns, clazz, callback));
+          clazz.callbacks.push(GirCallback.fromXML(modName, ns, options, clazz, callback));
         }
       }
 
       // Static methods (functions)
       if (klass.function) {
         for (let func of klass.function.filter(isIntrospectable)) {
-          clazz.members.push(GirStaticClassFunction.fromXML(modName, ns, clazz, func));
+          clazz.members.push(GirStaticClassFunction.fromXML(modName, ns, options, clazz, func));
         }
       }
     } catch (e) {
@@ -827,7 +844,7 @@ export class GirInterface extends GirBaseClass {
     return clazz;
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateInterface(this);
   }
 }

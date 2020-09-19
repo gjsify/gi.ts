@@ -4,6 +4,7 @@ import { ConstantElement } from "../xml";
 import { GirNamespace } from "./namespace";
 import { getType, sanitizeIdentifierName } from "./util";
 import { FormatGenerator } from "../generators/generator";
+import { LoadOptions } from "../main";
 
 export class GirConst extends GirBase {
   type: TypeExpression;
@@ -23,14 +24,20 @@ export class GirConst extends GirBase {
     });
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, constant: ConstantElement): GirConst {
-    return new GirConst({
+  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions,  _parent, constant: ConstantElement): GirConst {
+    const c = new GirConst({
       name: sanitizeIdentifierName(ns.name, constant.$.name),
       type: getType(modName, ns, constant)
     });
+
+    if (options.loadDocs) {
+      c.doc = constant.doc?.[0]?._ ?? "";
+    }
+
+    return c;
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateConst(this);
   }
 }

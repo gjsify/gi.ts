@@ -1,8 +1,9 @@
 import { GirBase, TypeExpression } from "../gir";
 import { AliasElement } from "../xml";
-import { GirNSRegistry, GirNamespace } from "./namespace";
+import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, getAliasType } from "./util";
 import { FormatGenerator, GenericDescriptor } from "../generators/generator";
+import { LoadOptions } from "../main";
 
 export class GirAlias extends GirBase {
   readonly type: TypeExpression;
@@ -29,11 +30,11 @@ export class GirAlias extends GirBase {
     return new GirAlias({ name, type });
   }
 
-  asString(generator: FormatGenerator): string | null {
+  asString<T = string>(generator: FormatGenerator<T>): T | null {
     return generator.generateAlias(this);
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, m: AliasElement): GirAlias | null {
+  static fromXML(modName: string, ns: GirNamespace, _options: LoadOptions,  _parent, m: AliasElement): GirAlias | null {
     if (!m.$.name) {
       console.error(`Alias in ${modName} lacks name.`);
       return null;

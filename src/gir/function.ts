@@ -22,19 +22,12 @@ import {
 } from "../xml";
 
 import { GirNamespace, GirNSRegistry } from "./namespace";
-import {
-  getType,
-  resolveType,
-  isInvalid,
-  sanitizeMemberName,
-  sanitizeIdentifierName,
-  resolveDirectedType
-} from "./util";
+import { getType, isInvalid, sanitizeMemberName, sanitizeIdentifierName, resolveDirectedType } from "./util";
 import { GirBaseClass } from "./class";
 import { GirEnum } from "./enum";
-import { GenericNameGenerator } from "./generics";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
+import { LoadOptions } from "../main";
 
 function hasShadow(obj: Function | Method): obj is Function & { $: { shadows: string } } {
   return obj.$["shadows"] != null;
@@ -79,7 +72,13 @@ export class GirFunction extends GirBase {
     fn.parameters.push(...this.parameters.map(p => p.copy()));
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, func: Function | Method): GirFunction {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    _parent,
+    func: Function | Method
+  ): GirFunction {
     let raw_name = func.$.name;
     let name = sanitizeIdentifierName(null, raw_name);
 
@@ -106,7 +105,7 @@ export class GirFunction extends GirBase {
       if (param) {
         const inputs = param;
 
-        parameters.push(...inputs.map(i => GirFunctionParameter.fromXML(modName, ns, null, i)));
+        parameters.push(...inputs.map(i => GirFunctionParameter.fromXML(modName, ns, options, null, i)));
 
         const unwrapped = return_type.unwrap();
 
@@ -167,6 +166,10 @@ export class GirFunction extends GirBase {
       raw_name
     });
 
+    if (options.loadDocs) {
+      fn.doc = func.doc?.[0]?._ ?? "";
+    }
+
     return fn;
   }
 
@@ -204,7 +207,7 @@ export class GirFunction extends GirBase {
     return new GirStaticClassFunction({ parent, name, output_parameters, parameters, return_type });
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateFunction(this);
   }
 }
@@ -240,17 +243,18 @@ export class GirConstructor extends GirBase {
   static fromXML(
     modName: string,
     ns: GirNamespace,
+    options: LoadOptions,
     parent: GirBaseClass,
     m: ClassConstructor
   ): GirConstructor {
-    return GirClassFunction.fromXML(modName, ns, parent, m as Function).asConstructor();
+    return GirClassFunction.fromXML(modName, ns, options, parent, m as Function).asConstructor();
   }
 
   return(_namespace: string | null, _registry: GirNSRegistry) {
     return this.return_type;
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateConstructorFunction(this);
   }
 }
@@ -267,6 +271,7 @@ export class GirFunctionParameter extends GirBase {
     direction,
     type,
     parent,
+    doc,
     isVarArgs = false,
     isOptional = false
   }: {
@@ -274,6 +279,7 @@ export class GirFunctionParameter extends GirBase {
     parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
     type: TypeExpression;
     direction: Direction;
+    doc?: string;
     isVarArgs?: boolean;
     isOptional?: boolean;
   }) {
@@ -282,6 +288,7 @@ export class GirFunctionParameter extends GirBase {
     this.parent = parent;
     this.type = type;
     this.direction = direction;
+    this.doc = doc;
     this.isVarArgs = isVarArgs;
     this.isOptional = isOptional;
   }
@@ -294,7 +301,7 @@ export class GirFunctionParameter extends GirBase {
       parent: this.parent
     }
   ): GirFunctionParameter {
-    const { type, parent, direction, isVarArgs, isOptional, name } = this;
+    const { type, parent, direction, isVarArgs, isOptional, name, doc } = this;
 
     return new GirFunctionParameter({
       parent: options.parent ?? parent,
@@ -302,17 +309,19 @@ export class GirFunctionParameter extends GirBase {
       direction,
       isVarArgs,
       isOptional,
-      type: options.type ?? type
+      type: options.type ?? type,
+      doc
     });
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateParameter(this);
   }
 
   static fromXML(
     modName: string,
     ns: GirNamespace,
+    options: LoadOptions,
     parent: GirSignal | GirClassFunction | GirFunction | GirConstructor | null,
     parameter: ClassMethodParameter
   ): GirFunctionParameter {
@@ -363,6 +372,10 @@ export class GirFunctionParameter extends GirBase {
       isOptional,
       name
     });
+
+    if (options.loadDocs) {
+      fp.doc = parameter.doc?.[0]?._ ?? "";
+    }
 
     return fp;
   }
@@ -467,10 +480,11 @@ export class GirClassFunction extends GirBase {
   static fromXML(
     modName: string,
     ns: GirNamespace,
+    options: LoadOptions,
     parent: GirBaseClass | GirEnum,
     m: Function | Method
   ): GirClassFunction {
-    const fn = GirFunction.fromXML(modName, ns, null, m);
+    const fn = GirFunction.fromXML(modName, ns, options, null, m);
 
     return fn.asClassFunction(parent);
   }
@@ -479,7 +493,7 @@ export class GirClassFunction extends GirBase {
     return this.return_type;
   }
 
-  asString(generator: FormatGenerator) {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateClassFunction(this);
   }
 }
@@ -529,27 +543,29 @@ export class GirVirtualClassFunction extends GirClassFunction {
   static fromXML(
     modName: string,
     ns: GirNamespace,
+    options: LoadOptions,
     parent: GirBaseClass,
     m: VirtualMethod
   ): GirVirtualClassFunction {
-    const fn = GirFunction.fromXML(modName, ns, parent, m);
+    const fn = GirFunction.fromXML(modName, ns, options, parent, m);
 
     return fn.asVirtualClassFunction(parent);
   }
 }
 
 export class GirStaticClassFunction extends GirClassFunction {
-  asString(generator: FormatGenerator) {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateStaticClassFunction(this);
   }
 
   static fromXML(
     modName: string,
     ns: GirNamespace,
+    options: LoadOptions,
     parent: GirBaseClass,
     m: Function
   ): GirStaticClassFunction {
-    const fn = GirFunction.fromXML(modName, ns, parent, m);
+    const fn = GirFunction.fromXML(modName, ns, options, parent, m);
 
     return fn.asStaticClassFunction(parent);
   }
@@ -565,8 +581,14 @@ export class GirCallback extends GirFunction {
     return [input.length > 0, input.length, input] as const;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _parent, func: Callback): GirCallback {
-    const cb = GirFunction.fromXML(modName, ns, null, func).asCallback();
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    _parent,
+    func: Callback
+  ): GirCallback {
+    const cb = GirFunction.fromXML(modName, ns, options, null, func).asCallback();
 
     if (func.$["glib:type-name"]) {
       cb.resolve_names.push(func.$["glib:type-name"]);
@@ -579,7 +601,7 @@ export class GirCallback extends GirFunction {
     return cb;
   }
 
-  asString(generator: FormatGenerator) {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateCallback(this);
   }
 }

@@ -5,6 +5,7 @@ import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function"
 import { ClassGLibSignalElement, Direction } from "../xml";
 import { getType } from "./util";
 import { FormatGenerator } from "../generators/generator";
+import { LoadOptions } from "../main";
 
 export enum GirSignalType {
   CONNECT,
@@ -38,6 +39,7 @@ export class GirSignal extends GirBase {
   static fromXML(
     modName: string,
     ns: GirNamespace,
+    options: LoadOptions,
     parent: GirClass,
     sig: ClassGLibSignalElement
   ): GirSignal {
@@ -48,11 +50,15 @@ export class GirSignal extends GirBase {
 
     if (sig.parameters && sig.parameters[0].parameter) {
       signal.parameters.push(
-        ...sig.parameters[0].parameter.map(p => GirFunctionParameter.fromXML(modName, ns, signal, p))
+        ...sig.parameters[0].parameter.map(p => GirFunctionParameter.fromXML(modName, ns, options, signal, p))
       );
     }
 
     signal.return_type = getType(modName, ns, sig["return-value"][0]);
+
+    if (options.loadDocs) {
+      signal.doc = sig.doc?.[0]._ ?? "";
+    }
 
     return signal;
   }
@@ -97,7 +103,7 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asConnect(generator: FormatGenerator, after = false) {
+  asConnect<T = string>(generator: FormatGenerator<T>, after = false) {
     const connect = this.copy();
 
     const name = after ? "connect_after" : "connect";
@@ -137,7 +143,7 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asString(generator: FormatGenerator, type?: GirSignalType): string {
+  asString<T = string>(generator: FormatGenerator<T>, type?: GirSignalType): T {
     return generator.generateSignal(this, type);
   }
 }

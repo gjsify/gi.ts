@@ -1,4 +1,4 @@
-import { GirBase, TypeIdentifier } from "../gir";
+import { GirBase, NullableType, ObjectType } from "../gir";
 import { GirXML, Element } from "../xml";
 import { isPrimitiveType } from "./util";
 
@@ -7,6 +7,8 @@ import { GirFunction, GirCallback } from "./function";
 import { GirEnum, GirError } from "./enum";
 import { GirConst } from "./const";
 import { GirAlias } from "./alias";
+
+import { LoadOptions } from "../main";
 
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 
@@ -27,8 +29,8 @@ export class GirNSRegistry {
     return namespace;
   }
 
-  load(name: string, gir: GirXML) {
-    this.mapping.set(name, GirNamespace.fromXML(name, gir));
+  load(name: string, gir: GirXML, options: LoadOptions) {
+    this.mapping.set(name, GirNamespace.fromXML(name, gir, options));
   }
 }
 
@@ -135,7 +137,7 @@ export class GirNamespace {
     }
   }
 
-  static fromXML(modName: string, repo: GirXML): GirNamespace {
+  static fromXML(modName: string, repo: GirXML, options: LoadOptions): GirNamespace {
     console.log(`Parsing ${modName}...`);
     const defaultImports = ["GObject", "Gio", "GLib"].filter(a => a !== modName);
 
@@ -153,7 +155,7 @@ export class GirNamespace {
     if (ns.constant) {
       ns.constant
         .filter(isIntrospectable)
-        .map(constant => GirConst.fromXML(modName, building, null, constant))
+        .map(constant => GirConst.fromXML(modName, building, options, null, constant))
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -161,21 +163,21 @@ export class GirNamespace {
     if (ns.function) {
       ns.function
         .filter(isIntrospectable)
-        .map(func => GirFunction.fromXML(modName, building, null, func))
+        .map(func => GirFunction.fromXML(modName, building, options, null, func))
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.callback) {
       ns.callback
         .filter(isIntrospectable)
-        .map(callback => GirCallback.fromXML(modName, building, null, callback))
+        .map(callback => GirCallback.fromXML(modName, building, options, null, callback))
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns["glib:boxed"]) {
       ns["glib:boxed"]
         .filter(isIntrospectable)
-        .map(boxed => new GirAlias({ name: boxed.$["glib:name"], type: TypeIdentifier.nullable("object") }))
+        .map(boxed => new GirAlias({ name: boxed.$["glib:name"], type: new NullableType(ObjectType) }))
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -184,9 +186,9 @@ export class GirNamespace {
       ns.enumeration
         .map(enumeration => {
           if (enumeration.$["glib:error-domain"]) {
-            return GirError.fromXML(modName, building, null, enumeration);
+            return GirError.fromXML(modName, building, options, null, enumeration);
           } else {
-            return GirEnum.fromXML(modName, building, null, enumeration);
+            return GirEnum.fromXML(modName, building, options, null, enumeration);
           }
         })
         .forEach(c => building.members.set(c.name, c));
@@ -196,7 +198,7 @@ export class GirNamespace {
     if (ns.bitfield) {
       ns.bitfield
         .filter(isIntrospectable)
-        .map(field => GirEnum.fromXML(modName, building, this, field, true))
+        .map(field => GirEnum.fromXML(modName, building, options, this, field, true))
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -204,7 +206,7 @@ export class GirNamespace {
     if (ns.class) {
       ns.class
         .filter(isIntrospectable)
-        .map(klass => GirClass.fromXML(modName, building, this, klass))
+        .map(klass => GirClass.fromXML(modName, building, options, this, klass))
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -215,20 +217,20 @@ export class GirNamespace {
         .filter(b => !b.$.name.startsWith("_"))
         // Don't generate records for structs
         .filter(b => typeof b.$["glib:is-gtype-struct-for"] !== "string")
-        .map(record => GirRecord.fromXML(modName, building, record))
+        .map(record => GirRecord.fromXML(modName, building, options, record))
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.union) {
       ns.union
         .filter(isIntrospectable)
-        .map(union => GirRecord.fromXML(modName, building, union))
+        .map(union => GirRecord.fromXML(modName, building, options, union))
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.interface) {
       ns.interface
-        .map(inter => GirInterface.fromXML(modName, building, inter))
+        .map(inter => GirInterface.fromXML(modName, building, options, inter))
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -251,7 +253,7 @@ export class GirNamespace {
 
           return b;
         })
-        .map(alias => GirAlias.fromXML(modName, building, null, alias))
+        .map(alias => GirAlias.fromXML(modName, building, options, null, alias))
         .filter((alias): alias is GirAlias => alias != null)
         .forEach(c => building.members.set(c.name, c));
     }

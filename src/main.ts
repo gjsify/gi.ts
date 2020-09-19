@@ -12,6 +12,7 @@ import { DtsGenerator } from "./generators/dts";
 
 import { generify } from "./generics/generify";
 import { inject } from "./injections/inject";
+import { JsonGenerator } from "./generators/json";
 
 export interface DocDescription {
   name: string;
@@ -26,12 +27,21 @@ export interface DocDescription {
 export interface GenerationOptions {
   resolveTypeConflicts: boolean;
   inferGenerics: boolean;
-  format: "dts";
+  withDocs: boolean;
+  format: "dts" | "json";
 }
 
+export interface LoadOptions {
+  loadDocs: boolean;
+}
+
+let loadDocs = false;
+let withDocs = false;
 let resolveTypeConflicts = true;
 let inferGenerics = true;
-let format: "dts" = "dts" as const;
+let format: "dts" | "json" = "dts" as const;
+let file_extension = "d.ts";
+let default_directory = "./types";
 
 if (process.argv.length > 2) {
   for (const argn of process.argv.slice(2)) {
@@ -50,9 +60,27 @@ if (process.argv.length > 2) {
 
         inferGenerics = value === "true";
         break;
+      case "--out":
+        if (!value) {
+          throw new Error(`No output directory specified!`);
+        }
+
+        default_directory = value;
+        break;
+      case "--withDocs":
+        withDocs = true;
+        loadDocs = true;
+        break;
       case "--format":
-        if (value && (["dts"].includes as (v: string) => v is "dts")(value)) {
+        if (value && (["dts", "json"].includes as (v: string) => v is "dts" | "json")(value)) {
           format = value;
+
+          switch (format) {
+            case "json":
+              file_extension = "json";
+              default_directory = "./json";
+              break;
+          }
         } else {
           throw new Error(`Unknown format: ${value}`);
         }
@@ -66,7 +94,7 @@ if (process.argv.length > 2) {
 // Promisify xml2js' parseString
 const parseStringAsync = async <T>(str) => await $<convertableToString, T>(parseString)(str);
 
-const output_base = process.argv[2] || "./types";
+const output_base = default_directory;
 const overrides_base = buildPath(__dirname, "../overrides");
 const overrides_local_base = "./overrides";
 
@@ -132,7 +160,21 @@ function generateModule(name) {
   const generator = new DtsGenerator(name, registry, {
     format,
     inferGenerics,
-    resolveTypeConflicts
+    resolveTypeConflicts,
+    withDocs
+  });
+
+  return ns ? generator.generateNamespace(ns) : "";
+}
+
+function generateJson(name) {
+  const ns = registry.namespace(name);
+
+  const generator = new JsonGenerator(name, registry, {
+    format,
+    inferGenerics,
+    resolveTypeConflicts,
+    withDocs
   });
 
   return ns ? generator.generateNamespace(ns) : "";
@@ -142,7 +184,9 @@ function build(docs, gir) {
   // Load all the docs
   for (let doc of docs) {
     const { name } = doc;
-    registry.load(name, gir.get(name));
+    registry.load(name, gir.get(name), {
+      loadDocs
+    });
   }
 
   if (inferGenerics) {
@@ -157,14 +201,26 @@ function build(docs, gir) {
   for (let doc of docs) {
     const { name } = doc;
 
-    let contents = generateModule(name);
+    let contents: string | null = null;
+
+    switch (format) {
+      case "json":
+        contents = generateJson(name);
+        break;
+      case "dts":
+        contents = generateModule(name);
+        break;
+      default:
+        throw new Error("Unknown format!");
+    }
 
     const output = doc.name as string;
     const dir = buildPath(output_base);
-    const file = buildPath(output_base, `${output.toLowerCase()}.d.ts`);
+    const file = buildPath(output_base, `${output.toLowerCase()}.${file_extension}`);
+
     const overrides_files = [
-      buildPath(overrides_base, `${output.toLowerCase()}.d.ts.in`),
-      buildPath(overrides_local_base, `${output.toLowerCase()}.d.ts.in`)
+      buildPath(overrides_base, `${output.toLowerCase()}.${file_extension}.in`),
+      buildPath(overrides_local_base, `${output.toLowerCase()}.${file_extension}.in`)
     ];
 
     for (const overrides_file of overrides_files) {

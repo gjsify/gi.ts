@@ -4,6 +4,7 @@ import { ClassField, ClassProperty } from "../xml";
 import { getType } from "./util";
 import { GirNamespace } from "./namespace";
 import { FormatGenerator } from "../generators/generator";
+import { LoadOptions } from "../main";
 
 export class GirField extends GirBase {
   readonly type: TypeExpression;
@@ -50,11 +51,11 @@ export class GirField extends GirBase {
     this.writable = writable;
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateField(this);
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, _parent, field: ClassField): GirField {
+  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions,  _parent, field: ClassField): GirField {
     let name = field.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const f = new GirField({ name: _name, type: getType(namespace, ns, field) });
@@ -102,11 +103,11 @@ export class GirProperty extends GirBase {
     this.constructOnly = constructOnly;
   }
 
-  asString(generator: FormatGenerator): string {
+  asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateProperty(this);
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, _parent, prop: ClassProperty): GirProperty {
+  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions,  _parent, prop: ClassProperty): GirProperty {
     let name = prop.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const property = new GirProperty({

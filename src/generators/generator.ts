@@ -16,26 +16,27 @@ export interface GenericDescriptor {
   name: string;
 }
 
-export abstract class FormatGenerator {
-  abstract generateCallbackType(node: GirCallback, generics: boolean): [string, string];
-  abstract generateCallback(node: GirCallback): string;
-  abstract generateAlias(node: GirAlias): string;
-  abstract generateConstructor(node: GirConstructor): string;
-  abstract generateConstructorFunction(node: GirConstructor): string;
-  abstract generateRecord(node: GirRecord): string;
-  abstract generateInterface(node: GirInterface): string;
-  abstract generateEnumMember(node: GirEnumMember): string;
+export abstract class FormatGenerator<T = string> {
   abstract generateNamespace(node: GirNamespace): string | null;
-  abstract generateError(node: GirError): string;
-  abstract generateEnum(node: GirEnum): string | null;
-  abstract generateConst(node: GirConst): string;
-  abstract generateClass(node: GirClass): string;
-  abstract generateParameter(arg0: GirFunctionParameter): string;
-  abstract generateProperty(node: GirProperty, construct?: boolean): string;
-  abstract generateField(node: GirField): string;
-  abstract generateSignal(node: GirSignal, type?: GirSignalType): string;
-  abstract generateFunction(node: GirFunction): string;
-  abstract generateClassFunction(node: GirClassFunction): string;
-  abstract generateStaticClassFunction(node: GirStaticClassFunction): string;
-  abstract generateVirtualClassFunction(node: GirVirtualClassFunction): string;
+
+  abstract generateCallbackType(node: GirCallback, generics: boolean): [T, T];
+  abstract generateCallback(node: GirCallback): T;
+  abstract generateAlias(node: GirAlias): T;
+  abstract generateConstructor(node: GirConstructor): T;
+  abstract generateConstructorFunction(node: GirConstructor): T;
+  abstract generateRecord(node: GirRecord): T;
+  abstract generateInterface(node: GirInterface): T;
+  abstract generateEnumMember(node: GirEnumMember): T;
+  abstract generateError(node: GirError): T;
+  abstract generateEnum(node: GirEnum): T | null;
+  abstract generateConst(node: GirConst): T;
+  abstract generateClass(node: GirClass): T;
+  abstract generateParameter(arg0: GirFunctionParameter): T;
+  abstract generateProperty(node: GirProperty, construct?: boolean): T;
+  abstract generateField(node: GirField): T;
+  abstract generateSignal(node: GirSignal, type?: GirSignalType): T;
+  abstract generateFunction(node: GirFunction): T;
+  abstract generateClassFunction(node: GirClassFunction): T;
+  abstract generateStaticClassFunction(node: GirStaticClassFunction): T;
+  abstract generateVirtualClassFunction(node: GirVirtualClassFunction): T;
 }
