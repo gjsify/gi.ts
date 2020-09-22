@@ -27,6 +27,7 @@ export interface DocDescription {
 export interface GenerationOptions {
   resolveTypeConflicts: boolean;
   inferGenerics: boolean;
+  promisify: boolean;
   withDocs: boolean;
   format: "dts" | "json";
 }
@@ -39,6 +40,7 @@ let loadDocs = false;
 let withDocs = false;
 let resolveTypeConflicts = true;
 let inferGenerics = true;
+let promisify = false;
 let format: "dts" | "json" = "dts" as const;
 let file_extension = "d.ts";
 let default_directory = "./types";
@@ -60,6 +62,13 @@ if (process.argv.length > 2) {
 
         inferGenerics = value === "true";
         break;
+      case "--promisify":
+          if (value !== "true" && value !== "false") {
+            throw new Error(`--promisify accepts either 'true' or 'false'`);
+          }
+  
+          promisify = value === "true";
+          break;
       case "--out":
         if (!value) {
           throw new Error(`No output directory specified!`);
@@ -160,6 +169,7 @@ function generateModule(name) {
   const generator = new DtsGenerator(name, registry, {
     format,
     inferGenerics,
+    promisify,
     resolveTypeConflicts,
     withDocs
   });
@@ -173,6 +183,7 @@ function generateJson(name) {
   const generator = new JsonGenerator(name, registry, {
     format,
     inferGenerics,
+    promisify,
     resolveTypeConflicts,
     withDocs
   });

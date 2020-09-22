@@ -3,7 +3,7 @@ import { MemberElement, Enumeration, BitfieldElement } from "../xml";
 
 import { GirRecord } from "./class";
 import { GirProperty } from "./property";
-import { GirClassFunction } from "./function";
+import { GirStaticClassFunction } from "./function";
 import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, sanitizeMemberName } from "./util";
 import { FormatGenerator } from "../generators/generator";
@@ -131,7 +131,7 @@ function isEnumeration(e: unknown): e is Enumeration {
 }
 
 export class GirError extends GirEnum {
-  functions: Map<string, GirClassFunction> = new Map();
+  functions: Map<string, GirStaticClassFunction> = new Map();
 
   asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateError(this);
@@ -167,7 +167,7 @@ export class GirError extends GirEnum {
 
     if (isEnumeration(m) && m.function) {
       m.function.forEach(f => {
-        const func = GirClassFunction.fromXML(modName, ns, options, err, f);
+        const func = GirStaticClassFunction.fromXML(modName, ns, options, err, f);
         err.functions.set(func.name, func);
       });
     }

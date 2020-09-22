@@ -6,7 +6,13 @@ import {
   GirClassField,
   AnyifiedType,
   NeverType,
-  ArrayType
+  ArrayType,
+  ClosureType,
+  BinaryType,
+  PromiseType,
+  VoidType,
+  TupleType,
+  BooleanType
 } from "../gir";
 import { InterfaceElement, Element, ClassElement, RecordElement, Direction } from "../xml";
 import {
@@ -139,16 +145,16 @@ export function filterConflicts<T extends GirBase | GirClassField>(
 }
 
 function isConflictingFunction(
-  currentNamespace: string,
+  _currentNamespace: string,
   p: GirFunction | GirClassFunction | GirConstructor,
   next: GirClassFunction | GirFunction | GirConstructor,
-  resolvedNamespace: string | null = null,
-  registry: GirNSRegistry
+  _resolvedNamespace: string | null = null,
+  _registry: GirNSRegistry
 ) {
   return (
     p.parameters.length !== next.parameters.length ||
     p.output_parameters.length !== next.output_parameters.length ||
-    isTypeConflict(p.return(currentNamespace, registry), next.return(resolvedNamespace, registry)) ||
+    isTypeConflict(p.return(), next.return()) ||
     next.parameters.some((np, i) => isTypeConflict(p.parameters[i].type, np.type)) ||
     next.output_parameters.some((np, i) => isTypeConflict(p.output_parameters[i].type, np.type))
   );
@@ -236,6 +242,71 @@ export function filterFunctionConflict<
     }, [] as T[]);
 }
 
+export function promisifyFunctions(functions: GirClassFunction[]) {
+  return functions.map(node => {
+    if (node.parameters.length > 0) {
+      const last_param = node.parameters[node.parameters.length - 1];
+
+      if (last_param) {
+        const last_param_unwrapped = last_param.type.unwrap();
+
+        if (last_param_unwrapped instanceof ClosureType) {
+          const internal = last_param_unwrapped.type;
+          if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
+            const parent = node.parent;
+            const interfaceParent = node.interfaceParent;
+
+            if (parent instanceof GirBaseClass) {
+              let async_res = (node instanceof GirStaticClassFunction ? [
+                ...parent.constructors,
+                ...parent.members.filter(m => m instanceof GirStaticClassFunction)]
+                : [
+                  ...interfaceParent instanceof GirInterface ? [...interfaceParent.members] : [],
+                  ...parent.members.filter(m => !(m instanceof GirStaticClassFunction))
+                ]).find(m => m.name === `${node.name.replace(/_async$/, '')}_finish` || m.name === `${node.name}_finish`);
+
+              if (async_res) {
+                const async_parameters = node.parameters.slice(0, -1).map(p => p.copy());
+                const sync_parameters = node.parameters.map(p => p.copy({ isOptional: false }))
+                const output_parameters = async_res.output_parameters;
+
+                let async_return = new PromiseType(async_res.return());
+
+                if (output_parameters.length > 0) {
+                  const raw_return = async_res.return();
+                  if (raw_return.equals(VoidType) || raw_return.equals(BooleanType)) {
+                    const [output_type, ...output_types] = output_parameters.map(op => op.type);
+                    async_return = new PromiseType(new TupleType(output_type, ...output_types));
+                  } else {
+                    const [...output_types] = output_parameters.map(op => op.type);
+                    async_return = new PromiseType(new TupleType(raw_return, ...output_types));
+                  }
+                }
+
+                return [
+                  node.copy({
+                    parameters: async_parameters,
+                    returnType: async_return
+                  }),
+                  node.copy({
+                    parameters: sync_parameters,
+                  }),
+                  node.copy({
+                    returnType: new BinaryType(async_return, node.return())
+                  }),
+                ];
+
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return node;
+  }).flat(1);
+}
+
 export const enum ClassInjectionMember {
   MEMBER = "member",
   CONSTRUCTOR = "_constructor",
@@ -281,7 +352,7 @@ export abstract class GirBaseClass extends GirBase {
   static fromXML(
     _modName: string,
     _ns: GirNamespace,
-    options: LoadOptions,
+    _options: LoadOptions,
     _parent,
     _klass: ClassElement | InterfaceElement | RecordElement
   ): GirBaseClass {
@@ -464,6 +535,11 @@ export class GirClass extends GirBaseClass {
           const property = GirProperty.fromXML(modName, ns, options, null, prop);
           if (!PROTECTED_IDS.includes(property.name)) {
             clazz.props.push(property);
+
+            const camelCase = property.toCamelCase();
+            if (property.name !== camelCase.name) {
+              clazz.props.push(camelCase);
+            }
           }
         });
       }
@@ -587,7 +663,7 @@ export class GirRecord extends GirBaseClass {
     clazz.props = props.map(p => p.copy());
     clazz.fields = fields.map(f => f.copy());
     clazz.callbacks = callbacks.map(c => c.copy());
-    clazz.mainConstructor = !mainConstructor || mainConstructor.copy();
+    clazz.mainConstructor = mainConstructor?.copy() ?? null;
     clazz.constructors = constructors.map(c => c.copy());
     clazz.members = members.map(m => m.copy({ parent: clazz }));
 
@@ -636,11 +712,6 @@ export class GirRecord extends GirBaseClass {
       if (Array.isArray(klass.constructor)) {
         klass.constructor.filter(isIntrospectable).forEach(constructor => {
           const c = GirConstructor.fromXML(modName, ns, options, clazz, constructor);
-
-          // Records prefer to use a "new" constructor if one is introspectable
-          if (constructor.$.name === "new" && constructor.parameters) {
-            clazz.mainConstructor = c;
-          }
 
           clazz.constructors.push(c);
         });
@@ -750,7 +821,7 @@ export class GirInterface extends GirBaseClass {
     clazz.props = props.map(p => p.copy());
     clazz.fields = fields.map(f => f.copy());
     clazz.callbacks = callbacks.map(c => c.copy());
-    clazz.mainConstructor = !mainConstructor || mainConstructor.copy();
+    clazz.mainConstructor = mainConstructor?.copy() ?? null;
     clazz.constructors = constructors.map(c => c.copy());
     clazz.members = members.map(m => m.copy({ parent: clazz }));
 
@@ -800,6 +871,16 @@ export class GirInterface extends GirBaseClass {
           ...klass.property
             .filter(isIntrospectable)
             .map(prop => GirProperty.fromXML(modName, ns, options, null, prop))
+            .map(prop => {
+              const camelCase = prop.toCamelCase();
+
+              if (prop.name !== camelCase.name) {
+                [prop, prop.toCamelCase()];
+              }
+
+              return [prop];
+            })
+            .flat(1)
             .filter(property => !PROTECTED_IDS.includes(property.name))
         );
       }

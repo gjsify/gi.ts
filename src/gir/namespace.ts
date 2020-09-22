@@ -40,9 +40,11 @@ export class GirNamespace {
   readonly name: string;
   readonly imports: string[] = [];
   readonly members: Map<string, GirNSMember | GirNSMember[]> = new Map<string, GirNSMember | GirNSMember[]>();
+  readonly version: string;
 
-  constructor(name: string) {
+  constructor(name: string, version: string) {
     this.name = name;
+    this.version = version;
   }
 
   addImport(ns_name: string) {
@@ -141,9 +143,10 @@ export class GirNamespace {
     console.log(`Parsing ${modName}...`);
     const defaultImports = ["GObject", "Gio", "GLib"].filter(a => a !== modName);
 
-    const building = new GirNamespace(modName);
     const includes = repo.repository.include || [];
     const ns = repo.repository.namespace[0];
+
+    const building = new GirNamespace(modName, ns?.$?.version ?? "unknown version");
 
     building.imports.push(...defaultImports);
 

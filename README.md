@@ -51,6 +51,10 @@ This should only be disabled for "pretty" outputs (e.g. documentation)
 
 When infer generics is `true` gi.ts attempts to add generic typing based on heuristics (primarily if a class or function is typed with `GObject.Object`). If this is false all type conversions that would need to occur in C will likely also need to be made in TypeScript. This particularly impacts callback functions which offer an instance or self parameter.
 
+* `--promisify=true|false`
+
+When promisification is enabled, GJS will add type definitions for any async functions it can identify. You still need to ensure Gio._promisify is called on the relevant functions, because it will type correctly regardless.
+
 * `--out=./dir`
 
 The directory to store the output in.

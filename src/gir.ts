@@ -304,6 +304,36 @@ export class NullableType extends BinaryType {
   }
 }
 
+export class PromiseType extends TypeExpression {
+  type: TypeExpression;
+
+  constructor(type: TypeExpression) {
+    super();
+    this.type = type;
+  }
+
+  equals(type: TypeExpression): boolean {
+    return type instanceof PromiseType && type.type.equals(this.type);
+  }
+
+  unwrap() {
+    return this.type;
+  }
+
+  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
+    return new PromiseType(this.type.resolve(ns, rns, options));
+  }
+
+  print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
+    // TODO: Optimize this check.
+    if (!rns.assertNamespace(ns).hasSymbol("Promise")) {
+        return `Promise<${this.type.print(ns, rns, options)}>`;
+    }
+
+    return `globalThis.Promise<${this.type.print(ns, rns, options)}>`;
+  }
+}
+
 export class AnyifiedType extends BinaryType {
   constructor(type: TypeExpression) {
     super(type, AnyType);
@@ -428,7 +458,7 @@ export class ArrayType extends TypeExpression {
   }
 }
 
-export const GTypeType = new NativeType("GType");
+export const GTypeType = new TypeIdentifier("GType", "GObject");
 export const ThisType = new NativeType("this");
 export const ObjectType = new NativeType("object");
 export const AnyType = new NativeType("any");

@@ -4,19 +4,20 @@ import {
   NativeType,
   AnyType,
   StringType,
-  GTypeType,
   BinaryType,
-  NullType,
   VoidType,
   NumberType,
   TypeIdentifier,
   ObjectType,
   NullableType,
-  TupleType
+  TupleType,
+  UnknownType,
+  NeverType
 } from "../gir";
 import { Direction } from "../xml";
 import { GirField } from "../gir/property";
 import { GirAlias } from "../gir/alias";
+import { GirBaseClass } from "../gir/class";
 
 function anyParam(name: string) {
   return new GirFunctionParameter({
@@ -30,10 +31,22 @@ export default {
   namespace: "GObject",
   modifier(namespace: GirNamespace, _registry: GirNSRegistry) {
     {
+      namespace.members.set("GType", new GirAlias({
+        name: "GType",
+        type: new NativeType("{ __type__(arg: never): T }"),
+        generics: [
+          {
+            name: 'T',
+            type: UnknownType
+          }
+        ]
+      }))
+
       const ParamSpec = namespace.assertClass("ParamSpec");
 
       function generateParamSpec(
         name: string,
+        returnType: GirBaseClass = ParamSpec,
         minMax = false,
         type: string | null = null,
         defaultValue = false
@@ -50,7 +63,7 @@ export default {
             ...(defaultValue ? [anyParam("defaultValue")] : [])
           ],
           parent: ParamSpec,
-          return_type: ParamSpec.getType()
+          return_type: returnType.getType()
         });
       }
 
@@ -63,41 +76,108 @@ export default {
         })
       );
 
+      const ParamSpecBoolean = namespace.assertClass("ParamSpecBoolean");
+      const ParamSpecBoxed = namespace.assertClass("ParamSpecBoxed");
+      const ParamSpecChar = namespace.assertClass("ParamSpecChar");
+      const ParamSpecDouble = namespace.assertClass("ParamSpecDouble");
+      const ParamSpecEnum = namespace.assertClass("ParamSpecEnum");
+      const ParamSpecFlags = namespace.assertClass("ParamSpecFlags");
+      const ParamSpecFloat = namespace.assertClass("ParamSpecFloat");
+      const ParamSpecInt = namespace.assertClass("ParamSpecInt");
+      const ParamSpecInt64 = namespace.assertClass("ParamSpecInt64");
+      const ParamSpecLong = namespace.assertClass("ParamSpecLong");
+      const ParamSpecObject = namespace.assertClass("ParamSpecObject");
+
+      const type_function = new GirClassFunction({
+        name: "__type__",
+        parent: ParamSpecObject,
+        parameters: [
+          new GirFunctionParameter({
+            "name": "arg",
+            type: NeverType,
+            direction: Direction.In
+          })
+        ],
+        return_type: new NativeType("A"),
+        // TODO: Add support for generic native type replacement.
+        // return_type: UnknownType
+      });
+
+      ParamSpecObject.members.push(type_function.copy());
+
+      ParamSpecObject.addGenericParemeter({
+        default: "unknown"
+      });
+
+      ParamSpecBoxed.members.push(type_function.copy());
+
+      ParamSpecBoxed.addGenericParemeter({
+        default: "unknown"
+      });
+
+      ParamSpecEnum.members.push(type_function.copy());
+
+      ParamSpecEnum.addGenericParemeter({
+        default: "unknown"
+      });
+
+      const ParamSpecParam = namespace.assertClass("ParamSpecParam");
+      const ParamSpecString = namespace.assertClass("ParamSpecString");
+      const ParamSpecUChar = namespace.assertClass("ParamSpecUChar");
+      const ParamSpecUInt = namespace.assertClass("ParamSpecUInt");
+      const ParamSpecUInt64 = namespace.assertClass("ParamSpecUInt64");
+      const ParamSpecULong = namespace.assertClass("ParamSpecULong");
+
       ParamSpec.members.push(
         //   "char": "static char(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("char", true, null, true),
+        generateParamSpec("char", ParamSpecChar, true, null, true),
         //   "uchar": "static uchar(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any):ParamSpec;",
-        generateParamSpec("uchar", true, null, true),
+        generateParamSpec("uchar", ParamSpecUChar, true, null, true),
         //   "int": "static int(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("int", true, null, true),
+        generateParamSpec("int", ParamSpecInt, true, null, true),
         //   "uint": "static uint(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("uint", true, null, true),
+        generateParamSpec("uint", ParamSpecUInt, true, null, true),
         //   "long": "static long(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("long", true, null, true),
+        generateParamSpec("long", ParamSpecLong, true, null, true),
         //   "ulong": "static ulong(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("ulong", true, null, true),
+        generateParamSpec("ulong", ParamSpecULong, true, null, true),
         //   "int64": "static int64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("int64", true, null, true),
+        generateParamSpec("int64", ParamSpecInt64, true, null, true),
         //   "uint64": "static uint64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("uint64", true, null, true),
+        generateParamSpec("uint64", ParamSpecUInt64, true, null, true),
         //   "float": "static float(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("float", true, null, true),
+        generateParamSpec("float", ParamSpecFloat, true, null, true),
         //   "boolean": "static boolean(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("boolean", false, null, true),
+        generateParamSpec("boolean", ParamSpecBoolean, false, null, true),
         //   "flags": "static flags(name: any, nick: any, blurb: any, flags: any, flagsType: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("flags", false, "flags", true),
+        generateParamSpec("flags", ParamSpecFlags, false, "flags", true),
         //   "enum": "static enum(name: any, nick: any, blurb: any, flags: any, enumType: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("enum", false, "enum", true),
+        generateParamSpec("enum", ParamSpecEnum, false, "enum", true),
         //   "double": "static double(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("double", true, null, true),
+        generateParamSpec("double", ParamSpecDouble, true, null, true),
         //   "string": "static string(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("string", false, null, true),
+        generateParamSpec("string", ParamSpecString, false, null, true),
         //   "boxed": "static boxed(name: any, nick: any, blurb: any, flags: any, boxedType: any): ParamSpec;",
-        generateParamSpec("boxed", false, "boxed", false),
+        generateParamSpec("boxed", ParamSpecBoxed, false, "boxed", false),
         //   "object": "static object(name: any, nick: any, blurb: any, flags: any, objectType: any): ParamSpec;",
-        generateParamSpec("object", false, "object", false),
+        new GirStaticClassFunction({
+          name: "object",
+          parameters: [
+            anyParam("name"),
+            anyParam("nick"),
+            anyParam("blurb"),
+            anyParam("flags"),
+            new GirFunctionParameter({
+              name: `objectType`,
+              direction: Direction.In,
+              type: new NativeType("GType<T>")
+            })
+          ],
+          parent: ParamSpec,
+          return_type: new NativeType("ParamSpecObject<T>")
+        }).generify(),
         //   "param": "static param(name: any, nick: any, blurb: any, flags: any, paramType: any): ParamSpec;",
-        generateParamSpec("param", false, "param", false)
+        generateParamSpec("param", ParamSpecParam, false, "param", false)
       );
     }
 
@@ -121,19 +201,21 @@ export default {
           ]
         })
       );
+
+      // TODO: We replace GObject.Value with any for parameters and unknown
+      // for return types. Nested types aren't currently replaced, though
+      // so let's override the class for now with an alias to any.
+      namespace.members.set(
+        "Value",
+        new GirAlias({
+          name: "Value",
+          type: AnyType,
+        })
+      );
     }
 
     {
       const Object = namespace.assertClass("Object");
-
-      Object.fields.push(
-        new GirField({
-          name: "$gtype",
-          isStatic: true,
-          type: GTypeType,
-          writable: false
-        })
-      );
 
       const get_property = Object.members.findIndex(m => m.name === "get_property");
       const set_property = Object.members.findIndex(m => m.name === "set_property");
@@ -145,11 +227,6 @@ export default {
           new GirFunctionParameter({
             name: "property_name",
             type: StringType,
-            direction: Direction.In
-          }),
-          new GirFunctionParameter({
-            name: "value",
-            type: new BinaryType(namespace.assertClass("Value").getType(), NullType),
             direction: Direction.In
           })
         ],
@@ -187,58 +264,31 @@ export default {
           ],
           return_type: AnyType
         }),
-        // new GirClassFunction({
-        //   name: "connect",
-        //   parent: Object,
-        //   parameters: [
-        //     new GirFunctionParameter({
-        //       name: "id",
-        //       type: StringType,
-        //       direction: Direction.In
-        //     }),
-        //     new GirFunctionParameter({
-        //       name: "callback",
-        //       type: NativeType.of("(...args: any[]) => any"),
-        //       direction: Direction.In
-        //     })
-        //   ],
-        //   return_type: NumberType
-        // }),
-        // new GirClassFunction({
-        //   name: "connect_after",
-        //   parent: Object,
-        //   parameters: [
-        //     new GirFunctionParameter({
-        //       name: "id",
-        //       type: StringType,
-        //       direction: Direction.In
-        //     }),
-        //     new GirFunctionParameter({
-        //       name: "callback",
-        //       type: NativeType.of("(...args: any[]) => any"),
-        //       direction: Direction.In
-        //     })
-        //   ],
-        //   return_type: NumberType
-        // }),
-        // new GirClassFunction({
-        //   name: "emit",
-        //   parent: Object,
-        //   parameters: [
-        //     new GirFunctionParameter({
-        //       name: "id",
-        //       type: StringType,
-        //       direction: Direction.In
-        //     }),
-        //     new GirFunctionParameter({
-        //       name: "args",
-        //       isVarArgs: true,
-        //       type: new ArrayType(AnyType),
-        //       direction: Direction.In
-        //     })
-        //   ],
-        //   return_type: VoidType
-        // }),
+        new GirClassFunction({
+          name: "disconnect",
+          parent: Object,
+          parameters: [
+            new GirFunctionParameter({
+              name: "id",
+              type: NumberType,
+              direction: Direction.In
+            })
+          ],
+          return_type: VoidType
+        }),
+        // TODO: Add per-class set type checking.
+        new GirClassFunction({
+          name: "set",
+          parent: Object,
+          parameters: [
+            new GirFunctionParameter({
+              name: "properties",
+              type: new NativeType("{ [key: string]: any }"),
+              direction: Direction.In
+            }),
+          ],
+          return_type: VoidType
+        }),
         new GirClassFunction({
           name: "block_signal_handler",
           parent: Object,

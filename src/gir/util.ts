@@ -181,6 +181,19 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
 
   let variableType: TypeExpression = parseTypeExpression(modName, name);
 
+  if (variableType instanceof TypeIdentifier) {
+    if (variableType.is("GLib", "List") || variableType.is("GLib", "SList")) {
+      const listType = parameter?.type?.[0]?.type?.[0]?.$.name;
+
+      if (listType) {
+        name = listType;
+        variableType = parseTypeExpression(modName, name);
+
+        arrayDepth = 1;
+      }
+    }
+  }
+
   if (arrayDepth != null) {
     const primitiveArrayType = resolvePrimitiveArrayType(name, arrayDepth);
 
@@ -296,7 +309,7 @@ export function parseTypeExpression(modName: string, type: string): TypeExpressi
   }
 }
 
-export function resolvePrimitiveArrayType(name: string, arrayDepth: number): [NativeType, number] | null {
+export function resolvePrimitiveArrayType(name: string, arrayDepth: number): [TypeExpression, number] | null {
   if (arrayDepth > 0) {
     switch (name) {
       case "gint8":
@@ -318,7 +331,7 @@ export function isPrimitiveType(name: string): boolean {
   return resolvePrimitiveType(name) !== null;
 }
 
-export function resolvePrimitiveType(name: string): NativeType | null {
+export function resolvePrimitiveType(name: string): TypeExpression | null {
   switch (name) {
     case "":
       console.error("Resolving '' to any on " + name);
@@ -392,14 +405,6 @@ export function resolvePrimitiveType(name: string): NativeType | null {
 }
 
 export function jsifyType(_modName: string, type: TypeIdentifier): TypeExpression | null {
-  if (type.is("GLib", "List")) {
-    return new ArrayType(AnyType);
-  }
-
-  if (type.is("GLib", "SList")) {
-    return new ArrayType(StringType);
-  }
-
   return null;
 }
 
@@ -415,8 +420,12 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
   } else if (type instanceof TypeIdentifier) {
     if ((direction === Direction.In || direction === Direction.Inout) && type.is("GLib", "Bytes")) {
       return new BinaryType(type, Uint8ArrayType);
-    } else if ((direction === Direction.In || direction === Direction.Inout) && type.is("GObject", "Value")) {
-      return new OrType(type, StringType, BooleanType, NumberType);
+    } else if (type.is("GObject", "Value")) {
+      if (direction === Direction.In || direction === Direction.Inout) {
+        return AnyType;
+      } else {
+        return UnknownType;
+      }
     }
   }
 

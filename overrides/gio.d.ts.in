@@ -38,20 +38,20 @@ export interface DBusConnection {
 }
   
 export interface DBusProxy {
-    connectSignal();
-    disconnectSignal();
+    connectSignal(...args: any[]): any;
+    disconnectSignal(...args: any[]): any;
 }
   
 export module DBusProxy {
-    function makeProxyWrapper();
+    function makeProxyWrapper(...args: any[]): any;
 }
   
 export interface DBusExportedObject {
-    wrapJSObject();
+    wrapJSObject(info: any, obj: any): any;
 }
   
 export let DBusExportedObject: DBusExportedObject;
   
-export function _promisify();
+export function _promisify(...args: any[]): any;
   
 export let _LocalFilePrototype: File;

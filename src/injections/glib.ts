@@ -95,15 +95,15 @@ export default {
 
       Variant.mainConstructor = VariantConstructor.copy();
 
-      Variant.constructors.push(
+      Variant.constructors.unshift(
+        // static new: (sig: any, value: any) => Variant;
+        VariantConstructor.copy(),
         // static _new_internal: (sig: any, value: any) => any;,
         new GirConstructor({
           name: "_new_internal",
           parameters: VariantParams.map(vp => vp.copy()),
           return_type: AnyType
-        }),
-        // static new: (sig: any, value: any) => Variant;
-        VariantConstructor.copy()
+        })
       );
 
       const GObject_Object = registry.assertNamespace("GObject").assertClass("Object").getType();

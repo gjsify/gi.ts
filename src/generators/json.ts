@@ -61,6 +61,7 @@ export const enum TypeKind {
 const options = {
   resolveTypeConflicts: false,
   inferGenerics: false,
+  promisify: false,
   format: "json" as const,
   withDocs: true
 };
@@ -576,7 +577,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     sanitizeIdentifierName(modName, node.raw_name);
 
     const Parameters = this.generateParameters(node.parameters);
-    const ReturnType = this.generateReturn(node.return(modName, registry), node.output_parameters);
+    const ReturnType = this.generateReturn(node.return(), node.output_parameters);
 
     return {
       kind: NodeKind.function,
@@ -600,7 +601,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       static: true,
       name,
       parameters: Parameters,
-      returnType: generateType(node.return(modName, registry).resolve(modName, registry, options)),
+      returnType: generateType(node.return().resolve(modName, registry, options)),
       ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
     };
   }
@@ -618,7 +619,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     let parameters = node.parameters.map(p => this.generateParameter(p));
     let output_parameters = node.output_parameters;
-    let return_type = node.return(modName, registry);
+    let return_type = node.return();
 
     const ReturnType = this.generateReturn(return_type, output_parameters);
 
@@ -636,7 +637,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     let parameters = node.parameters.map(p => this.generateParameter(p));
     let output_parameters = node.output_parameters;
-    let return_type = node.return(modName, registry);
+    let return_type = node.return();
 
     const ReturnType = this.generateReturn(return_type, output_parameters);
 
