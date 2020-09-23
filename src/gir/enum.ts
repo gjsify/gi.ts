@@ -41,7 +41,7 @@ export class GirEnum extends GirBase {
   }
 
   asClass(): GirRecord {
-    const clazz = GirRecord.foreign(this.name, this.ns);
+    const clazz = new GirRecord(this.name, this.ns);
 
     clazz.props.push(
       ...Array.from(this.members.values()).map(m => {

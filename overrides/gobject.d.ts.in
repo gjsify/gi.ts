@@ -1,16 +1,21 @@
 
+// GJS OVERRIDES
+
+// Correctly types interface checks.
+export function type_is_a<T extends Object>(obj: Object, is_a_type: { $gtype: GType<T> }): obj is T;
+
 export class Interface {
-  static _classInit: (klass: any) => any;
-  __name__: string;
-  _construct: (params: any, ...otherArgs: any[]) => any;
-  _init: (params: any) => void;
-  $gtype?: GType;
+    static _classInit: (klass: any) => any;
+    __name__: string;
+    _construct: (params: any, ...otherArgs: any[]) => any;
+    _init: (params: any) => void;
+    $gtype?: GType;
 }
 
 export interface SignalMatch {
-  signalId: string;
-  detail: string;
-  func: Function;
+    signalId: string;
+    detail: string;
+    func: Function;
 }
 
 export function signal_connect(object: Object, name: string, handler: Function): number;
@@ -31,9 +36,9 @@ export let properties: symbol;
 export let signals: symbol;
 
 export enum AccumulatorType {
-  NONE,
-  FIRST_WINS,
-  TRUE_HANDLED
+    NONE,
+    FIRST_WINS,
+    TRUE_HANDLED
 }
 
 export class NotImplementedError extends Error {
@@ -54,17 +59,17 @@ export let TYPE_STRING: GType<string>;
 export let String: StringConstructor;
 
 declare global {
-  interface BooleanConstructor {
-    $gtype: GType<boolean>;
-  }
+    interface BooleanConstructor {
+        $gtype: GType<boolean>;
+    }
 
-  interface NumberConstructor {
-    $gtype: GType<number>;
-  }
+    interface NumberConstructor {
+        $gtype: GType<number>;
+    }
 
-  interface StringConstructor {
-    $gtype: GType<string>;
-  }
+    interface StringConstructor {
+        $gtype: GType<string>;
+    }
 }
 
 export let TYPE_NONE: GType<undefined>;
@@ -79,81 +84,119 @@ export let TYPE_UINT: GType<number>;
 export let TYPE_INT64: GType<number>;
 export let TYPE_UINT64: GType<number>;
 export function registerClass<
-  K,
-  P extends { _init(...args: K[]): void },
-  T extends { prototype: P }
->(
-  klass: T
-): {
-  $gtype: GType<T>;
-  new(...args: Parameters<T["prototype"]["_init"]>): T["prototype"];
-  prototype: T["prototype"];
-};
+    P extends {},
+    T extends new (...args: any[]) => P,
+    >(
+        klass: T
+    ): RegisteredClass<T, {}, []>;
 
 export type Property<K extends ParamSpec> = K extends ParamSpecBoolean
-  ? boolean
-  : K extends ParamSpecDouble | ParamSpecInt | ParamSpecUInt | ParamSpecFloat | ParamSpecLong
-  ? number
-  : K extends ParamSpecInt64 | ParamSpecUInt64 | ParamSpecULong
-  ? number
-  : K extends ParamSpecFlags
-  ? number
-  : K extends ParamSpecString | ParamSpecUnichar
-  ? string
-  : K extends ParamSpecValueArray
-  ? any[]
-  : K extends ParamSpecObject<infer T>
-  ? T
-  : K extends ParamSpecEnum<infer E>
-  ? E
-  : K extends ParamSpecBoxed<infer B>
-  ? B
-  : K extends ParamSpecVariant
-  ? GLib.Variant
-  : any;
+    ? boolean
+    : K extends ParamSpecDouble | ParamSpecInt | ParamSpecUInt | ParamSpecFloat | ParamSpecLong
+    ? number
+    : K extends ParamSpecInt64 | ParamSpecUInt64 | ParamSpecULong
+    ? number
+    : K extends ParamSpecFlags
+    ? number
+    : K extends ParamSpecString | ParamSpecUnichar
+    ? string
+    : K extends ParamSpecValueArray
+    ? any[]
+    : K extends ParamSpecObject<infer T>
+    ? T
+    : K extends ParamSpecEnum<infer E>
+    ? E
+    : K extends ParamSpecBoxed<infer B>
+    ? B
+    : K extends ParamSpecVariant
+    ? GLib.Variant
+    : any;
+
 
 export type Properties<
-  Properties extends { [key: string]: ParamSpec }
-  > = {
-    [key in keyof Properties]: Property<Properties[key]>;
-  };
+    Prototype extends {},
+    Properties extends { [key: string]: ParamSpec }
+    > = Omit<{
+        [key in (keyof Properties | keyof Prototype)]: key extends keyof Prototype ? never :
+        key extends keyof Properties ? Property<Properties[key]> : never;
+    }, keyof Prototype>;
 
 export type SignalDefinition = {
-  param_types?: GType[];
-  [key: string]: any;
+    param_types?: GType[];
+    [key: string]: any;
 };
 
-type RegisteredClass<K,
-  P extends { _init(...args: K[]): void },
-  T extends { prototype: P },
-  Props extends { [key: string]: ParamSpec }> = {
-    $gtype: GType<RegisteredClass<K, P, T, Props>>;
-    new(...args: Parameters<T["prototype"]["_init"]>): T["prototype"] & Properties<Props>;
-    prototype: T["prototype"] & Properties<Props>;
-  };
+type UnionToIntersection<T> =
+    (T extends any ? (x: T) => any : never) extends
+    (x: infer R) => any ? R : never
+
+type IFaces<Interfaces extends { $gtype: GType<any> }[]> = { [key in keyof Interfaces]: Interfaces[key] extends { $gtype: GType<infer I> } ? I : never };
+
+type RegisteredPrototype<P extends {}, Props extends { [key: string]: ParamSpec }, Interfaces extends any[]> =
+    Properties<P, SnakeToCamel<Props> & SnakeToUnderscore<Props>> & UnionToIntersection<Interfaces[number]> & P;
+
+type Constructor<P extends {} = {}> = { prototype: P, new(...args: any[]): void };
+
+type V = string | number | boolean | bigint;
+
+type Split<S extends string, D extends string> =
+    string extends S ? string[] :
+    S extends `${infer T}${D}${infer U}` ? [T, ...Split<U, D>] :
+    [S];
+type Join<T extends V[], D extends string> =
+    T extends [] ? '' :
+    T extends [unknown] ? `${T[0]}` :
+    T extends [unknown, ...infer U] ? `${T[0]}${D}${Join<U extends V[] ? U : [], D>}` :
+    string;
+
+type FormatCapitalize<T extends V[]> =
+    T extends [] ? [] :
+    T extends [unknown] ? [`${capitalize T[0]}`] :
+    T extends [unknown, ...infer U] ? [`${capitalize T[0]}`, ...FormatCapitalize<U extends V[] ? U : []>] :
+    [];
+
+type FormatCamelCase<T extends V[]> =
+    T extends [] ? [] :
+    T extends [unknown] ? [T[0]] :
+    T extends [unknown, ...infer U] ? [T[0], ...FormatCapitalize<U extends V[] ? U : []>] :
+    [];
+
+type SnakeToCamel<T> = { [P in keyof T & string as Join<FormatCamelCase<Split<P, "-">>, "">]: T[P] };
+type SnakeToUnderscore<T> = { [P in keyof T & string as Join<Split<P, "-">, "_">]: T[P] };
+
+type Init = { _init(...args: any[]): void }
+type RegisteredClass<
+    T extends {},
+    Props extends { [key: string]: ParamSpec },
+    Interfaces extends { $gtype: GType<any> }[]
+    > = T extends { prototype: infer P } ? {
+        $gtype: GType<RegisteredClass<T, Props, IFaces<Interfaces>>>;
+        new(...args: P extends Init ? Parameters<P["_init"]> : [void]): RegisteredPrototype<P, Props, IFaces<Interfaces>>;
+        prototype: RegisteredPrototype<P, Props, IFaces<Interfaces>>;
+    } : never;
 
 export function registerClass<
-  K,
-  P extends { _init(...args: K[]): void },
-  T extends { prototype: P },
-  Props extends { [key: string]: ParamSpec },
-  Sigs extends {
-    [key: string]: {
-      param_types?: GType[];
-      [key: string]: any;
+    P extends {},
+    T extends new (...args: any[]) => P,
+    Props extends { [key: string]: ParamSpec },
+    Interfaces extends { $gtype: GType }[],
+    Sigs extends {
+        [key: string]: {
+            param_types?: GType[];
+            [key: string]: any;
+        }
     }
-  }
 >(
-  options: {
-    GTypeName?: string;
-    GTypeFlags?: TypeFlags;
-    Properties?: Props;
-    Signals?: Sigs;
-    Implements?: any[];
-    CssName?: string;
-    Template?: string;
-    Children?: string[];
-    InternalChildren?: string[];
-  },
-  klass: T
-): RegisteredClass<K, P, T, Props>;
+    options: {
+        GTypeName?: string;
+        GTypeFlags?: TypeFlags;
+        Properties?: Props;
+        Signals?: Sigs;
+        Implements?: Interfaces;
+        CssName?: string;
+        Template?: string;
+        Children?: string[];
+        InternalChildren?: string[];
+    },
+    klass: T
+): RegisteredClass<T, Props, Interfaces>;

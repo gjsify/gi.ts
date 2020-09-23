@@ -1,7 +1,7 @@
 import { EOL } from "os";
 
 import { FormatGenerator } from "./generator";
-import { GirNSRegistry, GirNamespace } from "../gir/namespace";
+import { GirNSRegistry, GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
 import { GenerationOptions } from "../main";
 
 import {
@@ -455,7 +455,7 @@ export class DtsGenerator extends FormatGenerator<string> {
         })
         .join(EOL);
       MainConstructor += `
-        constructor(properties: Partial<{
+        constructor(properties?: Partial<{
           ${ConstructorFields}
         }>);`;
     }
@@ -1102,7 +1102,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateNamespace(node: GirNamespace): string | null {
-    const { modName, registry } = this;
+    const { modName, options, registry } = this;
     console.log(`Resolving the types of ${modName}...`);
     try {
       const { name } = node;
@@ -1115,6 +1115,10 @@ export class DtsGenerator extends FormatGenerator<string> {
       const base = `
 
 `;
+      
+      if (options.promisify) {
+        promisifyNamespaceFunctions(node);
+      }
 
       const content = Array.from(node.members.values())
         .map(m => {

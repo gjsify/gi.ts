@@ -1,4 +1,6 @@
 
+// GJS OVERRIDES
+
 export interface SettingsSchema {
     _realGetKey: typeof SettingsSchema.prototype.get_key;
 }

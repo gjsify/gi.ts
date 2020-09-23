@@ -5,10 +5,8 @@ import {
   VoidType,
   ArrayType,
   ClosureType,
-  NativeType,
   NullableType,
   TypeExpression,
-  AnyifiedType,
   ThisType
 } from "../gir";
 import {
@@ -61,15 +59,19 @@ export class GirFunction extends GirBase {
     this.return_type = return_type;
   }
 
-  copy(): GirFunction {
+  copy({ parameters, return_type }: {
+    parent?: undefined,
+    parameters?: GirFunctionParameter[],
+    return_type?: TypeExpression
+  } = {}): GirFunction {
     const fn = new GirFunction({
       raw_name: this.raw_name,
       name: this.name,
-      return_type: this.return_type
+      return_type: return_type ?? this.return_type
     });
 
     fn.output_parameters.push(...this.output_parameters.map(p => p.copy()));
-    fn.parameters.push(...this.parameters.map(p => p.copy()));
+    fn.parameters.push(...(parameters ?? this.parameters).map(p => p.copy()));
 
     return fn;
   }
@@ -137,6 +139,7 @@ export class GirFunction extends GirBase {
             // We remove any length parameters.
             return !length_params.includes(i) && !user_data_params.includes(i);
           })
+          .filter(v => !(v.type instanceof TypeIdentifier && v.type.is("GLib", "DestroyNotify")))
           .reverse()
           .reduce(({ allowOptions, params }, p) => {
             const { type, isOptional } = p;
