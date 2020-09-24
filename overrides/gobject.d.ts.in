@@ -1,4 +1,3 @@
-
 // GJS OVERRIDES
 
 // Correctly types interface checks.
@@ -164,9 +163,11 @@ type FormatCamelCase<T extends V[]> =
 type SnakeToCamel<T> = { [P in keyof T & string as Join<FormatCamelCase<Split<P, "-">>, "">]: T[P] };
 type SnakeToUnderscore<T> = { [P in keyof T & string as Join<Split<P, "-">, "_">]: T[P] };
 
+type Ctor = new (...a: any[]) => object
+
 type Init = { _init(...args: any[]): void }
 type RegisteredClass<
-    T extends {},
+    T extends Ctor,
     Props extends { [key: string]: ParamSpec },
     Interfaces extends { $gtype: GType<any> }[]
     > = T extends { prototype: infer P } ? {
@@ -176,8 +177,7 @@ type RegisteredClass<
     } : never;
 
 export function registerClass<
-    P extends {},
-    T extends new (...args: any[]) => P,
+    T extends Ctor,
     Props extends { [key: string]: ParamSpec },
     Interfaces extends { $gtype: GType }[],
     Sigs extends {
