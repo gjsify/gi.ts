@@ -125,6 +125,7 @@ export class GirNamespace {
   readonly name: string;
   readonly imports: Map<string, string> = new Map();
   readonly members: Map<string, GirNSMember | GirNSMember[]> = new Map<string, GirNSMember | GirNSMember[]>();
+  readonly enum_constants: Map<string, readonly [string, string]> = new Map();
   readonly version: string;
   readonly c_prefix: string;
 
@@ -190,8 +191,13 @@ export class GirNamespace {
     return true;
   }
 
-  getMember(name: string): GirBase | GirBase[] | null {
-    return this.members.get(name) || null;
+  getMembers(name: string): GirBase[] {
+    const members = this.members.get(name);
+
+    if (Array.isArray(members)) {
+      return [...members];
+    }
+    return members ? [members] : [];
   }
 
   assertClass(name: string): GirBaseClass {
@@ -352,6 +358,16 @@ export class GirNamespace {
         .map(field => GirEnum.fromXML(modName, building, options, this, field, true))
         .forEach(c => building.members.set(c.name, c));
     }
+
+    // The `enum_constants` map maps the C identifiers (GTK_BUTTON_TYPE_Y)
+    // to the name of the enum (Button) to resolve references (Gtk.Button.Y)
+    Array.from(building.members.values())
+      .filter((m): m is GirEnum => m instanceof GirEnum)
+      .forEach(m => {
+        m.members.forEach(member => {
+          building.enum_constants.set(member.c_identifier, [m.name, member.name] as const);
+        })
+      });
 
     // Get the requested classes
     if (ns.class) {

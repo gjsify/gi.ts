@@ -1,7 +1,7 @@
 import { EOL } from "os";
 
 import { FormatGenerator } from "./generator";
-import { GirNSRegistry, GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
+import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
 import { GenerationOptions } from "../cli/commands/generate";
 
 import {
@@ -142,6 +142,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     let resolved_return_type = resolveDirectedType(
       return_type, Direction.Out
     )?.resolve(name, registry, options) ?? return_type.resolve(name, registry, options);
+
     const type = resolved_return_type.rootPrint(name, registry, options);
 
     if (output_parameters.length > 0) {
@@ -414,7 +415,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateRecord(node: GirRecord): string {
-    const { modName, options, registry } = this;
+    const { modName, options } = this;
     const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents(
       modName
     );
@@ -902,7 +903,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateFunction(node: GirFunction): string {
-    const { modName, registry } = this;
+    const { modName } = this;
     // Register our identifier with the sanitized identifiers.
     // We avoid doing this in fromXML because other class-level function classes
     // depends on that code.
@@ -1035,7 +1036,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateStaticClassFunction(node: GirStaticClassFunction): string {
-    const { modName, registry } = this;
+    const { modName } = this;
 
     let return_type = node.return();
 
@@ -1085,7 +1086,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateNamespace(node: GirNamespace): string | null {
-    const { modName, options, registry } = this;
+    const { modName, options } = this;
     console.log(`Resolving the types of ${modName}...`);
     try {
       const { name } = node;

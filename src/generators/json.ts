@@ -47,7 +47,9 @@ export const enum NodeKind {
 }
 
 type Primitive = string[] | number[] | boolean[] | null | string | number | boolean;
-type Json = { [key: string]: Primitive | Json | Json[] };
+type Json = {
+  [key: string]: Primitive | Json | Json[]
+};
 
 export const enum TypeKind {
   or = "or",
@@ -59,16 +61,6 @@ export const enum TypeKind {
   closure = "closure"
 }
 
-const options = {
-  resolveTypeConflicts: false,
-  inferGenerics: false,
-  promisify: false,
-  propertyCase: "underscore" as const,
-  format: "json" as const,
-  withDocs: true,
-  versionedOutput: true
-};
-
 function generateType(type: TypeExpression): Json {
   if (type instanceof TypeIdentifier) {
     return {
@@ -79,7 +71,7 @@ function generateType(type: TypeExpression): Json {
   } else if (type instanceof NativeType) {
     return {
       kind: TypeKind.native,
-      type: type.expression(options)
+      type: type.expression()
     };
   } else if (type instanceof ClosureType) {
     return {
@@ -121,7 +113,7 @@ function generateType(type: TypeExpression): Json {
   }
 }
 
-function casify(str: string) {
+function capitalize(str: string) {
   if (str.length === 0) {
     return '';
   }
@@ -130,7 +122,7 @@ function casify(str: string) {
     return str[0].toUpperCase();
   }
 
-  return str[0].toUpperCase() + str.slice(1).toLowerCase();
+  return str[0].toUpperCase() + str.substring(1).toLowerCase();
 }
 
 export class JsonGenerator extends FormatGenerator<Json> {
@@ -153,125 +145,216 @@ export class JsonGenerator extends FormatGenerator<Json> {
    */
   private generateDoc(doc: string): string {
     const { registry } = this;
-    return doc.replace(/#([A-z]+)(([:]{1,2})([a-z\-]+)){0,1}(?!\(\))/g,
-      (original, identifier: string, _: string, punc: string, member_name: string) => {
-        const parts = identifier.split(/([A-Z])/).reduce((prev, next) => {
-          if (next.toUpperCase() === next) {
-            prev.push(`${next}`);
-          } else {
-            const lastCapital = prev.pop();
 
-            prev.push(`${lastCapital}${next}`);
-          }
+    function resolveClass(ns: GirNamespace, className: string): readonly [GirBase | null, boolean] {
+      let classes = ns.getMembers(className);
 
-          return prev;
-        }, [] as string[]).filter(p => p != '');
-        console.log(parts);
-        let [base_part] = parts;
+      let plural = false;
 
-        const [, , namespaces, klass_name] = parts.slice(1).reduce(([underscore, camel, ns, selected], next) => {
+      if (classes.length === 0 && className.endsWith('Class')) {
+        classes = ns.getMembers(className.slice(0, -5));
+      }
 
-          const next_underscore = [underscore, next.toLowerCase()].join('_');
-          console.log(ns.map(n => n.name))
-          const namespaces = registry.getImportsForCPrefix(next_underscore);
-          const nextCamel = camel + casify(next);
-          console.log(`looking for doc ns ${next_underscore} ${nextCamel} ${casify(next)}`);
-          if (namespaces.length > 0) {
-            return [next_underscore, nextCamel, namespaces, casify(next)] as const;
-          }
+      if (!classes && className.endsWith('s')) {
+        plural = true;
+        classes = ns.getMembers(className.slice(0, -1));
+      }
 
-          return [next_underscore, nextCamel, ns, selected + casify(next)] as const;
-        }, [base_part.toLowerCase(), casify(base_part), registry.getImportsForCPrefix(base_part.toLowerCase()), ""] as const);
-        console.log("f", klass_name);
-        const ns = namespaces.find(n => n.hasSymbol(klass_name));
+      return [classes[0] ?? null, plural] as const;
+    }
 
-        if (ns) {
-          const is_prop = punc === ":";
-          const modified_name = is_prop ? member_name.replace(/[\-]/g, "_") : member_name;
-
-
-          let clazz = ns.getMember(klass_name);
-
-          let plural = false;
-
-          if (!clazz && klass_name.endsWith('s')) {
-            plural = true;
-            clazz = ns.getMember(klass_name.slice(0, -1))
-          }
-
-          if (clazz instanceof GirBaseClass || clazz instanceof GirEnum) {
-            return `#${plural ? '{' : ''}${ns.name}.${clazz.name}${punc ? `${punc}${modified_name}` : ''}${plural ? '}s' : ''}`;
-          }
-
-          return `#${ns.name}${punc ? ` (${punc}${modified_name})` : ''}`;
+    function formatReference(identifier: string, member_name: string, punc?: string): string | null {
+      const parts = identifier.split(/([A-Z])/).reduce((prev, next) => {
+        if (next.toUpperCase() === next) {
+          prev.push(`${next}`);
         } else {
-          return original;
-        }
-      }).replace(/([a-z_]+)\(\)/g, (original, func: string) => {
-        const parts = func.split("_");
+          const lastCapital = prev.pop();
 
-        const [base_part] = parts;
-
-        const [, namespaces, i] = parts.slice(1).reduce(([prev, ns, selected], next, i) => {
-
-          const namespaces = registry.getImportsForCPrefix([prev, next].join('_'));
-          const str = prev + casify(next);
-
-          console.log(`looking for doc ns :: ${str}`);
-
-          console.log(namespaces.map(n => n.name))
-
-          if (namespaces.length > 0) {
-            return [str, namespaces, i + 1] as const;
-          }
-
-          return [str, ns, selected] as const;
-        }, [casify(base_part), registry.getImportsForCPrefix(base_part), 0] as const);
-
-        console.log(`found ${namespaces.length} for ${parts.join('_')}`)
-
-        if (namespaces.length === 0) {
-          return original;
+          prev.push(`${lastCapital}${next}`);
         }
 
-        const fn_name = parts.slice(i + 1).join("_");
-        const fn_namespace = namespaces.find(n => n.hasSymbol(fn_name));
+        return prev;
+      }, [] as string[]).filter(p => p != '');
 
-        if (fn_namespace) {
-          const member = fn_namespace.getMember(fn_name);
+      let [base_part] = parts;
 
-          if (member instanceof GirFunction) {
-            return `${fn_namespace.name}.${fn_name}()`;
-          }
+      const [, , namespaces, className] = parts.slice(1).reduce(([underscore, camel, ns, selected], next) => {
 
-          return original;
-        } else {
-          const [, clazz, namespace, ci] = parts.slice(i + 1).reduce(([prev, clazz, ns, selected], next, ci) => {
-            console.log(`looking for clazz ns ${prev + casify(next)}`);
-            const n = namespaces.find(n => n.hasSymbol(prev + casify(next)))
+        const next_underscore = [underscore, next.toLowerCase()].join('_');
 
-            if (n) {
-              const clazz = n.getMember(prev + casify(next));
-              return [prev + casify(next), clazz, n, ci] as const;
-            }
+        const namespaces = registry.getImportsForCPrefix(next_underscore);
+        const nextCamel = camel + capitalize(next);
 
-            return [prev + casify(next), clazz, ns, selected] as const;
-          }, ["" as string, null as GirBaseClass | null, null as GirNamespace | null, -1] as const);
+        if (namespaces.length > 0) {
+          return [next_underscore, nextCamel, namespaces, capitalize(next)] as const;
+        }
 
-          if (namespace) {
-            const fn = ci >= 0 ? `.${parts.slice(i + ci + 2).join("_")}` : "";
+        return [next_underscore, nextCamel, ns, selected + capitalize(next)] as const;
+      }, [base_part.toLowerCase(), capitalize(base_part), registry.getImportsForCPrefix(base_part.toLowerCase()), ""] as const);
 
-            if (clazz instanceof GirBaseClass || clazz instanceof GirEnum) {
+      let ns = namespaces.find(n => n.hasSymbol(className));
 
-              console.log(clazz.name);
-              return `${namespace.name}.${clazz.name}${fn}()`;
-            }
+      if (!ns) {
+        ns = namespaces.find(n => {
+          const [c] = resolveClass(n, className);
 
-            return original;
+          return c != null;
+        });
+      }
+
+      if (ns) {
+        const is_prop = punc === ":";
+        const modified_name = is_prop ? member_name.replace(/[\-]/g, "_") : member_name;
+
+        let [clazz, plural] = resolveClass(ns, className);
+
+        if (clazz instanceof GirBaseClass || clazz instanceof GirEnum) {
+          const r = `#${plural ? '{' : ''}${ns.name}.${clazz.name}${punc ? `${punc}${modified_name}` : ''}${plural ? '}s' : ''}`;
+          return r;
+        }
+
+        return `#${ns.name}${punc ? ` (${punc}${modified_name})` : ''}`;
+      } else {
+        return null;
+      }
+    }
+
+    function formatFunctionReference(func: string, upper = false): string | null {
+      // namespace_class_do_thing()
+
+      const parts = func.toLowerCase().split("_");
+
+      // ['namespace', 'class', 'do', 'thing']
+
+      const [base_part] = parts;
+
+      // ['namespace']
+
+      const namespaceBase = [capitalize(base_part), registry.getImportsForCPrefix(base_part), 0] as const;
+
+      // ['Namespace', { Namespace }, -1]
+
+      const [, namespaces, i] = parts.slice(1).reduce(([prev, currentNamespaces, selected], next, i) => {
+        const namespaces = registry.getImportsForCPrefix([prev, next].join('_'));
+        const identifier = prev + capitalize(next);
+
+        // We've found namespace(s) which matches the c_prefix
+        if (namespaces.length > 0) {
+          return [identifier, namespaces, i + 1] as const;
+        }
+
+        return [identifier, currentNamespaces, selected] as const;
+      }, namespaceBase);
+
+      // If no namespaces are found for the function's c_prefix, we return the original reference.
+      if (namespaces.length === 0) {
+        return null;
+      }
+
+      // ['class', 'do', 'thing']
+
+      const nameParts = parts.slice(i + 1);
+
+      // 'class_do_thing'
+
+      const functionName = nameParts.join("_");
+      const functionNamespace = namespaces.find(n => n.hasSymbol(functionName.toLowerCase()));
+      const constNamespace = namespaces.find(n => n.hasSymbol(functionName.toUpperCase()));
+      const enumNamespace = namespaces.find(n => n.enum_constants.has(func.toUpperCase()));
+
+      if (functionNamespace) {
+        const [member = null] = functionNamespace.getMembers(functionName.toLowerCase());
+
+        if (member instanceof GirFunction) {
+          return `${functionNamespace.name}.${member.name}`;
+        }
+
+        return null;
+      } else if (constNamespace) {
+        const [member = null] = constNamespace.getMembers(functionName.toUpperCase());
+
+        if (member instanceof GirConst) {
+          return `${constNamespace.name}.${member.name}`;
+        }
+
+        return null;
+      } else if (enumNamespace) {
+        const constantInfo = enumNamespace.enum_constants.get(func.toUpperCase());
+
+        if (constantInfo) {
+          const [enumName, memberName] = constantInfo;
+
+          const [klass = null] = enumNamespace.getMembers(enumName);
+
+          if (klass instanceof GirEnum) {
+            return `${enumNamespace.name}.${klass.name}.${memberName.toUpperCase()}`;
           }
         }
 
-        return original;
+        return null;
+      } else {
+        // ['class', 'do', 'thing']
+
+        const { selectedClassName, resolvedNamespace, selectedIndex } = parts.slice(i + 1).reduce(({
+          className, selectedClassName, resolvedNamespace, selectedIndex
+        }, next, i) => {
+          // Class
+          const identifier = `${className}${capitalize(next)}`;
+
+          const withSymbol = namespaces.find(n => n.hasSymbol(identifier));
+
+          if (withSymbol) {
+            // { className: Class, resolvedNamespace: {Namespace}, selectedIndex: 0 }
+            return { className: identifier, selectedClassName: identifier, resolvedNamespace: withSymbol, selectedIndex: i } as const;
+          }
+
+          return { className: identifier, selectedClassName, resolvedNamespace, selectedIndex } as const;
+        }, {
+          className: "" as string,
+          selectedClassName: "" as string,
+          resolvedNamespace: null as GirNamespace | null,
+          selectedIndex: -1
+        });
+
+        if (resolvedNamespace && selectedIndex >= 0) {
+          const nextIndex = i + selectedIndex + 1 /* (slice omits first index) */ + 1 /* (the next index) */;
+          const functionName = parts.slice(nextIndex).join("_");
+
+          let [klass] = resolveClass(resolvedNamespace, selectedClassName);
+
+          if (klass instanceof GirBaseClass || klass instanceof GirEnum) {
+            return `${resolvedNamespace.name}.${klass.name}.${upper ? functionName.toUpperCase() : functionName}`;
+          }
+
+          return `${resolvedNamespace.name}.${selectedClassName}.${upper ? functionName.toUpperCase() : functionName}`;
+        }
+      }
+
+      return null;
+    }
+
+    return doc
+      .replace(/[#]{0,1}([A-Z][A-z]+)\.([a-z_]+)\(\)/g, (original, identifier: string, member_name: string) => {
+        const resolved = formatReference(identifier, member_name, '.');
+        return resolved != null ? `${resolved}()` : original;
+      })
+      .replace(/#([A-Z][A-z]+)(([:]{1,2})([a-z\-]+)){0,1}/g,
+        (original, identifier: string, _: string, punc: string, member_name: string) => {
+          const resolved = formatReference(identifier, member_name, punc);
+          return resolved != null ? resolved : original;
+        })
+      .replace(/([A-Z][A-z]+)(([:]{1,2})([a-z\-]+))/g,
+        (original, identifier: string, _: string, punc: string, member_name: string) => {
+          const resolved = formatReference(identifier, member_name, punc);
+          return resolved != null ? resolved : original;
+        })
+      .replace(/(\s)([a-z_]+)\(\)/g, (original: string, w: string, func: string) => {
+        const resolved = formatFunctionReference(func)
+        return resolved != null ? `${w}${resolved}()` : original;
+      })
+      .replace(/%([A-Z_]+)/g, (original: string, identifier: string) => {
+        const resolved = formatFunctionReference(identifier.toLowerCase(), true);
+        return resolved != null ? `%${resolved}` : original;
       });
   }
 
@@ -395,7 +478,8 @@ export class JsonGenerator extends FormatGenerator<Json> {
     return {
       kind: NodeKind.constant,
       name: node.name,
-      type: generateType(node.type.resolve(modName, registry, options))
+      type: generateType(node.type.resolve(modName, registry, options)),
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -463,25 +547,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateRecord(node: GirRecord): Json {
-    const { modName, registry } = this;
-
     const { name } = node;
 
     const Extends = this.extends(node);
     const Implements = this.implements(node);
-
-    let MainConstructor: Json | null = null;
-
-    if (node.isForeign()) {
-      MainConstructor = null;
-    } else if (node.mainConstructor) {
-      MainConstructor = this.generateConstructor(node.mainConstructor);
-    } else if (node.constructors.length > 0) {
-      const [firstConstructor] = node.constructors;
-      MainConstructor = this.generateConstructor(firstConstructor);
-    } else if (node.isSimple(modName)) {
-      MainConstructor = {};
-    }
 
     const Properties = node.props.map(v => v && v.asString(this));
 
@@ -728,7 +797,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateFunction(node: GirFunction): Json {
-    const { modName, registry } = this;
+    const { modName } = this;
     // Register our identifier with the sanitized identifiers.
     // We avoid doing this in fromXML because other class-level function classes
     // depends on that code.
@@ -773,7 +842,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateClassFunction(node: GirClassFunction): Json {
-    const { modName, registry } = this;
 
     let parameters = node.parameters.map(p => this.generateParameter(p));
     let output_parameters = node.output_parameters;
@@ -791,7 +859,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateStaticClassFunction(node: GirStaticClassFunction): Json {
-    const { modName, registry } = this;
 
     let parameters = node.parameters.map(p => this.generateParameter(p));
     let output_parameters = node.output_parameters;
@@ -832,6 +899,11 @@ export class JsonGenerator extends FormatGenerator<Json> {
       const { name, version } = node;
 
       const members = Array.from(node.members.values()).flatMap(m => m);
+
+      members.filter((m): m is GirEnum => m instanceof GirEnum).forEach(m => {
+        m.members.forEach(() => {
+        });
+      });
 
       const classes = members.filter((m): m is GirClass => m instanceof GirClass).map(m => m.asString(this));
       const interfaces = members

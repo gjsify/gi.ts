@@ -52,8 +52,8 @@ export default {
         new GirField({
           name: "Symbol.iterator",
           computed: true,
-          type: NativeType.withGenerator((options: GenerationOptions) => {
-            if (options.inferGenerics) {
+          type: NativeType.withGenerator((options) => {
+            if (options?.inferGenerics) {
               return "() => IterableIterator<A>";
             } else {
               return "() => IterableIterator";

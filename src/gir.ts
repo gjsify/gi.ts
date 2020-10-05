@@ -161,15 +161,15 @@ export class TypeIdentifier extends TypeExpression {
 }
 
 export class NativeType extends TypeExpression {
-  readonly expression: (options: GenerationOptions) => string;
+  readonly expression: (options?: GenerationOptions) => string;
 
-  constructor(expression: ((options: GenerationOptions) => string) | string) {
+  constructor(expression: ((options?: GenerationOptions) => string) | string) {
     super();
 
     this.expression = typeof expression === "string" ? () => expression : expression;
   }
 
-  resolve(_ns: string, _namespace: GirNamespace, options: GenerationOptions): TypeExpression {
+  resolve(_ns: string, _namespace: GirNamespace, _options: GenerationOptions): TypeExpression {
     return this;
   }
 
@@ -192,7 +192,7 @@ export class NativeType extends TypeExpression {
     return this;
   }
 
-  static withGenerator(generator: (options: GenerationOptions) => string): TypeExpression {
+  static withGenerator(generator: (options?: GenerationOptions) => string): TypeExpression {
     return new NativeType(generator);
   }
 

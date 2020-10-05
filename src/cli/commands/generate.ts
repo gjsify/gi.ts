@@ -288,6 +288,7 @@ export async function generate() {
           const result = await parseStringAsync<GirXML>(src);
 
           gir.set(name, {
+            ...gir.get(name) ?? {},
             [version]: result
           });
         }

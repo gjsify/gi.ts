@@ -99,16 +99,18 @@ export class GirEnum extends GirBase {
 
 export class GirEnumMember extends GirBase {
   value: string;
+  c_identifier: string;
 
-  constructor(name: string, value: string) {
+  constructor(name: string, value: string, c_identifier: string) {
     super(name);
     this.value = value;
+    this.c_identifier = c_identifier;
   }
 
   copy(): GirEnumMember {
-    const { value, name } = this;
+    const { value, name, c_identifier } = this;
 
-    return new GirEnumMember(name, value);
+    return new GirEnumMember(name, value, c_identifier);
   }
 
   static fromXML(
@@ -119,8 +121,9 @@ export class GirEnumMember extends GirBase {
     m: MemberElement
   ): GirEnumMember {
     const upper = m.$.name.toUpperCase();
+    const c_identifier = m.$["c:identifier"];
 
-    return new GirEnumMember(upper, m.$.value);
+    return new GirEnumMember(upper, m.$.value, c_identifier);
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T {
