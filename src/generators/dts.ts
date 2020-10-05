@@ -491,10 +491,10 @@ export class DtsGenerator extends FormatGenerator<string> {
       .join(EOL);
 
     return `${hasCallbacks
-        ? `export module ${name} {
+      ? `export module ${name} {
                 ${node.callbacks.map(c => c.asString(this)).join(EOL)}
              }`
-        : ``
+      : ``
       }
   
       export class ${name}${Extends}${Implements} {
@@ -764,18 +764,18 @@ export class DtsGenerator extends FormatGenerator<string> {
     const hasModule = injectConstructorBucket || hasCallbacks;
 
     return `${hasModule
-        ? `export module ${name} {
+      ? `export module ${name} {
                 ${hasCallbacks ? node.callbacks.map(c => c.asString(this)).join(EOL) : ""}
                 ${injectConstructorBucket
-          ? `export interface ConstructorProperties${Extends ? `${Extends.split("<")[0]}.ConstructorProperties` : ""
-          } {
+        ? `export interface ConstructorProperties${Extends ? `${Extends.split("<")[0]}.ConstructorProperties` : ""
+        } {
                           [key: string]: any;
                           ${ConstructorProps}
                         }`
-          : ""
-        }
-              }`
         : ""
+      }
+              }`
+      : ""
       }
       export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {
       static $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
@@ -1094,6 +1094,8 @@ export class DtsGenerator extends FormatGenerator<string> {
       const header = `
 /**
  * ${name} ${node.version}
+ * 
+ * Generated from ${node.package_version.join('.')}
  */
 `;
       const base = `
@@ -1113,7 +1115,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
       const imports = Array.from(node.imports.entries())
         .filter(([i]) => node.getImport(i) != null)
-        .map(([i, version]) => `import * as ${i} from "${i.toLowerCase()}${options.versionedOutput ? version.toLowerCase().split('.')[0] : ''}";`)
+        .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
         .join(`${EOL}`);
 
       const raw_output = [header, imports, base, content].join(`\n\n`);

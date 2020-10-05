@@ -1,5 +1,6 @@
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
-import { join as buildPath } from "path";
+
+import { dirname, join as buildPath } from "path";
 import { parseString, convertableToString } from "xml2js";
 import { promisify as $ } from "util";
 
@@ -25,7 +26,17 @@ export interface DocDescription {
   version: string;
 }
 
+export interface Metadata {
+  name: string;
+  package_version: string;
+  api_version: string;
+  imports: { [lib: string]: string };
+}
+
 type PropertyCase = "both" | "camel" | "underscore";
+type OutputFormat = "file" | "folder";
+
+type Unknown<T> = { [key in keyof T]?: unknown };
 
 export interface GenerationOptions {
   resolveTypeConflicts: boolean;
@@ -33,8 +44,16 @@ export interface GenerationOptions {
   promisify: boolean;
   propertyCase: PropertyCase;
   withDocs: boolean;
+  outputFormat: OutputFormat;
   format: "dts" | "json";
   versionedOutput: boolean;
+  versionedImports: boolean;
+  importPrefix: string;
+  emitMetadata: boolean;
+}
+
+export interface CLIOptions extends GenerationOptions {
+  out: string;
 }
 
 export interface LoadOptions {
@@ -44,6 +63,9 @@ export interface LoadOptions {
 
 export async function generate() {
   // Default Options
+
+  // --outputFormat=file
+  let outputFormat: OutputFormat = "file" as const;
 
   // --loadDocs=true|false
   let loadDocs = false;
@@ -60,79 +82,229 @@ export async function generate() {
 
   // --versionedOutput=true|false
   let versionedOutput = false;
+  // --versionedOutput=true|false
+  let versionedImports = false;
+
+  // --importPrefox=@gi.ts/
+  let importPrefix = "" as string;
+
+  // --emitMetadata=true|false
+  let emitMetadata = false;
 
   let propertyCase: PropertyCase = "both";
   let format: "dts" | "json" = "dts" as const;
   let file_extension = "d.ts";
   let default_directory = "./types";
+  let output_directory: string | null = null;
+
+  console.log("Loading docs.json...");
+
+  const docs: {
+    libraries?: { [lib: string]: string | string[] }
+    options?: Unknown<CLIOptions>
+  } = JSON.parse(
+    readFileSync(buildPath(process.cwd(), "docs.json"), { encoding: "utf-8" })
+  );
+
+  function setFormat(format: "dts" | "json") {
+    switch (format) {
+      case "json":
+        file_extension = "json";
+        default_directory = "./json";
+        break;
+      case "dts":
+        file_extension = "d.ts";
+        default_directory = "./types";
+        break;
+    }
+  }
+
+  // Override default options 
+
+  const { options } = docs;
+
+  function expectsBoolean(flag: string) {
+    return (bool: unknown): bool is boolean => {
+      if (bool === undefined) {
+        return false;
+      }
+
+      if (typeof bool === "boolean") {
+        return true;
+      }
+
+      throw new Error(`${flag} expects either true or false.`);
+    }
+  }
+
+  function booleanFlag(val: unknown, check: (bool: unknown) => bool is boolean): boolean {
+    try {
+
+      let bool = val === "true" ? true : val === "false" ? false : null;
+
+      if (check(bool)) {
+        return bool;
+      }
+
+      throw "impossible";
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`--${error.message}`);
+      }
+
+      throw error;
+    }
+  }
+
+  function expectsString(flag: string) {
+    return (str: unknown): str is string => {
+      if (str === undefined) {
+        return false;
+      }
+
+      if (typeof str === "string") {
+        return true;
+      }
+
+      throw new Error(`${flag} expects a string.`);
+    }
+  }
+
+  function expectsStringType<K extends string>(flag: string, types: readonly K[]) {
+    return (type: unknown): type is K => {
+      if (type === undefined) {
+        return false;
+      }
+
+      if (types.includes(type as K)) {
+        return true;
+      }
+
+      throw new Error(`${flag} expects one of ${types.join(', ')}.`);
+    };
+  }
+
+  const _out = expectsString("out");
+  const _format = expectsStringType("format", ["dts", "json"]);
+  const _inferGenerics = expectsBoolean("inferGenerics");
+  const _promisify = expectsBoolean("promisify");
+  const _propertyCase = expectsStringType("propertyCase", ["both", "underscore", "camel"]);
+  const _outputFormat = expectsStringType("outputFormat", ["file", "folder"]);
+  const _resolveTypeConflicts = expectsBoolean("resolveTypeConflicts");
+  const _withDocs = expectsBoolean("withDocs");
+  const _versionedOutput = expectsBoolean("versionedOutput");
+  const _versionedImports = expectsBoolean("versionedImports");
+  const _importPrefix = expectsString("importPrefix");
+  const _emitMetadata = expectsBoolean("emitMetadata");
+
+  if (options) {
+    if (_out(options.out)) {
+      output_directory = options.out;
+    }
+
+    if (_format(options.format)) {
+      format = options.format;
+
+      setFormat(format);
+    }
+
+    if (_inferGenerics(options.inferGenerics)) {
+      inferGenerics = options.inferGenerics;
+    }
+
+    if (_outputFormat(options.outputFormat)) {
+      outputFormat = options.outputFormat;
+    }
+
+    if (_promisify(options.promisify)) {
+      promisify = options.promisify;
+    }
+
+    if (_propertyCase(options.propertyCase)) {
+      propertyCase = options.propertyCase;
+    }
+
+    if (_resolveTypeConflicts(options.resolveTypeConflicts)) {
+      resolveTypeConflicts = options.resolveTypeConflicts;
+    }
+
+    if (_withDocs(options.withDocs)) {
+      withDocs = options.withDocs;
+    }
+
+    if (_versionedOutput(options.versionedOutput)) {
+      versionedOutput = options.versionedOutput;
+    }
+
+    if (_versionedImports(options.versionedImports)) {
+      versionedImports = options.versionedImports;
+    }
+
+    if (_importPrefix(options.importPrefix)) {
+      importPrefix = options.importPrefix;
+    }
+
+    if (_emitMetadata(options.emitMetadata)) {
+      emitMetadata = options.emitMetadata;
+    }
+  }
 
   if (process.argv.length > 2) {
     try {
       for (const argn of process.argv.slice(2)) {
         const [arg, value = null] = argn.split("=");
         switch (arg) {
+          case "--emitMetadata":
+            emitMetadata = booleanFlag(value, _emitMetadata);
+            break;
           case "--versionedOutput":
-            if (value !== "true" && value !== "false") {
-              throw new Error(`--versionedOutput accepts either 'true' or 'false'`);
+            versionedOutput = booleanFlag(value, _versionedOutput);
+            break;
+          case "--versionedImports":
+            versionedImports = booleanFlag(value, _versionedImports);
+            break;
+          case "--importPrefix":
+            if (_importPrefix(value)) {
+              importPrefix = value;
             }
-            versionedOutput = value === "true";
             break;
           case "--resolveTypeConflicts":
-            if (value !== "true" && value !== "false") {
-              throw new Error(`--resolveTypeConflicts accepts either 'true' or 'false'`);
-            }
-            resolveTypeConflicts = value === "true";
+            resolveTypeConflicts = booleanFlag(value, _resolveTypeConflicts);
             break;
           case "--inferGenerics":
-            if (value !== "true" && value !== "false") {
-              throw new Error(`--inferGenerics accepts either 'true' or 'false'`);
-            }
-
-            inferGenerics = value === "true";
+            inferGenerics = booleanFlag(value, _inferGenerics);
             break;
           case "--promisify":
-            if (value !== "true" && value !== "false") {
-              throw new Error(`--promisify accepts either 'true' or 'false'`);
-            }
-
-            promisify = value === "true";
+            promisify = booleanFlag(value, _promisify);
             break;
           case "--propertyCase":
-            function isValid(value: string): value is PropertyCase {
-              return ["both", "camel", "underscore"].includes(value);
+            if (_propertyCase(value)) {
+              propertyCase = value;
             }
-
-            if (typeof value !== "string" || !isValid(value)) {
-              throw new Error(`--propertyCase accepts either 'both', 'camel' or 'underscore' for property casing.`);
+            break;
+          case "--outputFormat":
+            if (_outputFormat(value)) {
+              outputFormat = value;
             }
+            break;
+          case "--format":
+            if (_format(value)) {
+              format = value;
 
-            propertyCase = value;
+              setFormat(format);
+            }
             break;
           case "--out":
             if (!value) {
               throw new Error(`No output directory specified!`);
             }
-
-            default_directory = value;
+            output_directory = value;
             break;
           case "--withDocs":
             withDocs = true;
             loadDocs = true;
             break;
-          case "--format":
-            if (value && (["dts", "json"].includes as (v: string) => v is "dts" | "json")(value)) {
-              format = value;
 
-              switch (format) {
-                case "json":
-                  file_extension = "json";
-                  default_directory = "./json";
-                  break;
-              }
-            } else {
-              throw new Error(`Unknown format: ${value}`);
-            }
-            break;
           default:
             throw new Error(`Unknown argument: ${arg}.`);
         }
@@ -149,55 +321,84 @@ export async function generate() {
   // Promisify xml2js' parseString
   const parseStringAsync = async <T>(str) => await $<convertableToString, T>(parseString)(str);
 
-  const output_base = default_directory;
+  const output_base = output_directory ?? default_directory;
   const overrides_base = buildPath(__dirname, "../overrides");
   const overrides_local_base = "./overrides";
 
-  console.log("Loading docs.json...");
-  const docs: { libraries?: { [lib: string]: string | string[] } } = JSON.parse(
-    readFileSync(buildPath(process.cwd(), "docs.json"), { encoding: "utf-8" })
-  );
-
   const registry = new GirNSRegistry();
 
-  function generateModule(name: string, version: string) {
+  function generateModule(name: string, version: string): [string, Metadata] | null {
     const ns = registry.namespace(name, version);
 
     if (ns) {
       const generator = new DtsGenerator(name, ns, {
         format,
         inferGenerics,
+        outputFormat,
         promisify,
         propertyCase,
         resolveTypeConflicts,
         withDocs,
-        versionedOutput
+        versionedOutput,
+        versionedImports,
+        importPrefix,
+        emitMetadata
       });
 
-      return generator.generateNamespace(ns);
+      const meta: Metadata = {
+        name: ns.name,
+        api_version: ns.version,
+        package_version: ns.package_version.join('.'),
+        imports: Object.fromEntries(ns.imports.entries()),
+      };
+
+      const generated = generator.generateNamespace(ns);
+
+      if (!generated) {
+        return null;
+      }
+
+      return [generated, meta];
     }
 
-    return "";
+    return null;
   }
 
-  function generateJson(name: string, version: string) {
+  function generateJson(name: string, version: string): [string, Metadata] | null {
     const ns = registry.namespace(name, version);
 
     if (ns) {
       const generator = new JsonGenerator(name, ns, {
         format,
         inferGenerics,
+        outputFormat,
         propertyCase,
         promisify,
         resolveTypeConflicts,
         withDocs,
-        versionedOutput
+        versionedOutput,
+        versionedImports,
+        importPrefix,
+        emitMetadata
       });
 
-      return generator.generateNamespace(ns);
+      const meta: Metadata = {
+        name: ns.name,
+        api_version: ns.version,
+        package_version: ns.package_version.join('.'),
+        imports: Object.fromEntries(ns.imports.entries()),
+      };
+
+      const generated = generator.generateNamespace(ns);
+
+      if (!generated) {
+        return null;
+      }
+
+      return [generated, meta];
     }
 
-    return "";
+    return null;
   }
 
   type GirMap = Map<string, {
@@ -225,23 +426,40 @@ export async function generate() {
 
     // Generate the content
     for (let [name, docs] of gir.entries()) {
-      for (const [version, xml] of Object.entries(docs)) {
-        let contents: string | null = null;
+      for (const [version] of Object.entries(docs)) {
+        let generated: [string, Metadata] | null = null;
 
         switch (format) {
           case "json":
-            contents = generateJson(name, version);
+            generated = generateJson(name, version);
             break;
           case "dts":
-            contents = generateModule(name, version);
+            generated = generateModule(name, version);
             break;
           default:
             throw new Error("Unknown format!");
         }
 
+        if (!generated) {
+          console.error(`Failed to generate ${name} ${version}!`);
+          continue;
+        }
+
+        let [contents, meta] = generated;
+
         const output = name as string;
         const dir = buildPath(output_base);
-        const file = buildPath(output_base, `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}.${file_extension}`);
+        let file: string;
+
+        const output_slug = `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}`;
+
+        if (outputFormat === "file") {
+          file = buildPath(output_base, `${output_slug}.${file_extension}`);
+        } else if (outputFormat === "folder") {
+          file = buildPath(output_base, `${output_slug}`, `index.${file_extension}`);
+        } else {
+          throw new Error(`Unknown output format: ${outputFormat}.`);
+        }
 
         const overrides_files = [
           buildPath(overrides_base, `${output.toLowerCase()}.${file_extension}.in`),
@@ -257,6 +475,29 @@ export async function generate() {
 
         if (!existsSync(dir)) {
           mkdirSync(dir, { recursive: true });
+        }
+
+        if (outputFormat === "folder") {
+          const directory = dirname(file);
+
+          if (!existsSync(directory)) {
+            mkdirSync(directory);
+          }
+        }
+
+        if (emitMetadata) {
+          const metaData = JSON.stringify(meta, null, 4);
+
+          if (outputFormat === "folder") {
+            const directory = dirname(file);
+            const metaPath = buildPath(directory, "doc.json");
+
+            writeFileSync(metaPath, metaData);
+          } else {
+            const metaPath = buildPath(output_base, `${output_slug}.doc.json`);
+
+            writeFileSync(metaPath, metaData);
+          }
         }
 
         writeFileSync(file, contents);

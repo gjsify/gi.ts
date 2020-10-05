@@ -8,26 +8,30 @@ import { LoadOptions } from "../cli/commands/generate";
 
 export class GirConst extends GirBase {
   type: TypeExpression;
+  value: string | null;
 
-  constructor({ name, type }: { name: string; type: TypeExpression }) {
+  constructor({ name, type, value }: { name: string; type: TypeExpression; value: string | null; }) {
     super(name);
 
     this.type = type;
+    this.value = value;
   }
 
   copy(): GirConst {
-    const { type, name } = this;
+    const { type, name, value } = this;
 
     return new GirConst({
       name,
-      type
+      type,
+      value
     });
   }
 
   static fromXML(modName: string, ns: GirNamespace, options: LoadOptions,  _parent, constant: ConstantElement): GirConst {
     const c = new GirConst({
       name: sanitizeIdentifierName(ns.name, constant.$.name),
-      type: getType(modName, ns, constant)
+      type: getType(modName, ns, constant),
+      value: constant.$.value ?? null
     });
 
     if (options.loadDocs) {

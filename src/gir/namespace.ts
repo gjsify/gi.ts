@@ -129,6 +129,8 @@ export class GirNamespace {
   readonly version: string;
   readonly c_prefix: string;
 
+  package_version!: readonly [string, string] | readonly [string, string, string];
+
   parent!: GirNSRegistry;
 
   constructor(name: string, version: string, prefix: string) {
@@ -423,6 +425,26 @@ export class GirNamespace {
         .map(alias => GirAlias.fromXML(modName, building, options, null, alias))
         .filter((alias): alias is GirAlias => alias != null)
         .forEach(c => building.members.set(c.name, c));
+    }
+
+    const [major = null] = building.getMembers("MAJOR_VERSION");
+    const [minor = null] = building.getMembers("MINOR_VERSION");
+    const [micro = null] = building.getMembers("MICRO_VERSION");
+
+    if (major instanceof GirConst && minor instanceof GirConst && major.value && minor.value) {
+      if (micro instanceof GirConst && micro.value) {
+        building.package_version = [major.value, minor.value, micro.value] as const;
+      } else {
+        building.package_version = [major.value, minor.value] as const;
+      }
+    } else {
+      const [major = '', minor = '0', micro] = building.version.split('.').filter(v => v != '');
+
+      if (micro) {
+        building.package_version = [major, minor, micro];
+      } else {
+        building.package_version = [major, minor];
+      }
     }
 
     return building;
