@@ -2,6 +2,7 @@ import { GirNamespace } from "../gir/namespace";
 
 export default {
   namespace: "Gio",
+  version: "2.0",
   modifier: (namespace: GirNamespace) => {
     const AsyncInitable = namespace.getClass("AsyncInitable");
 

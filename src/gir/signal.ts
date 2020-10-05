@@ -5,7 +5,7 @@ import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function"
 import { ClassGLibSignalElement, Direction } from "../xml";
 import { getType } from "./util";
 import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 
 export enum GirSignalType {
   CONNECT,

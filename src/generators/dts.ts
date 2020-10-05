@@ -2,7 +2,7 @@ import { EOL } from "os";
 
 import { FormatGenerator } from "./generator";
 import { GirNSRegistry, GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
-import { GenerationOptions } from "../main";
+import { GenerationOptions } from "../cli/commands/generate";
 
 import {
   GirBaseClass,
@@ -57,10 +57,10 @@ function insertType(t: TypeExpression, replacement: string): TypeExpression {
 
 export class DtsGenerator extends FormatGenerator<string> {
   modName: string;
-  registry: GirNSRegistry;
+  registry: GirNamespace;
   options: GenerationOptions;
 
-  constructor(modName: string, registry: GirNSRegistry, options: GenerationOptions) {
+  constructor(modName: string, registry: GirNamespace, options: GenerationOptions) {
     super();
     this.modName = modName;
     this.registry = registry;
@@ -199,7 +199,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     clazz.members = [];
     clazz.members.push(...Array.from(node.functions.values()));
 
-    const GLib = registry.namespace("GLib");
+    const GLib = registry.getImport("GLib");
 
     if (!GLib) {
       throw new Error(`Attempted to generate a subclass of GLib.Error without GLib loaded!`);
@@ -290,7 +290,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     const { modName, registry, options } = this;
     // If an interface does not list a prerequisite type, we fill it with GObject.Object
     if (node.parent == null) {
-      const gobject = registry.namespace("GObject");
+      const gobject = registry.getImport("GObject");
 
       // TODO Optimize GObject.Object
       if (!gobject) {
@@ -375,7 +375,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const Extends = this.extends(node);
 
-    const filtered_functions = filterFunctionConflict(node.ns, node.members, resolved_parents, [], registry);
+    const filtered_functions = filterFunctionConflict(node.ns, node.members, resolved_parents, []);
     const functions = options.promisify ? promisifyFunctions(filtered_functions) : filtered_functions;
 
     const staticFunctions = functions.filter(f => f instanceof GirStaticClassFunction);
@@ -383,19 +383,16 @@ export class DtsGenerator extends FormatGenerator<string> {
     const nonstaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
     const hasNamespace = isGObject || staticFunctions.length > 0 || node.callbacks.length > 0;
     return `
-        ${
-      node.callbacks.length > 0
+        ${node.callbacks.length > 0
         ? `export module ${name} {
   ${node.callbacks.map(c => c.asString(this)).join(EOL)}
   }`
         : ""
       }
-      ${
-      hasNamespace
+      ${hasNamespace
         ? `export interface ${name}Namespace {
     ${isGObject ? `$gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;` : ""}
-    ${
-        staticFunctions.length > 0
+    ${staticFunctions.length > 0
           ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, this)).join(EOL)
           : ""
         }    
@@ -404,11 +401,11 @@ export class DtsGenerator extends FormatGenerator<string> {
       }
     export interface ${name}${Generics}${Extends} {
     ${node.props.length > 0 ? `// Properties` : ""}
-    ${filterConflicts(node.ns, node.props, resolved_parents, registry)
+    ${filterConflicts(node.ns, node.props, resolved_parents)
         .map(p => p.asString(this))
         .join(EOL)}
     ${node.fields.length > 0 ? `// Fields` : ""}
-    ${filterConflicts(node.ns, node.fields, resolved_parents, registry)
+    ${filterConflicts(node.ns, node.fields, resolved_parents)
         .map(p => p.asString(this))
         .join(EOL)}
     ${nonstaticFunctions.length > 0 ? `// Members\n` : ""}
@@ -419,8 +416,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   generateRecord(node: GirRecord): string {
     const { modName, options, registry } = this;
     const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents(
-      modName,
-      registry
+      modName
     );
 
     const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
@@ -444,7 +440,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       MainConstructor = this.generateConstructor(firstConstructor);
     }
 
-    if (node.isSimple(modName, registry)) {
+    if (node.isSimple(modName)) {
       const ConstructorFields = node.fields
         .map(v => {
           const copied = v.copy();
@@ -462,19 +458,19 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const hasCallbacks = node.callbacks.length > 0;
 
-    const Properties = filterConflicts(node.ns, node.props, resolved_parents, registry)
+    const Properties = filterConflicts(node.ns, node.props, resolved_parents)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Fields = filterConflicts(node.ns, node.fields, resolved_parents, registry)
+    const Fields = filterConflicts(node.ns, node.fields, resolved_parents)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Constructors = filterConflicts(node.ns, node.constructors, resolved_parents, registry)
+    const Constructors = filterConflicts(node.ns, node.constructors, resolved_parents)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const FilteredMembers = filterFunctionConflict(node.ns, node.members, resolved_parents, [], registry);
+    const FilteredMembers = filterFunctionConflict(node.ns, node.members, resolved_parents, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
       .join(EOL);
@@ -483,19 +479,17 @@ export class DtsGenerator extends FormatGenerator<string> {
       node.ns,
       implementedMethods,
       resolved_parents,
-      [],
-      registry
+      []
     );
     const ImplementedMethods = (options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods)
       .map(m => m.asString(this))
       .join(EOL);
 
-    const ImplementedProperties = filterConflicts(node.ns, implementedProperties, resolved_parents, registry)
+    const ImplementedProperties = filterConflicts(node.ns, implementedProperties, resolved_parents)
       .map(m => m.asString(this))
       .join(EOL);
 
-    return `${
-      hasCallbacks
+    return `${hasCallbacks
         ? `export module ${name} {
                 ${node.callbacks.map(c => c.asString(this)).join(EOL)}
              }`
@@ -531,8 +525,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   generateClass(node: GirClass): string {
     const { modName, registry, options } = this;
     const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents(
-      modName,
-      registry
+      modName
     );
 
     const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
@@ -624,30 +617,29 @@ export class DtsGenerator extends FormatGenerator<string> {
       node.ns,
       node.props.filter(prop => !prop.isStatic),
       // Only filter for extends, not implements.
-      class_parents,
-      registry
+      class_parents
     )
       .map(v => this.generateProperty(v, true))
       .join(EOL);
 
-    const Properties = filterConflicts(node.ns, node.props, resolved_parents, registry)
+    const Properties = filterConflicts(node.ns, node.props, resolved_parents)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Fields = filterConflicts(node.ns, node.fields, resolved_parents, registry)
+    const Fields = filterConflicts(node.ns, node.fields, resolved_parents)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Constructors = filterFunctionConflict(node.ns, node.constructors, resolved_parents, [], registry)
+    const Constructors = filterFunctionConflict(node.ns, node.constructors, resolved_parents, [])
       .map(v => v.asString(this))
       .join(EOL);
 
-    const FilteredMembers = filterFunctionConflict(node.ns, node.members, resolved_parents, [], registry);
+    const FilteredMembers = filterFunctionConflict(node.ns, node.members, resolved_parents, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const ImplementedProperties = filterConflicts(node.ns, implementedProperties, resolved_parents, registry)
+    const ImplementedProperties = filterConflicts(node.ns, implementedProperties, resolved_parents)
       .map(m => m.asString(this))
       .join(EOL);
 
@@ -655,8 +647,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       node.ns,
       implementedMethods,
       resolved_parents,
-      [],
-      registry
+      []
     );
     const ImplementedMethods = (options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods)
       .map(m => m.asString(this))
@@ -741,7 +732,6 @@ export class DtsGenerator extends FormatGenerator<string> {
         modName,
         default_signals,
         resolved_parents,
-        registry,
         FilterBehavior.DELETE
       );
 
@@ -772,14 +762,11 @@ export class DtsGenerator extends FormatGenerator<string> {
     const hasCallbacks = node.callbacks.length > 0;
     const hasModule = injectConstructorBucket || hasCallbacks;
 
-    return `${
-      hasModule
+    return `${hasModule
         ? `export module ${name} {
                 ${hasCallbacks ? node.callbacks.map(c => c.asString(this)).join(EOL) : ""}
-                ${
-        injectConstructorBucket
-          ? `export interface ConstructorProperties${
-          Extends ? `${Extends.split("<")[0]}.ConstructorProperties` : ""
+                ${injectConstructorBucket
+          ? `export interface ConstructorProperties${Extends ? `${Extends.split("<")[0]}.ConstructorProperties` : ""
           } {
                           [key: string]: any;
                           ${ConstructorProps}
@@ -829,8 +816,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
-    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${
-      node.type.resolve(namespace, registry, options).rootPrint(namespace, registry, options) || "any"
+    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${node.type.resolve(namespace, registry, options).rootPrint(namespace, registry, options) || "any"
       };`;
   }
 
@@ -1040,13 +1026,11 @@ export class DtsGenerator extends FormatGenerator<string> {
     const GenericBaseType = shouldGenerifyReturn ? (modName === "GObject" ? "Object" : "GObject.Object") : "";
 
     if (node.shouldAnyify()) {
-      return `${invalid ? `["${node.name}"]` : node.name}: ${
-        shouldGenerify ? `<T${GenericBaseType ? ` = ${GenericBaseType}` : ""}>` : ""
+      return `${invalid ? `["${node.name}"]` : node.name}: ${shouldGenerify ? `<T${GenericBaseType ? ` = ${GenericBaseType}` : ""}>` : ""
         }((${Parameters}) => ${ReturnType}) | any;`;
     }
 
-    return `${invalid ? `["${node.name}"]` : node.name}${
-      shouldGenerify ? `<T${GenericBaseType ? ` = ${GenericBaseType}` : ""}>` : ""
+    return `${invalid ? `["${node.name}"]` : node.name}${shouldGenerify ? `<T${GenericBaseType ? ` = ${GenericBaseType}` : ""}>` : ""
       }(${Parameters}): ${ReturnType};`;
   }
 
@@ -1073,8 +1057,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const GenericBaseType = shouldGenerifyReturn ? (modName === "GObject" ? "Object" : "GObject.Object") : "";
 
-    return `static ${node.name}${
-      shouldGenerify ? `<T${GenericBaseType ? ` = ${GenericBaseType}` : ""}>` : ""
+    return `static ${node.name}${shouldGenerify ? `<T${GenericBaseType ? ` = ${GenericBaseType}` : ""}>` : ""
       }(${this.generateParameters(node.parameters)}): ${ReturnType};`;
   }
 
@@ -1115,7 +1098,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       const base = `
 
 `;
-      
+
       if (options.promisify) {
         promisifyNamespaceFunctions(node);
       }
@@ -1127,9 +1110,9 @@ export class DtsGenerator extends FormatGenerator<string> {
         .join(EOL);
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = node.imports
-        .filter(i => registry.namespace(i) != null)
-        .map(i => `import * as ${i} from "${i.toLowerCase()}";`)
+      const imports = Array.from(node.imports.entries())
+        .filter(([i]) => node.getImport(i) != null)
+        .map(([i, version]) => `import * as ${i} from "${i.toLowerCase()}${options.versionedOutput ? version.toLowerCase().split('.')[0] : ''}";`)
         .join(`${EOL}`);
 
       const raw_output = [header, imports, base, content].join(`\n\n`);

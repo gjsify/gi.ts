@@ -4,7 +4,7 @@ import { ClassField, ClassProperty } from "../xml";
 import { getType } from "./util";
 import { GirNamespace } from "./namespace";
 import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 
 export class GirField extends GirBase {
   readonly type: TypeExpression;

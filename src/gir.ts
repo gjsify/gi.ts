@@ -1,8 +1,8 @@
-import { GirNamespace, GirNSRegistry } from "./gir/namespace";
+import { GirNamespace } from "./gir/namespace";
 import { GirProperty, GirField } from "./gir/property";
 import { FormatGenerator } from "./generators/generator";
-import { GenerationOptions, LoadOptions } from "./main";
-import { jsifyType, sanitizeIdentifierName } from "./gir/util";
+import { GenerationOptions, LoadOptions } from "./cli/commands/generate";
+import { sanitizeIdentifierName } from "./gir/util";
 
 export abstract class GirBase {
   name: string;
@@ -19,7 +19,7 @@ export abstract class GirBase {
   static fromXML(
     _modName: string,
     _ns: GirNamespace,
-    options: LoadOptions,
+    _options: LoadOptions,
     _parent: GirBase | null,
     _gir: object
   ): GirBase | null {
@@ -32,11 +32,11 @@ export abstract class GirBase {
 export abstract class TypeExpression {
   abstract equals(type: TypeExpression): boolean;
   abstract unwrap(): TypeExpression;
-  abstract resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression;
+  abstract resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression;
 
-  abstract print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string;
-  rootPrint(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
-    return this.print(ns, rns, options);
+  abstract print(ns: string, namespace: GirNamespace, options: GenerationOptions): string;
+  rootPrint(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return this.print(ns, namespace, options);
   }
 }
 
@@ -62,13 +62,13 @@ export class TypeIdentifier extends TypeExpression {
     return this;
   }
 
-  private _resolve(modName: string, rns: GirNSRegistry, _options: GenerationOptions): TypeIdentifier | null {
+  private _resolve(modName: string, namespace: GirNamespace, _options: GenerationOptions): TypeIdentifier | null {
     const type = this;
     let name: string = sanitizeIdentifierName(null, type.name);
     let ns_name = type.namespace || modName;
 
-    let current_rns = rns.namespace(modName);
-    let ns = rns.namespace(ns_name);
+    let current_rns = namespace.getImport(modName);
+    let ns = namespace.getImport(ns_name);
 
     if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
       if (current_rns) {
@@ -133,20 +133,12 @@ export class TypeIdentifier extends TypeExpression {
     return null;
   }
 
-  resolveIdentifier(modName: string, rns: GirNSRegistry, options: GenerationOptions): TypeIdentifier | null {
-    return this._resolve(modName, rns, options);
+  resolveIdentifier(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
+    return this._resolve(modName, namespace, options);
   }
 
-  resolve(modName: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
-    // Inspired by gir2dts' resolveType
-    const type = this;
-    const jsified = jsifyType(modName, type);
-
-    if (jsified) {
-      return jsified;
-    }
-
-    const resolved = this._resolve(modName, rns, options);
+  resolve(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
+    const resolved = this._resolve(modName, namespace, options);
 
     if (!resolved) {
       return AnyType;
@@ -159,7 +151,7 @@ export class TypeIdentifier extends TypeExpression {
     return new TypeIdentifier(name, namespace);
   }
 
-  print(ns: string, _rns: GirNSRegistry, _options: GenerationOptions): string {
+  print(ns: string, _namespace: GirNamespace, _options: GenerationOptions): string {
     if (ns === this.namespace) {
       return `${this.name}`;
     } else {
@@ -177,11 +169,11 @@ export class NativeType extends TypeExpression {
     this.expression = typeof expression === "string" ? () => expression : expression;
   }
 
-  resolve(_ns: string, _rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
+  resolve(_ns: string, _namespace: GirNamespace, options: GenerationOptions): TypeExpression {
     return this;
   }
 
-  print(_ns: string, _rns: GirNSRegistry, options: GenerationOptions) {
+  print(_ns: string, _namespace: GirNamespace, options: GenerationOptions) {
     return this.expression(options);
   }
 
@@ -221,18 +213,18 @@ export class OrType extends TypeExpression {
     return this;
   }
 
-  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
     const [type, ...types] = this.types;
 
-    return new OrType(type.resolve(ns, rns, options), ...types.map(t => t.resolve(ns, rns, options)));
+    return new OrType(type.resolve(ns, namespace, options), ...types.map(t => t.resolve(ns, namespace, options)));
   }
 
-  print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
-    return `(${this.types.map(t => t.print(ns, rns, options)).join(" | ")})`;
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return `(${this.types.map(t => t.print(ns, namespace, options)).join(" | ")})`;
   }
 
-  rootPrint(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
-    return `${this.types.map(t => t.print(ns, rns, options)).join(" | ")}`;
+  rootPrint(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return `${this.types.map(t => t.print(ns, namespace, options)).join(" | ")}`;
   }
 
   equals(type: TypeExpression) {
@@ -245,18 +237,18 @@ export class OrType extends TypeExpression {
 }
 
 export class TupleType extends OrType {
-  print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
-    return `[${this.types.map(t => t.print(ns, rns, options)).join(", ")}]`;
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return `[${this.types.map(t => t.print(ns, namespace, options)).join(", ")}]`;
   }
 
-  rootPrint(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
-    return this.print(ns, rns, options);
+  rootPrint(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return this.print(ns, namespace, options);
   }
 
-  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
     const [type, ...types] = this.types;
 
-    return new TupleType(type.resolve(ns, rns, options), ...types.map(t => t.resolve(ns, rns, options)));
+    return new TupleType(type.resolve(ns, namespace, options), ...types.map(t => t.resolve(ns, namespace, options)));
   }
 
   equals(type: TypeExpression) {
@@ -320,17 +312,17 @@ export class PromiseType extends TypeExpression {
     return this.type;
   }
 
-  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
-    return new PromiseType(this.type.resolve(ns, rns, options));
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
+    return new PromiseType(this.type.resolve(ns, namespace, options));
   }
 
-  print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
     // TODO: Optimize this check.
-    if (!rns.assertNamespace(ns).hasSymbol("Promise")) {
-        return `Promise<${this.type.print(ns, rns, options)}>`;
+    if (!namespace.hasSymbol("Promise")) {
+        return `Promise<${this.type.print(ns, namespace, options)}>`;
     }
 
-    return `globalThis.Promise<${this.type.print(ns, rns, options)}>`;
+    return `globalThis.Promise<${this.type.print(ns, namespace, options)}>`;
   }
 }
 
@@ -374,17 +366,17 @@ export class ClosureType extends TypeExpression {
     return this;
   }
 
-  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions) {
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions) {
     const { user_data, type } = this;
 
     return ClosureType.new({
       user_data,
-      type: type.resolve(ns, rns, options)
+      type: type.resolve(ns, namespace, options)
     });
   }
 
-  print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
-    return this.type.print(ns, rns, options);
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return this.type.print(ns, namespace, options);
   }
 
   static new({ type, user_data = null }: { type: TypeExpression; user_data?: number | null }) {
@@ -418,16 +410,16 @@ export class ArrayType extends TypeExpression {
     return false;
   }
 
-  resolve(ns: string, rns: GirNSRegistry, options: GenerationOptions): TypeExpression {
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
     const { type, arrayDepth, length } = this;
     return ArrayType.new({
-      type: type.resolve(ns, rns, options),
+      type: type.resolve(ns, namespace, options),
       arrayDepth,
       length
     });
   }
 
-  print(ns: string, rns: GirNSRegistry, options: GenerationOptions): string {
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
     const depth = this.arrayDepth;
     let typeSuffix: string = "";
 
@@ -439,7 +431,7 @@ export class ArrayType extends TypeExpression {
       typeSuffix = "".padStart(2 * depth, "[]");
     }
 
-    return `${this.type.print(ns, rns, options)}${typeSuffix}`;
+    return `${this.type.print(ns, namespace, options)}${typeSuffix}`;
   }
 
   static new({

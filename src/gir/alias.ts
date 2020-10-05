@@ -3,7 +3,7 @@ import { AliasElement } from "../xml";
 import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, getAliasType } from "./util";
 import { FormatGenerator, GenericDescriptor } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 
 export class GirAlias extends GirBase {
   readonly type: TypeExpression;

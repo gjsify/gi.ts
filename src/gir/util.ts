@@ -1,4 +1,4 @@
-import { GirNSRegistry, GirNamespace } from "./namespace";
+import { GirNamespace } from "./namespace";
 import { ClassMethodParameter, Direction, AliasElement } from "../xml";
 import {
   TypeIdentifier,
@@ -8,8 +8,6 @@ import {
   GTypeType,
   BinaryType,
   ObjectType,
-  OrType,
-  NativeType,
   NullableType,
   TypeExpression,
   StringType,
@@ -21,7 +19,6 @@ import {
   NeverType,
   VoidType
 } from "../gir";
-import { GenerationOptions } from "../main";
 
 const reservedWords = [
   // For now, at least, the typescript compiler doesn't throw on numerical types like int, float, etc.
@@ -401,10 +398,6 @@ export function resolvePrimitiveType(name: string): TypeExpression | null {
       return ObjectType;
   }
 
-  return null;
-}
-
-export function jsifyType(_modName: string, type: TypeIdentifier): TypeExpression | null {
   return null;
 }
 

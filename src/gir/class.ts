@@ -25,21 +25,21 @@ import {
   GirFunctionParameter
 } from "./function";
 import { GirProperty, GirField } from "./property";
-import { GirNSRegistry, GirNamespace } from "./namespace";
+import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, parseTypeIdentifier } from "./util";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 
 export function resolveTypeIdentifier(
   modName: string,
-  rns: GirNSRegistry,
+  namespace: GirNamespace,
   type: TypeIdentifier
 ): GirBaseClass | null {
   const ns = type.namespace || modName;
   const name = type.name;
 
-  const resolved_ns = rns.namespace(ns);
+  const resolved_ns = namespace.getImport(ns);
 
   if (resolved_ns) {
     const pclass = resolved_ns.getClass(name);
@@ -56,11 +56,11 @@ export function resolveTypeIdentifier(
 export function resolveParents(
   parent: TypeIdentifier | null,
   modName: string,
-  registry: GirNSRegistry
+  namespace: GirNamespace
 ): GirBaseClass[] {
   let resolved_parents: GirBaseClass[] = [];
 
-  let resolved_parent = parent ? resolveTypeIdentifier(modName, registry, parent) : null;
+  let resolved_parent = parent ? resolveTypeIdentifier(modName, namespace, parent) : null;
 
   let inheritanceLevel = 0;
   while (resolved_parent != null) {
@@ -72,7 +72,7 @@ export function resolveParents(
     resolved_parents.push(resolved_parent);
     resolved_parent =
       (resolved_parent.parent &&
-        resolveTypeIdentifier(resolved_parent.ns, registry, resolved_parent.parent)) ||
+        resolveTypeIdentifier(resolved_parent.ns, resolved_parent.namespace, resolved_parent.parent)) ||
       null;
     inheritanceLevel++;
   }
@@ -102,7 +102,6 @@ export function filterConflicts<T extends GirBase | GirClassField>(
   ns: string,
   elements: T[],
   resolved_parents: GirBaseClass[],
-  registry: GirNSRegistry,
   behavior = FilterBehavior.ANYIFY
 ) {
   return elements
@@ -125,7 +124,7 @@ export function filterConflicts<T extends GirBase | GirClassField>(
             p.name &&
             p.name == next.name &&
             (!(next instanceof GirCallback) ||
-              isConflictingFunction(ns, next, p, resolved_parent.ns, registry))
+              isConflictingFunction(ns, next, p, resolved_parent.ns))
         )
       );
 
@@ -148,8 +147,7 @@ function isConflictingFunction(
   _currentNamespace: string,
   p: GirFunction | GirClassFunction | GirConstructor,
   next: GirClassFunction | GirFunction | GirConstructor,
-  _resolvedNamespace: string | null = null,
-  _registry: GirNSRegistry
+  _resolvedNamespace: string | null = null
 ) {
   return (
     p.parameters.length !== next.parameters.length ||
@@ -166,8 +164,7 @@ export function filterFunctionConflict<
   ns: string,
   elements: T[],
   resolved_parents: GirBaseClass[],
-  conflict_ids: string[],
-  registry: GirNSRegistry
+  conflict_ids: string[]
 ) {
   return elements
     .filter(m => m.name)
@@ -177,7 +174,7 @@ export function filterFunctionConflict<
         conflict_ids.includes(next.name) ||
         resolved_parents.some(resolved_parent =>
           [...resolved_parent.constructors, ...resolved_parent.members].some(p => {
-            let conflicting = isConflictingFunction(ns, next, p, resolved_parent.ns, registry);
+            let conflicting = isConflictingFunction(ns, next, p, resolved_parent.ns);
             return p.name && p.name == next.name && conflicting;
           })
         );
@@ -187,7 +184,7 @@ export function filterFunctionConflict<
           p =>
             p.name &&
             p.name == next.name &&
-            (!(p instanceof GirCallback) || isConflictingFunction(ns, next, p, resolved_parent.ns, registry))
+            (!(p instanceof GirCallback) || isConflictingFunction(ns, next, p, resolved_parent.ns))
         )
       );
 
@@ -317,6 +314,7 @@ export const enum ClassInjectionMember {
 
 export abstract class GirBaseClass extends GirBase {
   ns: string;
+  namespace: GirNamespace;
 
   parent: TypeIdentifier | null = null;
   interfaces: TypeIdentifier[] = [];
@@ -330,9 +328,10 @@ export abstract class GirBaseClass extends GirBase {
   generic_names: Map<string, string[]> = new Map();
   generic_override_types: Map<string, { [key: string]: string }> = new Map();
 
-  constructor(name: string, ns: string) {
+  constructor(name: string, namespace: GirNamespace) {
     super(name);
-    this.ns = ns;
+    this.namespace = namespace;
+    this.ns = namespace.name;
   }
 
   addGenericParemeter(definition: { deriveFrom?: string; default: string }) {
@@ -359,11 +358,11 @@ export abstract class GirBaseClass extends GirBase {
     throw new Error("fromXML is not implemented on GirBaseClass");
   }
 
-  resolveParents(modName: string, registry: GirNSRegistry) {
-    const class_parents = resolveParents(this.parent, modName, registry);
+  resolveParents(modName: string) {
+    const class_parents = resolveParents(this.parent, modName, this.namespace);
 
     const class_parent_interface_parents = class_parents
-      .map(i => i.interfaces.map(t => resolveParents(t, modName, registry)))
+      .map(i => i.interfaces.map(t => resolveParents(t, modName, this.namespace)))
       .flat(2)
       .reduce((prev, next) => {
         if (!prev.includes(next) && !class_parents.includes(next)) {
@@ -374,7 +373,7 @@ export abstract class GirBaseClass extends GirBase {
       }, [] as GirBaseClass[]);
 
     const interface_parents = this.interfaces
-      .map(i => resolveParents(i, modName, registry))
+      .map(i => resolveParents(i, modName, this.namespace))
       .flat()
       .reduce((prev, next) => {
         if (
@@ -437,14 +436,14 @@ export class GirClass extends GirBaseClass {
   signals: GirSignal[] = [];
   isAbstract: boolean = false;
 
-  constructor(name: string, namespace: string) {
+  constructor(name: string, namespace: GirNamespace) {
     super(name, namespace);
   }
 
   copy(): GirClass {
     const {
       name,
-      ns,
+      namespace,
       parent,
       interfaces,
       members,
@@ -457,7 +456,7 @@ export class GirClass extends GirBaseClass {
       signals
     } = this;
 
-    const clazz = new GirClass(name, ns);
+    const clazz = new GirClass(name, namespace);
 
     if (parent) {
       clazz.parent = parent;
@@ -487,7 +486,7 @@ export class GirClass extends GirBaseClass {
 
     console.log(`  >> GirClass: Parsing definition ${klass.$.name} (${name})...`);
 
-    const clazz = new GirClass(name, ns.name);
+    const clazz = new GirClass(name, ns);
 
     if (options.loadDocs) {
       clazz.doc = klass.doc?.[0]?._ ?? "";
@@ -534,11 +533,24 @@ export class GirClass extends GirBaseClass {
         klass.property.filter(isIntrospectable).forEach(prop => {
           const property = GirProperty.fromXML(modName, ns, options, null, prop);
           if (!PROTECTED_IDS.includes(property.name)) {
-            clazz.props.push(property);
+            switch (options.propertyCase) {
+              case "both":
+                clazz.props.push(property);
 
-            const camelCase = property.toCamelCase();
-            if (property.name !== camelCase.name) {
-              clazz.props.push(camelCase);
+                const camelCase = property.toCamelCase();
+
+                // Ensure we don't duplicate properties like 'show'
+                if (property.name !== camelCase.name) {
+                  clazz.props.push(camelCase);
+                }
+
+                break;
+              case "camel":
+                clazz.props.push(property.toCamelCase());
+                break;
+              case "underscore":
+                clazz.props.push(property);
+                break;
             }
           }
         });
@@ -577,9 +589,13 @@ export class GirClass extends GirBaseClass {
           const name = implementee.$.name;
           const type = parseTypeIdentifier(modName, name);
 
-          // Sometimes namespaces will implicitely import
+          // Sometimes namespaces will implicitly import
           // other namespaces like Atk via interface implements.
-          if (type && type.namespace) {
+          if (
+            type && type.namespace &&
+            type.namespace !== modName &&
+            !ns.imports.has(type.namespace)) {
+
             ns.addImport(type.namespace);
           }
 
@@ -640,7 +656,7 @@ export class GirRecord extends GirBaseClass {
   copy(): GirRecord {
     const {
       name,
-      ns,
+      namespace,
       parent,
       interfaces,
       members,
@@ -652,7 +668,7 @@ export class GirRecord extends GirBaseClass {
       mainConstructor
     } = this;
 
-    const clazz = new GirRecord(name, ns);
+    const clazz = new GirRecord(name, namespace);
 
     if (parent) {
       clazz.parent = parent;
@@ -670,7 +686,7 @@ export class GirRecord extends GirBaseClass {
     return clazz;
   }
 
-  static foreign(name: string, namespace: string): GirRecord {
+  static foreign(name: string, namespace: GirNamespace): GirRecord {
     const foreignRecord = new GirRecord(name, namespace);
     foreignRecord._isForeign = true;
     return foreignRecord;
@@ -684,7 +700,7 @@ export class GirRecord extends GirBaseClass {
       )})...`
     );
 
-    const clazz = new GirRecord(sanitizeIdentifierName(ns.name, klass.$.name), ns.name);
+    const clazz = new GirRecord(sanitizeIdentifierName(ns.name, klass.$.name), ns);
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
@@ -758,7 +774,7 @@ export class GirRecord extends GirBaseClass {
     return clazz;
   }
 
-  isSimple(modName: string, registry: GirNSRegistry) {
+  isSimple(modName: string) {
     if (this.fields.length === 0) {
       return false;
     }
@@ -772,7 +788,9 @@ export class GirRecord extends GirBaseClass {
       if (typeContainer instanceof TypeIdentifier) {
         const type = typeContainer;
 
-        const child_ns = registry.namespace(type.namespace || modName);
+
+
+        const child_ns = this.namespace.getImport(type.namespace || modName);
         const child = child_ns ? child_ns.getClass(type.name) : null;
 
         // TODO Handle Unions
@@ -781,7 +799,7 @@ export class GirRecord extends GirBaseClass {
             return false;
           }
 
-          return child.isSimple(modName, registry);
+          return child.isSimple(modName);
         } else {
           return false;
         }
@@ -800,7 +818,7 @@ export class GirInterface extends GirBaseClass {
   copy(): GirInterface {
     const {
       name,
-      ns,
+      namespace,
       parent,
       interfaces,
       members,
@@ -811,7 +829,7 @@ export class GirInterface extends GirBaseClass {
       mainConstructor
     } = this;
 
-    const clazz = new GirInterface(name, ns);
+    const clazz = new GirInterface(name, namespace);
 
     if (parent) {
       clazz.parent = parent;
@@ -837,7 +855,7 @@ export class GirInterface extends GirBaseClass {
     const name = sanitizeIdentifierName(ns.name, klass.$.name);
     console.log(`  >> GirInterface: Parsing definition ${klass.$.name} (${name})...`);
 
-    const clazz = new GirInterface(name, ns.name);
+    const clazz = new GirInterface(name, ns);
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
@@ -872,13 +890,23 @@ export class GirInterface extends GirBaseClass {
             .filter(isIntrospectable)
             .map(prop => GirProperty.fromXML(modName, ns, options, null, prop))
             .map(prop => {
-              const camelCase = prop.toCamelCase();
+              switch (options.propertyCase) {
+                case "both":
+                  clazz.props.push(prop);
 
-              if (prop.name !== camelCase.name) {
-                [prop, prop.toCamelCase()];
+                  const camelCase = prop.toCamelCase();
+
+                  // Ensure we don't duplicate properties like 'show'
+                  if (prop.name !== camelCase.name) {
+                    return [prop, prop.toCamelCase()];
+                  }
+
+                  return [prop];
+                case "camel":
+                  return [prop.toCamelCase()];
+                case "underscore":
+                  return [prop];
               }
-
-              return [prop];
             })
             .flat(1)
             .filter(property => !PROTECTED_IDS.includes(property.name))

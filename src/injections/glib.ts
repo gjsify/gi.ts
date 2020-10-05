@@ -5,6 +5,7 @@ import { Direction } from "../xml";
 
 export default {
   namespace: "GLib",
+  version: "2.0",
   modifier(namespace: GirNamespace, registry: GirNSRegistry) {
     // export function log_structured(logDomain, logLevel, stringFields);
 
@@ -106,7 +107,7 @@ export default {
         })
       );
 
-      const GObject_Object = registry.assertNamespace("GObject").assertClass("Object").getType();
+      const GObject_Object = registry.assertNamespace("GObject", "2.0").assertClass("Object").getType();
 
       Variant.members.push(
         // unpack<T= any>(): T;

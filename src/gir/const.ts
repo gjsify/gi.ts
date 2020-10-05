@@ -4,7 +4,7 @@ import { ConstantElement } from "../xml";
 import { GirNamespace } from "./namespace";
 import { getType, sanitizeIdentifierName } from "./util";
 import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 
 export class GirConst extends GirBase {
   type: TypeExpression;

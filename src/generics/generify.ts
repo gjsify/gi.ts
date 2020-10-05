@@ -3,8 +3,8 @@ import gio from "./gio";
 import { GirNSRegistry, GirNamespace } from "../gir/namespace";
 
 function generifyDefinitions(registry: GirNSRegistry) {
-  return (definition: { namespace: string; modifier: (namespace: GirNamespace) => void }) => {
-    const ns = registry.namespace(definition.namespace);
+  return (definition: { namespace: string; version: string; modifier: (namespace: GirNamespace) => void }) => {
+    const ns = registry.namespace(definition.namespace, definition.version);
 
     if (ns) {
       definition.modifier(ns);

@@ -1,3 +1,4 @@
+
 // GJS OVERRIDES
 
 // Correctly types interface checks.
@@ -134,8 +135,6 @@ type IFaces<Interfaces extends { $gtype: GType<any> }[]> = { [key in keyof Inter
 type RegisteredPrototype<P extends {}, Props extends { [key: string]: ParamSpec }, Interfaces extends any[]> =
     Properties<P, SnakeToCamel<Props> & SnakeToUnderscore<Props>> & UnionToIntersection<Interfaces[number]> & P;
 
-type Constructor<P extends {} = {}> = { prototype: P, new(...args: any[]): void };
-
 type V = string | number | boolean | bigint;
 
 type Split<S extends string, D extends string> =
@@ -150,8 +149,8 @@ type Join<T extends V[], D extends string> =
 
 type FormatCapitalize<T extends V[]> =
     T extends [] ? [] :
-    T extends [unknown] ? [`${capitalize T[0]}`] :
-    T extends [unknown, ...infer U] ? [`${capitalize T[0]}`, ...FormatCapitalize<U extends V[] ? U : []>] :
+    T extends [string] ? [`${Capitalize<T[0]>}`] :
+    T extends [string, ...infer U] ? [`${Capitalize<T[0]>}`, ...FormatCapitalize<U extends V[] ? U : []>] :
     [];
 
 type FormatCamelCase<T extends V[]> =

@@ -29,6 +29,7 @@ function anyParam(name: string) {
 
 export default {
   namespace: "GObject",
+  version: "2.0",
   modifier(namespace: GirNamespace, _registry: GirNSRegistry) {
     {
       namespace.members.set("GType", new GirAlias({

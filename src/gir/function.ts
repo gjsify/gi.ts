@@ -25,7 +25,7 @@ import { GirBaseClass } from "./class";
 import { GirEnum } from "./enum";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 
 function hasShadow(obj: Function | Method): obj is Function & { $: { shadows: string } } {
   return obj.$["shadows"] != null;
@@ -211,21 +211,21 @@ export class GirFunction extends GirBase {
   }
 
   asClassFunction(parent: GirBaseClass | GirEnum): GirClassFunction {
-    const { raw_name: name, output_parameters, parameters, return_type } = this;
+    const { raw_name: name, output_parameters, parameters, return_type, doc } = this;
 
-    return new GirClassFunction({ parent, name, output_parameters, parameters, return_type });
+    return new GirClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
   }
 
   asVirtualClassFunction(parent: GirBaseClass): GirVirtualClassFunction {
-    const { raw_name: name, output_parameters, parameters, return_type } = this;
+    const { raw_name: name, output_parameters, parameters, return_type, doc } = this;
 
-    return new GirVirtualClassFunction({ parent, name, output_parameters, parameters, return_type });
+    return new GirVirtualClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
   }
 
   asStaticClassFunction(parent: GirBaseClass | GirEnum): GirStaticClassFunction {
-    const { raw_name: name, output_parameters, parameters, return_type } = this;
+    const { raw_name: name, output_parameters, parameters, return_type, doc } = this;
 
-    return new GirStaticClassFunction({ parent, name, output_parameters, parameters, return_type });
+    return new GirStaticClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T {
@@ -419,13 +419,15 @@ export class GirClassFunction extends GirBase {
     parameters = [],
     output_parameters = [],
     return_type = UnknownType,
-    parent
+    parent,
+    doc
   }: {
     name: string;
     parameters?: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirBaseClass | GirEnum;
+    doc?: string;
   }) {
     super(name);
 
@@ -433,6 +435,7 @@ export class GirClassFunction extends GirBase {
     this.output_parameters = output_parameters.map(p => p.copy({ parent: this }));
     this.return_type = return_type;
     this.parent = parent;
+    this.doc = doc;
   }
 
   asConstructor(): GirConstructor {
@@ -534,20 +537,23 @@ export class GirVirtualClassFunction extends GirClassFunction {
     parameters = [],
     output_parameters = [],
     return_type = UnknownType,
-    parent
+    parent,
+    doc
   }: {
     name: string;
     parameters: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirBaseClass;
+    doc?: string;
   }) {
     super({
       parent,
       name: name.startsWith("vfunc_") ? name : `vfunc_${name}`,
       parameters,
       output_parameters,
-      return_type
+      return_type,
+      doc
     });
   }
 

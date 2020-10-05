@@ -7,8 +7,8 @@ import { GirNSRegistry, GirNamespace } from "../gir/namespace";
 export type NamespaceInjection = (namespace: GirNamespace, registry: GirNSRegistry) => void;
 
 function injectDefinitions(registry: GirNSRegistry) {
-  return (definition: { namespace: string; modifier: NamespaceInjection }) => {
-    const ns = registry.assertNamespace(definition.namespace);
+  return (definition: { namespace: string; version: string; modifier: NamespaceInjection }) => {
+    const ns = registry.assertNamespace(definition.namespace, definition.version);
 
     definition.modifier(ns, registry);
   };

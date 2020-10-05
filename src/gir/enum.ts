@@ -7,15 +7,17 @@ import { GirStaticClassFunction } from "./function";
 import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, sanitizeMemberName } from "./util";
 import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../main";
+import { LoadOptions } from "../cli/commands/generate";
 export class GirEnum extends GirBase {
   members = new Map<string, GirEnumMember>();
   flags: boolean = false;
+  namespace: GirNamespace;
   ns: string;
 
-  constructor(name: string, ns: string) {
-    super(sanitizeIdentifierName(ns, name));
-    this.ns = ns;
+  constructor(name: string, namespace: GirNamespace) {
+    super(sanitizeIdentifierName(namespace.name, name));
+    this.namespace = namespace;
+    this.ns = namespace.name;
   }
 
   getType(): TypeIdentifier {
@@ -23,9 +25,9 @@ export class GirEnum extends GirBase {
   }
 
   copy(): GirEnum {
-    const { members, ns, name, flags } = this;
+    const { members, namespace, name, flags } = this;
 
-    const en = new GirEnum(name, ns);
+    const en = new GirEnum(name, namespace);
 
     for (const [key, member] of members.entries()) {
       en.members.set(key, member.copy());
@@ -41,7 +43,7 @@ export class GirEnum extends GirBase {
   }
 
   asClass(): GirRecord {
-    const clazz = new GirRecord(this.name, this.ns);
+    const clazz = new GirRecord(this.name, this.namespace);
 
     clazz.props.push(
       ...Array.from(this.members.values()).map(m => {
@@ -66,7 +68,7 @@ export class GirEnum extends GirBase {
     m: Enumeration | BitfieldElement,
     flags = false
   ): GirEnum {
-    const em = new GirEnum(sanitizeMemberName(m.$.name), ns.name);
+    const em = new GirEnum(sanitizeMemberName(m.$.name), ns);
 
     if (m.$["glib:type-name"]) {
       em.resolve_names.push(m.$["glib:type-name"]);
@@ -144,7 +146,7 @@ export class GirError extends GirEnum {
     parent,
     m: Enumeration | BitfieldElement
   ): GirEnum {
-    const err = new GirError(sanitizeMemberName(m.$.name), ns.name);
+    const err = new GirError(sanitizeMemberName(m.$.name), ns);
 
     if (m.$["glib:type-name"]) {
       err.resolve_names.push(m.$["glib:type-name"]);

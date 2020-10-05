@@ -1,6 +1,6 @@
 import { FormatGenerator } from "./generator";
-import { GirNSRegistry, GirNamespace } from "../gir/namespace";
-import { GenerationOptions } from "../main";
+import { GirNamespace } from "../gir/namespace";
+import { GenerationOptions } from "../cli/commands/generate";
 
 import { GirBaseClass, GirRecord, GirInterface, GirClass } from "../gir/class";
 import { GirConst } from "../gir/const";
@@ -23,7 +23,8 @@ import {
   TupleType,
   NullableType,
   AnyifiedType,
-  ClosureType
+  ClosureType,
+  GirBase
 } from "../gir";
 import { Direction } from "../xml";
 import { GirAlias } from "../gir/alias";
@@ -62,8 +63,10 @@ const options = {
   resolveTypeConflicts: false,
   inferGenerics: false,
   promisify: false,
+  propertyCase: "underscore" as const,
   format: "json" as const,
-  withDocs: true
+  withDocs: true,
+  versionedOutput: true
 };
 
 function generateType(type: TypeExpression): Json {
@@ -118,16 +121,158 @@ function generateType(type: TypeExpression): Json {
   }
 }
 
+function casify(str: string) {
+  if (str.length === 0) {
+    return '';
+  }
+
+  if (str.length === 1) {
+    return str[0].toUpperCase();
+  }
+
+  return str[0].toUpperCase() + str.slice(1).toLowerCase();
+}
+
 export class JsonGenerator extends FormatGenerator<Json> {
   modName: string;
-  registry: GirNSRegistry;
+  registry: GirNamespace;
   options: GenerationOptions;
 
-  constructor(modName: string, registry: GirNSRegistry, options: GenerationOptions) {
+  constructor(modName: string, registry: GirNamespace, options: GenerationOptions) {
     super();
     this.modName = modName;
     this.registry = registry;
     this.options = options;
+  }
+
+  /**
+   * Intelligently reformats # and () references
+   * to handle c-prefixes and namespacing.
+   * 
+   * @param doc 
+   */
+  private generateDoc(doc: string): string {
+    const { registry } = this;
+    return doc.replace(/#([A-z]+)(([:]{1,2})([a-z\-]+)){0,1}(?!\(\))/g,
+      (original, identifier: string, _: string, punc: string, member_name: string) => {
+        const parts = identifier.split(/([A-Z])/).reduce((prev, next) => {
+          if (next.toUpperCase() === next) {
+            prev.push(`${next}`);
+          } else {
+            const lastCapital = prev.pop();
+
+            prev.push(`${lastCapital}${next}`);
+          }
+
+          return prev;
+        }, [] as string[]).filter(p => p != '');
+        console.log(parts);
+        let [base_part] = parts;
+
+        const [, , namespaces, klass_name] = parts.slice(1).reduce(([underscore, camel, ns, selected], next) => {
+
+          const next_underscore = [underscore, next.toLowerCase()].join('_');
+          console.log(ns.map(n => n.name))
+          const namespaces = registry.getImportsForCPrefix(next_underscore);
+          const nextCamel = camel + casify(next);
+          console.log(`looking for doc ns ${next_underscore} ${nextCamel} ${casify(next)}`);
+          if (namespaces.length > 0) {
+            return [next_underscore, nextCamel, namespaces, casify(next)] as const;
+          }
+
+          return [next_underscore, nextCamel, ns, selected + casify(next)] as const;
+        }, [base_part.toLowerCase(), casify(base_part), registry.getImportsForCPrefix(base_part.toLowerCase()), ""] as const);
+        console.log("f", klass_name);
+        const ns = namespaces.find(n => n.hasSymbol(klass_name));
+
+        if (ns) {
+          const is_prop = punc === ":";
+          const modified_name = is_prop ? member_name.replace(/[\-]/g, "_") : member_name;
+
+
+          let clazz = ns.getMember(klass_name);
+
+          let plural = false;
+
+          if (!clazz && klass_name.endsWith('s')) {
+            plural = true;
+            clazz = ns.getMember(klass_name.slice(0, -1))
+          }
+
+          if (clazz instanceof GirBaseClass || clazz instanceof GirEnum) {
+            return `#${plural ? '{' : ''}${ns.name}.${clazz.name}${punc ? `${punc}${modified_name}` : ''}${plural ? '}s' : ''}`;
+          }
+
+          return `#${ns.name}${punc ? ` (${punc}${modified_name})` : ''}`;
+        } else {
+          return original;
+        }
+      }).replace(/([a-z_]+)\(\)/g, (original, func: string) => {
+        const parts = func.split("_");
+
+        const [base_part] = parts;
+
+        const [, namespaces, i] = parts.slice(1).reduce(([prev, ns, selected], next, i) => {
+
+          const namespaces = registry.getImportsForCPrefix([prev, next].join('_'));
+          const str = prev + casify(next);
+
+          console.log(`looking for doc ns :: ${str}`);
+
+          console.log(namespaces.map(n => n.name))
+
+          if (namespaces.length > 0) {
+            return [str, namespaces, i + 1] as const;
+          }
+
+          return [str, ns, selected] as const;
+        }, [casify(base_part), registry.getImportsForCPrefix(base_part), 0] as const);
+
+        console.log(`found ${namespaces.length} for ${parts.join('_')}`)
+
+        if (namespaces.length === 0) {
+          return original;
+        }
+
+        const fn_name = parts.slice(i + 1).join("_");
+        const fn_namespace = namespaces.find(n => n.hasSymbol(fn_name));
+
+        if (fn_namespace) {
+          const member = fn_namespace.getMember(fn_name);
+
+          if (member instanceof GirFunction) {
+            return `${fn_namespace.name}.${fn_name}()`;
+          }
+
+          return original;
+        } else {
+          const [, clazz, namespace, ci] = parts.slice(i + 1).reduce(([prev, clazz, ns, selected], next, ci) => {
+            console.log(`looking for clazz ns ${prev + casify(next)}`);
+            const n = namespaces.find(n => n.hasSymbol(prev + casify(next)))
+
+            if (n) {
+              const clazz = n.getMember(prev + casify(next));
+              return [prev + casify(next), clazz, n, ci] as const;
+            }
+
+            return [prev + casify(next), clazz, ns, selected] as const;
+          }, ["" as string, null as GirBaseClass | null, null as GirNamespace | null, -1] as const);
+
+          if (namespace) {
+            const fn = ci >= 0 ? `.${parts.slice(i + ci + 2).join("_")}` : "";
+
+            if (clazz instanceof GirBaseClass || clazz instanceof GirEnum) {
+
+              console.log(clazz.name);
+              return `${namespace.name}.${clazz.name}${fn}()`;
+            }
+
+            return original;
+          }
+        }
+
+        return original;
+      });
   }
 
   private generateParameters(parameters: GirFunctionParameter[]): Json[] {
@@ -140,19 +285,31 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name: p.name,
       resoleNames: p.resolve_names,
       type: generateType(p.type.resolve(modName, registry, options)),
-      ...(this.options.withDocs ? { doc: p.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(p.doc ?? "") } : {})
     }));
   }
 
   generateCallbackType(node: GirCallback): [Json, Json] {
-    return [{}, {}];
+    return [
+      {},
+      {}
+    ];
   }
 
   generateCallback(node: GirCallback): Json {
+    const { modName, registry, options } = this;
+
+    const parameters = this.generateParameters(node.parameters);
+
     return {
       kind: NodeKind.callback,
       name: node.name,
-      type: this.generateCallbackType(node)
+      type: this.generateCallbackType(node),
+      parameters,
+      returnType: generateType(node
+        .return()
+        .resolve(modName, registry, options)
+      )
     };
   }
 
@@ -185,7 +342,8 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
       return {
         name: node.name,
-        members: Array.from(node.members.values()).map(member => member.asString(this))
+        members: Array.from(node.members.values()).map(member => member.asString(this)),
+        ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
       };
     } catch (e) {
       console.error(`Failed to generate enum: ${node.name}.`);
@@ -201,7 +359,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     clazz.members = [];
     clazz.members.push(...Array.from(node.functions.values()));
 
-    const GLib = registry.namespace("GLib");
+    const GLib = registry.getImport("GLib");
 
     if (!GLib) {
       throw new Error(`Attempted to generate a subclass of GLib.Error without GLib loaded!`);
@@ -267,7 +425,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     const { modName, registry } = this;
     // If an interface does not list a prerequisite type, we fill it with GObject.Object
     if (node.parent == null) {
-      const gobject = registry.namespace("GObject");
+      const gobject = registry.getImport("GObject");
 
       // TODO Optimize GObject.Object
       if (!gobject) {
@@ -300,7 +458,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       extends: Extends ? generateType(Extends) : null,
       staticFunctions,
       functions,
-       ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -321,7 +479,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     } else if (node.constructors.length > 0) {
       const [firstConstructor] = node.constructors;
       MainConstructor = this.generateConstructor(firstConstructor);
-    } else if (node.isSimple(modName, registry)) {
+    } else if (node.isSimple(modName)) {
       MainConstructor = {};
     }
 
@@ -345,7 +503,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       constructors: Constructors,
       members: Members,
       callbacks: Callbacks,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -483,7 +641,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       fields: Fields,
       constructors: Constructors,
       members: Members,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -501,7 +659,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       computed,
       type: generateType(node.type.resolve(namespace, registry, options)),
       name: invalid ? `"${name}"` : name,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -520,7 +678,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       static: Static,
       type: Type,
       name: Name,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -556,7 +714,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     let type: Json = generateType(
       resolveDirectedType(node.type, node.direction)?.resolve(modName, registry, options) ??
-        node.type.resolve(modName, registry, options)
+      node.type.resolve(modName, registry, options)
     );
 
     return {
@@ -565,7 +723,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       type,
       varargs: node.isVarArgs,
       optional: node.isOptional,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -584,7 +742,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name: node.name,
       parameters: Parameters,
       returnType: ReturnType,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -602,7 +760,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name,
       parameters: Parameters,
       returnType: generateType(node.return().resolve(modName, registry, options)),
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -610,7 +768,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     return {
       kind: NodeKind.constructor,
       parameters: this.generateParameters(node.parameters),
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -628,7 +786,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name: node.name,
       parameters,
       returnType: ReturnType,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -646,7 +804,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name: node.name,
       parameters,
       returnType: ReturnType,
-      ...(this.options.withDocs ? { doc: node.doc ?? "" } : {})
+      ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
@@ -659,7 +817,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     return {
       kind: NodeKind.alias,
       name,
-      type: generateType(type)
+      type: generateType(type.resolve(modName, registry, options))
     };
   }
 
@@ -668,10 +826,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateNamespace(node: GirNamespace): string | null {
-    const { modName, registry } = this;
+    const { modName } = this;
     console.log(`Resolving the types of ${modName}...`);
     try {
-      const { name } = node;
+      const { name, version } = node;
 
       const members = Array.from(node.members.values()).flatMap(m => m);
 
@@ -692,12 +850,13 @@ export class JsonGenerator extends FormatGenerator<Json> {
       const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = node.imports.filter(i => registry.namespace(i) != null);
+      const imports = Array.from(node.imports.entries()).filter(([i]) => node.getImport(i) != null);
 
       const raw_output = {
         kind: NodeKind.namespace,
         name,
-        imports,
+        version,
+        imports: Object.fromEntries(imports),
         classes,
         interfaces,
         records,

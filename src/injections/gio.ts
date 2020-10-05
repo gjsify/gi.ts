@@ -3,10 +3,11 @@ import { GirConstructor, GirFunctionParameter } from "../gir/function";
 import { StringType, NativeType } from "../gir";
 import { Direction } from "../xml";
 import { GirField } from "../gir/property";
-import { GenerationOptions } from "../main";
+import { GenerationOptions } from "../cli/commands/generate";
 
 export default {
   namespace: "Gio",
+  version: "2.0",
   modifier(namespace: GirNamespace) {
     {
       const DBusNodeInfo = namespace.assertClass("DBusNodeInfo");
