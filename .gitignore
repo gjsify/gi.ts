@@ -2,5 +2,6 @@ node_modules
 _build
 dist
 
+docs-lock.json
 docs.json
 *.log

@@ -4,6 +4,7 @@ import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, getAliasType } from "./util";
 import { FormatGenerator, GenericDescriptor } from "../generators/generator";
 import { LoadOptions } from "../types";
+import { GirVisitor } from "../visitor";
 
 export class GirAlias extends GirBase {
   readonly type: TypeExpression;
@@ -24,17 +25,23 @@ export class GirAlias extends GirBase {
     this.generics = generics;
   }
 
-  copy(): GirAlias {
-    const { name, type } = this;
+  accept(visitor: GirVisitor): GirAlias {
+    return visitor.visitAlias(this.copy({
+      type: visitor.visitType(this.type)
+    }));
+  }
 
-    return new GirAlias({ name, type });
+  copy(options?: { parent?: undefined; type?: TypeExpression }): GirAlias {
+    const { name, type  } = this;
+
+    return new GirAlias({ name, type: options?.type ?? type });
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T | null {
     return generator.generateAlias(this);
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _options: LoadOptions,  _parent, m: AliasElement): GirAlias | null {
+  static fromXML(modName: string, ns: GirNamespace, _options: LoadOptions, _parent, m: AliasElement): GirAlias | null {
     if (!m.$.name) {
       console.error(`Alias in ${modName} lacks name.`);
       return null;

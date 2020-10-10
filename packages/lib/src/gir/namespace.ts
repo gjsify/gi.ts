@@ -9,54 +9,10 @@ import { GirConst } from "./const";
 import { GirAlias } from "./alias";
 
 import { LoadOptions } from "../types";
-import { TwoKeyMap } from "../util";
+import { GirNSRegistry } from "./registry";
+import { GirVisitor } from "../visitor";
 
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
-
-export class GirNSRegistry {
-  mapping: TwoKeyMap<string, string, GirNamespace> = new TwoKeyMap();
-  c_mapping: Map<string, GirNamespace[]> = new Map();
-
-  namespace(name: string, version: string): GirNamespace | null {
-    return this.mapping.get(name, version) || null;
-  }
-
-  namespacesForPrefix(c_prefix): GirNamespace[] {
-    return this.c_mapping.get(c_prefix) ?? [];
-  }
-
-  defaultVersionOf(name: string): string | null {
-    const meta = this.mapping.getIfOnly(name);
-
-    if (meta) {
-      return meta[0];
-    }
-
-    return null;
-  }
-
-  assertNamespace(name: string, version: string): GirNamespace {
-    const namespace = this.mapping.get(name, version);
-
-    if (!namespace) {
-      throw new Error(`Namespace '${name}' not found.`);
-    }
-
-    return namespace;
-  }
-
-  load(gir: GirXML, options: LoadOptions) {
-    const namespace = GirNamespace.fromXML(gir, options, this);
-
-    this.mapping.set(namespace.name, namespace.version, namespace);
-
-    let c_map = this.c_mapping.get(namespace.c_prefix) || [];
-
-    c_map.push(namespace);
-
-    this.c_mapping.set(namespace.c_prefix, c_map);
-  }
-}
 
 const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
 
@@ -137,6 +93,22 @@ export class GirNamespace {
     this.name = name;
     this.version = version;
     this.c_prefix = prefix;
+  }
+
+  accept(visitor: GirVisitor) {
+    for (const key of [...this.members.keys()]) {
+      const member = this.members.get(key);
+
+      if (!member) continue;
+
+      if (Array.isArray(member)) {
+        this.members.set(key, member.map(m => {
+          return m.accept(visitor);
+        }));
+      } else {
+        this.members.set(key, member.accept(visitor));
+      }
+    }
   }
 
   getImportsForCPrefix(c_prefix: string): GirNamespace[] {
@@ -292,7 +264,10 @@ export class GirNamespace {
     const version = ns.$["version"];
     const c_prefix = ns.$["c:symbol-prefixes"];
 
-    console.log(`Parsing ${modName}...`);
+    if (options.verbose) {
+      console.debug(`Parsing ${modName}...`);
+    }
+
     const defaultImports = ["GObject", "Gio", "GLib"].filter(a => a !== modName);
 
 

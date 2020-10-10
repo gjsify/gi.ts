@@ -23,7 +23,8 @@ import {
   NullableType,
   AnyifiedType,
   ClosureType,
-  GirBase
+  GirBase,
+  AnyFunctionType
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias";
@@ -616,7 +617,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
         }),
         new GirFunctionParameter({
           name: "callback",
-          type: NativeType.of("(...args: any[]) => any"),
+          type: AnyFunctionType,
           direction: Direction.In
         })
       ],
@@ -634,7 +635,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
         }),
         new GirFunctionParameter({
           name: "callback",
-          type: NativeType.of("(...args: any[]) => any"),
+          type: AnyFunctionType,
           direction: Direction.In
         })
       ],
@@ -893,8 +894,12 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateNamespace(node: GirNamespace): string | null {
-    const { modName } = this;
-    console.log(`Resolving the types of ${modName}...`);
+    const { modName, options } = this;
+
+    if (options.verbose) {
+      console.debug(`Resolving the types of ${modName}...`);
+    }
+
     try {
       const { name, version } = node;
 
@@ -938,7 +943,9 @@ export class JsonGenerator extends FormatGenerator<Json> {
         alias
       };
 
-      console.log(`Printing ${modName}...`);
+      if (options.verbose) {
+        console.debug(`Printing ${modName}...`);
+      }
 
       return JSON.stringify(raw_output, null, 4);
     } catch (err) {

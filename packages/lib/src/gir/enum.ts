@@ -8,6 +8,8 @@ import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, sanitizeMemberName } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
+import { GirVisitor } from "../visitor";
+
 export class GirEnum extends GirBase {
   members = new Map<string, GirEnumMember>();
   flags: boolean = false;
@@ -20,16 +22,15 @@ export class GirEnum extends GirBase {
     this.ns = namespace.name;
   }
 
-  getType(): TypeIdentifier {
-    return new TypeIdentifier(this.name, this.ns);
-  }
-
-  copy(): GirEnum {
-    const { members, namespace, name, flags } = this;
+  copy({ members }: {
+    parent?: undefined;
+    members?: Map<string, GirEnumMember>
+  } = {}): GirEnum {
+    const { namespace, name, flags } = this;
 
     const en = new GirEnum(name, namespace);
 
-    for (const [key, member] of members.entries()) {
+    for (const [key, member] of (members ?? this.members).entries()) {
       en.members.set(key, member.copy());
     }
 
@@ -38,12 +39,26 @@ export class GirEnum extends GirBase {
     return en;
   }
 
+  accept(visitor: GirVisitor): GirEnum {
+    return visitor.visitEnum(this.copy({
+      members: new Map(Array.from(this.members.entries()).map(([name, m]) => {
+        return [name, m.accept(visitor)];
+      }))
+    }));
+  }
+
+  getType(): TypeIdentifier {
+    return new TypeIdentifier(this.name, this.ns);
+  }
+
   asString<T = string>(generator: FormatGenerator<T>): T | null {
     return generator.generateEnum(this);
   }
 
   asClass(): GirRecord {
-    const clazz = new GirRecord(this.name, this.namespace);
+    const { name, namespace } = this;
+
+    const clazz = new GirRecord({ name, namespace });
 
     clazz.props.push(
       ...Array.from(this.members.values()).map(m => {
@@ -107,6 +122,10 @@ export class GirEnumMember extends GirBase {
     this.c_identifier = c_identifier;
   }
 
+  accept(visitor: GirVisitor): GirEnumMember {
+    return visitor.visitEnumMember(this.copy());
+  }
+
   copy(): GirEnumMember {
     const { value, name, c_identifier } = this;
 
@@ -140,6 +159,23 @@ export class GirError extends GirEnum {
 
   asString<T = string>(generator: FormatGenerator<T>): T {
     return generator.generateError(this);
+  }
+
+  copy({ members }: {
+    parent?: undefined;
+    members?: Map<string, GirEnumMember>
+  } = {}): GirEnum {
+    const { namespace, name, flags } = this;
+
+    const en = new GirError(name, namespace);
+
+    for (const [key, member] of (members ?? this.members).entries()) {
+      en.members.set(key, member.copy());
+    }
+
+    en.flags = flags;
+
+    return en;
   }
 
   static fromXML(

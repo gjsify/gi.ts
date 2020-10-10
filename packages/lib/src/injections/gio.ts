@@ -1,6 +1,6 @@
 import { GirNamespace } from "../gir/namespace";
 import { GirConstructor, GirFunctionParameter } from "../gir/function";
-import { StringType, NativeType } from "../gir";
+import { StringType, NativeType, FunctionType, GenerifiedType, GenericType } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirField } from "../gir/property";
 
@@ -51,13 +51,7 @@ export default {
         new GirField({
           name: "Symbol.iterator",
           computed: true,
-          type: NativeType.withGenerator((options) => {
-            if (options?.inferGenerics) {
-              return "() => IterableIterator<A>";
-            } else {
-              return "() => IterableIterator";
-            }
-          })
+          type: new FunctionType({}, new GenerifiedType(new NativeType("IterableIterator"), new GenericType("A")))
         })
       );
     }

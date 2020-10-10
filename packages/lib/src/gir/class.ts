@@ -12,9 +12,11 @@ import {
   PromiseType,
   VoidType,
   TupleType,
-  BooleanType
+  BooleanType,
+  Generic,
+  GenericType
 } from "../gir";
-import { InterfaceElement, Element, ClassElement, RecordElement, Direction } from "@gi.ts/parser";
+import { InterfaceElement, Element, ClassElement, RecordElement, Direction, Class } from "@gi.ts/parser";
 import {
   GirClassFunction,
   GirVirtualClassFunction,
@@ -30,13 +32,14 @@ import { sanitizeIdentifierName, parseTypeIdentifier } from "./util";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
+import { GirVisitor } from "../visitor";
+import { GenericNameGenerator } from "./generics";
 
 export function resolveTypeIdentifier(
-  modName: string,
   namespace: GirNamespace,
   type: TypeIdentifier
 ): GirBaseClass | null {
-  const ns = type.namespace || modName;
+  const ns = type.namespace;
   const name = type.name;
 
   const resolved_ns = namespace.getImport(ns);
@@ -55,24 +58,23 @@ export function resolveTypeIdentifier(
 
 export function resolveParents(
   parent: TypeIdentifier | null,
-  modName: string,
   namespace: GirNamespace
 ): GirBaseClass[] {
   let resolved_parents: GirBaseClass[] = [];
 
-  let resolved_parent = parent ? resolveTypeIdentifier(modName, namespace, parent) : null;
+  let resolved_parent = parent ? resolveTypeIdentifier(namespace, parent) : null;
 
   let inheritanceLevel = 0;
   while (resolved_parent != null) {
     if (inheritanceLevel > 100) {
-      console.log(`Detected infinite inheritance in ${modName}... breaking at 100.`);
+      console.error(`Detected infinite inheritance in ${namespace.name}... breaking at 100.`);
       break;
     }
 
     resolved_parents.push(resolved_parent);
     resolved_parent =
       (resolved_parent.parent &&
-        resolveTypeIdentifier(resolved_parent.ns, resolved_parent.namespace, resolved_parent.parent)) ||
+        resolveTypeIdentifier(resolved_parent.namespace, resolved_parent.parent)) ||
       null;
     inheritanceLevel++;
   }
@@ -82,15 +84,6 @@ export function resolveParents(
 
 function isTypeConflict(a: TypeExpression, b: TypeExpression) {
   return !a.equals(b) || !b.equals(a);
-}
-
-export class GenericParameter {
-  default: string;
-  deriveFrom: string | null = null;
-
-  constructor(def) {
-    this.default = def;
-  }
 }
 
 export enum FilterBehavior {
@@ -124,7 +117,7 @@ export function filterConflicts<T extends GirBase | GirClassField>(
             p.name &&
             p.name == next.name &&
             (!(next instanceof GirCallback) ||
-              isConflictingFunction(ns, next, p, resolved_parent.ns))
+              isConflictingFunction(ns, next, p, resolved_parent.namespace.name))
         )
       );
 
@@ -149,6 +142,16 @@ function isConflictingFunction(
   next: GirClassFunction | GirFunction | GirConstructor,
   _resolvedNamespace: string | null = null
 ) {
+  if (p instanceof GirConstructor && next instanceof GirConstructor) {
+    return (
+      p.parameters.length !== next.parameters.length ||
+      isTypeConflict(p.return(), next.return()) ||
+      next.parameters.some((np, i) => isTypeConflict(p.parameters[i].type, np.type))
+    );
+  } else if (p instanceof GirConstructor || next instanceof GirConstructor) {
+    return true;
+  }
+
   return (
     p.parameters.length !== next.parameters.length ||
     p.output_parameters.length !== next.output_parameters.length ||
@@ -174,7 +177,7 @@ export function filterFunctionConflict<
         conflict_ids.includes(next.name) ||
         resolved_parents.some(resolved_parent =>
           [...resolved_parent.constructors, ...resolved_parent.members].some(p => {
-            let conflicting = isConflictingFunction(ns, next, p, resolved_parent.ns);
+            let conflicting = isConflictingFunction(ns, next, p, resolved_parent.namespace.name);
             return p.name && p.name == next.name && conflicting;
           })
         );
@@ -184,11 +187,11 @@ export function filterFunctionConflict<
           p =>
             p.name &&
             p.name == next.name &&
-            (!(p instanceof GirCallback) || isConflictingFunction(ns, next, p, resolved_parent.ns))
+            (!(p instanceof GirCallback) || isConflictingFunction(ns, next, p, resolved_parent.namespace.name))
         )
       );
 
-      const isGObject = resolved_parents.some(p => p.ns === "GObject" && p.name === "Object");
+      const isGObject = resolved_parents.some(p => p.namespace.name === "GObject" && p.name === "Object");
 
       if (isGObject) {
         conflicts = conflicts || ["connect", "connect_after", "emit"].includes(next.name);
@@ -229,7 +232,7 @@ export function filterFunctionConflict<
 
           prev.push(next);
         } else {
-          console.log(`Omitting ${next.name} due to field conflict.`);
+          console.error(`Omitting ${next.name} due to field conflict.`);
         }
       } else {
         prev.push(next);
@@ -265,7 +268,7 @@ export function promisifyFunctions(functions: GirClassFunction[]) {
               if (async_res) {
                 const async_parameters = node.parameters.slice(0, -1).map(p => p.copy());
                 const sync_parameters = node.parameters.map(p => p.copy({ isOptional: false }))
-                const output_parameters = async_res.output_parameters;
+                const output_parameters = async_res instanceof GirConstructor ? [] : async_res.output_parameters;
 
                 let async_return = new PromiseType(async_res.return());
 
@@ -312,40 +315,92 @@ export const enum ClassInjectionMember {
   MAIN_CONSTRUCTOR = "constructor"
 }
 
+export interface ClassDefinition {
+  parent: TypeIdentifier;
+  interfaces: TypeIdentifier[];
+  mainConstructor: GirConstructor;
+  constructors: GirConstructor[];
+  members: GirClassFunction[];
+  props: GirProperty[];
+  fields: GirField[];
+  callbacks: GirCallback[];
+}
+
 export abstract class GirBaseClass extends GirBase {
-  ns: string;
   namespace: GirNamespace;
 
-  parent: TypeIdentifier | null = null;
-  interfaces: TypeIdentifier[] = [];
-  mainConstructor: null | GirConstructor = null;
-  constructors: GirConstructor[] = [];
-  members: GirClassFunction[] = [];
-  props: GirProperty[] = [];
-  fields: GirField[] = [];
-  callbacks: GirCallback[] = [];
-  generics: GenericParameter[] = [];
-  generic_names: Map<string, string[]> = new Map();
-  generic_override_types: Map<string, { [key: string]: string }> = new Map();
+  parent: TypeIdentifier | null;
 
-  constructor(name: string, namespace: GirNamespace) {
-    super(name);
+  interfaces: TypeIdentifier[];
+  mainConstructor: null | GirConstructor;
+  constructors: GirConstructor[];
+  members: GirClassFunction[];
+  props: GirProperty[];
+  fields: GirField[];
+  callbacks: GirCallback[];
+
+  // Generics support
+  generics: Generic[] = [];
+
+  constructor(options: {
+    name: string;
+    namespace: GirNamespace;
+  } & Partial<ClassDefinition>) {
+    super(options.name);
+
+    const {
+      namespace,
+      parent = null,
+      interfaces = [],
+      mainConstructor = null,
+      constructors = [],
+      members = [],
+      props = [],
+      fields = [],
+      callbacks = []
+    } = options;
+
     this.namespace = namespace;
-    this.ns = namespace.name;
+    this.parent = parent;
+
+    this.interfaces = [...interfaces];
+
+    this.mainConstructor = mainConstructor?.copy() ?? null;
+    this.constructors = [...constructors.map(c => c.copy())];
+    this.members = [...members.map(m => m.copy({ parent: this }))];
+    this.props = [...props.map(p => p.copy({ parent: this }))];
+    this.fields = [...fields.map(f => f.copy({ parent: this }))];
+    this.callbacks = [...callbacks.map(c => c.copy())];
   }
 
-  addGenericParemeter(definition: { deriveFrom?: string; default: string }) {
-    const param = new GenericParameter(definition.default);
+  abstract accept(visitor: GirVisitor): GirBaseClass;
 
-    if (definition.deriveFrom) {
-      param.deriveFrom = definition.deriveFrom;
-    }
+  abstract copy(options?: {
+    parent?: undefined;
+    constructors?: GirConstructor[],
+    members?: GirClassFunction[],
+    props?: GirProperty[],
+    fields?: GirField[],
+    callbacks?: GirCallback[]
+  }): GirBaseClass;
 
+  getGenericName = GenericNameGenerator.new();
+
+  addGeneric(definition: { deriveFrom?: TypeIdentifier; default?: TypeExpression }) {
+    const param = new Generic(
+      new GenericType(
+        this.getGenericName()
+      ),
+      definition.default,
+      definition.deriveFrom
+    );
+
+    console.log("adding generic.... for ", this.name);
     this.generics.push(param);
   }
 
   getType(): TypeIdentifier {
-    return new TypeIdentifier(this.name, this.ns);
+    return new TypeIdentifier(this.name, this.namespace.name);
   }
 
   static fromXML(
@@ -358,11 +413,11 @@ export abstract class GirBaseClass extends GirBase {
     throw new Error("fromXML is not implemented on GirBaseClass");
   }
 
-  resolveParents(modName: string) {
-    const class_parents = resolveParents(this.parent, modName, this.namespace);
+  resolveParents() {
+    const class_parents = resolveParents(this.parent, this.namespace);
 
     const class_parent_interface_parents = class_parents
-      .map(i => i.interfaces.map(t => resolveParents(t, modName, this.namespace)))
+      .map(i => i.interfaces.map(t => resolveParents(t, this.namespace)))
       .flat(2)
       .reduce((prev, next) => {
         if (!prev.includes(next) && !class_parents.includes(next)) {
@@ -373,7 +428,7 @@ export abstract class GirBaseClass extends GirBase {
       }, [] as GirBaseClass[]);
 
     const interface_parents = this.interfaces
-      .map(i => resolveParents(i, modName, this.namespace))
+      .map(i => resolveParents(i, this.namespace))
       .flat()
       .reduce((prev, next) => {
         if (
@@ -437,10 +492,31 @@ export class GirClass extends GirBaseClass {
   isAbstract: boolean = false;
 
   constructor(name: string, namespace: GirNamespace) {
-    super(name, namespace);
+    super({ name, namespace });
   }
 
-  copy(): GirClass {
+  accept(visitor: GirVisitor): GirClass {
+    return visitor.visitClass(this.copy({
+      signals: this.signals.map(s => {
+        return visitor.visitSignal(s);
+      }),
+      constructors: this.constructors.map(c => c.accept(visitor)),
+      members: this.members.map(m => m.accept(visitor)),
+      props: this.props.map(p => p.accept(visitor)),
+      fields: this.fields.map(f => f.accept(visitor)),
+      callbacks: this.callbacks.map(c => c.accept(visitor))
+    }));
+  }
+
+  copy(options: {
+    parent?: undefined;
+    signals?: GirSignal[],
+    constructors?: GirConstructor[],
+    members?: GirClassFunction[],
+    props?: GirProperty[],
+    fields?: GirField[],
+    callbacks?: GirCallback[]
+  } = {}): GirClass {
     const {
       name,
       namespace,
@@ -453,7 +529,8 @@ export class GirClass extends GirBaseClass {
       callbacks,
       isAbstract,
       mainConstructor,
-      signals
+      signals,
+      generics
     } = this;
 
     const clazz = new GirClass(name, namespace);
@@ -462,15 +539,16 @@ export class GirClass extends GirBaseClass {
       clazz.parent = parent;
     }
 
-    clazz.signals = signals.map(s => s.copy());
-    clazz.interfaces = interfaces;
-    clazz.props = props.map(p => p.copy());
-    clazz.fields = fields.map(f => f.copy());
-    clazz.callbacks = callbacks.map(c => c.copy());
+    clazz.signals = (options.signals ?? signals).map(s => s.copy());
+    clazz.interfaces = [...interfaces];
+    clazz.props = (options.props ?? props).map(p => p.copy());
+    clazz.fields = (options.fields ?? fields).map(f => f.copy());
+    clazz.callbacks = (options.callbacks ?? callbacks).map(c => c.copy());
     clazz.isAbstract = isAbstract;
     clazz.mainConstructor = mainConstructor;
-    clazz.constructors = constructors.map(c => c.copy());
+    clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
     clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.generics = generics;
 
     return clazz;
   }
@@ -484,7 +562,9 @@ export class GirClass extends GirBaseClass {
   ): GirClass {
     const name = sanitizeIdentifierName(ns.name, klass.$.name);
 
-    console.log(`  >> GirClass: Parsing definition ${klass.$.name} (${name})...`);
+    if (options.verbose) {
+      console.debug(`  >> GirClass: Parsing definition ${klass.$.name} (${name})...`);
+    }
 
     const clazz = new GirClass(name, ns);
 
@@ -609,7 +689,9 @@ export class GirClass extends GirBaseClass {
       if (klass.callback) {
         clazz.callbacks.push(
           ...klass.callback.filter(isIntrospectable).map(callback => {
-            console.log(`Adding callback ${callback.$.name} for ${modName}`);
+            if (options.verbose) {
+              console.debug(`Adding callback ${callback.$.name} for ${modName}`);
+            }
 
             return GirCallback.fromXML(modName, ns, options, clazz, callback);
           })
@@ -653,7 +735,24 @@ export class GirRecord extends GirBaseClass {
     return this._isForeign;
   }
 
-  copy(): GirRecord {
+  accept(visitor: GirVisitor): GirRecord {
+    return visitor.visitRecord(this.copy({
+      constructors: this.constructors.map(c => c.accept(visitor)),
+      members: this.members.map(m => m.accept(visitor)),
+      props: this.props.map(p => p.accept(visitor)),
+      fields: this.fields.map(f => f.accept(visitor)),
+      callbacks: this.callbacks.map(c => c.accept(visitor))
+    }));
+  }
+
+  copy(options: {
+    parent?: undefined;
+    constructors?: GirConstructor[],
+    members?: GirClassFunction[],
+    props?: GirProperty[],
+    fields?: GirField[],
+    callbacks?: GirCallback[]
+  } = {}): GirRecord {
     const {
       name,
       namespace,
@@ -665,10 +764,11 @@ export class GirRecord extends GirBaseClass {
       props,
       fields,
       callbacks,
+      generics,
       mainConstructor
     } = this;
 
-    const clazz = new GirRecord(name, namespace);
+    const clazz = new GirRecord({ name, namespace });
 
     if (parent) {
       clazz.parent = parent;
@@ -676,31 +776,31 @@ export class GirRecord extends GirBaseClass {
 
     clazz._isForeign = _isForeign;
     clazz.interfaces = interfaces.map(i => i);
-    clazz.props = props.map(p => p.copy());
-    clazz.fields = fields.map(f => f.copy());
-    clazz.callbacks = callbacks.map(c => c.copy());
+    clazz.props = (options.props ?? props).map(p => p.copy());
+    clazz.fields = (options.fields ?? fields).map(f => f.copy());
+    clazz.callbacks = (options.callbacks ?? callbacks).map(c => c.copy());
     clazz.mainConstructor = mainConstructor?.copy() ?? null;
-    clazz.constructors = constructors.map(c => c.copy());
-    clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
+    clazz.members = (options.members ?? members).map(m => m.copy({ parent: clazz }));
+    clazz.generics = generics;
 
     return clazz;
   }
 
   static foreign(name: string, namespace: GirNamespace): GirRecord {
-    const foreignRecord = new GirRecord(name, namespace);
+    const foreignRecord = new GirRecord({ name, namespace });
     foreignRecord._isForeign = true;
     return foreignRecord;
   }
 
-  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, klass: RecordElement): GirRecord {
-    console.log(
-      `  >> GirRecord: Parsing definition ${klass.$.name} (${sanitizeIdentifierName(
-        ns.name,
-        klass.$.name
-      )})...`
-    );
+  static fromXML(modName: string, namespace: GirNamespace, options: LoadOptions, klass: RecordElement): GirRecord {
+    const name = sanitizeIdentifierName(namespace.name, klass.$.name);
 
-    const clazz = new GirRecord(sanitizeIdentifierName(ns.name, klass.$.name), ns);
+    if (options.verbose) {
+      console.debug(`  >> GirRecord: Parsing definition ${klass.$.name} (${name})...`);
+    }
+
+    const clazz = new GirRecord({ name, namespace });
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
@@ -720,14 +820,14 @@ export class GirRecord extends GirBaseClass {
         clazz.members.push(
           ...klass.method
             .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, ns, options, clazz, method))
+            .map(method => GirClassFunction.fromXML(modName, namespace, options, clazz, method))
         );
       }
 
       // Constructors
       if (Array.isArray(klass.constructor)) {
         klass.constructor.filter(isIntrospectable).forEach(constructor => {
-          const c = GirConstructor.fromXML(modName, ns, options, clazz, constructor);
+          const c = GirConstructor.fromXML(modName, namespace, options, clazz, constructor);
 
           clazz.constructors.push(c);
         });
@@ -738,7 +838,7 @@ export class GirRecord extends GirBaseClass {
         clazz.members.push(
           ...klass.function
             .filter(isIntrospectable)
-            .map(func => GirStaticClassFunction.fromXML(modName, ns, options, clazz, func))
+            .map(func => GirStaticClassFunction.fromXML(modName, namespace, options, clazz, func))
         );
       }
 
@@ -756,7 +856,7 @@ export class GirRecord extends GirBaseClass {
             .filter(field => !("callback" in field))
             // If it starts with "_" it is most likely a private member of the class.
             .filter(field => !field.$.name.startsWith("_"))
-            .map(field => GirField.fromXML(modName, ns, options, null, field))
+            .map(field => GirField.fromXML(modName, namespace, options, null, field))
             // Ensure identifiers don't overlap
             .filter(
               f =>
@@ -815,7 +915,14 @@ export class GirRecord extends GirBaseClass {
 }
 
 export class GirInterface extends GirBaseClass {
-  copy(): GirInterface {
+  copy(options: {
+    parent?: undefined;
+    constructors?: GirConstructor[],
+    members?: GirClassFunction[],
+    props?: GirProperty[],
+    fields?: GirField[],
+    callbacks?: GirCallback[]
+  } = {}): GirInterface {
     const {
       name,
       namespace,
@@ -826,36 +933,54 @@ export class GirInterface extends GirBaseClass {
       props,
       fields,
       callbacks,
-      mainConstructor
+      mainConstructor,
+      generics
     } = this;
 
-    const clazz = new GirInterface(name, namespace);
+    const clazz = new GirInterface({ name, namespace });
 
     if (parent) {
       clazz.parent = parent;
     }
 
     clazz.interfaces = interfaces;
-    clazz.props = props.map(p => p.copy());
-    clazz.fields = fields.map(f => f.copy());
-    clazz.callbacks = callbacks.map(c => c.copy());
+    clazz.props = (options.props ?? props).map(p => p.copy());
+    clazz.fields = (options.fields ?? fields).map(f => f.copy());
+    clazz.callbacks = (options.callbacks ?? callbacks).map(c => c.copy());
     clazz.mainConstructor = mainConstructor?.copy() ?? null;
-    clazz.constructors = constructors.map(c => c.copy());
-    clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
+    clazz.members = (options.members ?? members).map(m => m.copy({ parent: clazz }));
+    clazz.generics = generics;
 
     return clazz;
   }
 
+  accept(visitor: GirVisitor): GirInterface {
+
+    return visitor.visitInterface(this.copy(
+      {
+        constructors: this.constructors.map(c => c.accept(visitor)),
+        members: this.members.map(m => m.accept(visitor)),
+        props: this.props.map(p => p.accept(visitor)),
+        fields: this.fields.map(f => f.accept(visitor)),
+        callbacks: this.callbacks.map(c => c.accept(visitor))
+      }
+    ));
+  }
+
   static fromXML(
     modName: string,
-    ns: GirNamespace,
+    namespace: GirNamespace,
     options: LoadOptions,
     klass: InterfaceElement
   ): GirInterface {
-    const name = sanitizeIdentifierName(ns.name, klass.$.name);
-    console.log(`  >> GirInterface: Parsing definition ${klass.$.name} (${name})...`);
+    const name = sanitizeIdentifierName(namespace.name, klass.$.name);
 
-    const clazz = new GirInterface(name, ns);
+    if (options.verbose) {
+      console.debug(`  >> GirInterface: Parsing definition ${klass.$.name} (${name})...`);
+    }
+
+    const clazz = new GirInterface({ name, namespace });
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
@@ -879,7 +1004,7 @@ export class GirInterface extends GirBaseClass {
 
       if (Array.isArray(klass.constructor)) {
         for (let constructor of klass.constructor.filter(isIntrospectable)) {
-          clazz.constructors.push(GirConstructor.fromXML(modName, ns, options, clazz, constructor));
+          clazz.constructors.push(GirConstructor.fromXML(modName, namespace, options, clazz, constructor));
         }
       }
 
@@ -888,12 +1013,10 @@ export class GirInterface extends GirBaseClass {
         clazz.props.push(
           ...klass.property
             .filter(isIntrospectable)
-            .map(prop => GirProperty.fromXML(modName, ns, options, null, prop))
+            .map(prop => GirProperty.fromXML(modName, namespace, options, null, prop))
             .map(prop => {
               switch (options.propertyCase) {
                 case "both":
-                  clazz.props.push(prop);
-
                   const camelCase = prop.toCamelCase();
 
                   // Ensure we don't duplicate properties like 'show'
@@ -916,7 +1039,7 @@ export class GirInterface extends GirBaseClass {
       // Instance Methods
       if (klass.method) {
         for (let method of klass.method.filter(isIntrospectable)) {
-          const m = GirClassFunction.fromXML(modName, ns, options, clazz, method);
+          const m = GirClassFunction.fromXML(modName, namespace, options, clazz, method);
 
           if (!clazz.props.some(n => n.name === m.name)) {
             clazz.members.push(m);
@@ -927,23 +1050,25 @@ export class GirInterface extends GirBaseClass {
       // Virtual Methods
       if (klass["virtual-method"]) {
         for (let method of klass["virtual-method"].filter(isIntrospectable)) {
-          clazz.members.push(GirVirtualClassFunction.fromXML(modName, ns, options, clazz, method));
+          clazz.members.push(GirVirtualClassFunction.fromXML(modName, namespace, options, clazz, method));
         }
       }
 
       // Callback Types
       if (klass.callback) {
         for (let callback of klass.callback.filter(isIntrospectable)) {
-          console.log(`Adding callback ${callback.$.name} for ${modName}`);
+          if (options.verbose) {
+            console.debug(`Adding callback ${callback.$.name} for ${modName}`);
+          }
 
-          clazz.callbacks.push(GirCallback.fromXML(modName, ns, options, clazz, callback));
+          clazz.callbacks.push(GirCallback.fromXML(modName, namespace, options, clazz, callback));
         }
       }
 
       // Static methods (functions)
       if (klass.function) {
         for (let func of klass.function.filter(isIntrospectable)) {
-          clazz.members.push(GirStaticClassFunction.fromXML(modName, ns, options, clazz, func));
+          clazz.members.push(GirStaticClassFunction.fromXML(modName, namespace, options, clazz, func));
         }
       }
     } catch (e) {

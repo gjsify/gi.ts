@@ -5,9 +5,12 @@ import { getType } from "./util";
 import { GirNamespace } from "./namespace";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
+import { GirVisitor } from "../visitor";
 
 export class GirField extends GirBase {
-  readonly type: TypeExpression;
+  type: TypeExpression;
+
+  // TODO: Make these properties readonly
   optional: boolean = false;
   computed: boolean;
   isStatic: boolean;
@@ -55,6 +58,13 @@ export class GirField extends GirBase {
     return generator.generateField(this);
   }
 
+
+  accept(visitor: GirVisitor): GirField {
+    this.type = visitor.visitType(this.type);
+
+    return visitor.visitField(this);
+  }
+
   static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, _parent, field: ClassField): GirField {
     let name = field.$["name"];
     let _name = name.replace(/[-]/g, "_");
@@ -65,10 +75,11 @@ export class GirField extends GirBase {
 }
 
 export class GirProperty extends GirBase {
+  type: TypeExpression;
+
   readonly writable: boolean = false;
-  readonly type: TypeExpression;
   readonly isStatic: boolean = false;
-  constructOnly: boolean;
+  readonly constructOnly: boolean;
 
   copy(options?: { name?: string; parent?: GirBase; type?: TypeExpression }): GirProperty {
     const { name, writable, type, isStatic, constructOnly } = this;
@@ -80,6 +91,12 @@ export class GirProperty extends GirBase {
       isStatic,
       constructOnly
     });
+  }
+
+  accept(visitor: GirVisitor): GirProperty {
+    this.type = visitor.visitType(this.type);
+
+    return visitor.visitProperty(this);
   }
 
   constructor({
@@ -103,8 +120,8 @@ export class GirProperty extends GirBase {
     this.constructOnly = constructOnly;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
-    return generator.generateProperty(this);
+  asString<T = string>(generator: FormatGenerator<T>, construct?: boolean): T {
+    return generator.generateProperty(this, construct);
   }
 
   toCamelCase() {

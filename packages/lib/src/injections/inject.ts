@@ -2,7 +2,8 @@ import glib from "./glib";
 import gobject from "./gobject";
 import gio from "./gio";
 
-import { GirNSRegistry, GirNamespace } from "../gir/namespace";
+import { GirNamespace } from "../gir/namespace";
+import { GirNSRegistry } from "../gir/registry";
 
 export type NamespaceInjection = (namespace: GirNamespace, registry: GirNSRegistry) => void;
 

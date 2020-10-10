@@ -10,8 +10,10 @@ export default {
       throw new Error("Gio.AsyncInitable not found.");
     }
 
-    AsyncInitable.addGenericParemeter({
-      default: "GObject.Object"
+    const GObject = namespace.assertImport("GObject").assertClass("Object");
+
+    AsyncInitable.addGeneric({
+      default: GObject.getType()
     });
 
     const ListModel = namespace.getClass("ListModel");
@@ -20,8 +22,8 @@ export default {
       throw new Error("Gio.ListModel not found.");
     }
 
-    ListModel.addGenericParemeter({
-      default: "GObject.Object"
+    ListModel.addGeneric({
+      default: GObject.getType()
     });
 
     const ListStore = namespace.getClass("ListStore");
@@ -30,9 +32,9 @@ export default {
       throw new Error("Gio.ListStore not found.");
     }
 
-    ListStore.addGenericParemeter({
-      deriveFrom: "ListModel",
-      default: "GObject.Object"
+    ListStore.addGeneric({
+      deriveFrom: ListModel.getType(),
+      default: GObject.getType()
     });
   }
 };

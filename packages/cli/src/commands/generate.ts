@@ -7,17 +7,14 @@ import { dirname, join as buildPath } from "path";
 import { SanitizedIdentifiers } from "@gi.ts/lib/dist/gir/util";
 
 import { GirXML, parser } from "@gi.ts/parser";
-import { GirNSRegistry } from "@gi.ts/lib/dist/gir/namespace";
 
-
-import { generify } from "@gi.ts/lib/dist/generics/generify";
-import { inject } from "@gi.ts/lib/dist/injections/inject";
 
 import { resolveLibraries } from "../util";
 
 import * as lib from "@gi.ts/lib";
 
 import { PropertyCase } from '@gi.ts/lib';
+import { GirNSRegistry } from '@gi.ts/lib/dist/gir/registry';
 
 export interface DocDescription {
   name: string;
@@ -88,6 +85,7 @@ export default class Generate extends Command {
     versionedImports: flags.boolean({}),
     importPrefix: flags.string({}),
     emitMetadata: flags.boolean({}),
+    verbose: flags.boolean({ char: "v", description: "prints detailed per-member generation info " })
   };
 
   static args = [{ name: 'file' }];
@@ -99,9 +97,9 @@ export default class Generate extends Command {
 
     if (args['file']) {
       docsPath = args['file'];
-      console.log(`Loading docs.json from ${docsPath}...`);
+      this.log(`Loading docs.json from ${docsPath}...`);
     } else {
-      console.log("Loading docs.json...");
+      this.log("Loading docs.json...");
     }
 
     const docs: {
@@ -113,31 +111,34 @@ export default class Generate extends Command {
 
     // Default options
 
+    // --verbose, -v
+    let verbose = false;
+
     // --outputFormat=file
     let outputFormat: OutputFormat = "file" as const;
 
-    // --loadDocs=true|false
+    // --loadDocs
     let loadDocs = false;
     let withDocs = false;
 
-    // --resolveTypeConflicts=true|false
+    // --resolveTypeConflicts
     let resolveTypeConflicts = true;
 
-    // --inferGenerics=true|false
+    // --inferGenerics
     let inferGenerics = true;
 
-    // --promisify=true|false
+    // --promisify
     let promisify = false;
 
-    // --versionedOutput=true|false
+    // --versionedOutput
     let versionedOutput = false;
-    // --versionedOutput=true|false
+    // --versionedOutput
     let versionedImports = false;
 
     // --importPrefox=@gi.ts/
     let importPrefix = "" as string;
 
-    // --emitMetadata=true|false
+    // --emitMetadata
     let emitMetadata = false;
 
     let propertyCase: PropertyCase = "both";
@@ -278,6 +279,9 @@ export default class Generate extends Command {
     promisify ||= flags.promisify;
     withDocs ||= flags.withDocs;
 
+    // Verbose isn't allowed as a configuration option.
+    verbose = flags.verbose;
+
     if (flags.importPrefix) {
       importPrefix = flags.importPrefix;
     }
@@ -304,30 +308,26 @@ export default class Generate extends Command {
 
     const registry = new GirNSRegistry();
 
-
-
     type GirMap = Map<string, {
       [version: string]: GirXML
     }>;
 
-    function build(gir: GirMap) {
+    const build = (gir: GirMap) => {
       // Load all the docs
       for (let [, docs] of gir.entries()) {
         for (const [, xml] of Object.entries(docs)) {
           registry.load(xml, {
             loadDocs,
-            propertyCase
+            propertyCase,
+            verbose
           });
         }
       }
 
-      if (inferGenerics) {
-        console.log("Adding generics...");
-        generify(registry);
-      }
-
-      console.log("Injecting overrides...");
-      inject(registry);
+      registry.transform({
+        inferGenerics,
+        verbose
+      });
 
       // Generate the content
       for (let [name, docs] of gir.entries()) {
@@ -338,7 +338,6 @@ export default class Generate extends Command {
             case "json":
               generated = lib.generateJson({
                 format,
-                inferGenerics,
                 propertyCase,
                 promisify,
                 resolveTypeConflicts,
@@ -346,13 +345,13 @@ export default class Generate extends Command {
                 versionedOutput,
                 versionedImports,
                 importPrefix,
-                emitMetadata
+                emitMetadata,
+                verbose
               }, registry, name, version);
               break;
             case "dts":
               generated = lib.generateModule({
                 format,
-                inferGenerics,
                 propertyCase,
                 promisify,
                 resolveTypeConflicts,
@@ -360,7 +359,8 @@ export default class Generate extends Command {
                 versionedOutput,
                 versionedImports,
                 importPrefix,
-                emitMetadata
+                emitMetadata,
+                verbose
               }, registry, name, version);
               break;
             default:
@@ -395,7 +395,7 @@ export default class Generate extends Command {
 
           for (const overrides_file of overrides_files) {
             if (existsSync(overrides_file)) {
-              console.log(`Adding overrides to ${output} from ${overrides_file}...`);
+              this.log(`Adding overrides to ${output} from ${overrides_file}...`);
               contents += readFileSync(overrides_file, { encoding: "utf-8" });
             }
           }
@@ -441,7 +441,7 @@ export default class Generate extends Command {
 
     const gir: GirMap = new Map();
 
-    console.log("Loading GIR files...");
+    this.log("Loading GIR files...");
 
     await Promise.all(
       Object.keys(docs?.libraries ?? {}).map(async (name, i) => {
@@ -468,6 +468,6 @@ export default class Generate extends Command {
 
     build(gir);
 
-    console.log("Generated!");
+    this.log("Generated!");
   }
 }

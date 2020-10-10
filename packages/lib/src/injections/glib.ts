@@ -1,7 +1,8 @@
-import { GirNamespace, GirNSRegistry } from "../gir/namespace";
+import { GirNamespace } from "../gir/namespace";
 import { GirConstructor, GirFunctionParameter, GirClassFunction, GirFunction } from "../gir/function";
 import { NativeType, AnyType, BooleanType, Uint8ArrayType, StringType } from "../gir";
 import { Direction } from "@gi.ts/parser";
+import { GirNSRegistry } from "../gir/registry";
 
 export default {
   namespace: "GLib",

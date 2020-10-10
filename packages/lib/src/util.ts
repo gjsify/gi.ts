@@ -1,5 +1,16 @@
+/**
+ * A simple two-key map.
+ */
 export class TwoKeyMap<K1, K2, V> {
     private baseMap = new Map<K1, Map<K2, V>>();
+
+    forEach(op: (v: V) => void) {
+        this.baseMap.forEach(map => {
+            map.forEach(v => {
+                op(v);
+            });
+        })
+    }
 
     has(key1: K1, key2: K2): boolean {
         const obj = this.baseMap.get(key1);

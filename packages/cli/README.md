@@ -57,6 +57,7 @@ USAGE
   $ gi-ts generate [FILE]
 
 OPTIONS
+  -v, --verbose                           prints detailed per-member generation info
   --emitMetadata
   --format=(dts|json)
   --help                                  show CLI help

@@ -58,7 +58,7 @@ export async function generate(gir_path): Promise<GirInfo | null> {
         gir = await read_gir(gir_path);
     } catch (err) {
         console.error(err);
-        console.log("Failed for " + gir_path);
+        console.error("Failed for " + gir_path);
         return null;
     }
 
