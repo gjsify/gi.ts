@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "packages/lib"
+		},
+		{
+			"path": "packages/cli"
+		},
+		{
+			"path": "packages/parser"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true,
+		"typescript.tsdk": "node_modules/typescript/lib"
+	}
+}

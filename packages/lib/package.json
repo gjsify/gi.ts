@@ -1,0 +1,35 @@
+{
+  "name": "@gi.ts/lib",
+  "version": "1.2.0",
+  "main": "dist/lib.js",
+  "types": "dist/lib.d.ts",
+  "files": [
+    "dist",
+    "bin",
+    "package.json",
+    "package-lock.json",
+    "README.md"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@oclif/command": "^1.8.0",
+    "@gi.ts/parser": "^1.2.0",
+    "glob": "^7.1.4",
+    "xml2js": "^0.4.22"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/xml2js": "^0.4.4",
+    "typescript": "^4.1.0-dev.20201005"
+  },
+  "scripts": {
+    "init": "gi-ts init",
+    "generate": "gi-ts generate types",
+    "standard": "gi-ts init --overwrite --include atk,atspi,cairo,clutter,cluttergdk,clutterx11,cogl,coglpango,dbusglib,dbus,dbusmenu,fontconfig,freetype2,gconf,gdk,gdkpixbuf,gdkpixdata,gio,girepository,gl,glib,gmodule,gobject,graphene,gsk,gst,gstinsertbin,gstmpegts,gtk,gtkclutter,json,networkmanager,notify,ostree,pango,pangocairo,soup,xft,xkl,xlib",
+    "build": "tsc",
+    "test": "tsc test"
+  },
+  "bin": {
+    "gi-ts": "./bin/run"
+  }
+}
