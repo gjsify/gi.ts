@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist",
+    "resolveJsonModule": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "strictBindCallApply": true,
+    "strictNullChecks": true,
+    "declaration": true,
+    "strictPropertyInitialization": true,
+    "esModuleInterop": true,
+    "lib": [
+      "ES2019"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
