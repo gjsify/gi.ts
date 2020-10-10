@@ -15,7 +15,17 @@ export abstract class GirBase {
     this.name = name;
   }
 
-  abstract copy(options?: { parent?: GirBase }): GirBase;
+  protected _copyBaseProperties(from: this): this {
+    this.doc = from.doc;
+    this.deprecated = from.deprecated;
+    this.resolve_names = from.resolve_names;
+
+    return this;
+  }
+
+  abstract copy(options?: {
+    parent?: GirBase
+  }): GirBase;
 
   abstract accept(visitor: GirVisitor): GirBase;
 
@@ -70,12 +80,12 @@ export class TypeIdentifier extends TypeExpression {
     return type;
   }
 
-  protected _resolve(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
+  protected _resolve(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
     const type = this;
     let name: string = sanitizeIdentifierName(null, type.name);
-    let ns_name = type.namespace || modName;
+    let ns_name = type.namespace;
 
-    let current_rns = namespace.getImport(modName);
+    let current_rns = namespace;
     let ns = namespace.getImport(ns_name);
 
     if (ns && (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`))) {
@@ -101,7 +111,7 @@ export class TypeIdentifier extends TypeExpression {
 
       if (!cb && !resolved_name && !c_resolved_name) {
         // Don't warn if a missing import is at fault, this will be dealt with later.
-        if (modName === ns_name) {
+        if (namespace.name === ns_name) {
           console.error(`Attempting to fall back on c:type inference for ${ns_name}.${name}.`);
         }
 
@@ -128,7 +138,7 @@ export class TypeIdentifier extends TypeExpression {
         );
 
         return new TypeIdentifier(c_resolved_name, ns_name);
-      } else if (modName === ns_name) {
+      } else if (namespace.name  === ns_name) {
         throw new Error(`Unable to resolve type ${type.name} in same namespace ${ns_name}!`);
       } else {
         if (current_rns) {
@@ -144,12 +154,12 @@ export class TypeIdentifier extends TypeExpression {
     return null;
   }
 
-  resolveIdentifier(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
-    return this._resolve(modName, namespace, options);
+  resolveIdentifier(_modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
+    return this._resolve(namespace, options);
   }
 
-  resolve(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
-    const resolved = this._resolve(modName, namespace, options);
+  resolve(_modName: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
+    const resolved = this._resolve(namespace, options);
 
     if (!resolved) {
       return AnyType;
@@ -172,9 +182,9 @@ export class TypeIdentifier extends TypeExpression {
 }
 
 export class GenerifiedTypeIdentifier extends TypeIdentifier {
-  generics: GenericType[];
+  generics: TypeExpression[];
 
-  constructor(name: string, namespace: string, generics: GenericType[] = []) {
+  constructor(name: string, namespace: string, generics: TypeExpression[] = []) {
     super(name, namespace);
     this.generics = generics;
   }
@@ -189,8 +199,8 @@ export class GenerifiedTypeIdentifier extends TypeIdentifier {
     }
   }
 
-  _resolve(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
-    const iden = super._resolve(modName, namespace, options);
+  _resolve(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
+    const iden = super._resolve(namespace, options);
 
     if (iden) {
       return new GenerifiedTypeIdentifier(iden.name, iden.namespace, this.generics);
@@ -472,8 +482,8 @@ export class GenericType extends TypeExpression {
   }
 
 
-  rewrap(_type: TypeExpression): TypeExpression {
-    return this;
+  rewrap(type: TypeExpression): TypeExpression {
+    return type;
   }
 
   resolve(_ns: string, _namespace: GirNamespace, _options: GenerationOptions): GenericType {

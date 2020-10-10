@@ -12,28 +12,22 @@ export class Interface {
     $gtype?: GType;
 }
 
-export interface SignalMatch {
-    signalId: string;
-    detail: string;
-    func: Function;
-}
-
 export function signal_connect(object: Object, name: string, handler: Function): number;
 export function signal_connect_after(object: Object, name: string, handler: Function): number;
 export function signal_emit_by_name(object: Object, name: string, ...args: any[]): void;
 
-export let __gtkCssName__: symbol;
-export let __gtkTemplate__: symbol;
-export let __gtkChildren__: symbol;
-export let __gtkInternalChildren__: symbol;
+export let __gtkCssName__: unique symbol;
+export let __gtkTemplate__: unique symbol;
+export let __gtkChildren__: unique symbol;
+export let __gtkInternalChildren__: unique symbol;
 
 // Expose GObject static properties for ES6 classes
 
-export let GTypeName: symbol;
-export let requires: symbol;
-export let interfaces: symbol;
-export let properties: symbol;
-export let signals: symbol;
+export let GTypeName: unique symbol;
+export let requires: unique symbol;
+export let interfaces: unique symbol;
+export let properties: unique symbol;
+export let signals: unique symbol;
 
 export enum AccumulatorType {
     NONE,
@@ -83,6 +77,7 @@ export let TYPE_INT: GType<number>;
 export let TYPE_UINT: GType<number>;
 export let TYPE_INT64: GType<number>;
 export let TYPE_UINT64: GType<number>;
+
 export function registerClass<
     P extends {},
     T extends new (...args: any[]) => P,
@@ -112,7 +107,6 @@ export type Property<K extends ParamSpec> = K extends ParamSpecBoolean
     ? GLib.Variant
     : any;
 
-
 export type Properties<
     Prototype extends {},
     Properties extends { [key: string]: ParamSpec }
@@ -132,7 +126,7 @@ type UnionToIntersection<T> =
 
 type IFaces<Interfaces extends { $gtype: GType<any> }[]> = { [key in keyof Interfaces]: Interfaces[key] extends { $gtype: GType<infer I> } ? I : never };
 
-type RegisteredPrototype<P extends {}, Props extends { [key: string]: ParamSpec }, Interfaces extends any[]> =
+export type RegisteredPrototype<P extends {}, Props extends { [key: string]: ParamSpec }, Interfaces extends any[]> =
     Properties<P, SnakeToCamel<Props> & SnakeToUnderscore<Props>> & UnionToIntersection<Interfaces[number]> & P;
 
 type V = string | number | boolean | bigint;
@@ -141,6 +135,7 @@ type Split<S extends string, D extends string> =
     string extends S ? string[] :
     S extends `${infer T}${D}${infer U}` ? [T, ...Split<U, D>] :
     [S];
+
 type Join<T extends V[], D extends string> =
     T extends [] ? '' :
     T extends [unknown] ? `${T[0]}` :
@@ -162,10 +157,11 @@ type FormatCamelCase<T extends V[]> =
 type SnakeToCamel<T> = { [P in keyof T & string as Join<FormatCamelCase<Split<P, "-">>, "">]: T[P] };
 type SnakeToUnderscore<T> = { [P in keyof T & string as Join<Split<P, "-">, "_">]: T[P] };
 
-type Ctor = new (...a: any[]) => object
+type Ctor = new (...a: any[]) => object;
 
-type Init = { _init(...args: any[]): void }
-type RegisteredClass<
+type Init = { _init(...args: any[]): void };
+
+export type RegisteredClass<
     T extends Ctor,
     Props extends { [key: string]: ParamSpec },
     Interfaces extends { $gtype: GType<any> }[]

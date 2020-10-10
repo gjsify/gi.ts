@@ -557,7 +557,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Fields = node.fields.map(v => v && v.asString(this));
 
-    const Constructors = node.constructors.map(v => v && v.asString(this));
+    const Constructors = node.constructors.map(v => v && this.generateConstructorFunction(v));
 
     const Members = node.members.map(v => v && v.asString(this));
 
@@ -600,7 +600,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Fields = node.fields.map(v => v.asString(this));
 
-    const Constructors = node.constructors.map(v => v.asString(this));
+    const Constructors = node.constructors.map(v => this.generateConstructorFunction(v));
 
     const Members = node.members.map(v => v.asString(this));
 

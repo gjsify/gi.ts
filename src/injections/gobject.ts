@@ -13,12 +13,14 @@ import {
   TupleType,
   UnknownType,
   NeverType,
-  AnyFunctionType
+  AnyFunctionType,
+  Generic,
+  GenericType
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
-import { GirField } from "../gir/property";
+import { GirField, GirProperty } from "../gir/property";
 import { GirAlias } from "../gir/alias";
-import { GirBaseClass } from "../gir/class";
+import { GirBaseClass, GirInterface } from "../gir/class";
 import { GirNSRegistry } from "../gir/registry";
 
 function anyParam(name: string) {
@@ -34,6 +36,39 @@ export default {
   version: "2.0",
   modifier(namespace: GirNamespace, _registry: GirNSRegistry) {
     {
+      const SignalMatch =  new GirInterface({
+        name: "SignalMatch",
+        namespace,
+        props: [
+          new GirProperty({
+            name: "signalId",
+            type: StringType,
+            isStatic: false,
+            writable: true,
+            constructOnly: false
+          }),
+          new GirProperty({
+            name: "detail",
+            type: StringType,
+            isStatic: false,
+            writable: true,
+            constructOnly: false
+          }),
+          new GirProperty({
+            name: "func",
+            type: AnyFunctionType,
+            isStatic: false,
+            writable: true,
+            constructOnly: false
+          })
+        ]
+      });
+
+      // TODO: Devise a better way to represent pure TypeScript types.
+      SignalMatch.noParent = true;
+
+      namespace.members.set("SignalMatch", SignalMatch);
+
       namespace.members.set("GType", new GirAlias({
         name: "GType",
         type: new NativeType("{ __type__(arg: never): T }"),
@@ -131,6 +166,25 @@ export default {
       const ParamSpecUInt64 = namespace.assertClass("ParamSpecUInt64");
       const ParamSpecULong = namespace.assertClass("ParamSpecULong");
 
+      const object = new GirStaticClassFunction({
+        name: "object",
+        parameters: [
+          anyParam("name"),
+          anyParam("nick"),
+          anyParam("blurb"),
+          anyParam("flags"),
+          new GirFunctionParameter({
+            name: `objectType`,
+            direction: Direction.In,
+            type: new NativeType("GType<T>")
+          })
+        ],
+        parent: ParamSpec,
+        return_type: new NativeType("ParamSpecObject<T>")
+      });
+
+      object.generics.push(new Generic(new GenericType("T")));
+
       ParamSpec.members.push(
         //   "char": "static char(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
         generateParamSpec("char", ParamSpecChar, true, null, true),
@@ -163,22 +217,7 @@ export default {
         //   "boxed": "static boxed(name: any, nick: any, blurb: any, flags: any, boxedType: any): ParamSpec;",
         generateParamSpec("boxed", ParamSpecBoxed, false, "boxed", false),
         //   "object": "static object(name: any, nick: any, blurb: any, flags: any, objectType: any): ParamSpec;",
-        new GirStaticClassFunction({
-          name: "object",
-          parameters: [
-            anyParam("name"),
-            anyParam("nick"),
-            anyParam("blurb"),
-            anyParam("flags"),
-            new GirFunctionParameter({
-              name: `objectType`,
-              direction: Direction.In,
-              type: new NativeType("GType<T>")
-            })
-          ],
-          parent: ParamSpec,
-          return_type: new NativeType("ParamSpecObject<T>")
-        }).generify(),
+        object,
         //   "param": "static param(name: any, nick: any, blurb: any, flags: any, paramType: any): ParamSpec;",
         generateParamSpec("param", ParamSpecParam, false, "param", false)
       );

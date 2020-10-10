@@ -130,20 +130,37 @@ export class GirNamespace {
       return null;
     }
 
-    return this.parent.namespace(name, version);
+    const namespace = this.parent.namespace(name, version);
+
+    if (namespace) {
+      if (!this.imports.has(namespace.name)) {
+        this.imports.set(namespace.name, namespace.version);
+      }
+    }
+
+    return namespace;
   }
 
   assertImport(name: string): GirNamespace {
-    const version = this.imports.get(name);
+    let version = this.imports.get(name);
 
     if (!version) {
-      throw new Error(`Failed to import ${name} in ${this.name}, no version specified.`);
+      // Assertions shouldn't resolve versions except for GJS' hard dependencies.
+      if (name === "GLib" || name === "Gio" || name === "GObject") {
+        version = "2.0";
+      } else {
+        throw new Error(`Failed to import ${name} in ${this.name}, no version specified.`);
+      }
     }
 
     const ns = this.parent.namespace(name, version);
 
     if (!ns) {
       throw new Error(`Failed to import ${name} in ${this.name}, not installed or accessible.`);
+    }
+
+    if (!this.imports.has(ns.name)) {
+      this.imports.set(ns.name, ns.version);
     }
 
     return ns;
@@ -268,28 +285,26 @@ export class GirNamespace {
       console.debug(`Parsing ${modName}...`);
     }
 
-    const defaultImports = ["GObject", "Gio", "GLib"].filter(a => a !== modName);
-
-
     const building = new GirNamespace(modName, version, c_prefix);
     building.parent = registry;
 
-    defaultImports.forEach(imp => {
-      building.imports.set(imp, "2.0");
-    });
-
     includes.map(i => [i.$.name, i.$.version] as const)
-      .filter(([name]) => !defaultImports.includes(name) && modName !== name).forEach(
+      .forEach(
         ([name, version]) => {
           building.imports.set(name, version)
         }
       );
+
+    const importConflicts = (el: GirConst | GirBaseClass | GirFunction) => {
+      return building.getImport(el.name) == null;
+    };
 
     // Constants
     if (ns.constant) {
       ns.constant
         .filter(isIntrospectable)
         .map(constant => GirConst.fromXML(modName, building, options, null, constant))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -298,6 +313,7 @@ export class GirNamespace {
       ns.function
         .filter(isIntrospectable)
         .map(func => GirFunction.fromXML(modName, building, options, null, func))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -305,6 +321,7 @@ export class GirNamespace {
       ns.callback
         .filter(isIntrospectable)
         .map(callback => GirCallback.fromXML(modName, building, options, null, callback))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -351,6 +368,7 @@ export class GirNamespace {
       ns.class
         .filter(isIntrospectable)
         .map(klass => GirClass.fromXML(modName, building, options, this, klass))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -362,6 +380,7 @@ export class GirNamespace {
         // Don't generate records for structs
         .filter(b => typeof b.$["glib:is-gtype-struct-for"] !== "string")
         .map(record => GirRecord.fromXML(modName, building, options, record))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -369,12 +388,14 @@ export class GirNamespace {
       ns.union
         .filter(isIntrospectable)
         .map(union => GirRecord.fromXML(modName, building, options, union))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.interface) {
       ns.interface
         .map(inter => GirInterface.fromXML(modName, building, options, inter))
+        .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 

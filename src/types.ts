@@ -17,7 +17,6 @@ export interface TransformOptions extends Options {
 export interface GenerationOptions extends Options {
     resolveTypeConflicts: boolean;
     promisify: boolean;
-    propertyCase: PropertyCase;
     withDocs: boolean;
     format: Format;
     versionedOutput: boolean;

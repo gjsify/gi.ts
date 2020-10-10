@@ -3,7 +3,6 @@ import {
   NativeType,
   TypeIdentifier,
   TypeExpression,
-  GirClassField,
   AnyifiedType,
   NeverType,
   ArrayType,
@@ -14,7 +13,8 @@ import {
   TupleType,
   BooleanType,
   Generic,
-  GenericType
+  GenericType,
+  GenerifiedTypeIdentifier
 } from "../gir";
 import { InterfaceElement, Element, ClassElement, RecordElement, Direction, Class } from "@gi.ts/parser";
 import {
@@ -91,7 +91,7 @@ export enum FilterBehavior {
   ANYIFY
 }
 
-export function filterConflicts<T extends GirBase | GirClassField>(
+export function filterConflicts<T extends GirBase>(
   ns: string,
   elements: T[],
   resolved_parents: GirBaseClass[],
@@ -116,7 +116,7 @@ export function filterConflicts<T extends GirBase | GirClassField>(
           p =>
             p.name &&
             p.name == next.name &&
-            (!(next instanceof GirCallback) ||
+            (!(next instanceof GirClassFunction) ||
               isConflictingFunction(ns, next, p, resolved_parent.namespace.name))
         )
       );
@@ -186,8 +186,7 @@ export function filterFunctionConflict<
         [...resolved_parent.props, ...resolved_parent.fields].some(
           p =>
             p.name &&
-            p.name == next.name &&
-            (!(p instanceof GirCallback) || isConflictingFunction(ns, next, p, resolved_parent.namespace.name))
+            p.name == next.name
         )
       );
 
@@ -395,7 +394,6 @@ export abstract class GirBaseClass extends GirBase {
       definition.deriveFrom
     );
 
-    console.log("adding generic.... for ", this.name);
     this.generics.push(param);
   }
 
@@ -448,7 +446,7 @@ export abstract class GirBaseClass extends GirBase {
   implementedMethods(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
     return interfaces
       .map(i =>
-        i.members
+        [i, i.members
           .filter(i => !(i instanceof GirStaticClassFunction))
           .filter(
             i =>
@@ -457,9 +455,68 @@ export abstract class GirBaseClass extends GirBase {
               this.props.every(p => i.name !== p.name) &&
               this.fields.every(p => i.name !== p.name)
           )
+        ] as const
       )
-      .flat()
-      .map(m => m.copy({ parent: this, interfaceParent: m.parent }));
+      .map(([i, m]) => {
+        return m.map(f => {
+          const mapping = new Map<string, TypeExpression>();
+          if (f.parent instanceof GirBaseClass) {
+            const inter = this.interfaces.find(i => i.equals(f.parent.getType()));
+
+            if (inter instanceof GenerifiedTypeIdentifier) {
+
+              i.generics.forEach((g, i) => {
+                if (inter.generics.length > i) {
+
+                  mapping.set(g.type.identifier, inter.generics[i]);
+                }
+              });
+            }
+          }
+
+          const unwrapped = f.return_type.unwrap();
+          let modifiedReturn = f.return_type;
+
+          if (unwrapped instanceof GenericType && mapping.has(unwrapped.identifier)) {
+            let mapped = mapping.get(unwrapped.identifier);
+
+            if (mapped) {
+              modifiedReturn = f.return_type.rewrap(mapped);
+            }
+          }
+
+          return f.copy({
+            parent: this,
+            interfaceParent: f.parent,
+            parameters: f.parameters.map(p => {
+              const t = p.type.unwrap();
+              if (t instanceof GenericType && mapping.has(t.identifier)) {
+                const iden = mapping.get(t.identifier);
+
+                if (iden) {
+                  return p.copy({ type: p.type.rewrap(iden) });
+                }
+              }
+
+              return p;
+            }),
+            outputParameters: f.output_parameters.map(p => {
+              const t = p.type.unwrap();
+              if (t instanceof GenericType && mapping.has(t.identifier)) {
+                const iden = mapping.get(t.identifier);
+
+                if (iden) {
+                  return p.copy({ type: p.type.rewrap(iden) });
+                }
+              }
+
+              return p;
+            }),
+            returnType: modifiedReturn
+          })
+        })
+      })
+      .flat();
   }
 
   implementedProperties(interfaces: GirBaseClass[], potentialConflicts: GirBase[] = []) {
@@ -496,16 +553,14 @@ export class GirClass extends GirBaseClass {
   }
 
   accept(visitor: GirVisitor): GirClass {
-    return visitor.visitClass(this.copy({
-      signals: this.signals.map(s => {
-        return visitor.visitSignal(s);
-      }),
+    return visitor.visitClass?.(this.copy({
+      signals: this.signals.map(s => s.accept(visitor)),
       constructors: this.constructors.map(c => c.accept(visitor)),
       members: this.members.map(m => m.accept(visitor)),
       props: this.props.map(p => p.accept(visitor)),
       fields: this.fields.map(f => f.accept(visitor)),
       callbacks: this.callbacks.map(c => c.accept(visitor))
-    }));
+    })) ?? this;
   }
 
   copy(options: {
@@ -534,6 +589,8 @@ export class GirClass extends GirBaseClass {
     } = this;
 
     const clazz = new GirClass(name, namespace);
+
+    clazz._copyBaseProperties(this);
 
     if (parent) {
       clazz.parent = parent;
@@ -736,13 +793,13 @@ export class GirRecord extends GirBaseClass {
   }
 
   accept(visitor: GirVisitor): GirRecord {
-    return visitor.visitRecord(this.copy({
+    return visitor.visitRecord?.(this.copy({
       constructors: this.constructors.map(c => c.accept(visitor)),
       members: this.members.map(m => m.accept(visitor)),
       props: this.props.map(p => p.accept(visitor)),
       fields: this.fields.map(f => f.accept(visitor)),
       callbacks: this.callbacks.map(c => c.accept(visitor))
-    }));
+    })) ?? this;
   }
 
   copy(options: {
@@ -769,6 +826,8 @@ export class GirRecord extends GirBaseClass {
     } = this;
 
     const clazz = new GirRecord({ name, namespace });
+
+    clazz._copyBaseProperties(this);
 
     if (parent) {
       clazz.parent = parent;
@@ -915,8 +974,11 @@ export class GirRecord extends GirBaseClass {
 }
 
 export class GirInterface extends GirBaseClass {
+  noParent = false;
+
   copy(options: {
     parent?: undefined;
+    noParent?: boolean;
     constructors?: GirConstructor[],
     members?: GirClassFunction[],
     props?: GirProperty[],
@@ -927,6 +989,7 @@ export class GirInterface extends GirBaseClass {
       name,
       namespace,
       parent,
+      noParent,
       interfaces,
       members,
       constructors,
@@ -938,6 +1001,10 @@ export class GirInterface extends GirBaseClass {
     } = this;
 
     const clazz = new GirInterface({ name, namespace });
+
+    clazz._copyBaseProperties(this);
+
+    clazz.noParent = noParent;
 
     if (parent) {
       clazz.parent = parent;
@@ -957,7 +1024,7 @@ export class GirInterface extends GirBaseClass {
 
   accept(visitor: GirVisitor): GirInterface {
 
-    return visitor.visitInterface(this.copy(
+    return visitor.visitInterface?.(this.copy(
       {
         constructors: this.constructors.map(c => c.accept(visitor)),
         members: this.members.map(m => m.accept(visitor)),
@@ -965,7 +1032,7 @@ export class GirInterface extends GirBaseClass {
         fields: this.fields.map(f => f.accept(visitor)),
         callbacks: this.callbacks.map(c => c.accept(visitor))
       }
-    ));
+    )) ?? this;
   }
 
   static fromXML(

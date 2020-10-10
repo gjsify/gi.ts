@@ -26,15 +26,15 @@ export class GirAlias extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirAlias {
-    return visitor.visitAlias(this.copy({
-      type: visitor.visitType(this.type)
-    }));
+    return visitor.visitAlias?.(this.copy({
+      type: visitor.visitType?.(this.type)
+    })) ?? this;
   }
 
   copy(options?: { parent?: undefined; type?: TypeExpression }): GirAlias {
     const { name, type  } = this;
 
-    return new GirAlias({ name, type: options?.type ?? type });
+    return new GirAlias({ name, type: options?.type ?? type })._copyBaseProperties(this);
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T | null {
