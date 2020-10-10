@@ -338,7 +338,6 @@ export default class Generate extends Command {
             case "json":
               generated = lib.generateJson({
                 format,
-                propertyCase,
                 promisify,
                 resolveTypeConflicts,
                 withDocs,
@@ -352,7 +351,6 @@ export default class Generate extends Command {
             case "dts":
               generated = lib.generateModule({
                 format,
-                propertyCase,
                 promisify,
                 resolveTypeConflicts,
                 withDocs,

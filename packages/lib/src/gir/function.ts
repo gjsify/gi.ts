@@ -40,6 +40,8 @@ export class GirFunction extends GirBase {
   readonly return_type: TypeExpression;
   readonly raw_name: string;
 
+  generics: Generic[] = [];
+
   constructor({
     name,
     raw_name,
@@ -75,19 +77,19 @@ export class GirFunction extends GirBase {
       parameters: parameters ?? this.parameters
     });
 
-    return fn;
+    return fn._copyBaseProperties(this);
   }
 
   accept(visitor: GirVisitor): GirFunction {
-    return visitor.visitFunction(this.copy({
+    return visitor.visitFunction?.(this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
       outputParameters: this.output_parameters.map(p => {
         return p.accept(visitor);
       }),
-      return_type: visitor.visitType(this.return_type)
-    }));
+      return_type: visitor.visitType?.(this.return_type)
+    })) ?? this;
   }
 
   static fromXML(
@@ -275,7 +277,7 @@ export class GirConstructor extends GirBase {
       name: this.name,
       return_type: return_type ?? this.return_type,
       parameters: parameters ?? this.parameters
-    });
+    })._copyBaseProperties(this);
   }
 
   static fromXML(
@@ -288,14 +290,13 @@ export class GirConstructor extends GirBase {
     return GirClassFunction.fromXML(modName, ns, options, parent, m as Function).asConstructor();
   }
 
-
   accept(visitor: GirVisitor): GirConstructor {
-    return visitor.visitConstructor(this.copy({
+    return visitor.visitConstructor?.(this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
-      return_type: visitor.visitType(this.return_type)
-    }));
+      return_type: visitor.visitType?.(this.return_type)
+    })) ?? this;
   }
 
   return() {
@@ -303,7 +304,7 @@ export class GirConstructor extends GirBase {
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T {
-    return generator.generateConstructorFunction(this);
+    return generator.generateConstructor(this);
   }
 }
 
@@ -360,13 +361,13 @@ export class GirFunctionParameter extends GirBase {
       isOptional: options.isOptional ?? isOptional,
       type: options.type ?? type,
       doc
-    });
+    })._copyBaseProperties(this);
   }
 
   accept(visitor: GirVisitor): GirFunctionParameter {
-    return visitor.visitParameter(this.copy({
-      type: visitor.visitType(this.type)
-    }));
+    return visitor.visitParameter?.(this.copy({
+      type: visitor.visitType?.(this.type)
+    })) ?? this;
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T {
@@ -513,36 +514,31 @@ export class GirClassFunction extends GirBase {
       return_type: returnType ?? this.return_type
     });
 
+    fn.generics = this.generics;
+
     if (interfaceParent) {
       fn.interfaceParent = interfaceParent;
     }
 
-    return fn;
+    return fn._copyBaseProperties(this);
   }
 
   accept(visitor: GirVisitor): GirClassFunction {
-    const fn = visitor.visitClassFunction(this.copy({
+    const fn = visitor.visitClassFunction?.(this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
       outputParameters: this.output_parameters.map(p => {
         return p.accept(visitor);
       }),
-      returnType: visitor.visitType(this.return_type)
+      returnType: visitor.visitType?.(this.return_type)
     }));
 
-    return fn;
+    return fn ?? this;
   }
 
   anyify(): this {
     this._anyify = true;
-
-    return this;
-  }
-
-  generify(): this {
-    // TODO: Fix this
-    this._generify = true;
 
     return this;
   }
@@ -619,15 +615,15 @@ export class GirVirtualClassFunction extends GirClassFunction {
 
 
   accept(visitor: GirVisitor): GirVirtualClassFunction {
-    return visitor.visitVirtualClassFunction(this.copy({
+    return visitor.visitVirtualClassFunction?.(this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
       outputParameters: this.output_parameters.map(p => {
         return p.accept(visitor);
       }),
-      returnType: visitor.visitType(this.return_type)
-    }));
+      returnType: visitor.visitType?.(this.return_type)
+    })) ?? this;
   }
 
   static fromXML(
@@ -649,15 +645,15 @@ export class GirStaticClassFunction extends GirClassFunction {
   }
 
   accept(visitor: GirVisitor): GirStaticClassFunction {
-    return visitor.visitStaticClassFunction(this.copy({
+    return visitor.visitStaticClassFunction?.(this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
       outputParameters: this.output_parameters.map(p => {
         return p.accept(visitor);
       }),
-      returnType: visitor.visitType(this.return_type)
-    }));
+      returnType: visitor.visitType?.(this.return_type)
+    })) ?? this;
   }
 
   static fromXML(
@@ -674,8 +670,6 @@ export class GirStaticClassFunction extends GirClassFunction {
 }
 
 export class GirCallback extends GirFunction {
-  generics: Generic[] = [];
-
   asFunctionType(): FunctionType {
     return new FunctionType(Object.fromEntries(
       this.parameters.map(p => [p.name, p.type] as const)
@@ -695,19 +689,19 @@ export class GirCallback extends GirFunction {
       return_type: returnType ?? this.return_type,
       parameters: parameters ?? this.parameters,
       output_parameters: outputParameters ?? this.output_parameters
-    });
+    })._copyBaseProperties(this);
   }
 
   accept(visitor: GirVisitor): GirCallback {
-    return visitor.visitCallback(this.copy({
+    return visitor.visitCallback?.(this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
       outputParameters: this.output_parameters.map(p => {
         return p.accept(visitor);
       }),
-      returnType: visitor.visitType(this.return_type)
-    }));
+      returnType: visitor.visitType?.(this.return_type)
+    })) ?? this;
   }
 
   static fromXML(

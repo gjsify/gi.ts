@@ -26,7 +26,7 @@ export class GirField extends GirBase {
       computed,
       isStatic,
       writable
-    });
+    })._copyBaseProperties(this);
   }
 
   constructor({
@@ -60,9 +60,9 @@ export class GirField extends GirBase {
 
 
   accept(visitor: GirVisitor): GirField {
-    this.type = visitor.visitType(this.type);
+    this.type = visitor.visitType?.(this.type) ?? this.type;
 
-    return visitor.visitField(this);
+    return visitor.visitField?.(this) ?? this;
   }
 
   static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, _parent, field: ClassField): GirField {
@@ -90,13 +90,13 @@ export class GirProperty extends GirBase {
       type: options?.type ?? type,
       isStatic,
       constructOnly
-    });
+    })._copyBaseProperties(this);
   }
 
   accept(visitor: GirVisitor): GirProperty {
-    this.type = visitor.visitType(this.type);
+    this.type = visitor.visitType?.(this.type) ?? this.type;
 
-    return visitor.visitProperty(this);
+    return visitor.visitProperty?.(this) ?? this;
   }
 
   constructor({

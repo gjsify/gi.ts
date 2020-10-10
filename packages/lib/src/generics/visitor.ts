@@ -1,13 +1,8 @@
-import { ClosureType, GenericType, Generic, TypeExpression, TypeIdentifier, GenerifiedType, GenerifiedTypeIdentifier } from "../gir";
-import { GirAlias } from "../gir/alias";
-import { GirRecord, GirInterface, GirClass, GirBaseClass, resolveTypeIdentifier } from "../gir/class";
-import { GirConst } from "../gir/const";
-import { GirEnumMember, GirError, GirEnum } from "../gir/enum";
-import { GirCallback, GirConstructor, GirFunctionParameter, GirFunction, GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
+import { ClosureType, GenericType, Generic, TypeIdentifier, GenerifiedType, GenerifiedTypeIdentifier } from "../gir";
+import { GirClass, GirBaseClass, resolveTypeIdentifier } from "../gir/class";
+import { GirCallback, GirFunctionParameter, GirFunction, GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
 import { GenericNameGenerator } from "../gir/generics";
-import { GirProperty, GirField } from "../gir/property";
 import { GirNSRegistry } from "../gir/registry";
-import { GirSignal, GirSignalType } from "../gir/signal";
 import { GirVisitor } from "../visitor";
 
 export class GenericVisitor extends GirVisitor {
@@ -19,11 +14,7 @@ export class GenericVisitor extends GirVisitor {
         this.registry = registry;
     }
 
-    visitType(node: TypeExpression) {
-        return node;
-    }
-
-    visitCallback(node: GirCallback) {
+    visitCallback = (node: GirCallback) => {
         const shouldGenerify = node.parameters.some(p => {
             const type = p.type.unwrap();
             return type instanceof TypeIdentifier && type.is("GObject", "Object");
@@ -56,51 +47,13 @@ export class GenericVisitor extends GirVisitor {
 
             generified.generics = generics;
 
-            console.log("with generics", JSON.stringify(generics))
-
             return generified;
         }
 
         return node;
     }
 
-    visitAlias(node: GirAlias) {
-        return node;
-    }
-
-    visitConstructor(node: GirConstructor) {
-        return node;
-    }
-
-    visitConstructorFunction(node: GirConstructor) {
-        return node;
-    }
-
-    visitRecord(node: GirRecord) {
-        return node;
-    }
-
-    visitInterface(node: GirInterface) {
-        return node;
-    }
-
-    visitEnumMember(node: GirEnumMember) {
-        return node;
-    }
-
-    visitError(node: GirError) {
-        return node;
-    }
-
-    visitEnum(node: GirEnum) {
-        return node;
-    }
-
-    visitConst(node: GirConst) {
-        return node;
-    }
-
-    visitClass(_node: GirClass) {
+    visitClass = (_node: GirClass) => {
         const node = _node.copy();
 
         const { namespace } = _node;
@@ -109,23 +62,6 @@ export class GenericVisitor extends GirVisitor {
         const resolvedInterfaces = node.interfaces
             .map(i => resolveTypeIdentifier(namespace, i))
             .filter((c): c is GirBaseClass => c != null);
-
-        [...(resolvedParent ? [resolvedParent] : []), ...resolvedInterfaces, node as GirBaseClass]
-            .map(g => {
-                return [g, g.generics] as const
-            })
-            .forEach(([g, generics]) => {
-                generics.forEach(generic => {
-                    const defaultType = generic.defaultType;
-
-                    if (!defaultType || node.generics.every(g => !g.defaultType?.equals(defaultType))) {
-                        node.addGeneric({
-                            deriveFrom: g.getType(),
-                            ...(defaultType ? { default: defaultType } : {})
-                        })
-                    }
-                });
-            })
 
         let derivatives = node.generics.filter(generic => generic.parent != null);
 
@@ -136,6 +72,16 @@ export class GenericVisitor extends GirVisitor {
                 return new GenerifiedTypeIdentifier(iface.name, iface.namespace, [
                     generic.type
                 ]);
+            }
+
+            const resolved = resolvedInterfaces.find(i => i.getType().equals(iface));
+
+            if (resolved) {
+                if (resolved.generics.length === 1) {
+                    return new GenerifiedTypeIdentifier(iface.name, iface.namespace, [
+                        node.getType()
+                    ]);
+                }
             }
 
             return iface;
@@ -151,12 +97,20 @@ export class GenericVisitor extends GirVisitor {
                     generic.type
                 ]);
             }
+
+            const resolved = resolvedParent;
+
+            if (resolved?.generics.length === 1) {
+                node.parent = new GenerifiedTypeIdentifier(resolved.name, resolved.namespace.name, [
+                    node.getType()
+                ]);
+            }
         }
 
         return node;
     }
 
-    visitParameter(node: GirFunctionParameter) {
+    visitParameter = (node: GirFunctionParameter) => {
         const member = node.parent;
 
         if (member instanceof GirClassFunction && !(member instanceof GirStaticClassFunction)) {
@@ -179,23 +133,49 @@ export class GenericVisitor extends GirVisitor {
         return node;
     }
 
-    visitProperty(node: GirProperty) {
+    visitFunction = (node: GirFunction) => {
+        const unwrapped = node.return_type.unwrap();
+        const shouldGenerify = unwrapped instanceof TypeIdentifier && unwrapped.is("GObject", "Object");
+
+        if (shouldGenerify) {
+            const genericReturnType = new GenericType("T");
+
+            const copied = node.copy({
+                return_type: genericReturnType
+            });
+
+            copied.generics.push(new Generic(genericReturnType, unwrapped));
+
+            return copied;
+        }
+
         return node;
     }
 
-    visitField(node: GirField) {
+    private generifyStandaloneClassFunction = (node: GirClassFunction) => {
+        const unwrapped = node.return_type.unwrap();
+        const shouldGenerify = unwrapped instanceof TypeIdentifier && unwrapped.is("GObject", "Object");
+
+        if (shouldGenerify) {
+            const genericReturnType = new GenericType("T");
+
+            const copied = node.copy({
+                returnType: genericReturnType
+            });
+
+            copied.generics.push(new Generic(genericReturnType, unwrapped));
+
+            return copied;
+        }
+
         return node;
     }
 
-    visitSignal(node: GirSignal, type?: GirSignalType) {
-        return node;
+    visitStaticClassFunction = (node: GirStaticClassFunction) => {
+        return this.generifyStandaloneClassFunction(node);
     }
 
-    visitFunction(node: GirFunction) {
-        return node;
-    }
-
-    visitClassFunction(node: GirClassFunction) {
+    visitClassFunction = (node: GirClassFunction) => {
         if (node.parent instanceof GirBaseClass) {
             const clazz = node.parent;
 
@@ -237,14 +217,11 @@ export class GenericVisitor extends GirVisitor {
                 });
             }
         }
-        return node;
+
+        return this.generifyStandaloneClassFunction(node);
     }
 
-    visitStaticClassFunction(node: GirStaticClassFunction) {
-        return node;
-    }
-
-    visitVirtualClassFunction(node: GirVirtualClassFunction) {
-        return node;
+    visitVirtualClassFunction = (node: GirVirtualClassFunction) => {
+        return this.visitClassFunction(node);
     }
 }

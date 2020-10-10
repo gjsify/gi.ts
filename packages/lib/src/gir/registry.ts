@@ -3,6 +3,8 @@ import { generify } from "../generics/generify";
 import { inject } from "../injections/inject";
 import { LoadOptions, TransformOptions } from "../types";
 import { TwoKeyMap } from "../util";
+import { ClassVisitor } from "../validators/class";
+import { InterfaceVisitor } from "../validators/interface";
 import { GirNamespace } from "./namespace";
 
 export class GirNSRegistry {
@@ -22,6 +24,18 @@ export class GirNSRegistry {
     }
 
     transform(options: TransformOptions) {
+        const interfaceVisitor = new InterfaceVisitor();
+
+        this.forEach(namespace => {
+            namespace.accept(interfaceVisitor);
+        });
+
+        const classVisitor = new ClassVisitor();
+
+        this.forEach(namespace => {
+            namespace.accept(classVisitor);
+        });
+
         if (options.inferGenerics) {
             console.log("Adding generics...");
             generify(this);
@@ -32,6 +46,11 @@ export class GirNSRegistry {
     }
 
     defaultVersionOf(name: string): string | null {
+        // GJS has a hard dependency on these versions.
+        if (name === "GLib" || name === "Gio" || name === "GObject") {
+            return "2.0";
+        }
+
         const meta = this.mapping.getIfOnly(name);
 
         if (meta) {

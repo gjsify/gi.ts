@@ -18,7 +18,6 @@ const GenericNames = [
   "Q",
   "R",
   "S",
-  "T",
   "U",
   "V",
   "W",

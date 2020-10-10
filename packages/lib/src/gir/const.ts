@@ -19,9 +19,9 @@ export class GirConst extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirConst {
-    return visitor.visitConst(this.copy({
-      type: visitor.visitType(this.type)
-    }));
+    return visitor.visitConst?.(this.copy({
+      type: visitor.visitType?.(this.type)
+    })) ?? this;
   }
 
   copy(options: {
@@ -34,7 +34,7 @@ export class GirConst extends GirBase {
       name,
       type: options.type ?? type,
       value
-    });
+    })._copyBaseProperties(this);
   }
 
   static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, _parent, constant: ConstantElement): GirConst {

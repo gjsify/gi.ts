@@ -42,9 +42,9 @@ export class GirSignal extends GirBase {
       p.accept(visitor);
     });
 
-    visitor.visitType(this.return_type);
+    visitor.visitType?.(this.return_type);
 
-    return visitor.visitSignal(this.copy({}));
+    return visitor.visitSignal?.(this.copy()) ?? this;
   }
 
   copy({ parent = this.parent, parameters, returnType }: {
@@ -57,7 +57,7 @@ export class GirSignal extends GirBase {
       parent,
       parameters: parameters ?? this.parameters,
       return_type: returnType ?? this.return_type
-    });
+    })._copyBaseProperties(this);
   }
 
   static fromXML(

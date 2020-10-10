@@ -42,7 +42,7 @@ function scraper_code(info) {
     return `${info.name}-${info.api_version}.gir`;
 }
 
-type GirInfo = Namespace & {
+export type GirInfo = Namespace & {
     path: string;
     id: string;
     slug: string;
@@ -80,7 +80,7 @@ export async function generate(gir_path): Promise<GirInfo | null> {
 
 let force = false;
 
-export function generate_all(gir_dir?: string): string[] {
+export function generateAll(gir_dir?: string): string[] {
     const { XDG_DATA_DIRS } = process.env;
 
     if (fs.existsSync("./docs-lock.json")) {
@@ -114,7 +114,7 @@ export async function resolveLibraries(libraries: { [key: string]: string | stri
 }>> {
     let allLibraries = (
         await Promise.all(
-            generate_all().map(l => generate(l))
+            generateAll().map(l => generate(l))
         )
     ).filter((l): l is GirInfo => l != null);
 

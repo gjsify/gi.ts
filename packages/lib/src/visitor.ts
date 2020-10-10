@@ -9,26 +9,26 @@ import { GirProperty, GirField } from "./gir/property";
 import { GirSignal, GirSignalType } from "./gir/signal";
 
 export abstract class GirVisitor {
-    abstract visitType(node: TypeExpression): TypeExpression;
-    abstract visitCallback(node: GirCallback): GirCallback;
-    abstract visitAlias(node: GirAlias): GirAlias;
-    abstract visitConstructor(node: GirConstructor): GirConstructor;
-    abstract visitConstructorFunction(node: GirConstructor): GirConstructor;
-    abstract visitRecord(node: GirRecord): GirRecord;
-    abstract visitInterface(node: GirInterface): GirInterface;
-    abstract visitEnumMember(node: GirEnumMember): GirEnumMember;
-    abstract visitError(node: GirError): GirError;
-    abstract visitEnum(node: GirEnum): GirEnum;
-    abstract visitConst(node: GirConst): GirConst;
-    abstract visitClass(node: GirClass): GirClass;
-    abstract visitParameter(node: GirFunctionParameter): GirFunctionParameter;
-    abstract visitProperty(node: GirProperty): GirProperty;
-    abstract visitField(node: GirField): GirField;
-    abstract visitSignal(node: GirSignal, type?: GirSignalType): GirSignal;
-    abstract visitFunction(node: GirFunction): GirFunction;
-    abstract visitClassFunction(node: GirClassFunction): GirClassFunction;
-    abstract visitStaticClassFunction(node: GirStaticClassFunction): GirStaticClassFunction;
-    abstract visitVirtualClassFunction(node: GirVirtualClassFunction): GirVirtualClassFunction;
+    visitType?: (node: TypeExpression) => TypeExpression;
+    visitCallback?: (node: GirCallback) => GirCallback;
+    visitAlias?: (node: GirAlias) => GirAlias;
+    visitConstructor?: (node: GirConstructor) => GirConstructor;
+    visitConstructorFunction?: (node: GirConstructor) => GirConstructor;
+    visitRecord?: (node: GirRecord) => GirRecord;
+    visitInterface?: (node: GirInterface) => GirInterface;
+    visitEnumMember?: (node: GirEnumMember) => GirEnumMember;
+    visitError?: (node: GirError) => GirError;
+    visitEnum?: (node: GirEnum) => GirEnum;
+    visitConst?: (node: GirConst) => GirConst;
+    visitClass?: (node: GirClass) => GirClass;
+    visitParameter?: (node: GirFunctionParameter) => GirFunctionParameter;
+    visitProperty?: (node: GirProperty) => GirProperty;
+    visitField?: (node: GirField) => GirField;
+    visitSignal?: (node: GirSignal, type?: GirSignalType) => GirSignal;
+    visitFunction?: (node: GirFunction) => GirFunction;
+    visitClassFunction?: (node: GirClassFunction) => GirClassFunction;
+    visitStaticClassFunction?: (node: GirStaticClassFunction) => GirStaticClassFunction;
+    visitVirtualClassFunction?: (node: GirVirtualClassFunction) => GirVirtualClassFunction;
 }
 
 export function visit(namespace: GirNamespace, visitor: GirVisitor) {

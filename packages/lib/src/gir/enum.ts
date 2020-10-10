@@ -36,15 +36,17 @@ export class GirEnum extends GirBase {
 
     en.flags = flags;
 
+    en._copyBaseProperties(this);
+
     return en;
   }
 
   accept(visitor: GirVisitor): GirEnum {
-    return visitor.visitEnum(this.copy({
+    return visitor.visitEnum?.(this.copy({
       members: new Map(Array.from(this.members.entries()).map(([name, m]) => {
         return [name, m.accept(visitor)];
       }))
-    }));
+    })) ?? this;
   }
 
   getType(): TypeIdentifier {
@@ -123,13 +125,13 @@ export class GirEnumMember extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirEnumMember {
-    return visitor.visitEnumMember(this.copy());
+    return visitor.visitEnumMember?.(this.copy()) ?? this;
   }
 
   copy(): GirEnumMember {
     const { value, name, c_identifier } = this;
 
-    return new GirEnumMember(name, value, c_identifier);
+    return new GirEnumMember(name, value, c_identifier)._copyBaseProperties(this);
   }
 
   static fromXML(
@@ -173,9 +175,14 @@ export class GirError extends GirEnum {
       en.members.set(key, member.copy());
     }
 
-    en.flags = flags;
+    for (const [key, func] of this.functions.entries()) {
+      en.functions.set(key, func.copy({ parent: en }));
+    }
 
-    return en;
+    en.flags = flags;
+    
+
+    return en._copyBaseProperties(this);
   }
 
   static fromXML(
