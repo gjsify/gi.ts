@@ -5,6 +5,7 @@ import { GirNamespace } from "./namespace";
 import { getType, sanitizeIdentifierName } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
+import { GirVisitor } from "../visitor";
 
 export class GirConst extends GirBase {
   type: TypeExpression;
@@ -17,17 +18,26 @@ export class GirConst extends GirBase {
     this.value = value;
   }
 
-  copy(): GirConst {
+  accept(visitor: GirVisitor): GirConst {
+    return visitor.visitConst(this.copy({
+      type: visitor.visitType(this.type)
+    }));
+  }
+
+  copy(options: {
+    parent?: undefined;
+    type?: TypeExpression;
+  } = {}): GirConst {
     const { type, name, value } = this;
 
     return new GirConst({
       name,
-      type,
+      type: options.type ?? type,
       value
     });
   }
 
-  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions,  _parent, constant: ConstantElement): GirConst {
+  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, _parent, constant: ConstantElement): GirConst {
     const c = new GirConst({
       name: sanitizeIdentifierName(ns.name, constant.$.name),
       type: getType(modName, ns, constant),

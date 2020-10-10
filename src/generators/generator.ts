@@ -19,7 +19,6 @@ export interface GenericDescriptor {
 export abstract class FormatGenerator<T = string> {
   abstract generateNamespace(node: GirNamespace): string | null;
 
-  abstract generateCallbackType(node: GirCallback, generics: boolean): [T, T];
   abstract generateCallback(node: GirCallback): T;
   abstract generateAlias(node: GirAlias): T;
   abstract generateConstructor(node: GirConstructor): T;
@@ -31,7 +30,7 @@ export abstract class FormatGenerator<T = string> {
   abstract generateEnum(node: GirEnum): T | null;
   abstract generateConst(node: GirConst): T;
   abstract generateClass(node: GirClass): T;
-  abstract generateParameter(arg0: GirFunctionParameter): T;
+  abstract generateParameter(node: GirFunctionParameter): T;
   abstract generateProperty(node: GirProperty, construct?: boolean): T;
   abstract generateField(node: GirField): T;
   abstract generateSignal(node: GirSignal, type?: GirSignalType): T;

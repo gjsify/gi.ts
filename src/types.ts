@@ -1,14 +1,21 @@
 export type PropertyCase = "both" | "camel" | "underscore";
 export type Format = "dts" | "json";
 
-export interface LoadOptions {
-    loadDocs: boolean;
-    propertyCase: PropertyCase;
+export interface Options {
+    verbose: boolean;
 }
 
-export interface GenerationOptions {
-    resolveTypeConflicts: boolean;
+export interface LoadOptions extends Options {
+    loadDocs: boolean;
+    propertyCase: PropertyCase; 
+}
+
+export interface TransformOptions extends Options {
     inferGenerics: boolean;
+}
+
+export interface GenerationOptions extends Options {
+    resolveTypeConflicts: boolean;
     promisify: boolean;
     propertyCase: PropertyCase;
     withDocs: boolean;

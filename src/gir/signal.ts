@@ -1,4 +1,4 @@
-import { GirBase, VoidType, UnknownType, NativeType, TypeExpression, ThisType } from "../gir";
+import { GirBase, VoidType, UnknownType, NativeType, TypeExpression, ThisType, NumberType } from "../gir";
 import { GirNamespace } from "./namespace";
 import { GirClass } from "./class";
 import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
@@ -6,6 +6,7 @@ import { ClassGLibSignalElement, Direction } from "@gi.ts/parser";
 import { getType } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
+import { GirVisitor } from "../visitor";
 
 export enum GirSignalType {
   CONNECT,
@@ -31,9 +32,32 @@ export class GirSignal extends GirBase {
   }) {
     super(name);
 
-    this.parameters = parameters;
+    this.parameters = parameters.map(p => p.copy({ parent: this }));
     this.return_type = return_type;
     this.parent = parent;
+  }
+
+  accept(visitor: GirVisitor): GirSignal {
+    this.parameters.forEach(p => {
+      p.accept(visitor);
+    });
+
+    visitor.visitType(this.return_type);
+
+    return visitor.visitSignal(this.copy({}));
+  }
+
+  copy({ parent = this.parent, parameters, returnType }: {
+    parent?: GirClass;
+    parameters?: GirFunctionParameter[];
+    returnType?: TypeExpression;
+  } = {}): GirSignal {
+    return new GirSignal({
+      name: this.name,
+      parent,
+      parameters: parameters ?? this.parameters,
+      return_type: returnType ?? this.return_type
+    });
   }
 
   static fromXML(
@@ -63,17 +87,6 @@ export class GirSignal extends GirBase {
     return signal;
   }
 
-  copy({ parent = this.parent }: { parent?: GirClass } = {}): GirSignal {
-    const fn = new GirSignal({
-      name: this.name,
-      parent
-    });
-
-    fn.parameters.push(...this.parameters.map(p => p.copy()));
-    fn.return_type = this.return_type;
-
-    return fn;
-  }
 
   asEmit() {
     const emit = this.copy();
@@ -128,12 +141,12 @@ export class GirSignal extends GirBase {
       }),
       new GirFunctionParameter({
         name: "callback",
-        type: NativeType.of(`${generator.generateCallbackType(cb, false)[1]}`),
+        type: cb.asFunctionType(),
         direction: Direction.In
       })
     ];
 
-    const return_type = NativeType.of("number");
+    const return_type = NumberType;
 
     return new GirClassFunction({
       return_type,

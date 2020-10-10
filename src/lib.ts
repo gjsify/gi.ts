@@ -1,6 +1,8 @@
 import { DtsGenerator } from "./generators/dts";
 import { JsonGenerator } from "./generators/json";
-import { GirNSRegistry } from "./gir/namespace";
+
+import { GirNSRegistry } from "./gir/registry";
+
 import { GenerationOptions, Metadata } from "./types";
 
 export * as dts from "./generators/dts";

@@ -3,6 +3,7 @@ import { GirProperty, GirField } from "./gir/property";
 import { FormatGenerator } from "./generators/generator";
 import { GenerationOptions, LoadOptions } from "./types";
 import { sanitizeIdentifierName } from "./gir/util";
+import { GirVisitor } from "./visitor";
 
 export abstract class GirBase {
   name: string;
@@ -15,6 +16,8 @@ export abstract class GirBase {
   }
 
   abstract copy(options?: { parent?: GirBase }): GirBase;
+
+  abstract accept(visitor: GirVisitor): GirBase;
 
   static fromXML(
     _modName: string,
@@ -32,6 +35,7 @@ export abstract class GirBase {
 export abstract class TypeExpression {
   abstract equals(type: TypeExpression): boolean;
   abstract unwrap(): TypeExpression;
+  abstract rewrap(type: TypeExpression): TypeExpression;
   abstract resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression;
 
   abstract print(ns: string, namespace: GirNamespace, options: GenerationOptions): string;
@@ -62,7 +66,11 @@ export class TypeIdentifier extends TypeExpression {
     return this;
   }
 
-  private _resolve(modName: string, namespace: GirNamespace, _options: GenerationOptions): TypeIdentifier | null {
+  rewrap(type: TypeExpression): TypeExpression {
+    return type;
+  }
+
+  protected _resolve(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
     const type = this;
     let name: string = sanitizeIdentifierName(null, type.name);
     let ns_name = type.namespace || modName;
@@ -107,7 +115,10 @@ export class TypeIdentifier extends TypeExpression {
       }
 
       if (cb) {
-        console.log(`Callback found: ${cb}.${corrected_name}`);
+        if (options.verbose) {
+          console.debug(`Callback found: ${cb}.${corrected_name}`);
+        }
+
         return new TypeIdentifier(corrected_name, cb);
       } else if (resolved_name) {
         return new TypeIdentifier(resolved_name, ns_name);
@@ -123,7 +134,7 @@ export class TypeIdentifier extends TypeExpression {
         if (current_rns) {
           current_rns.addImport(ns_name);
         } else {
-          console.log("Failed to add implicit import for current namespace.");
+          console.error("Failed to add implicit import for current namespace.");
         }
 
         return null;
@@ -160,6 +171,35 @@ export class TypeIdentifier extends TypeExpression {
   }
 }
 
+export class GenerifiedTypeIdentifier extends TypeIdentifier {
+  generics: GenericType[];
+
+  constructor(name: string, namespace: string, generics: GenericType[] = []) {
+    super(name, namespace);
+    this.generics = generics;
+  }
+
+  print(ns: string, _namespace: GirNamespace, _options: GenerationOptions): string {    
+    const Generics = this.generics.map(generic => generic.print(ns, _namespace, _options)).join(", ");
+
+    if (ns === this.namespace) {
+      return `${this.name}${this.generics.length > 0 ? `<${Generics}>` : ''}`;
+    } else {
+      return `${this.namespace}.${this.name}${this.generics.length > 0 ? `<${Generics}>` : ''}`;
+    }
+  }
+
+  _resolve(modName: string, namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
+    const iden = super._resolve(modName, namespace, options);
+
+    if (iden) {
+      return new GenerifiedTypeIdentifier(iden.name, iden.namespace, this.generics);
+    }
+
+    return iden;
+  }
+}
+
 export class NativeType extends TypeExpression {
   readonly expression: (options?: GenerationOptions) => string;
 
@@ -167,6 +207,10 @@ export class NativeType extends TypeExpression {
     super();
 
     this.expression = typeof expression === "string" ? () => expression : expression;
+  }
+
+  rewrap(type: TypeExpression): TypeExpression {
+    return type;
   }
 
   resolve(_ns: string, _namespace: GirNamespace, _options: GenerationOptions): TypeExpression {
@@ -177,14 +221,7 @@ export class NativeType extends TypeExpression {
     return this.expression(options);
   }
 
-  equals(type: TypeExpression): boolean {
-    // TODO This is hacky.
-    const options = {
-      inferGenerics: false,
-      resolveTypeConflicts: true,
-      format: "dts"
-    } as GenerationOptions;
-
+  equals(type: TypeExpression, options?: GenerationOptions): boolean {
     return type instanceof NativeType && this.expression(options) === type.expression(options);
   }
 
@@ -207,6 +244,10 @@ export class OrType extends TypeExpression {
   constructor(type: TypeExpression, ...types: TypeExpression[]) {
     super();
     this.types = [type, ...types];
+  }
+
+  rewrap(type: TypeExpression): TypeExpression {
+    return type;
   }
 
   unwrap(): TypeExpression {
@@ -269,6 +310,10 @@ export class BinaryType extends OrType {
     return this;
   }
 
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions) {
+    return new BinaryType(this.a.resolve(ns, namespace, options), this.b.resolve(ns, namespace, options));
+  }
+
   is(_namespace: string | null, _name: string) {
     return false;
   }
@@ -282,6 +327,164 @@ export class BinaryType extends OrType {
   }
 }
 
+export class FunctionType extends TypeExpression {
+  parameterTypes: { [name: string]: TypeExpression };
+  returnType: TypeExpression;
+
+  constructor(parameters: { [name: string]: TypeExpression }, returnType: TypeExpression) {
+    super();
+
+    this.parameterTypes = parameters;
+    this.returnType = returnType;
+  }
+
+  equals(type: TypeExpression): boolean {
+    if (type instanceof FunctionType) {
+      return Object.values(this.parameterTypes)
+        .every(t => Object.values(type.parameterTypes).some(tp => t.equals(tp)))
+        && Object.values(type.parameterTypes)
+          .every(t => Object.values(this.parameterTypes).some(tp => t.equals(tp)))
+        && this.returnType.equals(type.returnType)
+    }
+
+    return false;
+  }
+
+  rewrap(type: TypeExpression): TypeExpression {
+    return type;
+  }
+
+  unwrap(): TypeExpression {
+    return this;
+  }
+
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
+    return new FunctionType(
+      Object.fromEntries(
+        Object.entries(this.parameterTypes).map(([k, p]) => {
+          return [k, p.resolve(ns, namespace, options)];
+        })
+      ),
+      this.returnType.resolve(ns, namespace, options)
+    )
+  }
+
+  rootPrint(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    const Parameters = Object.entries(this.parameterTypes).map(([k, v]) => {
+      return `${k}: ${v.rootPrint(ns, namespace, options)}`;
+    }).join(", ");
+
+    return `(${Parameters}) => ${this.returnType.print(ns, namespace, options)}`;
+  }
+
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
+    return `(${this.rootPrint(ns, namespace, options)})`;
+  }
+}
+
+export class Generic {
+  _deriveFrom: TypeIdentifier | null;
+  _genericType: GenericType;
+  _defaultType: TypeExpression | null;
+
+  constructor(genericType: GenericType, defaultType?: TypeExpression, deriveFrom?: TypeIdentifier) {
+    this._genericType = genericType;
+    this._defaultType = defaultType ?? null;
+    this._deriveFrom = deriveFrom ?? null;
+  }
+
+  unwrap() {
+    return this.type;
+  }
+
+  get type() {
+    return this._genericType;
+  }
+
+  get defaultType() {
+    return this._defaultType;
+  }
+
+  get parent() {
+    return this._deriveFrom;
+  }
+}
+
+export class GenerifiedType extends TypeExpression {
+  type: TypeExpression;
+  generic: GenericType;
+
+  constructor(type: TypeExpression, generic: GenericType) {
+    super();
+
+    this.type = type;
+    this.generic = generic;
+  }
+
+  resolve(ns: string, namespace: GirNamespace, options: GenerationOptions) {
+    return new GenerifiedType(this.type.resolve(ns, namespace, options), this.generic.resolve(ns, namespace, options));
+  }
+
+  unwrap() {
+    return this.type;
+  }
+
+  rootPrint(ns: string, namespace: GirNamespace, options: GenerationOptions) {
+    return `${this.type.print(ns, namespace, options)}<${this.generic.print(ns, namespace, options)}>`
+  }
+
+  print(ns: string, namespace: GirNamespace, options: GenerationOptions) {
+    return `${this.type.print(ns, namespace, options)}<${this.generic.print(ns, namespace, options)}>`
+  }
+
+  equals(type: TypeExpression): boolean {
+    if (type instanceof GenerifiedType) {
+      return type.type.equals(this.type) && type.generic.equals(this.generic);
+    }
+
+    return false;
+  }
+
+  rewrap(): TypeExpression {
+    return this;
+  }
+}
+
+
+export class GenericType extends TypeExpression {
+  identifier: string;
+
+  constructor(identifier: string) {
+    super();
+    this.identifier = identifier;
+  }
+
+  equals(type: TypeExpression): boolean {
+    if (type instanceof GenericType) {
+      return type.identifier === this.identifier;
+    }
+
+    return false;
+  }
+
+  unwrap(): TypeExpression {
+    return this;
+  }
+
+
+  rewrap(_type: TypeExpression): TypeExpression {
+    return this;
+  }
+
+  resolve(_ns: string, _namespace: GirNamespace, _options: GenerationOptions): GenericType {
+    return this;
+  }
+
+  print(_ns: string, _namespace: GirNamespace, _options: GenerationOptions): string {
+    return `${this.identifier}`;
+  }
+}
+
 export class NullableType extends BinaryType {
   constructor(type: TypeExpression) {
     super(type, NullType);
@@ -289,6 +492,10 @@ export class NullableType extends BinaryType {
 
   unwrap() {
     return this.type;
+  }
+
+  rewrap(type: TypeExpression): TypeExpression {
+    return new NullableType(type);
   }
 
   get type() {
@@ -312,6 +519,10 @@ export class PromiseType extends TypeExpression {
     return this.type;
   }
 
+  rewrap(type: TypeExpression): TypeExpression {
+    return new PromiseType(type);
+  }
+
   resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
     return new PromiseType(this.type.resolve(ns, namespace, options));
   }
@@ -319,7 +530,7 @@ export class PromiseType extends TypeExpression {
   print(ns: string, namespace: GirNamespace, options: GenerationOptions): string {
     // TODO: Optimize this check.
     if (!namespace.hasSymbol("Promise")) {
-        return `Promise<${this.type.print(ns, namespace, options)}>`;
+      return `Promise<${this.type.print(ns, namespace, options)}>`;
     }
 
     return `globalThis.Promise<${this.type.print(ns, namespace, options)}>`;
@@ -362,6 +573,14 @@ export class ClosureType extends TypeExpression {
     return false;
   }
 
+  rewrap(type: TypeExpression): TypeExpression {
+    const closure = new ClosureType(type);
+
+    closure.user_data = this.user_data;
+
+    return closure;
+  }
+
   unwrap(): TypeExpression {
     return this;
   }
@@ -398,6 +617,15 @@ export class ArrayType extends TypeExpression {
 
   unwrap(): TypeExpression {
     return this;
+  }
+
+  rewrap(type: TypeExpression): TypeExpression {
+    const array = new ArrayType(type);
+
+    array.arrayDepth = this.arrayDepth;
+    array.length = this.length;
+
+    return array;
   }
 
   equals(type: TypeExpression) {
@@ -462,5 +690,6 @@ export const NumberType = new NativeType("number");
 export const NullType = new NativeType("null");
 export const VoidType = new NativeType("void");
 export const UnknownType = new NativeType("unknown");
+export const AnyFunctionType = new NativeType("(...args: any[]) => any");
 
 export type GirClassField = GirProperty | GirField;

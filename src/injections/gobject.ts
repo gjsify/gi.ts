@@ -1,4 +1,4 @@
-import { GirNamespace, GirNSRegistry } from "../gir/namespace";
+import { GirNamespace } from "../gir/namespace";
 import { GirFunctionParameter, GirClassFunction, GirFunction, GirStaticClassFunction } from "../gir/function";
 import {
   NativeType,
@@ -12,12 +12,14 @@ import {
   NullableType,
   TupleType,
   UnknownType,
-  NeverType
+  NeverType,
+  AnyFunctionType
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirField } from "../gir/property";
 import { GirAlias } from "../gir/alias";
 import { GirBaseClass } from "../gir/class";
+import { GirNSRegistry } from "../gir/registry";
 
 function anyParam(name: string) {
   return new GirFunctionParameter({
@@ -106,20 +108,20 @@ export default {
 
       ParamSpecObject.members.push(type_function.copy());
 
-      ParamSpecObject.addGenericParemeter({
-        default: "unknown"
+      ParamSpecObject.addGeneric({
+        default: UnknownType
       });
 
       ParamSpecBoxed.members.push(type_function.copy());
 
-      ParamSpecBoxed.addGenericParemeter({
-        default: "unknown"
+      ParamSpecBoxed.addGeneric({
+        default: UnknownType
       });
 
       ParamSpecEnum.members.push(type_function.copy());
 
-      ParamSpecEnum.addGenericParemeter({
-        default: "unknown"
+      ParamSpecEnum.addGeneric({
+        default: UnknownType
       });
 
       const ParamSpecParam = namespace.assertClass("ParamSpecParam");
@@ -349,7 +351,7 @@ export default {
             }),
             new GirFunctionParameter({
               name: "func",
-              type: NativeType.of("Function"),
+              type: AnyFunctionType,
               direction: Direction.In
             })
           ],
@@ -372,7 +374,7 @@ export default {
             }),
             new GirFunctionParameter({
               name: "func",
-              type: NativeType.of("Function"),
+              type: AnyFunctionType,
               direction: Direction.In
             })
           ],
@@ -395,7 +397,7 @@ export default {
             }),
             new GirFunctionParameter({
               name: "func",
-              type: NativeType.of("Function"),
+              type: AnyFunctionType,
               direction: Direction.In
             })
           ],

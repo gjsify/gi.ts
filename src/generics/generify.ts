@@ -1,6 +1,8 @@
 import gio from "./gio";
 
-import { GirNSRegistry, GirNamespace } from "../gir/namespace";
+import { GirNamespace } from "../gir/namespace";
+import { GirNSRegistry } from "../gir/registry";
+import { GenericVisitor } from "./visitor";
 
 function generifyDefinitions(registry: GirNSRegistry) {
   return (definition: { namespace: string; version: string; modifier: (namespace: GirNamespace) => void }) => {
@@ -16,6 +18,12 @@ function generifyDefinitions(registry: GirNSRegistry) {
 
 export function generify(registry: GirNSRegistry) {
   const $ = generifyDefinitions(registry);
-  
+
   $(gio);
+
+  const visitor = new GenericVisitor(registry);
+
+  registry.forEach(namespace => {
+    namespace.accept(visitor);
+  });
 }
