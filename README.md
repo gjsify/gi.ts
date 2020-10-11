@@ -7,51 +7,62 @@ gi.ts
 
 This project converts GObject Introspection XML files into highly accurate TypeScript definition files (.d.ts)!
 
-## Structure
+## Packages
 
-- src/config.ts - Generates docs.json (list of all GIR files)
-- src/gir.ts    - Has base classes which translate the XML files to TypeScript
-- src/main.ts   - Main CLI for generating the .d.ts files.
-- src/xml.ts    - Has definitions for the XML format
+All packages are located under `packages/`
+
+- @gi.ts/lib - Type generation and inference
+- @gi.ts/parser - GIR Parser
+- @gi.ts/cli - CLI
 
 ## Usage 
 
 #### Build:
 
-1. `npm i` (download dependencies)
-2. `npm run build` (build the project)
-3. `npm link` (make cli available)
+In the root folder:
+
+1. `yarn` (download dependencies)
+
+In each folder under `packages/` run:
+
+2. `yarn run build` (build the project)
+3. `yarn link` (make package available locally)
 
 #### Generate type definitions:
 
 ##### In your project:
 
-1. `npm link gi.ts`
-2. `gi-ts config` (generate docs.json)
-3. `gi-ts generate` (generate files)
+1. `yarn link @gi.ts/cli`
+2. `yarn link @gi.ts/lib`
+3. `yarn link @gi.ts/parser`
+4. `gi-ts config` (list potential packages)
+5. `gi-ts generate` (generate files)
 
 ##### In gi.ts:
 
-1. `gi-ts config` (generate docs.json)
-2. `gi-ts generate` (generate files)
+1. `gi-ts config` (list potential packages)
+2. `gi-ts config --lock` (cache your local packages)
+3. `gi-ts generate` (generate files)
 
 ### Selecting Versions
 
-In `sample-versions.json` you can find an example of how to select which versions `gi.ts` generates for a given library. Rename this file to `versions.json` in your generation directory for `gi.ts` to use it.
+In `sample/docs.json` you can find an example of how to select which versions `gi.ts` generates for a given library. Move this file to to your generation directory for `gi.ts` to use it.
 
 ### Options
 
-* `--resolveTypeConflicts=true|false`
+Complete documentation is available in [the CLI documentation](https://gitlab.gnome.org/ewlsh/gi.ts/-/tree/master/packages/cli).
 
-When resolve type conflicts is `true` gi.ts will force some properties to be typed as `any` and insert `never` types into function definitions when a GObject-based library violates the rules of TypeScript's inheritance structure (e.g. a child class has a property which is type incompatible with the parent).
+* `--resolveTypeConflicts`
+
+When resolve type conflicts is passed gi.ts will force some properties to be typed as `any` and insert `never` types into function definitions when a GObject-based library violates the rules of TypeScript's inheritance structure (e.g. a child class has a property which is type incompatible with the parent).
 
 This should only be disabled for "pretty" outputs (e.g. documentation)
 
-* `--inferGenerics=true|false`
+* `--inferGenerics`
 
-When infer generics is `true` gi.ts attempts to add generic typing based on heuristics (primarily if a class or function is typed with `GObject.Object`). If this is false all type conversions that would need to occur in C will likely also need to be made in TypeScript. This particularly impacts callback functions which offer an instance or self parameter.
+When infer generics is passed gi.ts attempts to add generic typing based on heuristics (primarily if a class or function is typed with `GObject.Object`). If this is false all type conversions that would need to occur in C will likely also need to be made in TypeScript. This particularly impacts callback functions which offer an instance or self parameter.
 
-* `--promisify=true|false`
+* `--promisify`
 
 When promisification is enabled, GJS will add type definitions for any async functions it can identify. You still need to ensure Gio._promisify is called on the relevant functions, because it will type correctly regardless.
 
