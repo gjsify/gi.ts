@@ -24,6 +24,14 @@ export class GirNSRegistry {
     }
 
     transform(options: TransformOptions) {
+        const GLib = this.assertNamespace("GLib", "2.0");
+        const Gio = this.assertNamespace("Gio", "2.0");
+        const GObject = this.assertNamespace("GObject", "2.0");
+
+        // These follow the GLib version.
+        Gio.package_version = [...GLib.package_version];
+        GObject.package_version = [...GLib.package_version];
+
         const interfaceVisitor = new InterfaceVisitor();
 
         this.forEach(namespace => {
