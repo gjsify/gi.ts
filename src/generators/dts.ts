@@ -767,7 +767,6 @@ export class DtsGenerator extends FormatGenerator<string> {
   generateClassFunction(node: GirClassFunction): string {
     const invalid = isInvalid(node.name);
 
-
     let parameters = node.parameters;
     let output_parameters = node.output_parameters;
     let return_type = node.return();

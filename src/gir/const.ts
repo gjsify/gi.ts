@@ -19,9 +19,11 @@ export class GirConst extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirConst {
-    return visitor.visitConst?.(this.copy({
+    const node = this.copy({
       type: visitor.visitType?.(this.type)
-    })) ?? this;
+    });
+
+    return visitor.visitConst?.(node) ?? node;
   }
 
   copy(options: {

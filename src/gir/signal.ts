@@ -38,13 +38,15 @@ export class GirSignal extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirSignal {
-    this.parameters.forEach(p => {
-      p.accept(visitor);
+    const node = this.copy({
+      parameters: this.parameters.map(p => {
+        return p.accept(visitor);
+      }),
+      returnType: visitor.visitType?.(this.return_type)
+
     });
 
-    visitor.visitType?.(this.return_type);
-
-    return visitor.visitSignal?.(this.copy()) ?? this;
+    return visitor.visitSignal?.(node) ?? node;
   }
 
   copy({ parent = this.parent, parameters, returnType }: {

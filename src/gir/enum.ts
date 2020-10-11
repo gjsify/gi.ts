@@ -42,11 +42,13 @@ export class GirEnum extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirEnum {
-    return visitor.visitEnum?.(this.copy({
+    const node = this.copy({
       members: new Map(Array.from(this.members.entries()).map(([name, m]) => {
         return [name, m.accept(visitor)];
       }))
-    })) ?? this;
+    });
+
+    return visitor.visitEnum?.(node) ?? node;
   }
 
   getType(): TypeIdentifier {
@@ -125,7 +127,8 @@ export class GirEnumMember extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirEnumMember {
-    return visitor.visitEnumMember?.(this.copy()) ?? this;
+    const node = this.copy();
+    return visitor.visitEnumMember?.(node) ?? node;
   }
 
   copy(): GirEnumMember {

@@ -1,4 +1,4 @@
-import { ClosureType, GenericType, Generic, TypeIdentifier, GenerifiedType, GenerifiedTypeIdentifier } from "../gir";
+import { ClosureType, GenericType, Generic, TypeIdentifier, GenerifiedType, GenerifiedTypeIdentifier, ThisType } from "../gir";
 import { GirClass, GirBaseClass, resolveTypeIdentifier } from "../gir/class";
 import { GirCallback, GirFunctionParameter, GirFunction, GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
 import { GenericNameGenerator } from "../gir/generics";
@@ -113,18 +113,35 @@ export class GenericVisitor extends GirVisitor {
     visitParameter = (node: GirFunctionParameter) => {
         const member = node.parent;
 
-        if (member instanceof GirClassFunction && !(member instanceof GirStaticClassFunction)) {
-            const unwrapped = node.type.unwrap();
 
-            // TODO I need a better system for this, but handling Gio.AsyncReadyCallback is the most common.
+        const unwrapped = node.type.unwrap();
+        // TODO I need a better system for this, but handling Gio.AsyncReadyCallback is the most common.
 
-            if (unwrapped instanceof ClosureType) {
-                const internal = unwrapped.type.unwrap();
+        if (unwrapped instanceof ClosureType) {
+            const internal = unwrapped.type.unwrap();
 
-                if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
+            if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
+                if (member instanceof GirFunction && member.parameters.length >= 2) {
                     const generified = node.copy({
-                        type: node.type.rewrap(new GenerifiedType(internal, new GenericType("this")))
+                        type: node.type.rewrap(new GenerifiedTypeIdentifier(internal.name, internal.namespace, [
+                            member.parameters[0].type
+                        ]))
                     });
+
+                    return generified;
+                } else if (member instanceof GirStaticClassFunction) {
+                    const generified = node.copy({
+                        type: node.type.rewrap(new GenerifiedTypeIdentifier(internal.name, internal.namespace, [
+                            member.parent.getType()
+                        ]))
+                    });
+
+                    return generified;
+                } else if (member instanceof GirClassFunction) {
+                    const generified = node.copy({
+                        type: node.type.rewrap(new GenerifiedTypeIdentifier(internal.name, internal.namespace, [ThisType]))
+                    });
+
                     return generified;
                 }
             }

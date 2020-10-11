@@ -81,7 +81,7 @@ export class GirFunction extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirFunction {
-    return visitor.visitFunction?.(this.copy({
+    const node = this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
@@ -89,7 +89,9 @@ export class GirFunction extends GirBase {
         return p.accept(visitor);
       }),
       return_type: visitor.visitType?.(this.return_type)
-    })) ?? this;
+    });
+
+    return visitor.visitFunction?.(node) ?? node;
   }
 
   static fromXML(
@@ -291,12 +293,14 @@ export class GirConstructor extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirConstructor {
-    return visitor.visitConstructor?.(this.copy({
+    const node = this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
       return_type: visitor.visitType?.(this.return_type)
-    })) ?? this;
+    });
+
+    return visitor.visitConstructor?.(node) ?? node;
   }
 
   return() {
@@ -365,9 +369,11 @@ export class GirFunctionParameter extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirFunctionParameter {
-    return visitor.visitParameter?.(this.copy({
+    const node = this.copy({
       type: visitor.visitType?.(this.type)
-    })) ?? this;
+    });
+
+    return visitor.visitParameter?.(node) ?? node;
   }
 
   asString<T = string>(generator: FormatGenerator<T>): T {
@@ -524,7 +530,7 @@ export class GirClassFunction extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirClassFunction {
-    const fn = visitor.visitClassFunction?.(this.copy({
+    const node = this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
@@ -532,9 +538,11 @@ export class GirClassFunction extends GirBase {
         return p.accept(visitor);
       }),
       returnType: visitor.visitType?.(this.return_type)
-    }));
+    });
 
-    return fn ?? this;
+    const fn = visitor.visitClassFunction?.(node);
+
+    return fn ?? node;
   }
 
   anyify(): this {
@@ -615,7 +623,7 @@ export class GirVirtualClassFunction extends GirClassFunction {
 
 
   accept(visitor: GirVisitor): GirVirtualClassFunction {
-    return visitor.visitVirtualClassFunction?.(this.copy({
+    const node = this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
@@ -623,7 +631,8 @@ export class GirVirtualClassFunction extends GirClassFunction {
         return p.accept(visitor);
       }),
       returnType: visitor.visitType?.(this.return_type)
-    })) ?? this;
+    });
+    return visitor.visitVirtualClassFunction?.(node) ?? node;
   }
 
   static fromXML(
@@ -645,7 +654,7 @@ export class GirStaticClassFunction extends GirClassFunction {
   }
 
   accept(visitor: GirVisitor): GirStaticClassFunction {
-    return visitor.visitStaticClassFunction?.(this.copy({
+    const node = this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
@@ -653,7 +662,9 @@ export class GirStaticClassFunction extends GirClassFunction {
         return p.accept(visitor);
       }),
       returnType: visitor.visitType?.(this.return_type)
-    })) ?? this;
+    });
+
+    return visitor.visitStaticClassFunction?.(node) ?? node;
   }
 
   static fromXML(
@@ -693,7 +704,7 @@ export class GirCallback extends GirFunction {
   }
 
   accept(visitor: GirVisitor): GirCallback {
-    return visitor.visitCallback?.(this.copy({
+    const node = this.copy({
       parameters: this.parameters.map(p => {
         return p.accept(visitor);
       }),
@@ -701,7 +712,9 @@ export class GirCallback extends GirFunction {
         return p.accept(visitor);
       }),
       returnType: visitor.visitType?.(this.return_type)
-    })) ?? this;
+    });
+
+    return visitor.visitCallback?.(node) ?? node;
   }
 
   static fromXML(

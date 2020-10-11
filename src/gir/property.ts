@@ -60,9 +60,11 @@ export class GirField extends GirBase {
 
 
   accept(visitor: GirVisitor): GirField {
-    this.type = visitor.visitType?.(this.type) ?? this.type;
+    const node = this.copy({
+      type: visitor.visitType?.(this.type) ?? this.type
+    });
 
-    return visitor.visitField?.(this) ?? this;
+    return visitor.visitField?.(node) ?? node;
   }
 
   static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, _parent, field: ClassField): GirField {
@@ -94,9 +96,11 @@ export class GirProperty extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirProperty {
-    this.type = visitor.visitType?.(this.type) ?? this.type;
+    const node = this.copy({
+      type: visitor.visitType?.(this.type) ?? this.type
+    });
 
-    return visitor.visitProperty?.(this) ?? this;
+    return visitor.visitProperty?.(node) ?? node;
   }
 
   constructor({

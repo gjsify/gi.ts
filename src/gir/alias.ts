@@ -26,9 +26,11 @@ export class GirAlias extends GirBase {
   }
 
   accept(visitor: GirVisitor): GirAlias {
-    return visitor.visitAlias?.(this.copy({
+    const node = this.copy({
       type: visitor.visitType?.(this.type)
-    })) ?? this;
+    });
+
+    return visitor.visitAlias?.(node) ?? node;
   }
 
   copy(options?: { parent?: undefined; type?: TypeExpression }): GirAlias {
