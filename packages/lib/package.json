@@ -5,11 +5,16 @@
   "types": "dist/lib.d.ts",
   "files": [
     "dist",
-    "bin",
     "package.json",
     "package-lock.json",
     "README.md"
   ],
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "dependencies": {
     "@gi.ts/parser": "^1.2.0"

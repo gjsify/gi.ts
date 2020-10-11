@@ -4,5 +4,9 @@
         "packages/cli",
         "packages/lib",
         "packages/parser"
-    ]
+    ],
+    "name": "gi.ts",
+    "devDependencies": {
+        "lerna": "^3.22.1"
+    }
 }
