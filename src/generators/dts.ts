@@ -244,7 +244,7 @@ export class DtsGenerator extends FormatGenerator<string> {
         return ` extends ${Type}`;
       }
 
-      throw new Error(`Unable to resolve type: ${node.name} in ${node.namespace} ${node.namespace.version}`);
+      throw new Error(`Unable to resolve type: ${node.parent.name} from ${node.parent.namespace} in ${node.namespace.name} ${node.namespace.version}`);
     }
 
     return "";
