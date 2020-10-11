@@ -138,7 +138,7 @@ export class TypeIdentifier extends TypeExpression {
         );
 
         return new TypeIdentifier(c_resolved_name, ns_name);
-      } else if (namespace.name  === ns_name) {
+      } else if (namespace.name === ns_name) {
         throw new Error(`Unable to resolve type ${type.name} in same namespace ${ns_name}!`);
       } else {
         if (current_rns) {
@@ -189,7 +189,7 @@ export class GenerifiedTypeIdentifier extends TypeIdentifier {
     this.generics = generics;
   }
 
-  print(ns: string, _namespace: GirNamespace, _options: GenerationOptions): string {    
+  print(ns: string, _namespace: GirNamespace, _options: GenerationOptions): string {
     const Generics = this.generics.map(generic => generic.print(ns, _namespace, _options)).join(", ");
 
     if (ns === this.namespace) {
@@ -203,7 +203,7 @@ export class GenerifiedTypeIdentifier extends TypeIdentifier {
     const iden = super._resolve(namespace, options);
 
     if (iden) {
-      return new GenerifiedTypeIdentifier(iden.name, iden.namespace, this.generics);
+      return new GenerifiedTypeIdentifier(iden.name, iden.namespace, [...this.generics]);
     }
 
     return iden;
@@ -455,8 +455,8 @@ export class GenerifiedType extends TypeExpression {
     return false;
   }
 
-  rewrap(): TypeExpression {
-    return this;
+  rewrap(type: TypeExpression): TypeExpression {
+    return new GenerifiedType(this.type.rewrap(type), this.generic);
   }
 }
 
@@ -505,7 +505,7 @@ export class NullableType extends BinaryType {
   }
 
   rewrap(type: TypeExpression): TypeExpression {
-    return new NullableType(type);
+    return new NullableType(this.type.rewrap(type));
   }
 
   get type() {
@@ -530,7 +530,7 @@ export class PromiseType extends TypeExpression {
   }
 
   rewrap(type: TypeExpression): TypeExpression {
-    return new PromiseType(type);
+    return new PromiseType(this.type.rewrap(type));
   }
 
   resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression {
@@ -550,6 +550,10 @@ export class PromiseType extends TypeExpression {
 export class AnyifiedType extends BinaryType {
   constructor(type: TypeExpression) {
     super(type, AnyType);
+  }
+
+  rewrap(type: TypeExpression) {
+    return new AnyifiedType(this.type.rewrap(type));
   }
 
   unwrap() {
@@ -584,7 +588,7 @@ export class ClosureType extends TypeExpression {
   }
 
   rewrap(type: TypeExpression): TypeExpression {
-    const closure = new ClosureType(type);
+    const closure = new ClosureType(this.type.rewrap(type));
 
     closure.user_data = this.user_data;
 
@@ -630,7 +634,7 @@ export class ArrayType extends TypeExpression {
   }
 
   rewrap(type: TypeExpression): TypeExpression {
-    const array = new ArrayType(type);
+    const array = new ArrayType(this.type.rewrap(type));
 
     array.arrayDepth = this.arrayDepth;
     array.length = this.length;

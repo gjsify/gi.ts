@@ -553,14 +553,15 @@ export class GirClass extends GirBaseClass {
   }
 
   accept(visitor: GirVisitor): GirClass {
-    return visitor.visitClass?.(this.copy({
+    const node = this.copy({
       signals: this.signals.map(s => s.accept(visitor)),
       constructors: this.constructors.map(c => c.accept(visitor)),
       members: this.members.map(m => m.accept(visitor)),
       props: this.props.map(p => p.accept(visitor)),
       fields: this.fields.map(f => f.accept(visitor)),
       callbacks: this.callbacks.map(c => c.accept(visitor))
-    })) ?? this;
+    });
+    return visitor.visitClass?.(node) ?? node;
   }
 
   copy(options: {
@@ -604,7 +605,7 @@ export class GirClass extends GirBaseClass {
     clazz.isAbstract = isAbstract;
     clazz.mainConstructor = mainConstructor;
     clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
-    clazz.members = members.map(m => m.copy({ parent: clazz }));
+    clazz.members = (options.members ?? members).map(m => m.copy({ parent: clazz }));
     clazz.generics = generics;
 
     return clazz;
@@ -793,13 +794,15 @@ export class GirRecord extends GirBaseClass {
   }
 
   accept(visitor: GirVisitor): GirRecord {
-    return visitor.visitRecord?.(this.copy({
+    const node = this.copy({
       constructors: this.constructors.map(c => c.accept(visitor)),
       members: this.members.map(m => m.accept(visitor)),
       props: this.props.map(p => p.accept(visitor)),
       fields: this.fields.map(f => f.accept(visitor)),
       callbacks: this.callbacks.map(c => c.accept(visitor))
-    })) ?? this;
+    });
+
+    return visitor.visitRecord?.(node) ?? node;
   }
 
   copy(options: {
@@ -1023,8 +1026,7 @@ export class GirInterface extends GirBaseClass {
   }
 
   accept(visitor: GirVisitor): GirInterface {
-
-    return visitor.visitInterface?.(this.copy(
+    const node = this.copy(
       {
         constructors: this.constructors.map(c => c.accept(visitor)),
         members: this.members.map(m => m.accept(visitor)),
@@ -1032,7 +1034,9 @@ export class GirInterface extends GirBaseClass {
         fields: this.fields.map(f => f.accept(visitor)),
         callbacks: this.callbacks.map(c => c.accept(visitor))
       }
-    )) ?? this;
+    );
+
+    return visitor.visitInterface?.(node) ?? node;
   }
 
   static fromXML(
