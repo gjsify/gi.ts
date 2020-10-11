@@ -49,7 +49,7 @@ export class GirNSRegistry {
             generify(this);
         }
 
-        console.log("Injecting overrides...");
+        console.log("Injecting types...");
         inject(this);
     }
 

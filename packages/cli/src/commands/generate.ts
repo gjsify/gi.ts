@@ -303,8 +303,6 @@ export default class Generate extends Command {
     }
 
     const output_base = output_directory ?? default_directory;
-    const overrides_base = buildPath(__dirname, "../overrides");
-    const overrides_local_base = "./overrides";
 
     const registry = new GirNSRegistry();
 
@@ -384,18 +382,6 @@ export default class Generate extends Command {
             file = buildPath(output_base, `${output_slug}`, `index.${file_extension}`);
           } else {
             throw new Error(`Unknown output format: ${outputFormat}.`);
-          }
-
-          const overrides_files = [
-            buildPath(overrides_base, `${output.toLowerCase()}.${file_extension}.in`),
-            buildPath(overrides_local_base, `${output.toLowerCase()}.${file_extension}.in`)
-          ];
-
-          for (const overrides_file of overrides_files) {
-            if (existsSync(overrides_file)) {
-              this.log(`Adding overrides to ${output} from ${overrides_file}...`);
-              contents += readFileSync(overrides_file, { encoding: "utf-8" });
-            }
           }
 
           if (!existsSync(dir)) {
