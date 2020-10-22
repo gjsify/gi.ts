@@ -117,8 +117,7 @@ export default class Generate extends Command {
     // --outputFormat=file
     let outputFormat: OutputFormat = "file" as const;
 
-    // --loadDocs
-    let loadDocs = false;
+    // --withDocs
     let withDocs = false;
 
     // --resolveTypeConflicts
@@ -287,6 +286,8 @@ export default class Generate extends Command {
     }
 
     if (flags.format) {
+      format = flags.format;
+
       setFormat(flags.format);
     }
 
@@ -315,7 +316,7 @@ export default class Generate extends Command {
       for (let [, docs] of gir.entries()) {
         for (const [, xml] of Object.entries(docs)) {
           registry.load(xml, {
-            loadDocs,
+            loadDocs: withDocs,
             propertyCase,
             verbose
           });
