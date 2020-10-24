@@ -1,4 +1,4 @@
-import { ClosureType, GenericType, Generic, TypeIdentifier, GenerifiedType, GenerifiedTypeIdentifier, ThisType } from "../gir";
+import { ClosureType, GenericType, Generic, TypeIdentifier, GenerifiedTypeIdentifier, ThisType } from "../gir";
 import { GirClass, GirBaseClass, resolveTypeIdentifier } from "../gir/class";
 import { GirCallback, GirFunctionParameter, GirFunction, GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
 import { GenericNameGenerator } from "../gir/generics";
@@ -7,14 +7,20 @@ import { GirVisitor } from "../visitor";
 
 export class GenericVisitor extends GirVisitor {
     registry: GirNSRegistry;
+    inferGenerics: boolean;
 
-    constructor(registry: GirNSRegistry) {
+    constructor(registry: GirNSRegistry, inferGenerics: boolean) {
         super();
 
         this.registry = registry;
+        this.inferGenerics = inferGenerics;
     }
 
     visitCallback = (node: GirCallback) => {
+        if (!this.inferGenerics) {
+            return node;
+        }
+
         const shouldGenerify = node.parameters.some(p => {
             const type = p.type.unwrap();
             return type instanceof TypeIdentifier && type.is("GObject", "Object");
@@ -111,13 +117,14 @@ export class GenericVisitor extends GirVisitor {
     }
 
     visitParameter = (node: GirFunctionParameter) => {
-        const member = node.parent;
+        const { inferGenerics } = this;
 
+        const member = node.parent;
 
         const unwrapped = node.type.unwrap();
         // TODO I need a better system for this, but handling Gio.AsyncReadyCallback is the most common.
 
-        if (unwrapped instanceof ClosureType) {
+        if (inferGenerics && unwrapped instanceof ClosureType) {
             const internal = unwrapped.type.unwrap();
 
             if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
@@ -151,6 +158,10 @@ export class GenericVisitor extends GirVisitor {
     }
 
     visitFunction = (node: GirFunction) => {
+        if (!this.inferGenerics) {
+            return node;
+        }
+
         const unwrapped = node.return_type.unwrap();
         const shouldGenerify = unwrapped instanceof TypeIdentifier && unwrapped.is("GObject", "Object");
 
@@ -189,7 +200,11 @@ export class GenericVisitor extends GirVisitor {
     }
 
     visitStaticClassFunction = (node: GirStaticClassFunction) => {
-        return this.generifyStandaloneClassFunction(node);
+        if (this.inferGenerics) {
+            return this.generifyStandaloneClassFunction(node);
+        }
+
+        return node;
     }
 
     visitClassFunction = (node: GirClassFunction) => {
@@ -235,7 +250,11 @@ export class GenericVisitor extends GirVisitor {
             }
         }
 
-        return this.generifyStandaloneClassFunction(node);
+        if (this.inferGenerics) {
+            return this.generifyStandaloneClassFunction(node);
+        }
+
+        return node;
     }
 
     visitVirtualClassFunction = (node: GirVirtualClassFunction) => {

@@ -44,10 +44,8 @@ export class GirNSRegistry {
             namespace.accept(classVisitor);
         });
 
-        if (options.inferGenerics) {
-            console.log("Adding generics...");
-            generify(this);
-        }
+        console.log("Adding generics...");
+        generify(this, options.inferGenerics);
 
         console.log("Injecting types...");
         inject(this);

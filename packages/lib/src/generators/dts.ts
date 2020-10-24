@@ -335,6 +335,12 @@ export class DtsGenerator extends FormatGenerator<string> {
     const Extends = this.extends(node);
     const Implements = this.implements(node);
 
+    let Generics = "";
+
+    if (node.generics.length > 0) {
+      Generics = `${this.generateGenerics(node.generics)}`;
+    }
+
     let MainConstructor: string = "";
 
     if (node.isForeign()) {
@@ -406,7 +412,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       : ``
       }
   
-      export class ${name}${Extends}${Implements} {
+      export class ${name}${Generics}${Extends}${Implements} {
         static $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
         ${MainConstructor}
