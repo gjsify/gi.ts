@@ -17,7 +17,8 @@ import {
   AnyType,
   UnknownType,
   NeverType,
-  VoidType
+  VoidType,
+  GenerifiedTypeIdentifier
 } from "../gir";
 
 const reservedWords = [
@@ -187,6 +188,17 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
         variableType = parseTypeExpression(modName, name);
 
         arrayDepth = 1;
+      }
+    } else if (variableType.is("GLib", "HashTable")) {
+      const keyType = parameter?.type?.[0]?.type?.[0]?.$.name;
+      const valueType = parameter?.type?.[0]?.type?.[1]?.$.name;
+
+    
+      if (keyType && valueType) {
+        const key =  parseTypeExpression(modName, keyType);
+        const value = parseTypeExpression(modName, valueType);
+  
+        variableType = new GenerifiedTypeIdentifier("HashTable", "GLib", [key, value]);
       }
     }
   }
