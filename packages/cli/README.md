@@ -63,11 +63,11 @@ OPTIONS
   --help                                  show CLI help
   --importPrefix=importPrefix
   --inferGenerics
+  --noAdvancedVariants
   --out=out
   --outputFormat=(file|folder)
   --promisify
   --propertyCase=(both|underscore|camel)
-  --resolveTypeConflicts
   --versionedImports
   --versionedOutput
   --withDocs

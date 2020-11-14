@@ -445,7 +445,7 @@ export class GirFunctionParameter extends GirBase {
 
 export class GirClassFunction extends GirBase {
   readonly parameters: GirFunctionParameter[];
-  readonly return_type: TypeExpression;
+  protected readonly return_type: TypeExpression;
   readonly output_parameters: GirFunctionParameter[];
   protected _anyify: boolean = false;
   protected _generify: boolean = false;
@@ -603,21 +603,6 @@ export class GirVirtualClassFunction extends GirClassFunction {
   }
 
   return(): TypeExpression {
-    if (this.parent instanceof GirBaseClass) {
-      // Handles the case where a class implements an interface and thus copies its virtual methods.
-      if (
-        this.parent.interfaces.some(iface => {
-          return this.return_type.equals(iface);
-        })
-      ) {
-        return ThisType;
-      }
-    }
-
-    if (this.parent && this.return_type.equals(this.parent.getType())) {
-      return ThisType;
-    }
-
     return this.return_type;
   }
 

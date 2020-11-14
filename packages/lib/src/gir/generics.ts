@@ -26,16 +26,25 @@ const GenericNames = [
   "Z"
 ];
 
-export function* getGenericNames() {
+export function* getGenericNames(start: string = 'A') {
   let names = GenericNames.map(s => `${s}`);
-  let i = 1;
+  let startIteration = Number.parseInt(start.slice(1) || '0');
+  
+  let i = startIteration;
+  
+  names = names.map((s) => i == 0 ? s : `${s}${i}`);
+
+  let StartLetter = start[0];
+  const position = GenericNames.indexOf(StartLetter);
 
   while (true) {
     for (const name of names) {
-      yield name;
+      if (i === startIteration && GenericNames.indexOf(name) >= position) {     
+        yield name;
+      }
     }
 
-    names = names.map((s, i) => `${s}${i}`);
+    names = names.map((s) => `${s}${i}`);
 
     i++;
   }
@@ -47,6 +56,12 @@ export function* getGenericNames() {
 export class GenericNameGenerator {
   static new(): () => string {
     const genericNames = getGenericNames();
+
+    return () => genericNames.next().value;
+  }
+
+  static at(start: string): () => string {
+    const genericNames = getGenericNames(start);
 
     return () => genericNames.next().value;
   }

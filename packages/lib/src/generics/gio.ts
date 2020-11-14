@@ -1,3 +1,4 @@
+import { AnyType, Generic, GenericType, GenerifiedTypeIdentifier, StringType, TypeIdentifier } from "../gir";
 import { GirNamespace } from "../gir/namespace";
 
 export default {
@@ -13,7 +14,9 @@ export default {
     const GObject = namespace.assertImport("GObject").assertClass("Object");
 
     AsyncInitable.addGeneric({
-      default: GObject.getType()
+      constraint: GObject.getType(),
+      default: GObject.getType(),
+      propogate: false
     });
 
     const ListModel = namespace.getClass("ListModel");
@@ -23,7 +26,8 @@ export default {
     }
 
     ListModel.addGeneric({
-      default: GObject.getType()
+      default: GObject.getType(),
+      constraint: GObject.getType()
     });
 
     const ListStore = namespace.getClass("ListStore");
@@ -34,7 +38,35 @@ export default {
 
     ListStore.addGeneric({
       deriveFrom: ListModel.getType(),
-      default: GObject.getType()
+      default: GObject.getType(),
+      constraint: GObject.getType()
     });
+
+    const Settings = namespace.assertClass("Settings");
+
+    Settings.members = Settings.members.map(m => {
+      if (m.name === 'get_value' || m.name === 'get_default_value' || m.name === 'get_user_value') {
+        m.generics.push(new Generic(new GenericType('T'), AnyType, undefined, StringType));
+        const returnType = m.return().deepUnwrap();
+
+        if (returnType instanceof TypeIdentifier && returnType.is("GLib", "Variant")) {
+          return m.copy({
+            returnType: m.return().rewrap(new GenerifiedTypeIdentifier(
+              "Variant",
+              "GLib",
+              [
+                new GenericType("T")
+              ]
+            ))
+          });
+        }
+
+        return m;
+      }
+
+      return m;
+
+    });
+
   }
 };

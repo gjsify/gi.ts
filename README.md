@@ -52,12 +52,6 @@ In `sample/docs.json` you can find an example of how to select which versions `g
 
 Complete documentation is available in [the CLI documentation](https://gitlab.gnome.org/ewlsh/gi.ts/-/tree/master/packages/cli).
 
-* `--resolveTypeConflicts`
-
-When resolve type conflicts is passed gi.ts will force some properties to be typed as `any` and insert `never` types into function definitions when a GObject-based library violates the rules of TypeScript's inheritance structure (e.g. a child class has a property which is type incompatible with the parent).
-
-This should only be disabled for "pretty" outputs (e.g. documentation)
-
 * `--inferGenerics`
 
 When infer generics is passed gi.ts attempts to add generic typing based on heuristics (primarily if a class or function is typed with `GObject.Object`). If this is false all type conversions that would need to occur in C will likely also need to be made in TypeScript. This particularly impacts callback functions which offer an instance or self parameter.
@@ -77,3 +71,7 @@ Whether to include the documentation strings alongside the output. **WARNING: th
 * `--format=dts|json`
 
 The JSON output format is meant to be used for documentation generators, `dts` is the default and primary output format for gi.ts.
+
+* `--noAdvancedVariants`
+
+Only impacts TypeScript output. For TypeScript outputs we "inject" a hand-written GLib.Variant definition which utilizes TypeScript's literal types to enforce Variant string signature typing.

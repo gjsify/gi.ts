@@ -35,7 +35,6 @@ type OutputFormat = "file" | "folder";
 type Format = "dts" | "json";
 
 export interface GenerationOptions {
-  resolveTypeConflicts: boolean;
   inferGenerics: boolean;
   promisify: boolean;
   propertyCase: PropertyCase;
@@ -46,6 +45,7 @@ export interface GenerationOptions {
   versionedImports: boolean;
   importPrefix: string;
   emitMetadata: boolean;
+  noAdvancedVariants: boolean;
 }
 
 export interface CLIOptions extends GenerationOptions {
@@ -79,12 +79,12 @@ export default class Generate extends Command {
     promisify: flags.boolean({}),
     propertyCase: flags.enum<PropertyCase | undefined>({ options: ["both", "underscore", "camel"] }),
     outputFormat: flags.enum<OutputFormat | undefined>({ options: ["file", "folder"] }),
-    resolveTypeConflicts: flags.boolean({}),
     withDocs: flags.boolean({}),
     versionedOutput: flags.boolean({}),
     versionedImports: flags.boolean({}),
     importPrefix: flags.string({}),
     emitMetadata: flags.boolean({}),
+    noAdvancedVariants: flags.boolean({}),
     verbose: flags.boolean({ char: "v", description: "prints detailed per-member generation info " })
   };
 
@@ -120,9 +120,6 @@ export default class Generate extends Command {
     // --withDocs
     let withDocs = false;
 
-    // --resolveTypeConflicts
-    let resolveTypeConflicts = true;
-
     // --inferGenerics
     let inferGenerics = true;
 
@@ -140,6 +137,9 @@ export default class Generate extends Command {
     // --emitMetadata
     let emitMetadata = false;
 
+    // --noAdvancedVariants
+    let noAdvancedVariants = false;
+  
     let propertyCase: PropertyCase = "both";
     let format: "dts" | "json" = "dts" as const;
     let file_extension = "d.ts";
@@ -211,12 +211,12 @@ export default class Generate extends Command {
     const _promisify = expectsBoolean("promisify");
     const _propertyCase = expectsStringType("propertyCase", ["both", "underscore", "camel"]);
     const _outputFormat = expectsStringType("outputFormat", ["file", "folder"]);
-    const _resolveTypeConflicts = expectsBoolean("resolveTypeConflicts");
     const _withDocs = expectsBoolean("withDocs");
     const _versionedOutput = expectsBoolean("versionedOutput");
     const _versionedImports = expectsBoolean("versionedImports");
     const _importPrefix = expectsString("importPrefix");
     const _emitMetadata = expectsBoolean("emitMetadata");
+    const _noAdvancedVariants = expectsBoolean("noAdvancedVariants");
 
     if (options) {
       if (_out(options.out)) {
@@ -245,10 +245,6 @@ export default class Generate extends Command {
         propertyCase = options.propertyCase;
       }
 
-      if (_resolveTypeConflicts(options.resolveTypeConflicts)) {
-        resolveTypeConflicts = options.resolveTypeConflicts;
-      }
-
       if (_withDocs(options.withDocs)) {
         withDocs = options.withDocs;
       }
@@ -268,15 +264,19 @@ export default class Generate extends Command {
       if (_emitMetadata(options.emitMetadata)) {
         emitMetadata = options.emitMetadata;
       }
+
+      if (_noAdvancedVariants(options.noAdvancedVariants)) {
+        noAdvancedVariants = options.noAdvancedVariants;
+      }
     }
 
     emitMetadata ||= flags.emitMetadata;
     versionedOutput ||= flags.versionedOutput;
     versionedImports ||= flags.versionedImports;
-    resolveTypeConflicts ||= flags.resolveTypeConflicts;
     inferGenerics ||= flags.inferGenerics;
     promisify ||= flags.promisify;
     withDocs ||= flags.withDocs;
+    noAdvancedVariants ||= flags.noAdvancedVariants;
 
     // Verbose isn't allowed as a configuration option.
     verbose = flags.verbose;
@@ -338,10 +338,10 @@ export default class Generate extends Command {
               generated = lib.generateJson({
                 format,
                 promisify,
-                resolveTypeConflicts,
                 withDocs,
                 versionedOutput,
                 versionedImports,
+                noAdvancedVariants,
                 importPrefix,
                 emitMetadata,
                 verbose
@@ -351,10 +351,10 @@ export default class Generate extends Command {
               generated = lib.generateModule({
                 format,
                 promisify,
-                resolveTypeConflicts,
                 withDocs,
                 versionedOutput,
                 versionedImports,
+                noAdvancedVariants,
                 importPrefix,
                 emitMetadata,
                 verbose

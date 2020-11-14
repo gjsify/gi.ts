@@ -39,6 +39,7 @@ import {
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias";
 import { GenerationOptions } from "../types";
+import { override as overrideGLib } from "./dts/glib";
 
 export class DtsGenerator extends FormatGenerator<string> {
   modName: string;
@@ -60,14 +61,24 @@ export class DtsGenerator extends FormatGenerator<string> {
       .join(", ");
   }
 
-  generateGenerics(nodes: Generic[]) {
+  generateGenerics(nodes: Generic[], withDefaults = true) {
     const { modName, registry, options } = this;
 
     const list = nodes.map(generic => {
       const Type = generic.type.rootPrint(modName, registry, options);
-      if (generic.defaultType) {
 
-        return `${Type} = ${generic.defaultType.rootPrint(modName, registry, options)}`;
+      if (generic.defaultType && withDefaults) {
+        let defaultType = generic.defaultType.rootPrint(modName, registry, options);
+
+        if (generic.constraint) {
+          let constraint = generic.constraint.rootPrint(modName, registry, options);
+          return `${Type} extends ${constraint} = ${defaultType}`;
+        }
+
+        return `${Type} = ${defaultType}`;
+      } else if (generic.constraint && withDefaults) {
+        let constraint = generic.constraint.rootPrint(modName, registry, options);
+        return `${Type} extends ${constraint}`;
       } else {
         return `${Type}`;
       }
@@ -255,32 +266,33 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const resolved_parents = resolveParents(node.parent, registry);
 
-    const isGObject = resolved_parents.some(p => p.namespace.name === "GObject" && p.name === "Object");
+    const isGObject = resolved_parents.some(([, p]) => p.namespace.name === "GObject" && p.name === "Object");
 
     const name = node.name;
 
-    const resolvedParent = node.parent ? resolveTypeIdentifier(registry, node.parent) : null;
-
-    let generics = [...(resolvedParent ? [resolvedParent] : []), node as GirBaseClass]
-      .map(g => {
-        return g.generics;
-      })
-      .flat();
+    let generics = node.generics;
 
     let Generics = "";
+    let GenericTypes = "";
 
     if (generics.length > 0) {
       Generics = `${this.generateGenerics(generics)}`;
+      GenericTypes = `${this.generateGenerics(generics, false)}`
     }
 
     const Extends = this.extends(node);
 
-    const filtered_functions = filterFunctionConflict(node.namespace.name, node.members, resolved_parents, []);
+    const filtered_functions = filterFunctionConflict(node.namespace, node.getType(), node.members, resolved_parents, []);
     const functions = options.promisify ? promisifyFunctions(filtered_functions) : filtered_functions;
 
     const staticFunctions = functions.filter(f => f instanceof GirStaticClassFunction);
+    const staticFields = node.fields.filter(f => f.isStatic).map(f => f.copy({
+      isStatic: false
+    }));
 
     const nonstaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
+    const nonstaticFields = node.fields.filter(f => !f.isStatic);
+
     const hasNamespace = isGObject || staticFunctions.length > 0 || node.callbacks.length > 0;
 
     if (isGObject) {
@@ -298,6 +310,8 @@ export class DtsGenerator extends FormatGenerator<string> {
       ${hasNamespace
         ? `export interface ${name}Namespace {
     ${isGObject ? `$gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;` : ""}
+    prototype: ${name}Prototype;
+    ${staticFields.length > 0 ? staticFields.map(sf => sf.asString(this)).join(EOL) : ""}
     ${staticFunctions.length > 0
           ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, this)).join(EOL)
           : ""
@@ -305,13 +319,14 @@ export class DtsGenerator extends FormatGenerator<string> {
     }`
         : ""
       }
-    export interface ${name}${Generics}${Extends} {
+    export type ${name}${Generics} = ${name}Prototype${GenericTypes};
+    export interface ${name}Prototype${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
     ${node.props.length > 0 ? `// Properties` : ""}
-    ${filterConflicts(node.namespace.name, node.props, resolved_parents)
+    ${filterConflicts(node.namespace, node.getType(), node.props, resolved_parents.map(([, p]) => p))
         .map(p => p.asString(this))
         .join(EOL)}
-    ${node.fields.length > 0 ? `// Fields` : ""}
-    ${filterConflicts(node.namespace.name, node.fields, resolved_parents)
+    ${nonstaticFields.length > 0 ? `// Fields` : ""}
+    ${filterConflicts(node.namespace, node.getType(), nonstaticFields, resolved_parents.map(([, p]) => p))
         .map(p => p.asString(this))
         .join(EOL)}
     ${nonstaticFunctions.length > 0 ? `// Members\n` : ""}
@@ -354,6 +369,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     if (node.isSimple(modName)) {
       const ConstructorFields = node.fields
+        .filter(f => !f.isStatic && !f.isNative)
         .map(v => {
           const copied = v.copy();
 
@@ -370,25 +386,26 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const hasCallbacks = node.callbacks.length > 0;
 
-    const Properties = filterConflicts(node.namespace.name, node.props, resolved_parents)
+    const Properties = filterConflicts(node.namespace, node.getType(), node.props, resolved_parents.map(([, p]) => p))
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Fields = filterConflicts(node.namespace.name, node.fields, resolved_parents)
+    const Fields = filterConflicts(node.namespace, node.getType(), node.fields, resolved_parents.map(([, p]) => p))
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Constructors = filterConflicts(node.namespace.name, node.constructors, resolved_parents)
+    const Constructors = filterConflicts(node.namespace, node.getType(), node.constructors, resolved_parents.map(([, p]) => p))
       .map(v => this.generateConstructorFunction(v))
       .join(EOL);
 
-    const FilteredMembers = filterFunctionConflict(node.namespace.name, node.members, resolved_parents, []);
+    const FilteredMembers = filterFunctionConflict(node.namespace, node.getType(), node.members, resolved_parents, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
       .join(EOL);
 
     const FilteredImplMethods = filterFunctionConflict(
-      node.namespace.name,
+      node.namespace,
+      node.getType(),
       implementedMethods,
       resolved_parents,
       []
@@ -398,7 +415,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       .map(m => m.asString(this))
       .join(EOL);
 
-    const ImplementedProperties = filterConflicts(node.namespace.name, implementedProperties, resolved_parents)
+    const ImplementedProperties = filterConflicts(node.namespace, node.getType(), implementedProperties, resolved_parents.map(([, p]) => p))
       .map(m => m.asString(this))
       .join(EOL);
 
@@ -412,7 +429,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       : ``
       }
   
-      export class ${name}${Generics}${Extends}${Implements} {
+      export class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
         static $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
         ${MainConstructor}
@@ -439,7 +456,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateClass(node: GirClass): string {
-    const { modName, options } = this;
+    const { modName, options, registry } = this;
     const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents();
 
     const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
@@ -449,9 +466,11 @@ export class DtsGenerator extends FormatGenerator<string> {
     let injectConstructorBucket = !node.mainConstructor;
 
     let Generics = "";
+    let GenericTypes = "";
 
     if (node.generics.length > 0) {
       Generics = `${this.generateGenerics(node.generics)}`;
+      GenericTypes = `${this.generateGenerics(node.generics, false)}`;
     }
 
     const Extends = this.extends(node);
@@ -465,42 +484,44 @@ export class DtsGenerator extends FormatGenerator<string> {
     if (node.mainConstructor) {
       MainConstructor = `\n${node.mainConstructor.asString(this)}`;
     } else {
-      MainConstructor = `\nconstructor(properties?: Partial<${name}.ConstructorProperties>, ...args: any[]);
-                  _init(properties?: Partial<${name}.ConstructorProperties>, ...args: any[]): void;\n`;
+      MainConstructor = `\nconstructor(properties?: Partial<${name}.ConstructorProperties${GenericTypes}>, ...args: any[]);
+                  _init(properties?: Partial<${name}.ConstructorProperties${GenericTypes}>, ...args: any[]): void;\n`;
     }
 
     const ConstructorProps = filterConflicts(
-      node.namespace.name,
+      node.namespace,
+      node.getType(),
       node.props.filter(prop => !prop.isStatic),
       // Only filter for extends, not implements.
-      class_parents
+      class_parents.map(([, p]) => p)
     )
       .map(v => v.asString(this, true))
       .join(EOL);
 
-    const Properties = filterConflicts(node.namespace.name, node.props, resolved_parents)
+    const Properties = filterConflicts(node.namespace, node.getType(), node.props, resolved_parents.map(([, p]) => p))
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Fields = filterConflicts(node.namespace.name, node.fields, resolved_parents)
+    const Fields = filterConflicts(node.namespace, node.getType(), node.fields, resolved_parents.map(([, p]) => p))
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Constructors = filterFunctionConflict(node.namespace.name, node.constructors, resolved_parents, [])
+    const Constructors = filterFunctionConflict(node.namespace, node.getType(), node.constructors, resolved_parents, [])
       .map(v => this.generateConstructorFunction(v))
       .join(EOL);
 
-    const FilteredMembers = filterFunctionConflict(node.namespace.name, node.members, resolved_parents, []);
+    const FilteredMembers = filterFunctionConflict(node.namespace, node.getType(), node.members, resolved_parents, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const ImplementedProperties = filterConflicts(node.namespace.name, implementedProperties, resolved_parents)
+    const ImplementedProperties = filterConflicts(node.namespace, node.getType(), implementedProperties, resolved_parents.map(([, p]) => p))
       .map(m => m.asString(this))
       .join(EOL);
 
     const FilteredImplMethods = filterFunctionConflict(
-      node.namespace.name,
+      node.namespace,
+      node.getType(),
       implementedMethods,
       resolved_parents,
       []
@@ -585,9 +606,10 @@ export class DtsGenerator extends FormatGenerator<string> {
       }
 
       default_signals = filterConflicts(
-        modName,
+        registry,
+        node.getType(),
         default_signals,
-        resolved_parents,
+        resolved_parents.map(([, p]) => p),
         FilterBehavior.DELETE
       );
 
@@ -621,11 +643,17 @@ export class DtsGenerator extends FormatGenerator<string> {
     // So we can use GObject.GType
     this.registry.assertImport("GObject");
 
+    let [ExtendsInterface, ExtendsGenerics = ""] = Extends.split("<");
+
+    if (ExtendsGenerics.length > 0) {
+      ExtendsGenerics = `<${ExtendsGenerics}`;
+    }
+
     return `${hasModule
       ? `export module ${name} {
                 ${hasCallbacks ? node.callbacks.map(c => c.asString(this)).join(EOL) : ""}
                 ${injectConstructorBucket
-        ? `export interface ConstructorProperties${Extends ? `${Extends.split("<")[0]}.ConstructorProperties` : ""
+        ? `export interface ConstructorProperties${Generics}${Extends ? `${ExtendsInterface}.ConstructorProperties${ExtendsGenerics}` : ""
         } {
                           [key: string]: any;
                           ${ConstructorProps}
@@ -635,7 +663,7 @@ export class DtsGenerator extends FormatGenerator<string> {
               }`
       : ""
       }
-      export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {
+      export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
       static $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
       ${MainConstructor}
@@ -831,6 +859,12 @@ export class DtsGenerator extends FormatGenerator<string> {
       console.debug(`Resolving the types of ${modName}...`);
     }
 
+    let suffix = '';
+
+    if (!options.noAdvancedVariants && node.name === 'GLib') {
+      suffix = `\n${overrideGLib(node)}\n`;
+    }
+
     try {
       const { name } = node;
 
@@ -851,7 +885,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
       const content = Array.from(node.members.values())
         .map(m => {
-          return `${(Array.isArray(m) ? m : [m]).map(m => (m as GirBase).asString(this)).join(EOL)}`;
+          return `${(Array.isArray(m) ? m : [m]).map(m => m.emit ? (m as GirBase).asString(this) : '').join(EOL)}`;
         })
         .join(EOL);
 
@@ -861,7 +895,8 @@ export class DtsGenerator extends FormatGenerator<string> {
         .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
         .join(`${EOL}`);
 
-      const raw_output = [header, imports, base, content].join(`\n\n`);
+      const raw_output = [header, imports, base, content, suffix].join(`\n\n`);
+      let indentingType = false;
 
       // Cleanup and indent the output
       const [, output] = raw_output.split("\n").reduce(
@@ -886,6 +921,16 @@ export class DtsGenerator extends FormatGenerator<string> {
 
           if (!trimmed.startsWith("/*") && !trimmed.startsWith("*") && trimmed.endsWith("{")) {
             indent++;
+          }
+
+          if (trimmed.startsWith("type")) {
+            indent++;
+            indentingType = true;
+          }
+
+          if (trimmed.includes(";") && indentingType) {
+            indent--;
+            indentingType = false;
           }
 
           if (
