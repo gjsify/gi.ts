@@ -15,7 +15,6 @@ export interface TransformOptions extends Options {
 }
 
 export interface GenerationOptions extends Options {
-    resolveTypeConflicts: boolean;
     promisify: boolean;
     withDocs: boolean;
     format: Format;
@@ -23,6 +22,7 @@ export interface GenerationOptions extends Options {
     versionedImports: boolean;
     importPrefix: string;
     emitMetadata: boolean;
+    noAdvancedVariants: boolean;
 }
 
 export interface Metadata {

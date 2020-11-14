@@ -1,8 +1,9 @@
 import { GirNamespace } from "../gir/namespace";
 import { GirConstructor, GirFunctionParameter, GirClassFunction, GirFunction } from "../gir/function";
-import { NativeType, AnyType, BooleanType, Uint8ArrayType, StringType } from "../gir";
+import { NativeType, AnyType, BooleanType, Uint8ArrayType, StringType, UnknownType, GenericType } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirNSRegistry } from "../gir/registry";
+import { GirRecord } from "../gir/class";
 
 export default {
   namespace: "GLib",
@@ -72,15 +73,32 @@ export default {
       });
     }
 
+    {
+      const HashTable = namespace.assertClass("HashTable") as GirRecord;
+
+      HashTable.indexSignature = `[key: string]: B;`;
+    }
+
     // GLib.Variant
 
     {
       const Variant = namespace.assertClass("Variant");
+      const VariantType = namespace.assertClass("VariantType");
 
+      Variant.addGeneric({
+        default: new NativeType(`any`),
+        constraint: StringType
+      });
+
+      VariantType.addGeneric({
+        default: new NativeType(`any`),
+        constraint: StringType
+      });
+  
       const VariantParams = [
         new GirFunctionParameter({
           name: "sig",
-          type: AnyType,
+          type: new GenericType('A'),
           direction: Direction.In
         }),
         new GirFunctionParameter({
@@ -108,25 +126,23 @@ export default {
         })
       );
 
-      const GObject_Object = registry.assertNamespace("GObject", "2.0").assertClass("Object").getType();
-
       Variant.members.push(
         // unpack<T= any>(): T;
         new GirClassFunction({
           name: "unpack",
-          return_type: GObject_Object,
+          return_type: UnknownType,
           parent: Variant
         }),
         // deepUnpack<T = any>(): T;
         new GirClassFunction({
           name: "deepUnpack",
-          return_type: GObject_Object,
+          return_type: UnknownType,
           parent: Variant
         }),
         // deep_unpack: any;
         new GirClassFunction({
           name: "deep_unpack",
-          return_type: GObject_Object,
+          return_type: UnknownType,
           parent: Variant
         }),
         // recursiveUnpack: () => any;
@@ -143,7 +159,7 @@ export default {
           parameters: VariantParams.map(vp => vp.copy())
         })
       );
-    }
+    };
 
     // GLib.VariantDict
 

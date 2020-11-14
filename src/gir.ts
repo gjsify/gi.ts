@@ -10,9 +10,18 @@ export abstract class GirBase {
   doc?: string;
   deprecated?: boolean;
   resolve_names: string[] = [];
+  private _emit = true;
 
   constructor(name: string) {
     this.name = name;
+  }
+
+  noEmit() {
+    this._emit = false;
+  }
+
+  get emit() {
+    return this._emit;
   }
 
   protected _copyBaseProperties(from: this): this {
@@ -45,6 +54,11 @@ export abstract class GirBase {
 export abstract class TypeExpression {
   abstract equals(type: TypeExpression): boolean;
   abstract unwrap(): TypeExpression;
+
+  deepUnwrap(): TypeExpression {
+    return this.unwrap();
+  }
+
   abstract rewrap(type: TypeExpression): TypeExpression;
   abstract resolve(ns: string, namespace: GirNamespace, options: GenerationOptions): TypeExpression;
 
@@ -393,18 +407,26 @@ export class FunctionType extends TypeExpression {
 }
 
 export class Generic {
-  _deriveFrom: TypeIdentifier | null;
-  _genericType: GenericType;
-  _defaultType: TypeExpression | null;
+  private _deriveFrom: TypeIdentifier | null;
+  private _genericType: GenericType;
+  private _defaultType: TypeExpression | null;
+  private _constraint: TypeExpression | null;
+  private _propogate: boolean;
 
-  constructor(genericType: GenericType, defaultType?: TypeExpression, deriveFrom?: TypeIdentifier) {
+  constructor(genericType: GenericType, defaultType?: TypeExpression, deriveFrom?: TypeIdentifier, constraint?: TypeExpression, propogate = true) {
     this._genericType = genericType;
     this._defaultType = defaultType ?? null;
     this._deriveFrom = deriveFrom ?? null;
+    this._constraint = constraint ?? null;
+    this._propogate = propogate;
   }
 
   unwrap() {
     return this.type;
+  }
+
+  get propogate() {
+    return this._propogate;
   }
 
   get type() {
@@ -413,6 +435,10 @@ export class Generic {
 
   get defaultType() {
     return this._defaultType;
+  }
+
+  get constraint() {
+    return this._constraint;
   }
 
   get parent() {
@@ -587,6 +613,10 @@ export class ClosureType extends TypeExpression {
     return false;
   }
 
+  deepUnwrap(): TypeExpression {
+    return this.type;
+  }
+
   rewrap(type: TypeExpression): TypeExpression {
     const closure = new ClosureType(this.type.rewrap(type));
 
@@ -627,6 +657,10 @@ export class ArrayType extends TypeExpression {
   constructor(type: TypeExpression) {
     super();
     this.type = type;
+  }
+
+  deepUnwrap(): TypeExpression {
+    return this.type;
   }
 
   unwrap(): TypeExpression {

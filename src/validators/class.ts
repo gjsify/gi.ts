@@ -8,7 +8,7 @@ const fixMissingParent = <T extends GirBaseClass>(node: T): T => {
         const {interface_parents, class_parents} = node.resolveParents();
         const resolved_parents = [...class_parents, ...interface_parents];
 
-        const isGObject = resolved_parents.some(p => p.namespace.name === "GObject" && p.name === "Object");
+        const isGObject = resolved_parents.some(([, p]) => p.namespace.name === "GObject" && p.name === "Object");
 
         if (isGObject) {
             node.parent = namespace.assertImport("GObject").assertClass("Object").getType();
@@ -19,6 +19,6 @@ const fixMissingParent = <T extends GirBaseClass>(node: T): T => {
 };
 
 export class ClassVisitor extends GirVisitor {
-    visitClass = fixMissingParent;
-    visitRecord = fixMissingParent;
+    visitClass = fixMissingParent.bind(this);
+    visitRecord = fixMissingParent.bind(this);
 }

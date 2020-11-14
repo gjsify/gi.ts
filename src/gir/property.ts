@@ -15,8 +15,9 @@ export class GirField extends GirBase {
   computed: boolean;
   isStatic: boolean;
   writable: boolean;
+  isNative: boolean = false;
 
-  copy(options?: { parent?: GirBase; type?: TypeExpression }): GirField {
+  copy(options?: { parent?: GirBase; type?: TypeExpression, isStatic?: boolean }): GirField {
     const { type, name, optional, computed, isStatic, writable } = this;
 
     return new GirField({
@@ -24,7 +25,7 @@ export class GirField extends GirBase {
       type: options?.type ?? type,
       optional,
       computed,
-      isStatic,
+      isStatic: options?.isStatic ?? isStatic,
       writable
     })._copyBaseProperties(this);
   }
@@ -74,6 +75,10 @@ export class GirField extends GirBase {
 
     return f;
   }
+}
+
+export class JSField extends GirField {
+  isNative = true;
 }
 
 export class GirProperty extends GirBase {
