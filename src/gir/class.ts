@@ -45,15 +45,11 @@ export function resolveTypeIdentifier(
   const ns = type.namespace;
   const name = type.name;
 
-  const resolved_ns = namespace.getImport(ns);
+  const resolved_ns = namespace.assertInstalledImport(ns);
 
-  if (resolved_ns) {
-    const pclass = resolved_ns.getClass(name);
-    if (pclass) {
-      return pclass;
-    } else {
-      return null;
-    }
+  const pclass = resolved_ns.getClass(name);
+  if (pclass) {
+    return pclass;
   } else {
     return null;
   }
@@ -805,7 +801,6 @@ export class GirClass extends GirBaseClass {
             type && type.namespace &&
             type.namespace !== modName &&
             !ns.imports.has(type.namespace)) {
-
             ns.addImport(type.namespace);
           }
 
@@ -1022,10 +1017,8 @@ export class GirRecord extends GirBaseClass {
       if (typeContainer instanceof TypeIdentifier) {
         const type = typeContainer;
 
-
-
-        const child_ns = this.namespace.getImport(type.namespace || modName);
-        const child = child_ns ? child_ns.getClass(type.name) : null;
+        const child_ns = this.namespace.assertInstalledImport(type.namespace || modName);
+        const child = child_ns.getClass(type.name);
 
         // TODO Handle Unions
         if (child instanceof GirRecord) {

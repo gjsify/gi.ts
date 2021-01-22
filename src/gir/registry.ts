@@ -5,18 +5,42 @@ import { LoadOptions, TransformOptions } from "../types";
 import { TwoKeyMap } from "../util";
 import { ClassVisitor } from "../validators/class";
 import { InterfaceVisitor } from "../validators/interface";
+import { GirVisitor } from "../visitor";
 import { GirNamespace } from "./namespace";
+
+export interface GirNSLoader {
+    load(namespace: string, version: string): GirXML | null;
+}
 
 export class GirNSRegistry {
     mapping: TwoKeyMap<string, string, GirNamespace> = new TwoKeyMap();
     c_mapping: Map<string, GirNamespace[]> = new Map();
+    transformations: GirVisitor[] = [];
+    loaders: [GirNSLoader, LoadOptions][] = [];
 
-    forEach(op: (namespace: GirNamespace) => void) {
-        this.mapping.forEach(op);
+    registerTransformation(visitor: GirVisitor) {
+        this.transformations.push(visitor);
+
+        // Apply transformations to already built namespaces.
+        this.mapping.forEach(n => {
+            n.accept(visitor);
+        });
+    }
+
+    private _transformNamespace(namespace: GirNamespace) {
+        this.transformations.forEach(t => {
+            namespace.accept(t);
+        });
     }
 
     namespace(name: string, version: string): GirNamespace | null {
-        return this.mapping.get(name, version) || null;
+        const namespace = this.mapping.get(name, version);
+
+        if (!namespace) {
+            return this._internalLoad(name, version);
+        }
+
+        return namespace;
     }
 
     namespacesForPrefix(c_prefix): GirNamespace[] {
@@ -34,15 +58,11 @@ export class GirNSRegistry {
 
         const interfaceVisitor = new InterfaceVisitor();
 
-        this.forEach(namespace => {
-            namespace.accept(interfaceVisitor);
-        });
+        this.registerTransformation(interfaceVisitor);
 
         const classVisitor = new ClassVisitor();
 
-        this.forEach(namespace => {
-            namespace.accept(classVisitor);
-        });
+        this.registerTransformation(classVisitor);
 
         console.log("Adding generics...");
         generify(this, options.inferGenerics);
@@ -66,8 +86,29 @@ export class GirNSRegistry {
         return null;
     }
 
+    assertDefaultVersionOf(name: string): string {
+        // GJS has a hard dependency on these versions.
+        if (name === "GLib" || name === "Gio" || name === "GObject") {
+            return "2.0";
+        }
+
+        const meta = this.mapping.getIfOnly(name);
+
+        if (meta) {
+            return meta[0];
+        }
+
+        // This mirrors GJS' and GI's default behavior.
+        // If we can't find a single version of an unspecified dependency, we throw an error.
+        throw new Error(`No single version found for unspecified dependency: ${name}.`);
+    }
+
     assertNamespace(name: string, version: string): GirNamespace {
-        const namespace = this.mapping.get(name, version);
+        let namespace = this.mapping.get(name, version) ?? null;
+
+        if (!namespace) {
+            namespace = this._internalLoad(name, version);
+        }
 
         if (!namespace) {
             throw new Error(`Namespace '${name}' not found.`);
@@ -76,9 +117,9 @@ export class GirNSRegistry {
         return namespace;
     }
 
-    load(gir: GirXML, options: LoadOptions) {
+    load(gir: GirXML, options: LoadOptions): GirNamespace {
         const namespace = GirNamespace.fromXML(gir, options, this);
-
+       
         this.mapping.set(namespace.name, namespace.version, namespace);
 
         let c_map = this.c_mapping.get(namespace.c_prefix) || [];
@@ -86,5 +127,36 @@ export class GirNSRegistry {
         c_map.push(namespace);
 
         this.c_mapping.set(namespace.c_prefix, c_map);
+
+        this._transformNamespace(namespace);
+
+        return namespace;
+    }
+
+    private _internalLoad(name: string, version: string): GirNamespace | null {
+        for (const [loader, options] of this.loaders) {
+            try {
+                const xml = loader.load(name, version);
+
+                if (xml) {
+                    const ns = this.load(xml, options);
+
+                    if (ns) {
+                        this._transformNamespace(ns);
+                    }
+
+                    return ns;
+                }
+            } catch (error) {
+                // TODO: Should we throw here?
+                console.error(error);
+            }
+        }
+
+        return null;
+    }
+
+    registerLoader(loader: GirNSLoader, options: LoadOptions) {
+        this.loaders.push([loader, options]);
     }
 }

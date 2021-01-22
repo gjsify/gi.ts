@@ -42,14 +42,12 @@ import { GenerationOptions } from "../types";
 import { override as overrideGLib } from "./dts/glib";
 
 export class DtsGenerator extends FormatGenerator<string> {
-  modName: string;
-  registry: GirNamespace;
+  namespace: GirNamespace;
   options: GenerationOptions;
 
-  constructor(modName: string, registry: GirNamespace, options: GenerationOptions) {
+  constructor(namespace: GirNamespace, options: GenerationOptions) {
     super();
-    this.modName = modName;
-    this.registry = registry;
+    this.namespace = namespace;
     this.options = options;
   }
 
@@ -62,22 +60,22 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateGenerics(nodes: Generic[], withDefaults = true) {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     const list = nodes.map(generic => {
-      const Type = generic.type.rootPrint(modName, registry, options);
+      const Type = generic.type.rootPrint(namespace, options);
 
       if (generic.defaultType && withDefaults) {
-        let defaultType = generic.defaultType.rootPrint(modName, registry, options);
+        let defaultType = generic.defaultType.rootPrint(namespace, options);
 
         if (generic.constraint) {
-          let constraint = generic.constraint.rootPrint(modName, registry, options);
+          let constraint = generic.constraint.rootPrint(namespace, options);
           return `${Type} extends ${constraint} = ${defaultType}`;
         }
 
         return `${Type} = ${defaultType}`;
       } else if (generic.constraint && withDefaults) {
-        let constraint = generic.constraint.rootPrint(modName, registry, options);
+        let constraint = generic.constraint.rootPrint(namespace, options);
         return `${Type} extends ${constraint}`;
       } else {
         return `${Type}`;
@@ -92,7 +90,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateCallbackType(node: GirCallback): [string, string] {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     const Parameters = this.generateParameters(node.parameters);
 
@@ -103,16 +101,16 @@ export class DtsGenerator extends FormatGenerator<string> {
         `${GenericDefinitions}`,
         `(${Parameters}) => ${node
           .return()
-          .resolve(modName, registry, options)
-          .print(modName, registry, options)}`
+          .resolve(namespace, options)
+          .print(namespace, options)}`
       ];
     }
     return [
       ``,
       `(${Parameters}) => ${node
         .return()
-        .resolve(modName, registry, options)
-        .print(modName, registry, options)}`
+        .resolve(namespace, options)
+        .print(namespace, options)}`
     ];
   }
 
@@ -121,13 +119,13 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateReturn(return_type: TypeExpression, output_parameters: GirFunctionParameter[]) {
-    const { modName: name, registry, options } = this;
+    const { namespace, options } = this;
 
     let resolved_return_type = resolveDirectedType(
       return_type, Direction.Out
-    )?.resolve(name, registry, options) ?? return_type.resolve(name, registry, options);
+    )?.resolve(namespace, options) ?? return_type.resolve(namespace, options);
 
-    const type = resolved_return_type.rootPrint(name, registry, options);
+    const type = resolved_return_type.rootPrint(namespace, options);
 
     if (output_parameters.length > 0) {
       const exclude_first = type === "void" || type === "";
@@ -136,8 +134,8 @@ export class DtsGenerator extends FormatGenerator<string> {
         ...output_parameters.map(op => {
           return resolveDirectedType(
             op.type, Direction.Out
-          )?.resolve(name, registry, options) ?? op.type.resolve(name, registry, options);
-        }).map(p => p.rootPrint(name, registry, options))
+          )?.resolve(namespace, options) ?? op.type.resolve(namespace, options);
+        }).map(p => p.rootPrint(namespace, options))
       ];
       if (returns.length > 1) {
         return `[${returns.join(", ")}]`;
@@ -150,7 +148,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateEnum(node: GirEnum): string | null {
-    const { modName } = this;
+    const { namespace } = this;
 
     try {
       const isInvalidEnum = Array.from(node.members.keys()).some(
@@ -161,11 +159,11 @@ export class DtsGenerator extends FormatGenerator<string> {
       }
 
       // So we can use GObject.GType
-      this.registry.assertImport("GObject");
+      this.namespace.assertInstalledImport("GObject");
 
       return `
       export namespace ${node.name} {
-          export const $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${node.name}>;
+          export const $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${node.name}>;
       }
 
       export enum ${node.name} {
@@ -181,23 +179,14 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateError(node: GirError): string {
-    const { registry } = this;
+    const { namespace } = this;
     const clazz = node.asClass();
 
     clazz.members = [];
     clazz.members.push(...Array.from(node.functions.values()));
 
-    const GLib = registry.getImport("GLib");
-
-    if (!GLib) {
-      throw new Error(`Attempted to generate a subclass of GLib.Error without GLib loaded!`);
-    }
-
-    const GLibError = GLib.getClass("Error");
-
-    if (!GLibError) {
-      throw new Error(`GLib.Error is not defined. This should not occur.`);
-    }
+    const GLib = namespace.assertInstalledImport("GLib");
+    const GLibError = GLib.assertClass("Error");
 
     clazz.parent = GLibError.getType();
 
@@ -218,25 +207,25 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateConst(node: GirConst): string {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     return `export const ${node.name}: ${node.type
-      .resolve(modName, registry, options)
-      .print(modName, registry, options)};`;
+      .resolve(namespace, options)
+      .print(namespace, options)};`;
   }
 
   private implements(node: GirBaseClass) {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     const interfaces = node.interfaces
       .map(i => {
-        return i.resolveIdentifier(modName, registry, options);
+        return i.resolveIdentifier(namespace, options);
       })
       .filter((i): i is TypeIdentifier => i != null);
 
     if (interfaces.length > 0) {
       return ` implements ${interfaces.map(i => {
-        const Type = i.print(modName, registry, options);
+        const Type = i.print(namespace, options);
         return `${Type}`;
       })
         .join(", ")}`;
@@ -246,10 +235,10 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   private extends(node: GirBaseClass) {
-    const { modName, registry: ns, options } = this;
+    const { namespace: ns, options } = this;
     if (node.parent) {
-      const ResolvedType = node.parent.resolveIdentifier(modName, ns, options);
-      const Type = ResolvedType?.print(modName, ns, options);
+      const ResolvedType = node.parent.resolveIdentifier(ns, options);
+      const Type = ResolvedType?.print(ns, options);
 
       if (Type) {
         return ` extends ${Type}`;
@@ -262,9 +251,9 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateInterface(node: GirInterface): string {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
-    const resolved_parents = resolveParents(node.parent, registry);
+    const resolved_parents = resolveParents(node.parent, namespace);
 
     const isGObject = resolved_parents.some(([, p]) => p.namespace.name === "GObject" && p.name === "Object");
 
@@ -297,7 +286,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     if (isGObject) {
       // So we can use GObject.GType
-      this.registry.assertImport("GObject");
+      this.namespace.assertInstalledImport("GObject");
     }
 
     return `
@@ -309,7 +298,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       }
       ${hasNamespace
         ? `export interface ${name}Namespace {
-    ${isGObject ? `$gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;` : ""}
+    ${isGObject ? `$gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;` : ""}
     prototype: ${name}Prototype;
     ${staticFields.length > 0 ? staticFields.map(sf => sf.asString(this)).join(EOL) : ""}
     ${staticFunctions.length > 0
@@ -335,7 +324,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateRecord(node: GirRecord): string {
-    const { modName, options } = this;
+    const { options, namespace } = this;
     const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents(
 
     );
@@ -367,7 +356,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       MainConstructor = firstConstructor.asString(this);
     }
 
-    if (node.isSimple(modName)) {
+    if (node.isSimple(namespace.name)) {
       const ConstructorFields = node.fields
         .filter(f => !f.isStatic && !f.isNative)
         .map(v => {
@@ -420,7 +409,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       .join(EOL);
 
     // So we can use GObject.GType
-    this.registry.assertImport("GObject");
+    this.namespace.assertInstalledImport("GObject");
 
     return `${hasCallbacks
       ? `export module ${name} {
@@ -430,7 +419,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       }
   
       export class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
-        static $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
+        static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
         ${MainConstructor}
         constructor(copy: ${node.name});
@@ -456,7 +445,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateClass(node: GirClass): string {
-    const { modName, options, registry } = this;
+    const { options, namespace } = this;
     const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents();
 
     const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
@@ -606,7 +595,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       }
 
       default_signals = filterConflicts(
-        registry,
+        namespace,
         node.getType(),
         default_signals,
         resolved_parents.map(([, p]) => p),
@@ -641,7 +630,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     const hasModule = injectConstructorBucket || hasCallbacks;
 
     // So we can use GObject.GType
-    this.registry.assertImport("GObject");
+    this.namespace.assertInstalledImport("GObject");
 
     let [ExtendsInterface, ExtendsGenerics = ""] = Extends.split("<");
 
@@ -664,7 +653,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       : ""
       }
       export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
-      static $gtype: ${modName !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
+      static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
       ${MainConstructor}
       
@@ -692,7 +681,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateField(node: GirField): string {
-    const { modName: namespace, registry, options } = this;
+    const { namespace, options } = this;
     const { name, computed } = node;
     const invalid = isInvalid(name);
 
@@ -703,12 +692,12 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
-    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${node.type.resolve(namespace, registry, options).rootPrint(namespace, registry, options) || "any"
+    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${node.type.resolve(namespace, options).rootPrint(namespace, options) || "any"
       };`;
   }
 
   generateProperty(node: GirProperty, construct: boolean = false): string {
-    const { modName: namespace, registry, options } = this;
+    const { namespace, options } = this;
 
     const invalid = isInvalid(node.name);
     const Static = node.isStatic ? "static" : "";
@@ -719,7 +708,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     const Name = invalid ? `"${node.name}"` : node.name;
 
     let Type =
-      node.type.resolve(namespace, registry, options).rootPrint(namespace, registry, options) || "any";
+      node.type.resolve(namespace, options).rootPrint(namespace, options) || "any";
 
     return `${Modifier} ${Name}: ${Type};`;
   }
@@ -747,13 +736,13 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateParameter(node: GirFunctionParameter): string {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     let type: string =
       resolveDirectedType(node.type, node.direction)
-        ?.resolve(modName, registry, options)
-        .rootPrint(modName, registry, options) ??
-      node.type.resolve(modName, registry, options).rootPrint(modName, registry, options);
+        ?.resolve(namespace, options)
+        .rootPrint(namespace, options) ??
+      node.type.resolve(namespace, options).rootPrint(namespace, options);
 
     if (node.isVarArgs) {
       return `...args: ${type}`;
@@ -767,11 +756,11 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateFunction(node: GirFunction): string {
-    const { modName } = this;
+    const { namespace } = this;
     // Register our identifier with the sanitized identifiers.
     // We avoid doing this in fromXML because other class-level function classes
     // depends on that code.
-    sanitizeIdentifierName(modName, node.raw_name);
+    sanitizeIdentifierName(namespace.name, node.raw_name);
 
     const Parameters = this.generateParameters(node.parameters);
     const ReturnType = this.generateReturn(node.return(), node.output_parameters);
@@ -780,7 +769,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateConstructorFunction(node: GirConstructor): string {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     const Parameters = this.generateParameters(node.parameters);
 
@@ -788,8 +777,8 @@ export class DtsGenerator extends FormatGenerator<string> {
     const name = invalid ? `["${node.name}"]` : node.name;
     return `static ${name}(${Parameters}): ${node
       .return()
-      .resolve(modName, registry, options)
-      .rootPrint(modName, registry, options)};`;
+      .resolve(namespace, options)
+      .rootPrint(namespace, options)};`;
   }
 
   generateConstructor(node: GirConstructor): string {
@@ -830,14 +819,14 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateAlias(node: GirAlias): string {
-    const { modName, registry, options } = this;
-    const Type = node.type.resolve(modName, registry, options).print(modName, registry, options);
+    const { namespace, options } = this;
+    const Type = node.type.resolve(namespace, options).print(namespace, options);
     const GenericBase = node.generics
       .map(g => {
         if (g.type) {
           return `${g.name} = ${g.type
-            .resolve(modName, registry, options)
-            .rootPrint(modName, registry, options)}`;
+            .resolve(namespace, options)
+            .rootPrint(namespace, options)}`;
         }
 
         return `${g.name}`;
@@ -853,10 +842,10 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateNamespace(node: GirNamespace): string | null {
-    const { modName, options } = this;
+    const { namespace, options } = this;
 
     if (options.verbose) {
-      console.debug(`Resolving the types of ${modName}...`);
+      console.debug(`Resolving the types of ${namespace.name}...`);
     }
 
     let suffix = '';
@@ -891,7 +880,6 @@ export class DtsGenerator extends FormatGenerator<string> {
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
       const imports = Array.from(node.imports.entries())
-        .filter(([i]) => node.getImport(i) != null)
         .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
         .join(`${EOL}`);
 
@@ -948,7 +936,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       );
 
       if (options.verbose) {
-        console.debug(`Printing ${modName}...`);
+        console.debug(`Printing ${namespace.name}...`);
       }
 
       return output;

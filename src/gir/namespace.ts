@@ -79,20 +79,44 @@ export function promisifyNamespaceFunctions(namespace: GirNamespace) {
 
 export class GirNamespace {
   readonly name: string;
-  readonly imports: Map<string, string> = new Map();
-  readonly members: Map<string, GirNSMember | GirNSMember[]> = new Map<string, GirNSMember | GirNSMember[]>();
-  readonly enum_constants: Map<string, readonly [string, string]> = new Map();
   readonly version: string;
   readonly c_prefix: string;
 
-  package_version!: readonly [string, string] | readonly [string, string, string];
+  private _imports!: Map<string, string>;
+  private _members!: Map<string, GirNSMember | GirNSMember[]>;
+  private _enum_constants!: Map<string, readonly [string, string]>;
 
+  package_version!: readonly [string, string] | readonly [string, string, string];
   parent!: GirNSRegistry;
 
   constructor(name: string, version: string, prefix: string) {
     this.name = name;
     this.version = version;
     this.c_prefix = prefix;
+  }
+
+  get members(): Map<string, GirNSMember | GirNSMember[]> {
+    if (!this._members) {
+      this._members = new Map<string, GirNSMember | GirNSMember[]>();
+    }
+
+    return this._members;
+  }
+
+  get imports(): Map<string, string> {
+    if (!this._imports) {
+      this._imports = new Map<string, string>();
+    }
+
+    return this._imports;
+  }
+
+  get enum_constants(): Map<string, readonly [string, string]> {
+    if (!this._enum_constants) {
+      this._enum_constants = new Map();
+    }
+
+    return this._enum_constants;
   }
 
   accept(visitor: GirVisitor) {
@@ -115,7 +139,11 @@ export class GirNamespace {
     return this.parent.namespacesForPrefix(c_prefix);
   }
 
-  getImport(name: string): GirNamespace | null {
+  private hasImport(name: string): boolean {
+    return this.imports.has(name);
+  }
+
+  private _getImport(name: string): GirNamespace | null {
     let version = this.imports.get(name);
 
     if (name === this.name) {
@@ -123,11 +151,7 @@ export class GirNamespace {
     }
 
     if (!version) {
-      version = this.parent.defaultVersionOf(name) ?? undefined;
-    }
-
-    if (!version) {
-      return null;
+      version = this.parent.assertDefaultVersionOf(name);
     }
 
     const namespace = this.parent.namespace(name, version);
@@ -141,45 +165,24 @@ export class GirNamespace {
     return namespace;
   }
 
-  assertImport(name: string): GirNamespace {
-    let version = this.imports.get(name);
+  assertInstalledImport(name: string): GirNamespace {
+    let namespace = this._getImport(name);
 
-    if (!version) {
-      // Assertions shouldn't resolve versions except for GJS' hard dependencies.
-      if (name === "GLib" || name === "Gio" || name === "GObject") {
-        version = "2.0";
-      } else {
-        throw new Error(`Failed to import ${name} in ${this.name}, no version specified.`);
-      }
-    }
-
-    const ns = this.parent.namespace(name, version);
-
-    if (!ns) {
+    if (!namespace) {
       throw new Error(`Failed to import ${name} in ${this.name}, not installed or accessible.`);
     }
 
-    if (!this.imports.has(ns.name)) {
-      this.imports.set(ns.name, ns.version);
-    }
-
-    return ns;
+    return namespace;
   }
 
   addImport(ns_name: string, version?: string) {
     if (ns_name !== this.name && !this.imports.has(ns_name)) {
       if (!version) {
-        version = this.parent.defaultVersionOf(ns_name) ?? undefined;
-      }
-
-      if (!version) {
-        return false;
+        version = this.parent.assertDefaultVersionOf(ns_name) ?? undefined;
       }
 
       this.imports.set(ns_name, version);
     }
-
-    return true;
   }
 
   getMembers(name: string): GirBase[] {
@@ -274,7 +277,6 @@ export class GirNamespace {
   }
 
   static fromXML(repo: GirXML, options: LoadOptions, registry: GirNSRegistry): GirNamespace {
-    const includes = repo.repository.include || [];
     const ns = repo.repository.namespace[0];
 
     const modName = ns.$["name"];
@@ -287,6 +289,7 @@ export class GirNamespace {
 
     const building = new GirNamespace(modName, version, c_prefix);
     building.parent = registry;
+    const includes = repo.repository.include || [];
 
     includes.map(i => [i.$.name, i.$.version] as const)
       .forEach(
@@ -296,7 +299,7 @@ export class GirNamespace {
       );
 
     const importConflicts = (el: GirConst | GirBaseClass | GirFunction) => {
-      return building.getImport(el.name) == null;
+      return !building.hasImport(el.name);
     };
 
     // Constants
@@ -349,7 +352,7 @@ export class GirNamespace {
     if (ns.bitfield) {
       ns.bitfield
         .filter(isIntrospectable)
-        .map(field => GirEnum.fromXML(modName, building, options, this, field, true))
+        .map(field => GirEnum.fromXML(modName, building, options, building, field, true))
         .forEach(c => building.members.set(c.name, c));
     }
 
@@ -367,7 +370,7 @@ export class GirNamespace {
     if (ns.class) {
       ns.class
         .filter(isIntrospectable)
-        .map(klass => GirClass.fromXML(modName, building, options, this, klass))
+        .map(klass => GirClass.fromXML(modName, building, options, building, klass))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }

@@ -11,7 +11,7 @@ export default {
       throw new Error("Gio.AsyncInitable not found.");
     }
 
-    const GObject = namespace.assertImport("GObject").assertClass("Object");
+    const GObject = namespace.assertInstalledImport("GObject").assertClass("Object");
 
     AsyncInitable.addGeneric({
       constraint: GObject.getType(),

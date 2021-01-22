@@ -41,7 +41,5 @@ export function generify(registry: GirNSRegistry, inferGenerics: boolean) {
 
   const visitor = new GenericVisitor(registry, inferGenerics);
 
-  registry.forEach(namespace => {
-    namespace.accept(visitor);
-  });
+  registry.registerTransformation(visitor);
 }

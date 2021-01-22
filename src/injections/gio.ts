@@ -278,7 +278,7 @@ export default {
     // * `emit_property_changed(name, variant)`
 
     {
-      const Variant = namespace.assertImport("GLib").assertClass("Variant");
+      const Variant = namespace.assertInstalledImport("GLib").assertClass("Variant");
       const DBusConnection = namespace.assertClass("DBusConnection");
       const DBusInterfaceInfo = namespace.assertClass("DBusInterfaceInfo");
       const DBusExportedObject = new GirClass('DBusExportedObject', namespace);
