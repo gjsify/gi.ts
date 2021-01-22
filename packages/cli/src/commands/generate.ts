@@ -4,17 +4,13 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
 
 import { dirname, join as buildPath } from "path";
 
-import { SanitizedIdentifiers } from "@gi.ts/lib/dist/gir/util";
-
 import { GirXML, parser } from "@gi.ts/parser";
 
-
-import { resolveLibraries } from "../util";
+import { resolveLibraries } from "@gi.ts/node-loader";
 
 import * as lib from "@gi.ts/lib";
 
 import { PropertyCase } from '@gi.ts/lib';
-import { GirNSRegistry } from '@gi.ts/lib/dist/gir/registry';
 
 export interface DocDescription {
   name: string;
@@ -25,8 +21,6 @@ export interface DocDescription {
   slug: string;
   version: string;
 }
-
-
 
 type Unknown<T> = { [key in keyof T]?: unknown };
 
@@ -60,8 +54,6 @@ export interface LoadOptions {
 class ConfigurationError extends Error {
 
 }
-
-
 
 export default class Generate extends Command {
   static description = 'generate documentation files'
@@ -139,7 +131,7 @@ export default class Generate extends Command {
 
     // --noAdvancedVariants
     let noAdvancedVariants = false;
-  
+
     let propertyCase: PropertyCase = "both";
     let format: "dts" | "json" = "dts" as const;
     let file_extension = "d.ts";
@@ -305,122 +297,11 @@ export default class Generate extends Command {
 
     const output_base = output_directory ?? default_directory;
 
-    const registry = new GirNSRegistry();
+    const registry = lib.createRegistry();
 
     type GirMap = Map<string, {
       [version: string]: GirXML
     }>;
-
-    const build = (gir: GirMap) => {
-      // Load all the docs
-      for (let [, docs] of gir.entries()) {
-        for (const [, xml] of Object.entries(docs)) {
-          registry.load(xml, {
-            loadDocs: withDocs,
-            propertyCase,
-            verbose
-          });
-        }
-      }
-
-      registry.transform({
-        inferGenerics,
-        verbose
-      });
-
-      // Generate the content
-      for (let [name, docs] of gir.entries()) {
-        for (const [version] of Object.entries(docs)) {
-          let generated: [string, lib.Metadata] | null = null;
-
-          switch (format) {
-            case "json":
-              generated = lib.generateJson({
-                format,
-                promisify,
-                withDocs,
-                versionedOutput,
-                versionedImports,
-                noAdvancedVariants,
-                importPrefix,
-                emitMetadata,
-                verbose
-              }, registry, name, version);
-              break;
-            case "dts":
-              generated = lib.generateModule({
-                format,
-                promisify,
-                withDocs,
-                versionedOutput,
-                versionedImports,
-                noAdvancedVariants,
-                importPrefix,
-                emitMetadata,
-                verbose
-              }, registry, name, version);
-              break;
-            default:
-              throw new Error("Unknown format!");
-          }
-
-          if (!generated) {
-            console.error(`Failed to generate ${name} ${version}!`);
-            continue;
-          }
-
-          let [contents, meta] = generated;
-
-          const output = name as string;
-          const dir = buildPath(output_base);
-          let file: string;
-
-          const output_slug = `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}`;
-
-          if (outputFormat === "file") {
-            file = buildPath(output_base, `${output_slug}.${file_extension}`);
-          } else if (outputFormat === "folder") {
-            file = buildPath(output_base, `${output_slug}`, `index.${file_extension}`);
-          } else {
-            throw new Error(`Unknown output format: ${outputFormat}.`);
-          }
-
-          if (!existsSync(dir)) {
-            mkdirSync(dir, { recursive: true });
-          }
-
-          if (outputFormat === "folder") {
-            const directory = dirname(file);
-
-            if (!existsSync(directory)) {
-              mkdirSync(directory);
-            }
-          }
-
-          if (emitMetadata) {
-            const metaData = JSON.stringify(meta, null, 4);
-
-            if (outputFormat === "folder") {
-              const directory = dirname(file);
-              const metaPath = buildPath(directory, "doc.json");
-
-              writeFileSync(metaPath, metaData);
-            } else {
-              const metaPath = buildPath(output_base, `${output_slug}.doc.json`);
-
-              writeFileSync(metaPath, metaData);
-            }
-          }
-
-          writeFileSync(file, contents);
-        }
-      }
-
-      console.error("The following types were prefixed with __ to preserve valid JavaScript identifiers.");
-      for (const [sanitized, unsanitized] of SanitizedIdentifiers.entries()) {
-        console.error(`${unsanitized} = ${sanitized}`);
-      }
-    }
 
     const girs = await resolveLibraries(docs.libraries || {})
 
@@ -429,29 +310,142 @@ export default class Generate extends Command {
     this.log("Loading GIR files...");
 
     await Promise.all(
-      Object.keys(docs?.libraries ?? {}).map(async (name, i) => {
-        const library = girs.get(name);
+      Array.from(girs.entries()).map(async ([name, library]) => {
+        for (const version of Object.keys(library)) {
+          const doc = library[version];
 
-        if (library) {
-          for (const version of Object.keys(library)) {
-            const doc = library[version];
+          const src = await readFileSync(doc.path, { encoding: "utf8" });
 
-            const src = readFileSync(doc.path, { encoding: "utf8" });
+          const result = await parser.parseGir(src);
 
-            const result = await parser.parseGir(src);
-
-            gir.set(name, {
-              ...gir.get(name) ?? {},
-              [version]: result
-            });
-          }
-        } else {
-          throw new Error(`Unresolved library: this should never happen.`);
+          gir.set(name, {
+            ...gir.get(name) ?? {},
+            [version]: result
+          });
         }
       })
     );
 
-    build(gir);
+    registry.registerLoader({
+      load(namespace, version) {
+        if (verbose) {
+          console.log(`Loading ${namespace} ${version}...`);
+        }
+
+        return gir.get(namespace)?.[version] ?? null;
+      }
+    }, {
+      loadDocs: withDocs,
+      propertyCase,
+      verbose
+    });
+
+    registry.transform({
+      inferGenerics,
+      verbose
+    });
+
+    if (typeof docs.libraries !== 'object') {
+      console.error('No libraries selected to generate.');
+      return;
+    }
+
+    // Generate the content
+    for (let [name, versions] of Object.entries(docs.libraries)) {
+      for (const version of Array.isArray(versions) ? versions : [versions]) {
+        let generated: [string, lib.Metadata] | null = null;
+
+        switch (format) {
+          case "json":
+            generated = lib.generateJson({
+              format,
+              promisify,
+              withDocs,
+              versionedOutput,
+              versionedImports,
+              noAdvancedVariants,
+              importPrefix,
+              emitMetadata,
+              verbose
+            }, registry, name, version);
+            break;
+          case "dts":
+            generated = lib.generateModule({
+              format,
+              promisify,
+              withDocs,
+              versionedOutput,
+              versionedImports,
+              noAdvancedVariants,
+              importPrefix,
+              emitMetadata,
+              verbose
+            }, registry, name, version);
+            break;
+          default:
+            throw new Error("Unknown format!");
+        }
+
+        if (!generated) {
+          console.error(`Failed to generate ${name} ${version}!`);
+          continue;
+        }
+
+        let [contents, meta] = generated;
+
+        const output = name as string;
+        const dir = buildPath(output_base);
+        let file: string;
+
+        const output_slug = `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}`;
+
+        if (outputFormat === "file") {
+          file = buildPath(output_base, `${output_slug}.${file_extension}`);
+        } else if (outputFormat === "folder") {
+          file = buildPath(output_base, `${output_slug}`, `index.${file_extension}`);
+        } else {
+          throw new Error(`Unknown output format: ${outputFormat}.`);
+        }
+
+        if (!existsSync(dir)) {
+          mkdirSync(dir, { recursive: true });
+        }
+
+        if (outputFormat === "folder") {
+          const directory = dirname(file);
+
+          if (!existsSync(directory)) {
+            mkdirSync(directory);
+          }
+        }
+
+        if (emitMetadata) {
+          const metaData = JSON.stringify(meta, null, 4);
+
+          if (outputFormat === "folder") {
+            const directory = dirname(file);
+            const metaPath = buildPath(directory, "doc.json");
+
+            writeFileSync(metaPath, metaData);
+          } else {
+            const metaPath = buildPath(output_base, `${output_slug}.doc.json`);
+
+            writeFileSync(metaPath, metaData);
+          }
+        }
+
+        writeFileSync(file, contents);
+      }
+    }
+
+    const identifiers = lib.getSanitizedIdentifiers();
+
+    if (identifiers.size > 0) {
+      console.error("The following types were prefixed with __ to preserve valid JavaScript identifiers.");
+      for (const [sanitized, unsanitized] of identifiers.entries()) {
+        console.error(`${unsanitized} = ${sanitized}`);
+      }
+    }
 
     this.log("Generated!");
   }

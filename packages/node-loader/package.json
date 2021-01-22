@@ -1,8 +1,8 @@
 {
-  "name": "@gi.ts/parser",
-  "version": "1.2.0",
-  "main": "dist/lib.js",
-  "types": "dist/lib.d.ts",
+  "name": "@gi.ts/node-loader",
+  "version": "1.3.0",
+  "main": "dist/loader.js",
+  "types": "dist/loader.d.ts",
   "files": [
     "dist",
     "package.json",
@@ -16,14 +16,13 @@
     "access": "public"
   },
   "license": "MIT",
-  "scripts": {
-    "build": "tsc"
-  },
   "dependencies": {
-    "xml2js": "^0.4.22"
+    "@gi.ts/parser": "^1.2.0"
   },
   "devDependencies": {
-    "@types/xml2js": "^0.4.4",
     "typescript": "^4.1.0"
+  },
+  "scripts": {
+    "build": "tsc"
   }
 }

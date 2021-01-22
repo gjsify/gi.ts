@@ -17,7 +17,7 @@ export default {
         const Viewport = namespace.assertClass("Viewport");
         const StBoxLayout = namespace.assertClass("BoxLayout");
 
-        const Clutter = namespace.assertImport("Clutter");
+        const Clutter = namespace.assertInstalledImport("Clutter");
 
         const Actor = Clutter.assertClass("Actor");
         const Content = Clutter.assertClass("Content");

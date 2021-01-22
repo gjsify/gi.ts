@@ -2,6 +2,7 @@ import { DtsGenerator } from "./generators/dts";
 import { JsonGenerator } from "./generators/json";
 
 import { GirNSRegistry } from "./gir/registry";
+import { SanitizedIdentifiers } from "./gir/util";
 
 import { GenerationOptions, Metadata } from "./types";
 
@@ -13,11 +14,26 @@ export * from "./generators/generator";
 
 export * from "./types";
 
+export { GirNSRegistry } from "./gir/registry";
+
+export function getSanitizedIdentifiers(): ReadonlyMap<string, string> {
+    return SanitizedIdentifiers;
+}
+
+export function createRegistry(): GirNSRegistry {
+    return new GirNSRegistry();
+}
+
 export function generateModule(options: GenerationOptions, registry: GirNSRegistry, name: string, version: string): [string, Metadata] | null {
     const ns = registry.namespace(name, version);
 
     if (ns) {
-        const generator = new DtsGenerator(name, ns, options);
+        const generator = new DtsGenerator(ns, options);
+        const generated = generator.generateNamespace(ns);
+
+        if (!generated) {
+            return null;
+        }
 
         const meta: Metadata = {
             name: ns.name,
@@ -25,12 +41,6 @@ export function generateModule(options: GenerationOptions, registry: GirNSRegist
             package_version: ns.package_version.join('.'),
             imports: Object.fromEntries(ns.imports.entries()),
         };
-
-        const generated = generator.generateNamespace(ns);
-
-        if (!generated) {
-            return null;
-        }
 
         return [generated, meta];
     }
@@ -42,7 +52,13 @@ export function generateJson(options: GenerationOptions, registry: GirNSRegistry
     const ns = registry.namespace(name, version);
 
     if (ns) {
-        const generator = new JsonGenerator(name, ns, options);
+        const generator = new JsonGenerator(ns, options);
+
+        const generated = generator.generateNamespace(ns);
+
+        if (!generated) {
+            return null;
+        }
 
         const meta: Metadata = {
             name: ns.name,
@@ -50,12 +66,6 @@ export function generateJson(options: GenerationOptions, registry: GirNSRegistry
             package_version: ns.package_version.join('.'),
             imports: Object.fromEntries(ns.imports.entries()),
         };
-
-        const generated = generator.generateNamespace(ns);
-
-        if (!generated) {
-            return null;
-        }
 
         return [generated, meta];
     }

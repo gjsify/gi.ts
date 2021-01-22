@@ -127,14 +127,12 @@ function capitalize(str: string) {
 }
 
 export class JsonGenerator extends FormatGenerator<Json> {
-  modName: string;
-  registry: GirNamespace;
+  namespace: GirNamespace;
   options: GenerationOptions;
 
-  constructor(modName: string, registry: GirNamespace, options: GenerationOptions) {
+  constructor(namespace: GirNamespace, options: GenerationOptions) {
     super();
-    this.modName = modName;
-    this.registry = registry;
+    this.namespace = namespace;
     this.options = options;
   }
 
@@ -145,7 +143,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
    * @param doc 
    */
   private generateDoc(doc: string): string {
-    const { registry } = this;
+    const { namespace } = this;
 
     function resolveClass(ns: GirNamespace, className: string): readonly [GirBase | null, boolean] {
       let classes = ns.getMembers(className);
@@ -183,7 +181,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
         const next_underscore = [underscore, next.toLowerCase()].join('_');
 
-        const namespaces = registry.getImportsForCPrefix(next_underscore);
+        const namespaces = namespace.getImportsForCPrefix(next_underscore);
         const nextCamel = camel + capitalize(next);
 
         if (namespaces.length > 0) {
@@ -191,7 +189,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
         }
 
         return [next_underscore, nextCamel, ns, selected + capitalize(next)] as const;
-      }, [base_part.toLowerCase(), capitalize(base_part), registry.getImportsForCPrefix(base_part.toLowerCase()), ""] as const);
+      }, [base_part.toLowerCase(), capitalize(base_part), namespace.getImportsForCPrefix(base_part.toLowerCase()), ""] as const);
 
       let ns = namespaces.find(n => n.hasSymbol(className));
 
@@ -231,12 +229,12 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
       // ['namespace']
 
-      const namespaceBase = [capitalize(base_part), registry.getImportsForCPrefix(base_part), 0] as const;
+      const namespaceBase = [capitalize(base_part), namespace.getImportsForCPrefix(base_part), 0] as const;
 
       // ['Namespace', { Namespace }, -1]
 
       const [, namespaces, i] = parts.slice(1).reduce(([prev, currentNamespaces, selected], next, i) => {
-        const namespaces = registry.getImportsForCPrefix([prev, next].join('_'));
+        const namespaces = namespace.getImportsForCPrefix([prev, next].join('_'));
         const identifier = prev + capitalize(next);
 
         // We've found namespace(s) which matches the c_prefix
@@ -360,7 +358,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   private generateParameters(parameters: GirFunctionParameter[]): Json[] {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     return parameters.map(p => ({
       direction: p.direction,
@@ -368,7 +366,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       varargs: p.isVarArgs,
       name: p.name,
       resoleNames: p.resolve_names,
-      type: generateType(p.type.resolve(modName, registry, options)),
+      type: generateType(p.type.resolve(namespace, options)),
       ...(this.options.withDocs ? { doc: this.generateDoc(p.doc ?? "") } : {})
     }));
   }
@@ -381,7 +379,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateCallback(node: GirCallback): Json {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     const parameters = this.generateParameters(node.parameters);
 
@@ -392,20 +390,20 @@ export class JsonGenerator extends FormatGenerator<Json> {
       parameters,
       returnType: generateType(node
         .return()
-        .resolve(modName, registry, options)
+        .resolve(namespace, options)
       )
     };
   }
 
   generateReturn(return_type: TypeExpression, output_parameters: GirFunctionParameter[]) {
-    const { modName: name, registry, options } = this;
-    const type = return_type.resolve(name, registry, options);
+    const { namespace, options } = this;
+    const type = return_type.resolve(namespace, options);
 
     if (output_parameters.length > 0) {
       const exclude_first = type.equals(VoidType);
       const returns = [
         ...(exclude_first ? [] : [type]),
-        ...output_parameters.map(op => op.type.resolve(name, registry, options))
+        ...output_parameters.map(op => op.type.resolve(namespace, options))
       ];
 
       return returns.map(r => generateType(r));
@@ -437,23 +435,14 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateError(node: GirError): Json {
-    const { registry } = this;
+    const { namespace } = this;
     const clazz = node.asClass();
 
     clazz.members = [];
     clazz.members.push(...Array.from(node.functions.values()));
 
-    const GLib = registry.getImport("GLib");
-
-    if (!GLib) {
-      throw new Error(`Attempted to generate a subclass of GLib.Error without GLib loaded!`);
-    }
-
-    const GLibError = GLib.getClass("Error");
-
-    if (!GLibError) {
-      throw new Error(`GLib.Error is not defined. This should not occur.`);
-    }
+    const GLib = namespace.assertInstalledImport("GLib");
+    const GLibError = GLib.assertClass("Error");
 
     clazz.parent = GLibError.getType();
 
@@ -474,22 +463,22 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateConst(node: GirConst): Json {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     return {
       kind: NodeKind.constant,
       name: node.name,
-      type: generateType(node.type.resolve(modName, registry, options)),
+      type: generateType(node.type.resolve(namespace, options)),
       ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
   private implements(node: GirBaseClass): TypeIdentifier[] {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     if (node.interfaces.length > 0) {
       return node.interfaces
-        .map(i => i.resolveIdentifier(modName, registry, options))
+        .map(i => i.resolveIdentifier(namespace, options))
         .filter((i): i is TypeIdentifier => i != null);
     }
 
@@ -497,20 +486,20 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   private extends(node: GirBaseClass): TypeIdentifier | null {
-    const { modName, registry: ns, options } = this;
+    const { namespace: ns, options } = this;
 
     if (node.parent) {
-      return node.parent.resolveIdentifier(modName, ns, options);
+      return node.parent.resolveIdentifier(ns, options);
     }
 
     return null;
   }
 
   generateInterface(node: GirInterface): Json {
-    const { modName, registry } = this;
+    const { namespace } = this;
     // If an interface does not list a prerequisite type, we fill it with GObject.Object
     if (node.parent == null) {
-      const gobject = registry.getImport("GObject");
+      const gobject = namespace.assertInstalledImport("GObject");
 
       // TODO Optimize GObject.Object
       if (!gobject) {
@@ -520,7 +509,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       const GObject = gobject.getClass("Object");
 
       if (!GObject) {
-        throw new Error(`GObject.Object could not be found while generating ${modName}.${node.name}`);
+        throw new Error(`GObject.Object could not be found while generating ${node.namespace.name}.${node.name}`);
       }
 
       node.parent = GObject.getType();
@@ -716,7 +705,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateField(node: GirField): Json {
-    const { modName: namespace, registry, options } = this;
+    const { namespace, options } = this;
     const { name, computed } = node;
     const invalid = isInvalid(name);
 
@@ -727,14 +716,14 @@ export class JsonGenerator extends FormatGenerator<Json> {
       readonly: ReadOnly,
       static: Static,
       computed,
-      type: generateType(node.type.resolve(namespace, registry, options)),
+      type: generateType(node.type.resolve(namespace, options)),
       name: invalid ? `"${name}"` : name,
       ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
 
   generateProperty(node: GirProperty, construct: boolean = false): Json {
-    const { modName: namespace, registry, options } = this;
+    const { namespace, options } = this;
 
     const invalid = isInvalid(node.name);
     const Static = node.isStatic;
@@ -742,7 +731,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Name = invalid ? `"${node.name}"` : node.name;
 
-    let Type = generateType(node.type.resolve(namespace, registry, options));
+    let Type = generateType(node.type.resolve(namespace, options));
     return {
       readonly: ReadOnly,
       static: Static,
@@ -780,11 +769,11 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateParameter(node: GirFunctionParameter): Json {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     let type: Json = generateType(
-      resolveDirectedType(node.type, node.direction)?.resolve(modName, registry, options) ??
-      node.type.resolve(modName, registry, options)
+      resolveDirectedType(node.type, node.direction)?.resolve(namespace, options) ??
+      node.type.resolve(namespace, options)
     );
 
     return {
@@ -798,11 +787,11 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateFunction(node: GirFunction): Json {
-    const { modName } = this;
+    const { namespace } = this;
     // Register our identifier with the sanitized identifiers.
     // We avoid doing this in fromXML because other class-level function classes
     // depends on that code.
-    sanitizeIdentifierName(modName, node.raw_name);
+    sanitizeIdentifierName(namespace.name, node.raw_name);
 
     const Parameters = this.generateParameters(node.parameters);
     const ReturnType = this.generateReturn(node.return(), node.output_parameters);
@@ -817,7 +806,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateConstructorFunction(node: GirConstructor): Json {
-    const { modName, registry, options } = this;
+    const { namespace, options } = this;
 
     const Parameters = this.generateParameters(node.parameters);
 
@@ -829,7 +818,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       static: true,
       name,
       parameters: Parameters,
-      returnType: generateType(node.return().resolve(modName, registry, options)),
+      returnType: generateType(node.return().resolve(namespace, options)),
       ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
     };
   }
@@ -877,15 +866,15 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateAlias(node: GirAlias): Json {
-    const { modName, registry, options } = this;
-    const type = node.type.resolve(modName, registry, options);
+    const { namespace, options } = this;
+    const type = node.type.resolve(namespace, options);
 
     const { name } = node;
 
     return {
       kind: NodeKind.alias,
       name,
-      type: generateType(type.resolve(modName, registry, options))
+      type: generateType(type.resolve(namespace, options))
     };
   }
 
@@ -894,10 +883,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateNamespace(node: GirNamespace): string | null {
-    const { modName, options } = this;
+    const { namespace, options } = this;
 
     if (options.verbose) {
-      console.debug(`Resolving the types of ${modName}...`);
+      console.debug(`Resolving the types of ${namespace.name}...`);
     }
 
     try {
@@ -927,7 +916,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = Array.from(node.imports.entries()).filter(([i]) => node.getImport(i) != null);
+      const imports = Array.from(node.imports.entries());
 
       const raw_output = {
         kind: NodeKind.namespace,
@@ -944,7 +933,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       };
 
       if (options.verbose) {
-        console.debug(`Printing ${modName}...`);
+        console.debug(`Printing ${namespace.name}...`);
       }
 
       return JSON.stringify(raw_output, null, 4);

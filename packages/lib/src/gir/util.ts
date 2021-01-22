@@ -228,7 +228,7 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
   return variableType;
 }
 
-export const SanitizedIdentifiers = new Map();
+export const SanitizedIdentifiers = new Map<string, string>();
 
 export function sanitizeIdentifierName(namespace: string | null, name: string): string {
   // This is a unique case where the name is "empty".

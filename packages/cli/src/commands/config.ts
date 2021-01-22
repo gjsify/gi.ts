@@ -2,7 +2,7 @@ import { Command, flags } from '@oclif/command'
 
 import * as fs from 'fs'
 
-import { generate, generateAll, GirInfo } from '../util'
+import { generate, generateAll, GirInfo } from "@gi.ts/node-loader";
 
 export default class Config extends Command {
   static description = 'create docs configurations'
@@ -25,7 +25,6 @@ export default class Config extends Command {
 
   generateLockFile(compiled: GirInfo[]) {
     const generate = async () => {
-
 
       fs.writeFileSync('./docs-lock.json', JSON.stringify(compiled, null, 4));
     }
@@ -51,8 +50,6 @@ export default class Config extends Command {
         map[info.name] = versions.sort();
       }
     }
-
-    
 
     if (flags.lock) {
       this.log("Generating local lock file for configuration...");

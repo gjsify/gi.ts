@@ -11,7 +11,7 @@ const fixMissingParent = <T extends GirBaseClass>(node: T): T => {
         const isGObject = resolved_parents.some(([, p]) => p.namespace.name === "GObject" && p.name === "Object");
 
         if (isGObject) {
-            node.parent = namespace.assertImport("GObject").assertClass("Object").getType();
+            node.parent = namespace.assertInstalledImport("GObject").assertClass("Object").getType();
         }
     }
 

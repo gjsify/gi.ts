@@ -3,7 +3,8 @@
     "workspaces": [
         "packages/cli",
         "packages/lib",
-        "packages/parser"
+        "packages/parser",
+        "packages/node-loader"
     ],
     "name": "gi.ts",
     "devDependencies": {
