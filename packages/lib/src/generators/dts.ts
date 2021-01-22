@@ -39,7 +39,9 @@ import {
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias";
 import { GenerationOptions } from "../types";
+
 import { override as overrideGLib } from "./dts/glib";
+import { override as overrideGObject } from "./dts/gobject";
 
 export class DtsGenerator extends FormatGenerator<string> {
   namespace: GirNamespace;
@@ -852,6 +854,8 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     if (!options.noAdvancedVariants && node.name === 'GLib') {
       suffix = `\n${overrideGLib(node)}\n`;
+    } else if (node.name === 'GObject') {
+      suffix = `\n${overrideGObject(node)}\n`;
     }
 
     try {
@@ -883,57 +887,7 @@ export class DtsGenerator extends FormatGenerator<string> {
         .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
         .join(`${EOL}`);
 
-      const raw_output = [header, imports, base, content, suffix].join(`\n\n`);
-      let indentingType = false;
-
-      // Cleanup and indent the output
-      const [, output] = raw_output.split("\n").reduce(
-        (prev, next) => {
-          const trimmed = next.trim();
-
-          if (trimmed === "") {
-            return prev;
-          }
-
-          let [indent, str] = prev;
-
-          if (
-            !trimmed.startsWith("/*") &&
-            !trimmed.startsWith("*") &&
-            (trimmed.startsWith("}") || trimmed.endsWith("}"))
-          ) {
-            indent--;
-          }
-
-          const indented = trimmed.padStart(trimmed.length + indent * 4, " ");
-
-          if (!trimmed.startsWith("/*") && !trimmed.startsWith("*") && trimmed.endsWith("{")) {
-            indent++;
-          }
-
-          if (trimmed.startsWith("type")) {
-            indent++;
-            indentingType = true;
-          }
-
-          if (trimmed.includes(";") && indentingType) {
-            indent--;
-            indentingType = false;
-          }
-
-          if (
-            indent < 1 &&
-            ((trimmed.startsWith("export") && !str.endsWith("*/")) || trimmed.startsWith("/**"))
-          ) {
-            return [indent, `${str}\n\n${indented}`];
-          }
-
-          const isJSDoc = trimmed.startsWith("*");
-
-          return [indent, `${str}\n${isJSDoc ? " " : ""}${indented}`];
-        },
-        [0, ""] as [number, string]
-      );
+      const output = [header, imports, base, content, suffix].join(`\n\n`);
 
       if (options.verbose) {
         console.debug(`Printing ${namespace.name}...`);

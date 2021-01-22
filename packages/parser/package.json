@@ -20,7 +20,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "xml2js": "^0.4.22"
+    "fast-xml-parser": "^3.17.5"
   },
   "devDependencies": {
     "@types/xml2js": "^0.4.4",

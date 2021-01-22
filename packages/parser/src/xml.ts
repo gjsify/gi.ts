@@ -13,7 +13,7 @@ export type Element<T> = {
 };
 
 export interface GirXML {
-  repository: Repository;
+  repository: Repository[];
 }
 
 export interface SourcePositionElement extends Element<SourcePosition> {}

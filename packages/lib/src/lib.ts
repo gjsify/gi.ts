@@ -15,6 +15,7 @@ export * from "./generators/generator";
 export * from "./types";
 
 export { GirNSRegistry } from "./gir/registry";
+export { Formatter } from "./formatters/formatter";
 
 export function getSanitizedIdentifiers(): ReadonlyMap<string, string> {
     return SanitizedIdentifiers;
@@ -42,7 +43,10 @@ export function generateModule(options: GenerationOptions, registry: GirNSRegist
             imports: Object.fromEntries(ns.imports.entries()),
         };
 
-        return [generated, meta];
+        const formatter = registry.getFormatter('dts');
+        const formatted = formatter.format(generated);
+
+        return [formatted, meta];
     }
 
     return null;
@@ -67,7 +71,10 @@ export function generateJson(options: GenerationOptions, registry: GirNSRegistry
             imports: Object.fromEntries(ns.imports.entries()),
         };
 
-        return [generated, meta];
+        const formatter = registry.getFormatter('json');
+        const formatted = formatter.format(generated);
+
+        return [formatted, meta];
     }
 
     return null;

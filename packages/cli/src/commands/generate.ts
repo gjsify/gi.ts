@@ -1,5 +1,7 @@
 import { Command, flags } from '@oclif/command';
 
+import prettier from 'prettier';
+
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
 
 import { dirname, join as buildPath } from "path";
@@ -11,6 +13,15 @@ import { resolveLibraries } from "@gi.ts/node-loader";
 import * as lib from "@gi.ts/lib";
 
 import { PropertyCase } from '@gi.ts/lib';
+
+class TypeScriptFormatter extends lib.Formatter {
+  format(input: string): string {
+    return prettier.format(input, {
+      parser: 'typescript',
+      printWidth: 120
+    });
+  }
+}
 
 export interface DocDescription {
   name: string;
@@ -95,7 +106,8 @@ export default class Generate extends Command {
     }
 
     const docs: {
-      libraries?: { [lib: string]: string | string[] }
+      libraries?: { [lib: string]: string | string[] },
+      dependencies?: { [lib: string]: string | string[] },
       options?: Unknown<CLIOptions>
     } = JSON.parse(
       readFileSync(buildPath(process.cwd(), docsPath), { encoding: "utf-8" })
@@ -299,32 +311,34 @@ export default class Generate extends Command {
 
     const registry = lib.createRegistry();
 
+    // Register a 'dts' formatter so our output looks decent.
+    registry.registerFormatter('dts', new TypeScriptFormatter());
+
     type GirMap = Map<string, {
-      [version: string]: GirXML
+      [version: string]: () => GirXML
     }>;
 
-    const girs = await resolveLibraries(docs.libraries || {})
+    const girs = await resolveLibraries({
+      ...(docs.dependencies || {}),
+      ...(docs.libraries || {})
+    });
 
     const gir: GirMap = new Map();
 
     this.log("Loading GIR files...");
 
-    await Promise.all(
-      Array.from(girs.entries()).map(async ([name, library]) => {
-        for (const version of Object.keys(library)) {
-          const doc = library[version];
+    for (const [name, library] of Array.from(girs.entries())) {
+      for (const version of Object.keys(library)) {
+        const doc = library[version];
+        const src = readFileSync(doc.path, { encoding: "utf8" });
+        const result = () => parser.parseGir(src);
 
-          const src = await readFileSync(doc.path, { encoding: "utf8" });
-
-          const result = await parser.parseGir(src);
-
-          gir.set(name, {
-            ...gir.get(name) ?? {},
-            [version]: result
-          });
-        }
-      })
-    );
+        gir.set(name, {
+          ...gir.get(name) ?? {},
+          [version]: result
+        });
+      }
+    }
 
     registry.registerLoader({
       load(namespace, version) {
@@ -332,7 +346,22 @@ export default class Generate extends Command {
           console.log(`Loading ${namespace} ${version}...`);
         }
 
-        return gir.get(namespace)?.[version] ?? null;
+        const xml = gir.get(namespace)?.[version]?.() ?? null;
+
+        return xml;
+      },
+      loadAll(namespace) {
+        if (verbose) {
+          console.log(`Loading all versions of ${namespace}...`);
+        }
+
+        const xml = gir.get(namespace);
+
+        if (xml) {
+          return Object.values(xml).map(x => x());
+        }
+
+        return [];
       }
     }, {
       loadDocs: withDocs,

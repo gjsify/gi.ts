@@ -15,7 +15,9 @@ import {
   NeverType,
   AnyFunctionType,
   Generic,
-  GenericType
+  GenericType,
+  TypeExpression,
+  BooleanType
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirField, GirProperty } from "../gir/property";
@@ -23,12 +25,16 @@ import { GirAlias } from "../gir/alias";
 import { GirBaseClass, GirInterface } from "../gir/class";
 import { GirNSRegistry } from "../gir/registry";
 
-function anyParam(name: string) {
+function typeParam(name: string, type: TypeExpression) {
   return new GirFunctionParameter({
     name,
     direction: Direction.In,
-    type: AnyType
+    type: type
   });
+}
+
+function anyParam(name: string) {
+  return typeParam(name, AnyType);
 }
 
 export default {
@@ -81,24 +87,26 @@ export default {
       }))
 
       const ParamSpec = namespace.assertClass("ParamSpec");
+      const ParamFlags = namespace.getEnum("ParamFlags");
 
       function generateParamSpec(
         name: string,
         returnType: GirBaseClass = ParamSpec,
         minMax = false,
         type: string | null = null,
-        defaultValue = false
+        defaultValue = false,
+        defaultValueType: TypeExpression = AnyType
       ) {
         return new GirStaticClassFunction({
           name,
           parameters: [
-            anyParam("name"),
-            anyParam("nick"),
-            anyParam("blurb"),
-            anyParam("flags"),
-            ...(minMax ? [anyParam("minimum"), anyParam("maximum")] : []),
+            typeParam("name", StringType),
+            typeParam("nick", StringType),
+            typeParam("blurb", StringType),
+            typeParam("flags", ParamFlags?.getType() ?? AnyType),
+            ...(minMax ? [typeParam("minimum", NumberType), typeParam("maximum", NumberType)] : []),
             ...(type ? [anyParam(`${type}Type`)] : []),
-            ...(defaultValue ? [anyParam("defaultValue")] : [])
+            ...(defaultValue ? [typeParam("defaultValue", defaultValueType)] : [])
           ],
           parent: ParamSpec,
           return_type: returnType.getType()
@@ -187,33 +195,33 @@ export default {
 
       ParamSpec.members.push(
         //   "char": "static char(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("char", ParamSpecChar, true, null, true),
+        generateParamSpec("char", ParamSpecChar, true, null, true, NumberType),
         //   "uchar": "static uchar(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any):ParamSpec;",
-        generateParamSpec("uchar", ParamSpecUChar, true, null, true),
+        generateParamSpec("uchar", ParamSpecUChar, true, null, true, NumberType),
         //   "int": "static int(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("int", ParamSpecInt, true, null, true),
+        generateParamSpec("int", ParamSpecInt, true, null, true, NumberType),
         //   "uint": "static uint(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("uint", ParamSpecUInt, true, null, true),
+        generateParamSpec("uint", ParamSpecUInt, true, null, true, NumberType),
         //   "long": "static long(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("long", ParamSpecLong, true, null, true),
+        generateParamSpec("long", ParamSpecLong, true, null, true, NumberType),
         //   "ulong": "static ulong(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("ulong", ParamSpecULong, true, null, true),
+        generateParamSpec("ulong", ParamSpecULong, true, null, true, NumberType),
         //   "int64": "static int64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("int64", ParamSpecInt64, true, null, true),
+        generateParamSpec("int64", ParamSpecInt64, true, null, true, NumberType),
         //   "uint64": "static uint64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("uint64", ParamSpecUInt64, true, null, true),
+        generateParamSpec("uint64", ParamSpecUInt64, true, null, true, NumberType),
         //   "float": "static float(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("float", ParamSpecFloat, true, null, true),
+        generateParamSpec("float", ParamSpecFloat, true, null, true, NumberType),
         //   "boolean": "static boolean(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("boolean", ParamSpecBoolean, false, null, true),
+        generateParamSpec("boolean", ParamSpecBoolean, false, null, true, BooleanType),
         //   "flags": "static flags(name: any, nick: any, blurb: any, flags: any, flagsType: any, defaultValue: any): ParamSpec;",
         generateParamSpec("flags", ParamSpecFlags, false, "flags", true),
         //   "enum": "static enum(name: any, nick: any, blurb: any, flags: any, enumType: any, defaultValue: any): ParamSpec;",
         generateParamSpec("enum", ParamSpecEnum, false, "enum", true),
         //   "double": "static double(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("double", ParamSpecDouble, true, null, true),
+        generateParamSpec("double", ParamSpecDouble, true, null, true, NumberType),
         //   "string": "static string(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("string", ParamSpecString, false, null, true),
+        generateParamSpec("string", ParamSpecString, false, null, true, StringType),
         //   "boxed": "static boxed(name: any, nick: any, blurb: any, flags: any, boxedType: any): ParamSpec;",
         generateParamSpec("boxed", ParamSpecBoxed, false, "boxed", false),
         //   "object": "static object(name: any, nick: any, blurb: any, flags: any, objectType: any): ParamSpec;",

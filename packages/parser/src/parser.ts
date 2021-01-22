@@ -1,10 +1,16 @@
-import { parseString, convertableToString } from "xml2js";
-import { promisify as $ } from "util";
+import { parse } from "fast-xml-parser";
 import { GirXML } from "./xml";
 
-// Promisify xml2js' parseString
-const parseStringAsync = async <T>(str) => await $<convertableToString, T>(parseString)(str);
-
-export async function parseGir(contents: string) {
-    return await parseStringAsync<GirXML>(contents);
+export function parseGir(contents: string): GirXML {
+    return parse(contents, {
+        attributeNamePrefix: "",
+        attrNodeName: "$", //default is 'false'
+        ignoreAttributes : false,
+        ignoreNameSpace : false,
+        allowBooleanAttributes : true,
+        parseNodeValue : true,
+        parseAttributeValue : false,
+        trimValues: true,
+        arrayMode: true
+    }) as GirXML;
 }
