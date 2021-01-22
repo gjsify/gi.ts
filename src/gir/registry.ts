@@ -1,4 +1,7 @@
 import { GirXML } from "@gi.ts/parser";
+import { DefaultFormatter } from "../formatters/default";
+import { Formatter } from "../formatters/formatter";
+import { JSONFormatter } from "../formatters/json";
 import { generify } from "../generics/generify";
 import { inject } from "../injections/inject";
 import { LoadOptions, TransformOptions } from "../types";
@@ -10,13 +13,19 @@ import { GirNamespace } from "./namespace";
 
 export interface GirNSLoader {
     load(namespace: string, version: string): GirXML | null;
+    loadAll(namespace: string): GirXML[];
 }
 
 export class GirNSRegistry {
     mapping: TwoKeyMap<string, string, GirNamespace> = new TwoKeyMap();
+    private formatters: Map<string, Formatter> = new Map();
     c_mapping: Map<string, GirNamespace[]> = new Map();
     transformations: GirVisitor[] = [];
     loaders: [GirNSLoader, LoadOptions][] = [];
+
+    constructor() {
+        this.formatters.set('json', new JSONFormatter());
+    }
 
     registerTransformation(visitor: GirVisitor) {
         this.transformations.push(visitor);
@@ -25,6 +34,14 @@ export class GirNSRegistry {
         this.mapping.forEach(n => {
             n.accept(visitor);
         });
+    }
+
+    registerFormatter(output: string, formatter: Formatter) {
+        this.formatters.set(output, formatter);
+    }
+
+    getFormatter(output: string) {
+        return this.formatters.get(output) ?? new DefaultFormatter();
     }
 
     private _transformNamespace(namespace: GirNamespace) {
@@ -83,19 +100,21 @@ export class GirNSRegistry {
             return meta[0];
         }
 
+
+        let ns = this._defaultVersionInternalLoad(name);
+
+        if (ns) {
+            return ns.version;
+        }
+
         return null;
     }
 
     assertDefaultVersionOf(name: string): string {
-        // GJS has a hard dependency on these versions.
-        if (name === "GLib" || name === "Gio" || name === "GObject") {
-            return "2.0";
-        }
+        const version = this.defaultVersionOf(name);
 
-        const meta = this.mapping.getIfOnly(name);
-
-        if (meta) {
-            return meta[0];
+        if (version) {
+            return version;
         }
 
         // This mirrors GJS' and GI's default behavior.
@@ -119,7 +138,7 @@ export class GirNSRegistry {
 
     load(gir: GirXML, options: LoadOptions): GirNamespace {
         const namespace = GirNamespace.fromXML(gir, options, this);
-       
+
         this.mapping.set(namespace.name, namespace.version, namespace);
 
         let c_map = this.c_mapping.get(namespace.c_prefix) || [];
@@ -131,6 +150,39 @@ export class GirNSRegistry {
         this._transformNamespace(namespace);
 
         return namespace;
+    }
+
+    private _defaultVersionInternalLoad(name: string): GirNamespace | null {
+        const all = this.loaders.map(([loader, options]) => {
+            try {
+                return [loader.loadAll(name), options] as const;
+            } catch (error) {
+                // TODO: Should we throw here?
+                console.error(error);
+                return null;
+            }
+        })
+            .filter((a): a is [GirXML[], LoadOptions] => a != null);
+
+        if (all.length === 0 || all.length > 1) {
+            return null;
+        }
+
+        const [[xmls, options]] = all;
+
+        if (xmls.length === 0 || xmls.length > 1) {
+            return null;
+        }
+
+        const [xml] = xmls;
+
+        const ns = this.load(xml, options);
+
+        if (ns) {
+            this._transformNamespace(ns);
+        }
+
+        return ns;
     }
 
     private _internalLoad(name: string, version: string): GirNamespace | null {

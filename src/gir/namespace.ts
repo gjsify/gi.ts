@@ -277,7 +277,7 @@ export class GirNamespace {
   }
 
   static fromXML(repo: GirXML, options: LoadOptions, registry: GirNSRegistry): GirNamespace {
-    const ns = repo.repository.namespace[0];
+    const ns = repo.repository[0].namespace[0];
 
     const modName = ns.$["name"];
     const version = ns.$["version"];
@@ -289,7 +289,7 @@ export class GirNamespace {
 
     const building = new GirNamespace(modName, version, c_prefix);
     building.parent = registry;
-    const includes = repo.repository.include || [];
+    const includes = repo.repository[0].include || [];
 
     includes.map(i => [i.$.name, i.$.version] as const)
       .forEach(
