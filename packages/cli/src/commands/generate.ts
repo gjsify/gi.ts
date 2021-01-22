@@ -18,7 +18,8 @@ class TypeScriptFormatter extends lib.Formatter {
   format(input: string): string {
     return prettier.format(input, {
       parser: 'typescript',
-      printWidth: 120
+      printWidth: 120,
+      tabWidth: 4
     });
   }
 }
