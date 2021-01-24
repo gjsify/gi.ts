@@ -671,7 +671,7 @@ export class GirClass extends GirBaseClass {
     clazz.mainConstructor = mainConstructor;
     clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
     clazz.members = (options.members ?? members).map(m => m.copy({ parent: clazz }));
-    clazz.generics = generics;
+    clazz.generics = [...generics];
 
     // Ensure the generic iteration resumes
     clazz.getGenericName = GenericNameGenerator.at(this.getGenericName());
@@ -911,7 +911,7 @@ export class GirRecord extends GirBaseClass {
     clazz.mainConstructor = mainConstructor?.copy() ?? null;
     clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
     clazz.members = (options.members ?? members).map(m => m.copy({ parent: clazz }));
-    clazz.generics = generics;
+    clazz.generics = [...generics];
 
     return clazz;
   }
@@ -1085,7 +1085,7 @@ export class GirInterface extends GirBaseClass {
     clazz.mainConstructor = mainConstructor?.copy() ?? null;
     clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
     clazz.members = (options.members ?? members).map(m => m.copy({ parent: clazz }));
-    clazz.generics = generics;
+    clazz.generics = [...generics];
 
     return clazz;
   }
