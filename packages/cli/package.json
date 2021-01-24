@@ -1,14 +1,14 @@
 {
   "name": "@gi.ts/cli",
   "description": "The command line interface for gi.ts (type checking for GObject Introspection and GJS)",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "author": "Evan Welsh",
   "bin": {
     "gi-ts": "./bin/run"
   },
   "bugs": "https://gitlab.gnome.org/ewlsh/gi.ts/issues",
   "dependencies": {
-    "@gi.ts/lib": "^1.4.0",
+    "@gi.ts/lib": "^1.4.1",
     "@gi.ts/node-loader": "^1.4.0",
     "@gi.ts/parser": "^1.4.0",
     "@oclif/command": "^1",
