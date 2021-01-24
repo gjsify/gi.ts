@@ -77,6 +77,8 @@ export class GirFunction extends GirBase {
       parameters: parameters ?? this.parameters
     });
 
+    fn.generics = [...this.generics];
+
     return fn._copyBaseProperties(this);
   }
 
@@ -520,7 +522,7 @@ export class GirClassFunction extends GirBase {
       return_type: returnType ?? this.return_type
     });
 
-    fn.generics = this.generics;
+    fn.generics = [...this.generics];
 
     if (interfaceParent) {
       fn.interfaceParent = interfaceParent;
@@ -679,13 +681,17 @@ export class GirCallback extends GirFunction {
     returnType?: TypeExpression
   } = {}): GirCallback {
 
-    return new GirCallback({
+    const cb = new GirCallback({
       name: this.name,
       raw_name: this.raw_name,
       return_type: returnType ?? this.return_type,
       parameters: parameters ?? this.parameters,
       output_parameters: outputParameters ?? this.output_parameters
     })._copyBaseProperties(this);
+
+    cb.generics = [...this.generics];
+
+    return cb;
   }
 
   accept(visitor: GirVisitor): GirCallback {
