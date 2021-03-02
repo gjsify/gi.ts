@@ -11,9 +11,24 @@ export abstract class GirBase {
   deprecated?: boolean;
   resolve_names: string[] = [];
   private _emit = true;
+  private _commentWarning?: string;
 
   constructor(name: string) {
     this.name = name;
+  }
+
+  /**
+   * Set a warning to be emitted with this node. Often used to note type
+   * conflicts or potential differences from GJS code.
+   * 
+   * @param warning
+   */
+  setWarning(warning: string) {
+    this._commentWarning = warning;
+  }
+
+  getWarning(): string | undefined {
+    return this._commentWarning;
   }
 
   noEmit() {
@@ -398,22 +413,22 @@ export class Generic {
   private _genericType: GenericType;
   private _defaultType: TypeExpression | null;
   private _constraint: TypeExpression | null;
-  private _propogate: boolean;
+  private _propagate: boolean;
 
-  constructor(genericType: GenericType, defaultType?: TypeExpression, deriveFrom?: TypeIdentifier, constraint?: TypeExpression, propogate = true) {
+  constructor(genericType: GenericType, defaultType?: TypeExpression, deriveFrom?: TypeIdentifier, constraint?: TypeExpression, propagate = true) {
     this._genericType = genericType;
     this._defaultType = defaultType ?? null;
     this._deriveFrom = deriveFrom ?? null;
     this._constraint = constraint ?? null;
-    this._propogate = propogate;
+    this._propagate = propagate;
   }
 
   unwrap() {
     return this.type;
   }
 
-  get propogate() {
-    return this._propogate;
+  get propagate() {
+    return this._propagate;
   }
 
   get type() {
@@ -476,10 +491,12 @@ export class GenerifiedType extends TypeExpression {
 
 export class GenericType extends TypeExpression {
   identifier: string;
+  replacedType?: TypeExpression;
 
-  constructor(identifier: string) {
+  constructor(identifier: string, replacedType?: TypeExpression) {
     super();
     this.identifier = identifier;
+    this.replacedType = replacedType;
   }
 
   equals(type: TypeExpression): boolean {
