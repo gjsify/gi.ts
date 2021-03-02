@@ -302,7 +302,7 @@ export class GirConstructor extends GirBase {
       return_type: visitor.visitType?.(this.return_type)
     });
 
-    return visitor.visitConstructor?.(node) ?? node;
+    return visitor.visitConstructor?.(node) ?? node;
   }
 
   return() {

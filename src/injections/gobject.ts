@@ -20,7 +20,7 @@ import {
   BooleanType
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
-import { GirField, GirProperty } from "../gir/property";
+import { GirField } from "../gir/property";
 import { GirAlias } from "../gir/alias";
 import { GirBaseClass, GirInterface } from "../gir/class";
 import { GirNSRegistry } from "../gir/registry";
@@ -42,30 +42,27 @@ export default {
   version: "2.0",
   modifier(namespace: GirNamespace, _registry: GirNSRegistry) {
     {
-      const SignalMatch =  new GirInterface({
+      const SignalMatch = new GirInterface({
         name: "SignalMatch",
         namespace,
-        props: [
-          new GirProperty({
+        fields: [
+          new GirField({
             name: "signalId",
             type: StringType,
             isStatic: false,
-            writable: true,
-            constructOnly: false
+            writable: true
           }),
-          new GirProperty({
+          new GirField({
             name: "detail",
             type: StringType,
             isStatic: false,
-            writable: true,
-            constructOnly: false
+            writable: true
           }),
-          new GirProperty({
+          new GirField({
             name: "func",
             type: AnyFunctionType,
             isStatic: false,
-            writable: true,
-            constructOnly: false
+            writable: true
           })
         ]
       });
