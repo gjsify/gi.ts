@@ -577,25 +577,66 @@ export class PromiseType extends TypeExpression {
   }
 }
 
-export class AnyifiedType extends BinaryType {
-  constructor(type: TypeExpression) {
-    super(type, AnyType);
+/**
+ * A list of possible type conflicts.
+ * 
+ * The format is CHILD_PARENT_CONFLICT so
+ * ACCESSOR_PROPERTY_CONFLICT means there
+ * is an accessor on a child class and a
+ * property on the parent class, which is a
+ * conflict.
+ * 
+ * Starts at '1' because the value is often
+ * used as truthy.
+ */
+export enum ConflictType {
+  PROPERTY_NAME_CONFLICT = 1,
+  FIELD_NAME_CONFLICT,
+  FUNCTION_NAME_CONFLICT,
+  ACCESSOR_PROPERTY_CONFLICT,
+  PROPERTY_ACCESSOR_CONFLICT,
+}
+
+/**
+ * This is one of the more interesting usages of our type
+ * system. To handle type conflicts we wrap conflicting types
+ * in this class with a ConflictType to denote why they are a
+ * conflict.
+ * 
+ * TypeConflict will throw if it is printed or resolved, so generators
+ * must unwrap it and "resolve" the conflict. Some generators like JSON
+ * just disregard this info, other generators like DTS attempt to
+ * resolve the conflicts so the typing stays sound.
+ */
+export class TypeConflict extends TypeExpression {
+  readonly conflictType: ConflictType;
+  readonly type: TypeExpression;
+
+  constructor(type: TypeExpression, conflictType: ConflictType) {
+    super();
+    this.type = type;
+    this.conflictType = conflictType;
   }
 
   rewrap(type: TypeExpression) {
-    return new AnyifiedType(this.type.rewrap(type));
+    return new TypeConflict(this.type.rewrap(type), this.conflictType);
   }
 
   unwrap() {
     return this.type;
   }
 
-  get type() {
-    return this.a;
-  }
-
+  // TODO: This constant "true" is a remnant of the Anyified type.
   equals(_type: TypeExpression) {
     return true;
+  }
+
+  resolve(namespace: GirNamespace, options: GenerationOptions): TypeExpression {
+    throw new Error(`Type conflict was not resolved for ${this.type.resolve(namespace, options).print(namespace, options)} in ${namespace}`);
+  }
+
+  print(namespace: GirNamespace, options: GenerationOptions): string {
+    throw new Error(`Type conflict was not resolved for ${this.type.resolve(namespace, options).print(namespace, options)} in ${namespace}`);
   }
 }
 

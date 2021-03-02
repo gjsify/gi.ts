@@ -21,10 +21,10 @@ import {
   OrType,
   TupleType,
   NullableType,
-  AnyifiedType,
   ClosureType,
   GirBase,
-  AnyFunctionType
+  AnyFunctionType,
+  TypeConflict
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias";
@@ -91,11 +91,9 @@ function generateType(type: TypeExpression): Json {
       kind: TypeKind.nulled,
       types: generateType(type.type)
     };
-  } else if (type instanceof AnyifiedType) {
-    return {
-      kind: TypeKind.native,
-      type: "any"
-    };
+  } else if (type instanceof TypeConflict) {
+    // Type conflicts aren't considered in JSON outputs.
+    return generateType(type.type);
   } else if (type instanceof TupleType) {
     return {
       kind: TypeKind.tuple,
@@ -473,7 +471,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     };
   }
 
-  private implements(node: GirBaseClass): TypeIdentifier[] {
+  private implements(node: GirClass): TypeIdentifier[] {
     const { namespace, options } = this;
 
     if (node.interfaces.length > 0) {
@@ -540,7 +538,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
     const { name } = node;
 
     const Extends = this.extends(node);
-    const Implements = this.implements(node);
 
     const Properties = node.props.map(v => v && v.asString(this));
 
@@ -556,7 +553,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       type: NodeKind.record,
       name,
       extends: Extends ? generateType(Extends) : null,
-      implements: Implements.map(i => generateType(i)),
+      implements: [],
       props: Properties,
       fields: Fields,
       constructors: Constructors,
@@ -573,7 +570,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
     let MainConstructor: Json | null = null;
 
     const ConstructorProps = node.props
-      .filter(prop => !prop.isStatic)
       .map(v => this.generateProperty(v, true));
 
     if (node.mainConstructor) {
@@ -726,7 +722,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
     const { namespace, options } = this;
 
     const invalid = isInvalid(node.name);
-    const Static = node.isStatic;
     const ReadOnly = node.writable || construct;
 
     const Name = invalid ? `"${node.name}"` : node.name;
@@ -734,7 +729,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
     let Type = generateType(node.type.resolve(namespace, options));
     return {
       readonly: ReadOnly,
-      static: Static,
+      constructOnly: node.constructOnly,
+      readable: node.readable,
+      writable: node.writable,
+      static: false,
       type: Type,
       name: Name,
       ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})
@@ -810,13 +808,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Parameters = this.generateParameters(node.parameters);
 
-    const invalid = isInvalid(node.name);
-    const name = invalid ? `["${node.name}"]` : node.name;
-
     return {
       kind: NodeKind.classFunction,
       static: true,
-      name,
+      name: node.name,
       parameters: Parameters,
       returnType: generateType(node.return().resolve(namespace, options)),
       ...(this.options.withDocs ? { doc: this.generateDoc(node.doc ?? "") } : {})

@@ -22,6 +22,7 @@ export class GirNSRegistry {
     c_mapping: Map<string, GirNamespace[]> = new Map();
     transformations: GirVisitor[] = [];
     loaders: [GirNSLoader, LoadOptions][] = [];
+    subtypes = new TwoKeyMap<string, string, TwoKeyMap<string, string, boolean>>();
 
     constructor() {
         this.formatters.set('json', new JSONFormatter());
