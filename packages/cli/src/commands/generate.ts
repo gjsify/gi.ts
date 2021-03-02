@@ -16,11 +16,17 @@ import { PropertyCase } from '@gi.ts/lib';
 
 class TypeScriptFormatter extends lib.Formatter {
   format(input: string): string {
-    return prettier.format(input, {
-      parser: 'typescript',
-      printWidth: 120,
-      tabWidth: 4
-    });
+    try {
+      return prettier.format(input, {
+        parser: 'typescript',
+        printWidth: 120,
+        tabWidth: 4
+      });
+    } catch (error) {
+      console.error("Failed to format output...");
+      console.error(input);
+      throw error;
+    }
   }
 }
 
