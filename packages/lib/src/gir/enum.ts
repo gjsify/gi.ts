@@ -1,8 +1,8 @@
 import { GirBase, NumberType, TypeIdentifier } from "../gir";
 import { MemberElement, Enumeration, BitfieldElement } from "@gi.ts/parser";
 
-import { GirRecord } from "./class";
-import { GirProperty } from "./property";
+import { GirComplexRecord, GirRecord } from "./class";
+import { GirField } from "./property";
 import { GirStaticClassFunction } from "./function";
 import { GirNamespace } from "./namespace";
 import { sanitizeIdentifierName, sanitizeMemberName } from "./util";
@@ -62,16 +62,15 @@ export class GirEnum extends GirBase {
   asClass(): GirRecord {
     const { name, namespace } = this;
 
-    const clazz = new GirRecord({ name, namespace });
+    const clazz = new GirComplexRecord({ name, namespace });
 
-    clazz.props.push(
+    clazz.fields.push(
       ...Array.from(this.members.values()).map(m => {
-        return new GirProperty({
+        return new GirField({
           name: m.name,
           type: NumberType,
           writable: true,
-          isStatic: true,
-          constructOnly: false
+          isStatic: true
         });
       })
     );
@@ -183,7 +182,6 @@ export class GirError extends GirEnum {
     }
 
     en.flags = flags;
-    
 
     return en._copyBaseProperties(this);
   }

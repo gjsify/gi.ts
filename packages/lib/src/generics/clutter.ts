@@ -13,21 +13,23 @@ export default {
         const LayoutManager = namespace.assertClass("LayoutManager");
 
         Actor.addGeneric({
-            default: LayoutManager.getType()
+            default: LayoutManager.getType(),
+            constraint: LayoutManager.getType()
         });
 
         Actor.addGeneric({
-            default: Content.getType()
+            default: Content.getType(),
+            constraint: Content.getType()
         });
 
         Actor.props.filter(p => p.name === 'layout_manager' || p.name === 'layoutManager').forEach(prop => {
             // TODO Automatically infer such changes.
-            prop.type = new GenericType("A")
+            prop.type = new GenericType("A", Content.getType())
         });
 
         Actor.props.filter(p => p.name === 'content').forEach(prop => {
             // TODO Automatically infer such changes.
-            prop.type = new GenericType("B")
+            prop.type = new GenericType("B", Content.getType())
         });
 
         const Clone = namespace.assertClass("Clone");
@@ -39,7 +41,7 @@ export default {
 
         Clone.props.filter(p => p.name === 'source').forEach(prop => {
             // TODO Automatically infer such changes.
-            prop.type = new GenericType("A")
+            prop.type = new GenericType("A", Content.getType())
         });
     }
 };

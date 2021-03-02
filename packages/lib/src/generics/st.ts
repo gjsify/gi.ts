@@ -83,7 +83,7 @@ export default {
 
         Bin.props.filter(p => p.name === 'child').forEach(prop => {
             // TODO Automatically infer such changes.
-            prop.type = new GenericType("A")
+            prop.type = new GenericType("A", Actor.getType())
         });
     }
 };

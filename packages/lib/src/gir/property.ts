@@ -6,6 +6,8 @@ import { GirNamespace } from "./namespace";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
+import { GirBaseClass } from "./class";
+import { GirEnum } from "./enum";
 
 export class GirField extends GirBase {
   type: TypeExpression;
@@ -59,7 +61,6 @@ export class GirField extends GirBase {
     return generator.generateField(this);
   }
 
-
   accept(visitor: GirVisitor): GirField {
     const node = this.copy({
       type: visitor.visitType?.(this.type) ?? this.type
@@ -68,7 +69,7 @@ export class GirField extends GirBase {
     return visitor.visitField?.(node) ?? node;
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, _parent, field: ClassField): GirField {
+  static fromXML(namespace: string, ns: GirNamespace, _options: LoadOptions, _parent, field: ClassField): GirField {
     let name = field.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const f = new GirField({ name: _name, type: getType(namespace, ns, field) });
@@ -85,23 +86,27 @@ export class GirProperty extends GirBase {
   type: TypeExpression;
 
   readonly writable: boolean = false;
-  readonly isStatic: boolean = false;
+  readonly readable: boolean = true;
   readonly constructOnly: boolean;
 
-  copy(options?: { name?: string; parent?: GirBase; type?: TypeExpression }): GirProperty {
-    const { name, writable, type, isStatic, constructOnly } = this;
+  parent: GirBaseClass | GirEnum;
+
+  copy(options?: { name?: string; parent?: GirBaseClass | GirEnum; type?: TypeExpression }): GirProperty {
+    const { name, writable, readable, type, constructOnly, parent } = this;
 
     return new GirProperty({
       name: options?.name ?? name,
       writable,
+      readable,
       type: options?.type ?? type,
-      isStatic,
-      constructOnly
+      constructOnly,
+      parent: options?.parent ?? parent,
     })._copyBaseProperties(this);
   }
 
   accept(visitor: GirVisitor): GirProperty {
     const node = this.copy({
+      parent: this.parent,
       type: visitor.visitType?.(this.type) ?? this.type
     });
 
@@ -110,23 +115,26 @@ export class GirProperty extends GirBase {
 
   constructor({
     name,
-    isStatic,
     type,
     writable,
-    constructOnly
+    readable,
+    constructOnly,
+    parent
   }: {
     name: string;
-    isStatic: boolean;
     type: TypeExpression;
     writable: boolean;
+    readable: boolean;
     constructOnly: boolean;
+    parent: GirBaseClass | GirEnum;
   }) {
     super(name);
 
-    this.isStatic = isStatic;
     this.type = type;
     this.writable = writable;
+    this.readable = readable;
     this.constructOnly = constructOnly;
+    this.parent = parent;
   }
 
   asString<T = string>(generator: FormatGenerator<T>, construct?: boolean): T {
@@ -138,26 +146,29 @@ export class GirProperty extends GirBase {
 
     if (parts.length === 0) {
       return this.copy({
-        name: part
+        name: part,
+        parent: this.parent,
       });
     }
 
     const camelCase = `${part}${parts.map(s => `${s[0].toUpperCase()}${s.slice(1)}`).join('')}`
 
     return this.copy({
-      name: camelCase
+      name: camelCase,
+      parent: this.parent,
     });
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, _parent, prop: ClassProperty): GirProperty {
+  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, parent: GirBaseClass | GirEnum, prop: ClassProperty): GirProperty {
     let name = prop.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const property = new GirProperty({
       name: _name,
-      writable: !("writable" in prop.$) || prop.$["writable"] === "1",
-      constructOnly: !("construct-only" in prop.$) || prop.$["construct-only"] === "1",
+      writable: prop.$?.writable === "1",
+      readable: prop.$?.readable !== "0",
+      constructOnly: prop.$?.["construct-only"] === "1",
       type: getType(namespace, ns, prop),
-      isStatic: false
+      parent,
     });
 
     return property;
