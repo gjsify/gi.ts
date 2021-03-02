@@ -65,3 +65,21 @@ export class TwoKeyMap<K1, K2, V> {
         obj.set(key2, value);
     }
 }
+
+/**
+ * If the predicate returns a value other than undefined,
+ * that value is returned. It combines the .find() and
+ * .map() APIs for convenience.
+ * 
+ * @param arr 
+ * @param predicate 
+ */
+export function findMap<T, K>(arr: T[], predicate: (p: T) => K | undefined): K | undefined {
+    for (const a of arr) {
+        const val = predicate(a);
+        if (val !== undefined)
+            return val;
+    }
+
+    return undefined;
+}

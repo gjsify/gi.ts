@@ -16,7 +16,7 @@ export default {
     AsyncInitable.addGeneric({
       constraint: GObject.getType(),
       default: GObject.getType(),
-      propogate: false
+      propagate: false
     });
 
     const ListModel = namespace.getClass("ListModel");

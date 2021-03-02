@@ -1,8 +1,9 @@
 import { ClosureType, GenericType, Generic, TypeIdentifier, GenerifiedTypeIdentifier, ThisType } from "../gir";
-import { GirClass, GirBaseClass, resolveTypeIdentifier, GirInterface } from "../gir/class";
+import { GirClass, GirBaseClass, GirInterface } from "../gir/class";
 import { GirCallback, GirFunctionParameter, GirFunction, GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
 import { GenericNameGenerator } from "../gir/generics";
 import { GirNSRegistry } from "../gir/registry";
+import { resolveTypeIdentifier } from "../gir/util";
 import { GirVisitor } from "../visitor";
 
 export class GenericVisitor extends GirVisitor {
@@ -36,7 +37,7 @@ export class GenericVisitor extends GirVisitor {
 
                 if (type instanceof TypeIdentifier && type.is("GObject", "Object")) {
                     const Identifier = generateName();
-                    const generic = new GenericType(Identifier);
+                    const generic = new GenericType(Identifier, type);
                     generics.push(new Generic(generic, type));
 
                     return p.copy({
@@ -73,58 +74,61 @@ export class GenericVisitor extends GirVisitor {
         const { namespace } = _node;
 
         const resolvedParent = node.parent ? resolveTypeIdentifier(namespace, node.parent) : null;
-        const resolvedInterfaces = node.interfaces
-            .map(i => resolveTypeIdentifier(namespace, i))
-            .filter((c): c is GirBaseClass => c != null);
-
         let derivatives = node.generics.filter(generic => generic.parent != null);
 
-        node.interfaces = node.interfaces.map(iface => {
-            const generic = derivatives.filter(d => d.parent?.is(iface.namespace, iface.name));
+        if (node instanceof GirClass) {
+            const resolvedInterfaces = node.interfaces
+                .map(i => resolveTypeIdentifier(namespace, i))
+                .filter((c): c is GirBaseClass => c != null);
 
-            if (generic.length > 0) {
-                return new GenerifiedTypeIdentifier(iface.name, iface.namespace, generic.map(g => g.type));
-            }
 
-            const resolved = resolvedInterfaces.find(i => i.getType().equals(iface));
+            node.interfaces = node.interfaces.map(iface => {
+                const generic = derivatives.filter(d => d.parent?.is(iface.namespace, iface.name));
 
-            if (resolved) {
-                if (resolved.generics.length === 1) {
-                    const generic = resolved.generics[0];
-
-                    if (generic.propogate) {
-
-                        const constrainedGeneric = node.generics.find(d => generic.constraint && d.constraint?.equals(generic.constraint));
-
-                        if (constrainedGeneric) {
-                            return new GenerifiedTypeIdentifier(iface.name, iface.namespace, [
-                                constrainedGeneric.type
-                            ]);
-                        }
-
-                        if (!generic.defaultType?.equals(node.getType()) && !generic.constraint?.equals(node.getType())) {
-                            node.addGeneric({
-                                constraint: generic.constraint ?? undefined,
-                                default: generic.defaultType ?? undefined,
-                                deriveFrom: resolved.getType()
-                            });
-
-                            const firstGeneric = node.generics[node.generics.length - 1];
-
-                            return new GenerifiedTypeIdentifier(resolved.name, resolved.namespace.name, [
-                                firstGeneric.type
-                            ]);
-                        }
-                    }
-
-                    return new GenerifiedTypeIdentifier(iface.name, iface.namespace, [
-                        node.getType()
-                    ]);
+                if (generic.length > 0) {
+                    return new GenerifiedTypeIdentifier(iface.name, iface.namespace, generic.map(g => g.type));
                 }
-            }
 
-            return iface;
-        });
+                const resolved = resolvedInterfaces.find(i => i.getType().equals(iface));
+
+                if (resolved) {
+                    if (resolved.generics.length === 1) {
+                        const generic = resolved.generics[0];
+
+                        if (generic.propagate) {
+
+                            const constrainedGeneric = node.generics.find(d => generic.constraint && d.constraint?.equals(generic.constraint));
+
+                            if (constrainedGeneric) {
+                                return new GenerifiedTypeIdentifier(iface.name, iface.namespace, [
+                                    constrainedGeneric.type
+                                ]);
+                            }
+
+                            if (!generic.defaultType?.equals(node.getType()) && !generic.constraint?.equals(node.getType())) {
+                                node.addGeneric({
+                                    constraint: generic.constraint ?? undefined,
+                                    default: generic.defaultType ?? undefined,
+                                    deriveFrom: resolved.getType()
+                                });
+
+                                const firstGeneric = node.generics[node.generics.length - 1];
+
+                                return new GenerifiedTypeIdentifier(resolved.name, resolved.namespace.name, [
+                                    firstGeneric.type
+                                ]);
+                            }
+                        }
+
+                        return new GenerifiedTypeIdentifier(iface.name, iface.namespace, [
+                            node.getType()
+                        ]);
+                    }
+                }
+
+                return iface;
+            });
+        }
 
         if (node.parent) {
             const parentType = node.parent;
@@ -141,7 +145,7 @@ export class GenericVisitor extends GirVisitor {
                 if (resolved?.generics.length === 1) {
                     const [generic] = resolved.generics;
 
-                    if (generic.propogate) {
+                    if (generic.propagate) {
                         const constrainedGeneric = node.generics.find(d => generic.constraint && d.constraint?.equals(generic.constraint));
 
                         if (constrainedGeneric) {
@@ -161,13 +165,13 @@ export class GenericVisitor extends GirVisitor {
                                 node.parent = new GenerifiedTypeIdentifier(resolved.name, resolved.namespace.name, [
                                     firstGeneric.type
                                 ]);
-                            } else if (node.resolveParents().class_parents.some(([, c]) => generic.defaultType && c.getType().equals(generic.defaultType))) {
+                            } else if ([...node.resolveParents()].some((c) => generic.defaultType && c.identifier.equals(generic.defaultType))) {
                                 node.parent = new GenerifiedTypeIdentifier(resolved.name, resolved.namespace.name, [
                                     node.getType()
                                 ]);
                             }
                         }
-                    } else if (node.resolveParents().class_parents.some(([, c]) => generic.defaultType && c.getType().equals(generic.defaultType))) {
+                    } else if ([...node.resolveParents()].some((c) => generic.defaultType && c.identifier.equals(generic.defaultType))) {
                         node.parent = new GenerifiedTypeIdentifier(resolved.name, resolved.namespace.name, [
                             node.getType()
                         ]);
@@ -229,7 +233,7 @@ export class GenericVisitor extends GirVisitor {
         const shouldGenerify = unwrapped instanceof TypeIdentifier && unwrapped.is("GObject", "Object");
 
         if (shouldGenerify) {
-            const genericReturnType = new GenericType("T");
+            const genericReturnType = new GenericType("T", unwrapped);
 
             const copied = node.copy({
                 return_type: genericReturnType
@@ -251,7 +255,7 @@ export class GenericVisitor extends GirVisitor {
         }
 
         if (unwrapped instanceof TypeIdentifier && unwrapped.is("GObject", "Object")) {
-            const genericReturnType = new GenericType("T");
+            const genericReturnType = new GenericType("T", unwrapped);
 
             const copied = node.copy({
                 returnType: genericReturnType

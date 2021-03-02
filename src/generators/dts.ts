@@ -11,8 +11,6 @@ import {
   GirClass,
   filterConflicts,
   filterFunctionConflict,
-  resolveParents,
-  resolveTypeIdentifier,
   FilterBehavior,
   promisifyFunctions
 } from "../gir/class";
@@ -34,7 +32,10 @@ import {
   ArrayType,
   GirBase,
   AnyFunctionType,
-  Generic
+  Generic,
+  ConflictType,
+  TypeConflict,
+  BinaryType,
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias";
@@ -216,7 +217,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       .print(namespace, options)};`;
   }
 
-  private implements(node: GirBaseClass) {
+  private implements(node: GirClass) {
     const { namespace, options } = this;
 
     const interfaces = node.interfaces
@@ -255,9 +256,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   generateInterface(node: GirInterface): string {
     const { namespace, options } = this;
 
-    const resolved_parents = resolveParents(node.parent, namespace);
-
-    const isGObject = resolved_parents.some(([, p]) => p.namespace.name === "GObject" && p.name === "Object");
+    const isGObject = node.someParent((p) => p.namespace.name === "GObject" && p.name === "Object");
 
     const name = node.name;
 
@@ -272,17 +271,16 @@ export class DtsGenerator extends FormatGenerator<string> {
     }
 
     const Extends = this.extends(node);
-
-    const filtered_functions = filterFunctionConflict(node.namespace, node.getType(), node.members, resolved_parents, []);
-    const functions = options.promisify ? promisifyFunctions(filtered_functions) : filtered_functions;
+    const filteredFunctions = filterFunctionConflict(node.namespace, node, node.members, []);
+    const functions = options.promisify ? promisifyFunctions(filteredFunctions) : filteredFunctions;
 
     const staticFunctions = functions.filter(f => f instanceof GirStaticClassFunction);
     const staticFields = node.fields.filter(f => f.isStatic).map(f => f.copy({
       isStatic: false
     }));
 
-    const nonstaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
-    const nonstaticFields = node.fields.filter(f => !f.isStatic);
+    const nonStaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
+    const nonStaticFields = node.fields.filter(f => !f.isStatic);
 
     const hasNamespace = isGObject || staticFunctions.length > 0 || node.callbacks.length > 0;
 
@@ -313,33 +311,24 @@ export class DtsGenerator extends FormatGenerator<string> {
     export type ${name}${Generics} = ${name}Prototype${GenericTypes};
     export interface ${name}Prototype${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
     ${node.props.length > 0 ? `// Properties` : ""}
-    ${filterConflicts(node.namespace, node.getType(), node.props, resolved_parents.map(([, p]) => p))
+    ${filterConflicts(node.namespace, node, node.props)
         .map(p => p.asString(this))
         .join(EOL)}
-    ${nonstaticFields.length > 0 ? `// Fields` : ""}
-    ${filterConflicts(node.namespace, node.getType(), nonstaticFields, resolved_parents.map(([, p]) => p))
+    ${nonStaticFields.length > 0 ? `// Fields` : ""}
+    ${filterConflicts(node.namespace, node, nonStaticFields)
         .map(p => p.asString(this))
         .join(EOL)}
-    ${nonstaticFunctions.length > 0 ? `// Members\n` : ""}
-    ${nonstaticFunctions.map(m => m.asString(this)).join(EOL)}
+    ${nonStaticFunctions.length > 0 ? `// Members\n` : ""}
+    ${nonStaticFunctions.map(m => m.asString(this)).join(EOL)}
     }${hasNamespace ? `\n\nexport const ${name}: ${name}Namespace;\n` : ""}`;
   }
 
   generateRecord(node: GirRecord): string {
     const { options, namespace } = this;
-    const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents(
-
-    );
-
-    const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
 
     const { name } = node;
 
-    const implementedProperties = node.implementedProperties(interface_parents);
-    const implementedMethods = node.implementedMethods(interface_parents, implementedProperties);
-
     const Extends = this.extends(node);
-    const Implements = this.implements(node);
 
     let Generics = "";
 
@@ -377,38 +366,23 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const hasCallbacks = node.callbacks.length > 0;
 
-    const Properties = filterConflicts(node.namespace, node.getType(), node.props, resolved_parents.map(([, p]) => p))
+    const Properties = filterConflicts(node.namespace, node, node.props)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Fields = filterConflicts(node.namespace, node.getType(), node.fields, resolved_parents.map(([, p]) => p))
+    const Fields = filterConflicts(node.namespace, node, node.fields)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Constructors = filterConflicts(node.namespace, node.getType(), node.constructors, resolved_parents.map(([, p]) => p))
+    const Constructors = filterConflicts(node.namespace, node, node.constructors)
       .map(v => this.generateConstructorFunction(v))
       .join(EOL);
 
-    const FilteredMembers = filterFunctionConflict(node.namespace, node.getType(), node.members, resolved_parents, []);
+    const FilteredMembers = filterFunctionConflict(node.namespace, node, node.members, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const FilteredImplMethods = filterFunctionConflict(
-      node.namespace,
-      node.getType(),
-      implementedMethods,
-      resolved_parents,
-      []
-    );
-
-    const ImplementedMethods = (options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods)
-      .map(m => m.asString(this))
-      .join(EOL);
-
-    const ImplementedProperties = filterConflicts(node.namespace, node.getType(), implementedProperties, resolved_parents.map(([, p]) => p))
-      .map(m => m.asString(this))
-      .join(EOL);
 
     // So we can use GObject.GType
     this.namespace.assertInstalledImport("GObject");
@@ -420,7 +394,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       : ``
       }
   
-      export class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
+      export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
         static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
         ${MainConstructor}
@@ -431,26 +405,17 @@ export class DtsGenerator extends FormatGenerator<string> {
         
         ${node.fields.length > 0 ? `// Fields` : ""}
         ${Fields}
-        
-        ${implementedProperties.length > 0 ? `// Implemented Properties` : ""}
-        ${ImplementedProperties}
-        
+
         ${node.constructors.length > 0 ? `// Constructors` : ""}
         ${Constructors}
         
         ${node.members.length > 0 ? `// Members` : ""}
         ${Members}
-        
-        ${implementedMethods.length > 0 ? `// Implemented Members` : ""}
-        ${ImplementedMethods}
     }`;
   }
 
   generateClass(node: GirClass): string {
     const { options, namespace } = this;
-    const { class_parents, class_parent_interface_parents, interface_parents } = node.resolveParents();
-
-    const resolved_parents = [...class_parents, ...class_parent_interface_parents, ...interface_parents];
 
     const name = node.name;
 
@@ -467,8 +432,8 @@ export class DtsGenerator extends FormatGenerator<string> {
     const Extends = this.extends(node);
     const Implements = this.implements(node);
 
-    const implementedProperties = node.implementedProperties(interface_parents);
-    const implementedMethods = node.implementedMethods(interface_parents, implementedProperties);
+    const implementedProperties = node.implementedProperties();
+    const implementedMethods = node.implementedMethods(implementedProperties);
 
     let MainConstructor: string = "";
 
@@ -481,40 +446,38 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const ConstructorProps = filterConflicts(
       node.namespace,
-      node.getType(),
-      node.props.filter(prop => !prop.isStatic),
-      // Only filter for extends, not implements.
-      class_parents.map(([, p]) => p)
+      node,
+      // TODO: Include properties from interface parents too.
+      node.props
     )
       .map(v => v.asString(this, true))
       .join(EOL);
 
-    const Properties = filterConflicts(node.namespace, node.getType(), node.props, resolved_parents.map(([, p]) => p))
+    const Properties = filterConflicts(node.namespace, node, node.props)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Fields = filterConflicts(node.namespace, node.getType(), node.fields, resolved_parents.map(([, p]) => p))
+    const Fields = filterConflicts(node.namespace, node, node.fields)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const Constructors = filterFunctionConflict(node.namespace, node.getType(), node.constructors, resolved_parents, [])
+    const Constructors = filterFunctionConflict(node.namespace, node, node.constructors, [])
       .map(v => this.generateConstructorFunction(v))
       .join(EOL);
 
-    const FilteredMembers = filterFunctionConflict(node.namespace, node.getType(), node.members, resolved_parents, []);
+    const FilteredMembers = filterFunctionConflict(node.namespace, node, node.members, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
       .join(EOL);
 
-    const ImplementedProperties = filterConflicts(node.namespace, node.getType(), implementedProperties, resolved_parents.map(([, p]) => p))
+    const ImplementedProperties = filterConflicts(node.namespace, node, implementedProperties)
       .map(m => m.asString(this))
       .join(EOL);
 
     const FilteredImplMethods = filterFunctionConflict(
       node.namespace,
-      node.getType(),
+      node,
       implementedMethods,
-      resolved_parents,
       []
     );
     const ImplementedMethods = (options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods)
@@ -598,9 +561,8 @@ export class DtsGenerator extends FormatGenerator<string> {
 
       default_signals = filterConflicts(
         namespace,
-        node.getType(),
+        node,
         default_signals,
-        resolved_parents.map(([, p]) => p),
         FilterBehavior.DELETE
       );
 
@@ -694,25 +656,80 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
-    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${node.type.resolve(namespace, options).rootPrint(namespace, options) || "any"
-      };`;
+    let { type } = node;
+    if (type instanceof TypeConflict)
+      type = new BinaryType(type.unwrap(), AnyType);
+
+    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${type.resolve(namespace, options).rootPrint(namespace, options)};`;
   }
 
   generateProperty(node: GirProperty, construct: boolean = false): string {
     const { namespace, options } = this;
 
     const invalid = isInvalid(node.name);
-    const Static = node.isStatic ? "static" : "";
-    const ReadOnly = node.writable || construct ? "" : "readonly";
-
-    const Modifier = [Static, ReadOnly].filter(a => a !== "").join(" ");
-
     const Name = invalid ? `"${node.name}"` : node.name;
 
-    let Type =
-      node.type.resolve(namespace, options).rootPrint(namespace, options) || "any";
+    let type = node.type;
+    let getterAnnotation = "";
+    let setterAnnotation = "";
+    let getterSetterAnnotation = "";
 
-    return `${Modifier} ${Name}: ${Type};`;
+    if (type instanceof TypeConflict) {
+      switch (type.conflictType) {
+        case ConflictType.FUNCTION_NAME_CONFLICT:
+        case ConflictType.FIELD_NAME_CONFLICT:
+          getterSetterAnnotation = setterAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
+                  // @ts-expect-error\n`;
+        case ConflictType.ACCESSOR_PROPERTY_CONFLICT:
+          getterSetterAnnotation = getterAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
+                  // @ts-expect-error\n`;
+          type = type.unwrap();
+          break;
+        case ConflictType.PROPERTY_ACCESSOR_CONFLICT:
+          type = new BinaryType(type.unwrap(), AnyType);
+          break;
+        case ConflictType.PROPERTY_NAME_CONFLICT:
+          getterSetterAnnotation = setterAnnotation = getterAnnotation = `// This accessor conflicts with another accessor's type in a parent class or interface.
+                  // @ts-expect-error\n`;
+          type = type.unwrap();
+          break;
+      }
+
+      if (construct && !(type instanceof BinaryType)) {
+        // For constructor properties we just convert to any.
+        type = new BinaryType(type, AnyType);
+      }
+    }
+
+    let Type =
+      type.resolve(namespace, options).rootPrint(namespace, options) || "any";
+
+    if (construct) {
+      return `${Name}: ${Type};`;
+    }
+
+    const { readable, writable, constructOnly } = node;
+
+    let hasGetter = readable;
+    let hasSetter = writable && !constructOnly;
+
+
+    if (node.parent instanceof GirInterface) {
+      if (!hasSetter && hasGetter) {
+        return `readonly ${Name}: ${Type};`;
+      } else {
+        return `${Name}: ${Type};`;
+      }
+    }
+
+    if (hasGetter && hasSetter) {
+      return `${getterAnnotation} get ${Name}(): ${Type};
+              ${setterAnnotation} set ${Name}(val: ${Type});`;
+    } else if (hasGetter) {
+      return `${getterSetterAnnotation} get ${Name}(): ${Type};`;
+    } else {
+      return `${getterSetterAnnotation} set ${Name}(val: ${Type});`;
+    }
   }
 
   generateSignal(node: GirSignal, type: GirSignalType = GirSignalType.CONNECT): string {
@@ -777,7 +794,8 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const invalid = isInvalid(node.name);
     const name = invalid ? `["${node.name}"]` : node.name;
-    return `static ${name}(${Parameters}): ${node
+    const warning = node.getWarning();
+    return `${warning ? `${warning}\n` : ""}static ${name}(${Parameters}): ${node
       .return()
       .resolve(namespace, options)
       .rootPrint(namespace, options)};`;
@@ -806,7 +824,8 @@ export class DtsGenerator extends FormatGenerator<string> {
       return `${invalid ? `["${node.name}"]` : node.name}: ${Generics}((${Parameters}) => ${ReturnType}) | any;`;
     }
 
-    return `${invalid ? `["${node.name}"]` : node.name}${Generics}(${Parameters}): ${ReturnType};`;
+    const warning = node.getWarning();
+    return `${warning ? `${warning}\n` : ""}${invalid ? `["${node.name}"]` : node.name}${Generics}(${Parameters}): ${ReturnType};`;
   }
 
   generateStaticClassFunction(node: GirStaticClassFunction): string {
@@ -817,7 +836,8 @@ export class DtsGenerator extends FormatGenerator<string> {
       node.output_parameters
     );
 
-    return `static ${node.name}${Generics}(${this.generateParameters(node.parameters)}): ${ReturnType};`;
+    const warning = node.getWarning();
+    return `${warning ? `${warning}\n` : ""}static ${node.name}${Generics}(${this.generateParameters(node.parameters)}): ${ReturnType};`;
   }
 
   generateAlias(node: GirAlias): string {
