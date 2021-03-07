@@ -911,7 +911,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = Array.from(node.imports.entries());
+      const imports = node.getImports();
 
       const raw_output = {
         kind: NodeKind.namespace,
