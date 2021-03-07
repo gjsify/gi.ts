@@ -943,7 +943,6 @@ export class GirRecord extends GirBaseClass {
   }
 
   findParent(predicate: (p: GirRecord) => boolean): GirRecord | undefined {
-
     const resolution = this.resolveParents();
 
     const parent = resolution.extends();
@@ -960,8 +959,6 @@ export class GirRecord extends GirBaseClass {
   }
 
   findParentMap<K>(predicate: (p: GirRecord) => K | undefined): K | undefined {
-
-
     const resolution = this.resolveParents();
 
     const parent = resolution.extends();

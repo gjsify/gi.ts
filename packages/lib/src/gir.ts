@@ -167,11 +167,7 @@ export class TypeIdentifier extends TypeExpression {
       throw new Error(`Unable to resolve type ${type.name} in same namespace ${ns_name}!`);
     }
 
-    if (type.namespace) {
-      throw new Error(`Type ${type.namespace}.${type.name} could not be resolved in ${namespace.name}`);
-    } else {
-      throw new Error(`Type ${type.name} could not be resolved in ${namespace.name}`)
-    }
+    throw new Error(`Type ${type.namespace}.${type.name} could not be resolved in ${namespace.name}`);
   }
 
   resolveIdentifier(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
