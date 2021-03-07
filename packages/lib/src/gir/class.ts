@@ -874,7 +874,7 @@ export class GirClass extends GirBaseClass {
           if (
             type && type.namespace &&
             type.namespace !== modName &&
-            !ns.imports.has(type.namespace)) {
+            !ns.hasImport(type.namespace)) {
             ns.addImport(type.namespace);
           }
 

@@ -903,7 +903,7 @@ export class DtsGenerator extends FormatGenerator<string> {
         .join(EOL);
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = Array.from(node.imports.entries())
+      const imports = Array.from(node.getImports())
         .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
         .join(`${EOL}`);
 

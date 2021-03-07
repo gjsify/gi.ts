@@ -82,9 +82,11 @@ export class GirNamespace {
   readonly version: string;
   readonly c_prefix: string;
 
-  private _imports!: Map<string, string>;
-  private _members!: Map<string, GirNSMember | GirNSMember[]>;
-  private _enum_constants!: Map<string, readonly [string, string]>;
+  private imports: Map<string, string> = new Map();
+
+  private _default_imports?: Map<string, string>;
+  private _members?: Map<string, GirNSMember | GirNSMember[]>;
+  private _enum_constants?: Map<string, readonly [string, string]>;
 
   package_version!: readonly [string, string] | readonly [string, string, string];
   parent!: GirNSRegistry;
@@ -103,12 +105,12 @@ export class GirNamespace {
     return this._members;
   }
 
-  get imports(): Map<string, string> {
-    if (!this._imports) {
-      this._imports = new Map<string, string>();
+  get default_imports(): Map<string, string> {
+    if (!this._default_imports) {
+      this._default_imports = new Map<string, string>();
     }
 
-    return this._imports;
+    return this._default_imports;
   }
 
   get enum_constants(): Map<string, readonly [string, string]> {
@@ -139,12 +141,12 @@ export class GirNamespace {
     return this.parent.namespacesForPrefix(c_prefix);
   }
 
-  private hasImport(name: string): boolean {
-    return this.imports.has(name);
+  hasImport(name: string): boolean {
+    return this.default_imports.has(name) || this.imports.has(name);
   }
 
   private _getImport(name: string): GirNamespace | null {
-    let version = this.imports.get(name);
+    let version = this.default_imports.get(name) ?? this.imports.get(name);
 
     if (name === this.name) {
       return this;
@@ -173,6 +175,10 @@ export class GirNamespace {
     }
 
     return namespace;
+  }
+
+  getImports(): [string, string][] {
+    return [...this.imports.entries()].sort(([[a], [b]]) => a.localeCompare(b));
   }
 
   addImport(ns_name: string, version?: string) {
@@ -294,7 +300,7 @@ export class GirNamespace {
     includes.map(i => [i.$.name, i.$.version] as const)
       .forEach(
         ([name, version]) => {
-          building.imports.set(name, version)
+          building.default_imports.set(name, version)
         }
       );
 

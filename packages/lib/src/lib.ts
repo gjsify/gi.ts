@@ -40,7 +40,7 @@ export function generateModule(options: GenerationOptions, registry: GirNSRegist
             name: ns.name,
             api_version: ns.version,
             package_version: ns.package_version.join('.'),
-            imports: Object.fromEntries(ns.imports.entries()),
+            imports: Object.fromEntries(ns.getImports()),
         };
 
         const formatter = registry.getFormatter('dts');
@@ -68,7 +68,7 @@ export function generateJson(options: GenerationOptions, registry: GirNSRegistry
             name: ns.name,
             api_version: ns.version,
             package_version: ns.package_version.join('.'),
-            imports: Object.fromEntries(ns.imports.entries()),
+            imports: Object.fromEntries(ns.getImports()),
         };
 
         const formatter = registry.getFormatter('json');
