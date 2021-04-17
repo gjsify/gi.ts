@@ -106,8 +106,6 @@ export type Property<K extends ParamSpec> = K extends ParamSpecBoolean
     ? E
     : K extends ParamSpecBoxed<infer B>
     ? B
-    : K extends ParamSpecVariant
-    ? GLib.Variant
     : any;
 
 export type Properties<

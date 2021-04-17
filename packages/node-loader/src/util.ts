@@ -2,6 +2,7 @@
 import { sync as Dirglob } from "glob";
 
 import * as fs from "fs";
+import * as path from "path";
 
 // Depends on: sax, xmlbuilder, util.promisify
 import { Parser as XMLParser } from "xml2js";
@@ -99,7 +100,8 @@ export function generateAll(gir_dir?: string): string[] {
     } else if (XDG_DATA_DIRS) {
         glob = XDG_DATA_DIRS.split(":")
             .map(dir => {
-                return [`${dir}/*.gir`, `${dir}/gir-1.0/*.gir`];
+                const resolved = path.resolve(dir);
+                return [`${resolved}/*.gir`, `${resolved}/gir-1.0/*.gir`];
             })
             .reduce((prev, [dir, girdir]) => [...prev, ...Dirglob(dir), ...Dirglob(girdir)], []);
     } else {

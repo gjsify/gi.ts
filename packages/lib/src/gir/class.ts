@@ -915,7 +915,7 @@ export class GirClass extends GirBaseClass {
         );
       }
     } catch (e) {
-      console.error(`Failed to parse class: ${clazz.name}.`);
+      console.error(`Failed to parse class: ${clazz.name} in ${ns.name}.`);
       console.error(e);
     }
 
