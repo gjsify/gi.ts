@@ -43,6 +43,7 @@ import { GenerationOptions } from "../types";
 
 import { override as overrideGLib } from "./dts/glib";
 import { override as overrideGObject } from "./dts/gobject";
+import { override as overrideGio } from "./dts/gio";
 
 export class DtsGenerator extends FormatGenerator<string> {
   namespace: GirNamespace;
@@ -876,6 +877,8 @@ export class DtsGenerator extends FormatGenerator<string> {
       suffix = `\n${overrideGLib(node)}\n`;
     } else if (node.name === 'GObject') {
       suffix = `\n${overrideGObject(node)}\n`;
+    } else if (node.name === 'Gio') {
+      suffix = `\n${overrideGio(node)}\n`;
     }
 
     try {

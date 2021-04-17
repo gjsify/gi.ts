@@ -27,22 +27,26 @@ export default {
 
         Widget.addGeneric({
             deriveFrom: Actor.getType(),
-            default: LayoutManager.getType()
+            default: LayoutManager.getType(),
+            constraint: LayoutManager.getType()
         });
 
         Widget.addGeneric({
             deriveFrom: Actor.getType(),
-            default: Content.getType()
+            default: Content.getType(),
+            constraint: Content.getType()
         });
 
         Viewport.addGeneric({
             deriveFrom: Widget.getType(),
-            default: LayoutManager.getType()
+            default: LayoutManager.getType(),
+            constraint: LayoutManager.getType()
         });
 
         Viewport.addGeneric({
             deriveFrom: Widget.getType(),
-            default: Content.getType()
+            default: Content.getType(),
+            constraint: Content.getType()
         });
 
         Container.addGeneric({
