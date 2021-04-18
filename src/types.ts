@@ -1,5 +1,5 @@
 export type PropertyCase = "both" | "camel" | "underscore";
-export type Format = "dts" | "json";
+export type Format = "dts" | "json" | string;
 
 export interface Options {
     verbose: boolean;
@@ -15,6 +15,8 @@ export interface TransformOptions extends Options {
 }
 
 export interface GenerationOptions extends Options {
+    [key: string]: boolean | string | number | undefined;
+    outputPath?: string;
     promisify: boolean;
     withDocs: boolean;
     format: Format;
