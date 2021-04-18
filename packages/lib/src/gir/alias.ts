@@ -1,7 +1,7 @@
 import { GirBase, TypeExpression } from "../gir";
 import { AliasElement } from "@gi.ts/parser";
 import { GirNamespace } from "./namespace";
-import { sanitizeIdentifierName, getAliasType } from "./util";
+import { sanitizeIdentifierName, getAliasType, parseDoc, parseMetadata } from "./util";
 import { FormatGenerator, GenericDescriptor } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
@@ -34,16 +34,16 @@ export class GirAlias extends GirBase {
   }
 
   copy(options?: { parent?: undefined; type?: TypeExpression }): GirAlias {
-    const { name, type  } = this;
+    const { name, type } = this;
 
     return new GirAlias({ name, type: options?.type ?? type })._copyBaseProperties(this);
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T | null {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateAlias"]> | null {
     return generator.generateAlias(this);
   }
 
-  static fromXML(modName: string, ns: GirNamespace, _options: LoadOptions, _parent, m: AliasElement): GirAlias | null {
+  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, _parent, m: AliasElement): GirAlias | null {
     if (!m.$.name) {
       console.error(`Alias in ${modName} lacks name.`);
       return null;
@@ -53,6 +53,11 @@ export class GirAlias extends GirBase {
       name: sanitizeIdentifierName(ns.name, m.$.name),
       type: getAliasType(modName, ns, m)
     });
+
+    if (options.loadDocs) {
+      alias.doc = parseDoc(m);
+      alias.metadata = parseMetadata(m);
+    }
 
     return alias;
   }

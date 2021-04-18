@@ -46,13 +46,9 @@ import { override as overrideGObject } from "./dts/gobject";
 import { override as overrideGio } from "./dts/gio";
 
 export class DtsGenerator extends FormatGenerator<string> {
-  namespace: GirNamespace;
-  options: GenerationOptions;
 
   constructor(namespace: GirNamespace, options: GenerationOptions) {
-    super();
-    this.namespace = namespace;
-    this.options = options;
+    super(namespace, options);
   }
 
   private generateParameters(parameters: GirFunctionParameter[]): string {
@@ -736,9 +732,9 @@ export class DtsGenerator extends FormatGenerator<string> {
   generateSignal(node: GirSignal, type: GirSignalType = GirSignalType.CONNECT): string {
     switch (type) {
       case GirSignalType.CONNECT:
-        return node.asConnect(this, false).asString(this);
+        return node.asConnect(false).asString(this);
       case GirSignalType.CONNECT_AFTER:
-        return node.asConnect(this, true).asString(this);
+        return node.asConnect(true).asString(this);
       case GirSignalType.EMIT:
         return node.asEmit().asString(this);
     }
@@ -861,7 +857,7 @@ export class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateVirtualClassFunction(node: GirVirtualClassFunction): string {
-    return node.asString(this);
+    return this.generateClassFunction(node);
   }
 
   generateNamespace(node: GirNamespace): string | null {

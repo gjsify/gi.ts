@@ -1,5 +1,5 @@
-import { GirNamespace } from "./namespace";
-import { ClassMethodParameter, Direction, AliasElement } from "@gi.ts/parser";
+import { deprecatedVersion, GirNamespace, introducedVersion, isDeprecated } from "./namespace";
+import { ClassMethodParameter, Direction, AliasElement, DocElement, NamespacedElement, DocDeprecatedElement } from "@gi.ts/parser";
 import {
   TypeIdentifier,
   ThisType,
@@ -19,7 +19,8 @@ import {
   NeverType,
   VoidType,
   GenerifiedTypeIdentifier,
-  GenericType
+  GenericType,
+  GirMetadata
 } from "../gir";
 import { GirBaseClass } from "./class";
 import { TwoKeyMap } from "../util";
@@ -276,6 +277,34 @@ export function isInvalid(name: string): boolean {
   }
 
   return false;
+}
+
+export function parseDoc(element: { doc?: DocElement[] }): string | null {
+  return element.doc?.[0]?.["#text"] ?? null;
+}
+
+type ElementWithDeprecatedDoc = { ["doc-deprecated"]?: DocDeprecatedElement[] };
+
+export function parseDeprecatedDoc(element: ElementWithDeprecatedDoc): string | null {
+  return element["doc-deprecated"]?.[0]?.["#text"] ?? null;
+}
+
+export function parseMetadata(element: NamespacedElement<{}> & ElementWithDeprecatedDoc): GirMetadata | undefined {
+  const version = introducedVersion(element);
+  const deprecatedIn = deprecatedVersion(element);
+  const deprecated = isDeprecated(element);
+  const doc = parseDeprecatedDoc(element);
+
+  if (!version && !deprecated && !deprecatedIn && !doc) {
+    return undefined;
+  }
+
+  return {
+    ...(deprecated ? { deprecated } : {}),
+    ...(doc ? { deprecatedDoc: doc } : {}),
+    ...(deprecatedIn ? { deprecatedVersion: deprecatedIn } : {}),
+    ...(version ? { introducedVersion: version } : {})
+  };
 }
 
 export function parseTypeString(type: string): { namespace: string | null; name: string } {

@@ -5,9 +5,17 @@ import { GenerationOptions, LoadOptions } from "./types";
 import { sanitizeIdentifierName } from "./gir/util";
 import { GirVisitor } from "./visitor";
 
+export interface GirMetadata {
+  deprecated?: boolean;
+  deprecatedVersion?: string;
+  deprecatedDoc?: string;
+  introducedVersion?: string;
+};
+
 export abstract class GirBase {
   name: string;
-  doc?: string;
+  doc?: string | null;
+  metadata?: GirMetadata;
   deprecated?: boolean;
   resolve_names: string[] = [];
   private _emit = true;
@@ -41,6 +49,7 @@ export abstract class GirBase {
 
   protected _copyBaseProperties(from: this): this {
     this.doc = from.doc;
+    this.metadata = from.metadata;
     this.deprecated = from.deprecated;
     this.resolve_names = from.resolve_names;
 
@@ -63,7 +72,7 @@ export abstract class GirBase {
     throw new Error("GirBase cannot be instantiated");
   }
 
-  abstract asString<T = string>(generator: FormatGenerator<T>): T | null;
+  abstract asString<T extends FormatGenerator<K>, K extends any>(generator: T): K | null;
 }
 
 export abstract class TypeExpression {
@@ -782,3 +791,4 @@ export const UnknownType = new NativeType("unknown");
 export const AnyFunctionType = new NativeType("(...args: any[]) => any");
 
 export type GirClassField = GirProperty | GirField;
+

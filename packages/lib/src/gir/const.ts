@@ -2,7 +2,7 @@ import { GirBase, TypeExpression } from "../gir";
 import { ConstantElement } from "@gi.ts/parser";
 
 import { GirNamespace } from "./namespace";
-import { getType, sanitizeIdentifierName } from "./util";
+import { getType, parseDoc, parseMetadata, sanitizeIdentifierName } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
@@ -47,13 +47,14 @@ export class GirConst extends GirBase {
     });
 
     if (options.loadDocs) {
-      c.doc = constant.doc?.[0]?._ ?? "";
+      c.doc = parseDoc(constant);
+      c.metadata = parseMetadata(constant);
     }
 
     return c;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateConst"]> {
     return generator.generateConst(this);
   }
 }

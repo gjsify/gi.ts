@@ -10,6 +10,7 @@ import { GirStaticClassFunction } from "../gir/function";
 import { GirVirtualClassFunction } from "../gir/function";
 import { GirAlias } from "../gir/alias";
 import { TypeExpression } from "../gir";
+import { GenerationOptions } from "../types";
 
 export interface GenericDescriptor {
   type: TypeExpression;
@@ -17,6 +18,14 @@ export interface GenericDescriptor {
 }
 
 export abstract class FormatGenerator<T = string> {
+  protected namespace: GirNamespace;
+  protected options: GenerationOptions;
+
+  constructor(namespace: GirNamespace, options: GenerationOptions) {
+    this.namespace = namespace;
+    this.options = options;
+  }
+  
   abstract generateNamespace(node: GirNamespace): string | null;
 
   abstract generateCallback(node: GirCallback): T;

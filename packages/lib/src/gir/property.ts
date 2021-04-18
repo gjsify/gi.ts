@@ -57,7 +57,7 @@ export class GirField extends GirBase {
     this.writable = writable;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateField"]> {
     return generator.generateField(this);
   }
 
@@ -137,7 +137,7 @@ export class GirProperty extends GirBase {
     this.parent = parent;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>, construct?: boolean): T {
+  asString<T extends FormatGenerator<any>>(generator: T, construct?: boolean): ReturnType<T["generateProperty"]> {
     return generator.generateProperty(this, construct);
   }
 

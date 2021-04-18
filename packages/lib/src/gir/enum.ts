@@ -5,7 +5,7 @@ import { GirComplexRecord, GirRecord } from "./class";
 import { GirField } from "./property";
 import { GirStaticClassFunction } from "./function";
 import { GirNamespace } from "./namespace";
-import { sanitizeIdentifierName, sanitizeMemberName } from "./util";
+import { parseDoc, parseMetadata, sanitizeIdentifierName, sanitizeMemberName } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
@@ -55,7 +55,7 @@ export class GirEnum extends GirBase {
     return new TypeIdentifier(this.name, this.ns);
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T | null {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateEnum"]> | null {
     return generator.generateEnum(this);
   }
 
@@ -96,12 +96,13 @@ export class GirEnum extends GirBase {
       em.resolve_names.push(m.$["c:type"]);
     }
 
-    if (!m.member) {
-      return em;
+    if (options.loadDocs) {
+      em.doc = parseDoc(m);
+      em.metadata = parseMetadata(m);
     }
 
-    if (options.loadDocs) {
-      em.doc = m.doc?.[0]._ ?? "";
+    if (!m.member) {
+      return em;
     }
 
     m.member.forEach(m => {
@@ -139,17 +140,24 @@ export class GirEnumMember extends GirBase {
   static fromXML(
     _: string,
     _ns: GirNamespace,
-    _options: LoadOptions,
+    options: LoadOptions,
     _parent,
     m: MemberElement
   ): GirEnumMember {
     const upper = m.$.name.toUpperCase();
     const c_identifier = m.$["c:identifier"];
 
-    return new GirEnumMember(upper, m.$.value, c_identifier);
+    const enumMember = new GirEnumMember(upper, m.$.value, c_identifier);
+
+    if (options.loadDocs) {
+      enumMember.doc = parseDoc(m);
+      enumMember.metadata = parseMetadata(m);
+    }
+
+    return enumMember;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateEnumMember"]> {
     return generator.generateEnumMember(this);
   }
 }
@@ -161,7 +169,7 @@ function isEnumeration(e: unknown): e is Enumeration {
 export class GirError extends GirEnum {
   functions: Map<string, GirStaticClassFunction> = new Map();
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateError"]> {
     return generator.generateError(this);
   }
 
@@ -204,7 +212,8 @@ export class GirError extends GirEnum {
     }
 
     if (options.loadDocs) {
-      err.doc = m.doc?.[0]._ ?? "";
+      err.doc = parseDoc(m);
+      err.metadata = parseMetadata(m);
     }
 
     if (m.member) {
