@@ -11,9 +11,16 @@ This project converts GObject Introspection XML files into highly accurate TypeS
 
 All packages are located under `packages/`
 
+Core Packages:
 - @gi.ts/lib - Type generation and inference
 - @gi.ts/parser - GIR Parser
 - @gi.ts/cli - CLI
+
+Node-Specific Utilities:
+- @gi.ts/node-loader - File loading
+
+Other:
+- @gi.ts/generator-html - An experimental generator for .html documentation
 
 ## Usage 
 
