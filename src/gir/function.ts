@@ -22,7 +22,7 @@ import {
 } from "@gi.ts/parser";
 
 import { GirNamespace } from "./namespace";
-import { getType, isInvalid, sanitizeMemberName, sanitizeIdentifierName, resolveDirectedType } from "./util";
+import { getType, isInvalid, sanitizeMemberName, sanitizeIdentifierName, resolveDirectedType, parseDoc, parseMetadata } from "./util";
 import { GirBaseClass } from "./class";
 import { GirEnum } from "./enum";
 import { GirSignal } from "./signal";
@@ -208,7 +208,8 @@ export class GirFunction extends GirBase {
     });
 
     if (options.loadDocs) {
-      fn.doc = func.doc?.[0]?._ ?? "";
+      fn.doc = parseDoc(func);
+      fn.metadata = parseMetadata(func);
     }
 
     return fn;
@@ -248,7 +249,7 @@ export class GirFunction extends GirBase {
     return new GirStaticClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateFunction"]> {
     return generator.generateFunction(this);
   }
 }
@@ -309,7 +310,7 @@ export class GirConstructor extends GirBase {
     return this.return_type;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateConstructor"]> {
     return generator.generateConstructor(this);
   }
 }
@@ -334,7 +335,7 @@ export class GirFunctionParameter extends GirBase {
     parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
     type: TypeExpression;
     direction: Direction;
-    doc?: string;
+    doc?: string | null;
     isVarArgs?: boolean;
     isOptional?: boolean;
   }) {
@@ -378,7 +379,7 @@ export class GirFunctionParameter extends GirBase {
     return visitor.visitParameter?.(node) ?? node;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateParameter"]> {
     return generator.generateParameter(this);
   }
 
@@ -438,7 +439,8 @@ export class GirFunctionParameter extends GirBase {
     });
 
     if (options.loadDocs) {
-      fp.doc = parameter.doc?.[0]?._ ?? "";
+      fp.doc = parseDoc(parameter);
+      fp.metadata = parseMetadata(parameter);
     }
 
     return fp;
@@ -469,7 +471,7 @@ export class GirClassFunction extends GirBase {
     output_parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirBaseClass | GirEnum;
-    doc?: string;
+    doc?: string | null;
   }) {
     super(name);
 
@@ -573,7 +575,7 @@ export class GirClassFunction extends GirBase {
     return this.return_type;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateClassFunction"]> {
     return generator.generateClassFunction(this);
   }
 }
@@ -592,7 +594,7 @@ export class GirVirtualClassFunction extends GirClassFunction {
     output_parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirBaseClass;
-    doc?: string;
+    doc?: string | null;
   }) {
     super({
       parent,
@@ -633,10 +635,14 @@ export class GirVirtualClassFunction extends GirClassFunction {
 
     return fn.asVirtualClassFunction(parent);
   }
+
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateVirtualClassFunction"]> {
+    return generator.generateVirtualClassFunction(this);
+  }
 }
 
 export class GirStaticClassFunction extends GirClassFunction {
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateStaticClassFunction"]> {
     return generator.generateStaticClassFunction(this);
   }
 
@@ -728,7 +734,7 @@ export class GirCallback extends GirFunction {
     return cb;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateCallback"]> {
     return generator.generateCallback(this);
   }
 }

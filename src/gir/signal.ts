@@ -3,7 +3,7 @@ import { GirNamespace } from "./namespace";
 import { GirClass } from "./class";
 import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
 import { ClassGLibSignalElement, Direction } from "@gi.ts/parser";
-import { getType } from "./util";
+import { getType, parseDoc, parseMetadata } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
@@ -83,7 +83,8 @@ export class GirSignal extends GirBase {
     signal.return_type = getType(modName, ns, sig["return-value"][0]);
 
     if (options.loadDocs) {
-      signal.doc = sig.doc?.[0]._ ?? "";
+      signal.doc = parseDoc(sig);
+      signal.metadata = parseMetadata(sig);
     }
 
     return signal;
@@ -118,7 +119,7 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asConnect<T = string>(generator: FormatGenerator<T>, after = false) {
+  asConnect(after = false) {
     const connect = this.copy();
 
     const name = after ? "connect_after" : "connect";
@@ -158,7 +159,7 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asString<T = string>(generator: FormatGenerator<T>, type?: GirSignalType): T {
+  asString<T extends FormatGenerator<any>>(generator: T, type?: GirSignalType): ReturnType<T["generateProperty"]> {
     return generator.generateSignal(this, type);
   }
 }

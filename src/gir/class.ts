@@ -19,7 +19,7 @@ import {
   ConflictType,
   TypeConflict
 } from "../gir";
-import { InterfaceElement, Element, ClassElement, RecordElement, Direction } from "@gi.ts/parser";
+import { InterfaceElement, NamespacedElement, ClassElement, RecordElement, Direction } from "@gi.ts/parser";
 import {
   GirClassFunction,
   GirVirtualClassFunction,
@@ -30,8 +30,8 @@ import {
   GirFunctionParameter
 } from "./function";
 import { GirProperty, GirField } from "./property";
-import { GirNamespace } from "./namespace";
-import { sanitizeIdentifierName, parseTypeIdentifier, isSubtypeOf, resolveTypeIdentifier } from "./util";
+import { GirNamespace, isIntrospectable } from "./namespace";
+import { sanitizeIdentifierName, parseTypeIdentifier, isSubtypeOf, resolveTypeIdentifier, parseDoc, parseMetadata } from "./util";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
@@ -225,7 +225,7 @@ export function filterFunctionConflict<
         } else if (next instanceof GirClassFunction) {
           never = new GirClassFunction({ ...neverOptions, parent: next.parent });
         } else {
-          throw new Error(`Unknown function type ${next.constructor.name} encountered.`);
+          throw new Error(`Unknown function type ${Object.getPrototypeOf(next)?.name} encountered.`);
         }
 
         if (msg)
@@ -439,8 +439,6 @@ export abstract class GirBaseClass extends GirBase {
 
   abstract asString<T = string>(generator: FormatGenerator<T>): T;
 }
-
-const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
 
 // These should never be overriden by fields/methods
 // TODO Do we need "draw" and "show_all" still?
@@ -769,7 +767,8 @@ export class GirClass extends GirBaseClass {
     const clazz = new GirClass(name, ns);
 
     if (options.loadDocs) {
-      clazz.doc = klass.doc?.[0]?._ ?? "";
+      clazz.doc = parseDoc(klass);
+      clazz.metadata = parseMetadata(klass);
     }
 
     if (klass.$["glib:type-name"]) {
@@ -865,7 +864,7 @@ export class GirClass extends GirBaseClass {
       }
 
       if (klass.implements) {
-        klass.implements.filter(isIntrospectable).forEach(implementee => {
+        klass.implements.forEach(implementee => {
           const name = implementee.$.name;
           const type = parseTypeIdentifier(modName, name);
 
@@ -922,7 +921,7 @@ export class GirClass extends GirBaseClass {
     return clazz;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateClass"]> {
     return generator.generateClass(this);
   }
 }
@@ -1068,6 +1067,11 @@ export class GirRecord extends GirBaseClass {
 
     const clazz = new GirRecord({ name, namespace });
 
+    if (options.loadDocs) {
+      clazz.doc = parseDoc(klass);
+      clazz.metadata = parseMetadata(klass);
+    }
+
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
     }
@@ -1172,7 +1176,7 @@ export class GirRecord extends GirBaseClass {
     return this.fields.every(f => isSimpleType(f.type));
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateRecord"]> {
     return generator.generateRecord(this);
   }
 }
@@ -1321,6 +1325,11 @@ export class GirInterface extends GirBaseClass {
 
     const clazz = new GirInterface({ name, namespace });
 
+    if (options.loadDocs) {
+      clazz.doc = parseDoc(klass);
+      clazz.metadata = parseMetadata(klass);
+    }
+
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
     }
@@ -1417,7 +1426,7 @@ export class GirInterface extends GirBaseClass {
     return clazz;
   }
 
-  asString<T = string>(generator: FormatGenerator<T>): T {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateInterface"]> {
     return generator.generateInterface(this);
   }
 }
