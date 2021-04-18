@@ -2,9 +2,12 @@ import { GirXML } from "@gi.ts/parser";
 import { DefaultFormatter } from "../formatters/default";
 import { Formatter } from "../formatters/formatter";
 import { JSONFormatter } from "../formatters/json";
+import { DtsGenerator } from "../generators/dts";
+import { JsonGenerator } from "../generators/json";
+import { FormatGenerator } from "../generators/generator";
 import { generify } from "../generics/generify";
 import { inject } from "../injections/inject";
-import { LoadOptions, TransformOptions } from "../types";
+import { GenerationOptions, LoadOptions, TransformOptions } from "../types";
 import { TwoKeyMap } from "../util";
 import { ClassVisitor } from "../validators/class";
 import { InterfaceVisitor } from "../validators/interface";
@@ -16,9 +19,12 @@ export interface GirNSLoader {
     loadAll(namespace: string): GirXML[];
 }
 
+type GeneratorConstructor<T> = { new(namespace: GirNamespace, options: GenerationOptions, ...args: any[]): FormatGenerator<T> };
+
 export class GirNSRegistry {
     mapping: TwoKeyMap<string, string, GirNamespace> = new TwoKeyMap();
     private formatters: Map<string, Formatter> = new Map();
+    private generators: Map<string, GeneratorConstructor<any>> = new Map();
     c_mapping: Map<string, GirNamespace[]> = new Map();
     transformations: GirVisitor[] = [];
     loaders: [GirNSLoader, LoadOptions][] = [];
@@ -43,6 +49,54 @@ export class GirNSRegistry {
 
     getFormatter(output: string) {
         return this.formatters.get(output) ?? new DefaultFormatter();
+    }
+
+    registerGenerator<T>(output: string, generator: { new(namespace: GirNamespace, options: GenerationOptions): FormatGenerator<T> }) {
+        this.generators.set(output, generator);
+    }
+
+    getGenerator(output: 'json'): { new(namespace: GirNamespace, options: GenerationOptions): JsonGenerator }
+    getGenerator(output: 'dts'): { new(namespace: GirNamespace, options: GenerationOptions): DtsGenerator }
+    getGenerator<T>(output: string): GeneratorConstructor<T> | undefined;
+    getGenerator(output: string): GeneratorConstructor<any> | undefined {
+        if (output === 'dts') {
+            return DtsGenerator;
+        }
+
+        if (output === 'json') {
+            return JsonGenerator;
+        }
+
+        // Handle loading external generators...
+        if (!this.generators.has(output)) {
+            (() => {
+                let Generator = require(`@gi.ts/generator-${output}`);
+
+                if (Generator) {
+                    console.log(`Loading generator "@gi.ts/generator-${output}"...`);
+                    this.generators.set(output, Generator);
+                    return;
+                }
+
+                Generator = require(`gi-ts-generator-${output}`);
+
+                if (Generator) {
+                    console.log(`Loading generator "gi-ts-generator-${output}"...`);
+                    this.generators.set(output, Generator);
+                    return;
+                }
+
+                Generator = require(`${output}`);
+
+                if (Generator) {
+                    console.log(`Loading generator "${output}"...`);
+                    this.generators.set(output, Generator);
+                    return;
+                }
+            })();
+        }
+
+        return this.generators.get(output);
     }
 
     private _transformNamespace(namespace: GirNamespace) {
@@ -142,11 +196,13 @@ export class GirNSRegistry {
 
         this.mapping.set(namespace.name, namespace.version, namespace);
 
-        let c_map = this.c_mapping.get(namespace.c_prefix) || [];
+        namespace.c_prefixes.forEach(c_prefix => {
+            let c_map = this.c_mapping.get(c_prefix) || [];
 
-        c_map.push(namespace);
+            c_map.push(namespace);
 
-        this.c_mapping.set(namespace.c_prefix, c_map);
+            this.c_mapping.set(c_prefix, c_map);
+        });
 
         this._transformNamespace(namespace);
 

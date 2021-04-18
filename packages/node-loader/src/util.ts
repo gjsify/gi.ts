@@ -18,7 +18,7 @@ function read_gir(path) {
 interface Namespace {
     name: string;
     api_version: string;
-    c_prefix: string;
+    c_prefix: string[];
 }
 
 function process_namespace(namespace): Namespace {
@@ -28,7 +28,7 @@ function process_namespace(namespace): Namespace {
     return {
         name: namespace.attributes["name"],
         api_version: namespace.attributes["version"],
-        c_prefix: namespace.attributes["c:symbol-prefixes"]
+        c_prefix: namespace.attributes["c:symbol-prefixes"]?.split(",") ?? []
     };
 }
 

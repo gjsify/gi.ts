@@ -1,5 +1,5 @@
 import { GirBase, NullableType, ObjectType, BinaryType, VoidType, PromiseType, BooleanType, TupleType, TypeIdentifier, ClosureType } from "../gir";
-import { GirXML, Element } from "@gi.ts/parser";
+import { GirXML, NamespacedElement } from "@gi.ts/parser";
 import { isPrimitiveType } from "./util";
 
 import { GirClass, GirInterface, GirRecord, GirBaseClass } from "./class";
@@ -14,7 +14,10 @@ import { GirVisitor } from "../visitor";
 
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 
-const isIntrospectable = (e: Element<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
+export const isIntrospectable = (e: NamespacedElement<{}>) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
+export const isDeprecated = (e: NamespacedElement<{}>) => e && e.$ && e.$.deprecated === "1";
+export const deprecatedVersion = (e: NamespacedElement<{}>) => e?.$?.["deprecated-version"];
+export const introducedVersion = (e: NamespacedElement<{}>) => e?.$?.version;
 
 export function promisifyNamespaceFunctions(namespace: GirNamespace) {
   return namespace.members.forEach(node => {
@@ -80,7 +83,7 @@ export function promisifyNamespaceFunctions(namespace: GirNamespace) {
 export class GirNamespace {
   readonly name: string;
   readonly version: string;
-  readonly c_prefix: string;
+  readonly c_prefixes: string[];
 
   private imports: Map<string, string> = new Map();
 
@@ -91,10 +94,10 @@ export class GirNamespace {
   package_version!: readonly [string, string] | readonly [string, string, string];
   parent!: GirNSRegistry;
 
-  constructor(name: string, version: string, prefix: string) {
+  constructor(name: string, version: string, prefixes: string[]) {
     this.name = name;
     this.version = version;
-    this.c_prefix = prefix;
+    this.c_prefixes = [...prefixes];
   }
 
   get members(): Map<string, GirNSMember | GirNSMember[]> {
@@ -287,7 +290,7 @@ export class GirNamespace {
 
     const modName = ns.$["name"];
     const version = ns.$["version"];
-    const c_prefix = ns.$["c:symbol-prefixes"];
+    const c_prefix = ns.$?.["c:symbol-prefixes"]?.split(",") ?? [];
 
     if (options.verbose) {
       console.debug(`Parsing ${modName}...`);

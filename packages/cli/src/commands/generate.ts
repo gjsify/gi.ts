@@ -4,7 +4,7 @@ import prettier from 'prettier';
 
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
 
-import { dirname, join as buildPath } from "path";
+import { dirname, join as buildPath, resolve as resolvePath } from "path";
 
 import { GirXML, parser } from "@gi.ts/parser";
 
@@ -44,7 +44,7 @@ type Unknown<T> = { [key in keyof T]?: unknown };
 
 
 type OutputFormat = "file" | "folder";
-type Format = "dts" | "json";
+type Format = "dts" | "json" | string;
 
 export interface GenerationOptions {
   inferGenerics: boolean;
@@ -84,7 +84,7 @@ export default class Generate extends Command {
   static flags = {
     help: flags.help(),
     out: flags.string({}),
-    format: flags.enum<Format | undefined>({ options: ["dts", "json"] }),
+    format: flags.string({ description: "'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html." }),
     inferGenerics: flags.boolean({}),
     promisify: flags.boolean({}),
     propertyCase: flags.enum<PropertyCase | undefined>({ options: ["both", "underscore", "camel"] }),
@@ -152,12 +152,12 @@ export default class Generate extends Command {
     let noAdvancedVariants = false;
 
     let propertyCase: PropertyCase = "both";
-    let format: "dts" | "json" = "dts" as const;
+    let format: "dts" | "json" | string = "dts" as const;
     let file_extension = "d.ts";
     let default_directory = "./types";
     let output_directory: string | null = null;
 
-    function setFormat(format: "dts" | "json") {
+    function setFormat(format: "dts" | "json" | string) {
       switch (format) {
         case "json":
           file_extension = "json";
@@ -167,6 +167,9 @@ export default class Generate extends Command {
           file_extension = "d.ts";
           default_directory = "./types";
           break;
+        default:
+          file_extension = format;
+          default_directory = "./output";
       }
     }
 
@@ -217,7 +220,7 @@ export default class Generate extends Command {
     }
 
     const _out = expectsString("out");
-    const _format = expectsStringType("format", ["dts", "json"]);
+    const _format = expectsString("format");
     const _inferGenerics = expectsBoolean("inferGenerics");
     const _promisify = expectsBoolean("promisify");
     const _propertyCase = expectsStringType("propertyCase", ["both", "underscore", "camel"]);
@@ -391,36 +394,24 @@ export default class Generate extends Command {
       for (const version of Array.isArray(versions) ? versions : [versions]) {
         let generated: [string, lib.Metadata] | null = null;
 
-        switch (format) {
-          case "json":
-            generated = lib.generateJson({
-              format,
-              promisify,
-              withDocs,
-              versionedOutput,
-              versionedImports,
-              noAdvancedVariants,
-              importPrefix,
-              emitMetadata,
-              verbose
-            }, registry, name, version);
-            break;
-          case "dts":
-            generated = lib.generateModule({
-              format,
-              promisify,
-              withDocs,
-              versionedOutput,
-              versionedImports,
-              noAdvancedVariants,
-              importPrefix,
-              emitMetadata,
-              verbose
-            }, registry, name, version);
-            break;
-          default:
-            throw new Error("Unknown format!");
-        }
+        const output = name as string;
+        const dir = buildPath(output_base);
+
+        const output_slug = `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}`;
+
+        generated = lib.generateModule({
+          outputPath: resolvePath(buildPath(output_base, output_slug)),
+          format,
+          promisify,
+          withDocs,
+          versionedOutput,
+          versionedImports,
+          noAdvancedVariants,
+          importPrefix,
+          emitMetadata,
+          verbose
+        }, registry, name, version);
+
 
         if (!generated) {
           console.error(`Failed to generate ${name} ${version}!`);
@@ -428,12 +419,7 @@ export default class Generate extends Command {
         }
 
         let [contents, meta] = generated;
-
-        const output = name as string;
-        const dir = buildPath(output_base);
         let file: string;
-
-        const output_slug = `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}`;
 
         if (outputFormat === "file") {
           file = buildPath(output_base, `${output_slug}.${file_extension}`);
