@@ -302,6 +302,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
         classes = ns.getMembers(className.slice(0, -5));
       }
 
+      if (classes.length === 0 && className.endsWith('Interface')) {
+        classes = ns.getMembers(className.slice(0, -9));
+      }
+
       if (classes.length === 0 && className.endsWith('s')) {
         plural = true;
         classes = ns.getMembers(className.slice(0, -1));
