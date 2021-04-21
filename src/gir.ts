@@ -53,6 +53,9 @@ export abstract class GirBase {
     this.deprecated = from.deprecated;
     this.resolve_names = from.resolve_names;
 
+    // Whether this node should be emitted.
+    this._emit = from._emit;
+
     return this;
   }
 

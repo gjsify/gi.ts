@@ -1,8 +1,36 @@
+import { Direction } from "../../../../parser/dist/xml";
+import { NativeType, NeverType } from "../../gir";
+import { GirClassFunction, GirFunctionParameter } from "../../gir/function";
 import { GirNamespace } from "../../gir/namespace";
 
-export function override(_node: GirNamespace) {
+export function override(node: GirNamespace) {
+    const ParamSpec = node.assertClass("ParamSpec");
+
+    // We only inject __type__ for .d.ts files.
+    const type_function = new GirClassFunction({
+        name: "__type__",
+        parent: ParamSpec,
+        parameters: [
+            new GirFunctionParameter({
+                "name": "arg",
+                type: NeverType,
+                direction: Direction.In
+            })
+        ],
+        return_type: new NativeType("A"),
+        // TODO: Add support for generic native type replacement.
+        // return_type: UnknownType
+    });
+
+    ParamSpec.members.push(type_function.copy());
+
+
     return `
 // GJS OVERRIDES
+
+// __type__ forces all GTypes to not match structurally.
+
+export type GType<T = unknown> = { __type__(arg: never): T };
 
 // Correctly types interface checks.
 export function type_is_a<T extends Object>(obj: Object, is_a_type: { $gtype: GType<T> }): obj is T;
@@ -88,24 +116,8 @@ export function registerClass<
         klass: T
     ): RegisteredClass<T, {}, []>;
 
-export type Property<K extends ParamSpec> = K extends ParamSpecBoolean
-    ? boolean
-    : K extends ParamSpecDouble | ParamSpecInt | ParamSpecUInt | ParamSpecFloat | ParamSpecLong
-    ? number
-    : K extends ParamSpecInt64 | ParamSpecUInt64 | ParamSpecULong
-    ? number
-    : K extends ParamSpecFlags
-    ? number
-    : K extends ParamSpecString | ParamSpecUnichar
-    ? string
-    : K extends ParamSpecValueArray
-    ? any[]
-    : K extends ParamSpecObject<infer T>
+export type Property<K extends ParamSpec> = K extends ParamSpec<infer T>
     ? T
-    : K extends ParamSpecEnum<infer E>
-    ? E
-    : K extends ParamSpecBoxed<infer B>
-    ? B
     : any;
 
 export type Properties<

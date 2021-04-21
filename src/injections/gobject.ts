@@ -12,12 +12,12 @@ import {
   NullableType,
   TupleType,
   UnknownType,
-  NeverType,
   AnyFunctionType,
   Generic,
   GenericType,
   TypeExpression,
-  BooleanType
+  BooleanType,
+  GenerifiedTypeIdentifier
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirField } from "../gir/property";
@@ -72,42 +72,58 @@ export default {
 
       namespace.members.set("SignalMatch", SignalMatch);
 
-      namespace.members.set("GType", new GirAlias({
+      const GType = new GirAlias({
         name: "GType",
-        type: new NativeType("{ __type__(arg: never): T }"),
-        generics: [
-          {
-            name: 'T',
-            type: UnknownType
-          }
-        ]
-      }))
+        type: new NativeType("any"),
+
+      });
+      namespace.members.set("GType", GType);
+
+      // We don't want to emit TypeScript-specific GType
+      // hacks, but we still need the alias so the type
+      // can resolve.
+      GType.noEmit();
 
       const ParamSpec = namespace.assertClass("ParamSpec");
       const ParamFlags = namespace.getEnum("ParamFlags");
 
       function generateParamSpec(
         name: string,
-        returnType: GirBaseClass = ParamSpec,
+        returnType: TypeExpression = ParamSpec.getType(),
         minMax = false,
         type: string | null = null,
         defaultValue = false,
-        defaultValueType: TypeExpression = AnyType
+        defaultValueType: TypeExpression = AnyType,
+        addGeneric = false,
       ) {
-        return new GirStaticClassFunction({
+        const fn = new GirStaticClassFunction({
           name,
           parameters: [
             typeParam("name", StringType),
             typeParam("nick", StringType),
             typeParam("blurb", StringType),
-            typeParam("flags", ParamFlags?.getType() ?? AnyType),
+            typeParam("flags", new BinaryType(ParamFlags?.getType() ?? AnyType, NumberType)),
             ...(minMax ? [typeParam("minimum", NumberType), typeParam("maximum", NumberType)] : []),
-            ...(type ? [anyParam(`${type}Type`)] : []),
+            ...(type ? (
+              !addGeneric ?
+                [anyParam(`${type}Type`)] :
+                [new GirFunctionParameter({
+                  name: `${type}Type`,
+                  direction: Direction.In,
+                  type: new NativeType("GType<T> | { $gtype: GType<T> }")
+                })]
+            ) : []),
             ...(defaultValue ? [typeParam("defaultValue", defaultValueType)] : [])
           ],
           parent: ParamSpec,
-          return_type: returnType.getType()
+          return_type: returnType
         });
+
+        if (addGeneric) {
+          fn.generics.push(new Generic(new GenericType("T")));
+        }
+
+        return fn;
       }
 
       ParamSpec.fields.push(
@@ -119,57 +135,35 @@ export default {
         })
       );
 
-      const ParamSpecBoolean = namespace.assertClass("ParamSpecBoolean");
-      const ParamSpecBoxed = namespace.assertClass("ParamSpecBoxed");
-      const ParamSpecChar = namespace.assertClass("ParamSpecChar");
-      const ParamSpecDouble = namespace.assertClass("ParamSpecDouble");
-      const ParamSpecEnum = namespace.assertClass("ParamSpecEnum");
-      const ParamSpecFlags = namespace.assertClass("ParamSpecFlags");
-      const ParamSpecFloat = namespace.assertClass("ParamSpecFloat");
-      const ParamSpecInt = namespace.assertClass("ParamSpecInt");
-      const ParamSpecInt64 = namespace.assertClass("ParamSpecInt64");
-      const ParamSpecLong = namespace.assertClass("ParamSpecLong");
-      const ParamSpecObject = namespace.assertClass("ParamSpecObject");
+      // Get rid of the ParamSpec subtypes.
+      namespace.assertClass("ParamSpecBoolean").noEmit();
+      namespace.assertClass("ParamSpecBoxed").noEmit();
+      namespace.assertClass("ParamSpecChar").noEmit();
+      namespace.assertClass("ParamSpecDouble").noEmit();
+      namespace.assertClass("ParamSpecEnum").noEmit();
+      namespace.assertClass("ParamSpecFlags").noEmit();
+      namespace.assertClass("ParamSpecFloat").noEmit();
+      namespace.assertClass("ParamSpecInt").noEmit();
+      namespace.assertClass("ParamSpecInt64").noEmit();
+      namespace.assertClass("ParamSpecLong").noEmit();
+      namespace.assertClass("ParamSpecObject").noEmit();
+      namespace.assertClass("ParamSpecParam").noEmit();
+      namespace.assertClass("ParamSpecString").noEmit();
+      namespace.assertClass("ParamSpecUChar").noEmit();
+      namespace.assertClass("ParamSpecUnichar").noEmit();
+      namespace.assertClass("ParamSpecValueArray").noEmit();
+      namespace.assertClass("ParamSpecVariant").noEmit();
+      namespace.assertClass("ParamSpecUInt").noEmit();
+      namespace.assertClass("ParamSpecUInt64").noEmit();
+      namespace.assertClass("ParamSpecULong").noEmit();
+      namespace.assertClass("ParamSpecGType").noEmit();
+      namespace.assertClass("ParamSpecOverride").noEmit();
+      namespace.assertClass("ParamSpecPointer").noEmit();
 
-      const type_function = new GirClassFunction({
-        name: "__type__",
-        parent: ParamSpecObject,
-        parameters: [
-          new GirFunctionParameter({
-            "name": "arg",
-            type: NeverType,
-            direction: Direction.In
-          })
-        ],
-        return_type: new NativeType("A"),
-        // TODO: Add support for generic native type replacement.
-        // return_type: UnknownType
-      });
-
-      ParamSpecObject.members.push(type_function.copy());
-
-      ParamSpecObject.addGeneric({
+      // The primary "type"
+      ParamSpec.addGeneric({
         default: UnknownType
       });
-
-      ParamSpecBoxed.members.push(type_function.copy());
-
-      ParamSpecBoxed.addGeneric({
-        default: UnknownType
-      });
-
-      ParamSpecEnum.members.push(type_function.copy());
-
-      ParamSpecEnum.addGeneric({
-        default: UnknownType
-      });
-
-      const ParamSpecParam = namespace.assertClass("ParamSpecParam");
-      const ParamSpecString = namespace.assertClass("ParamSpecString");
-      const ParamSpecUChar = namespace.assertClass("ParamSpecUChar");
-      const ParamSpecUInt = namespace.assertClass("ParamSpecUInt");
-      const ParamSpecUInt64 = namespace.assertClass("ParamSpecUInt64");
-      const ParamSpecULong = namespace.assertClass("ParamSpecULong");
 
       const object = new GirStaticClassFunction({
         name: "object",
@@ -181,50 +175,56 @@ export default {
           new GirFunctionParameter({
             name: `objectType`,
             direction: Direction.In,
-            type: new NativeType("GType<T>")
+            type: new NativeType("GType<T> | { $gtype: GType<T> }")
           })
         ],
         parent: ParamSpec,
-        return_type: new NativeType("ParamSpecObject<T>")
+        return_type: new NativeType("ParamSpec<T>")
       });
 
       object.generics.push(new Generic(new GenericType("T")));
 
+      function ParamSpecWithGenerics(type: TypeExpression) {
+        return new GenerifiedTypeIdentifier("ParamSpec", "GObject", [
+          type
+        ])
+      }
+
       ParamSpec.members.push(
         //   "char": "static char(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("char", ParamSpecChar, true, null, true, NumberType),
+        generateParamSpec("char", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "uchar": "static uchar(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any):ParamSpec;",
-        generateParamSpec("uchar", ParamSpecUChar, true, null, true, NumberType),
+        generateParamSpec("uchar", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "int": "static int(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("int", ParamSpecInt, true, null, true, NumberType),
+        generateParamSpec("int", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "uint": "static uint(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("uint", ParamSpecUInt, true, null, true, NumberType),
+        generateParamSpec("uint", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "long": "static long(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("long", ParamSpecLong, true, null, true, NumberType),
+        generateParamSpec("long", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "ulong": "static ulong(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("ulong", ParamSpecULong, true, null, true, NumberType),
+        generateParamSpec("ulong", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "int64": "static int64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("int64", ParamSpecInt64, true, null, true, NumberType),
+        generateParamSpec("int64", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "uint64": "static uint64(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("uint64", ParamSpecUInt64, true, null, true, NumberType),
+        generateParamSpec("uint64", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "float": "static float(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("float", ParamSpecFloat, true, null, true, NumberType),
+        generateParamSpec("float", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "boolean": "static boolean(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("boolean", ParamSpecBoolean, false, null, true, BooleanType),
+        generateParamSpec("boolean", ParamSpecWithGenerics(BooleanType), false, null, true, BooleanType),
         //   "flags": "static flags(name: any, nick: any, blurb: any, flags: any, flagsType: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("flags", ParamSpecFlags, false, "flags", true),
+        generateParamSpec("flags", ParamSpecWithGenerics(NumberType), false, "flags", true),
         //   "enum": "static enum(name: any, nick: any, blurb: any, flags: any, enumType: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("enum", ParamSpecEnum, false, "enum", true),
+        generateParamSpec("enum", ParamSpecWithGenerics(new NativeType("T")), false, "enum", true, undefined, true),
         //   "double": "static double(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("double", ParamSpecDouble, true, null, true, NumberType),
+        generateParamSpec("double", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "string": "static string(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("string", ParamSpecString, false, null, true, StringType),
+        generateParamSpec("string", ParamSpecWithGenerics(StringType), false, null, true, StringType),
         //   "boxed": "static boxed(name: any, nick: any, blurb: any, flags: any, boxedType: any): ParamSpec;",
-        generateParamSpec("boxed", ParamSpecBoxed, false, "boxed", false),
+        generateParamSpec("boxed", ParamSpecWithGenerics(new NativeType("T")), false, "boxed", false, undefined, true),
         //   "object": "static object(name: any, nick: any, blurb: any, flags: any, objectType: any): ParamSpec;",
         object,
         //   "param": "static param(name: any, nick: any, blurb: any, flags: any, paramType: any): ParamSpec;",
-        generateParamSpec("param", ParamSpecParam, false, "param", false)
+        generateParamSpec("param", ParamSpec.getType(), false, "param", false)
       );
     }
 
@@ -246,17 +246,6 @@ export default {
               type: AnyType
             }
           ]
-        })
-      );
-
-      // TODO: We replace GObject.Value with any for parameters and unknown
-      // for return types. Nested types aren't currently replaced, though
-      // so let's override the class for now with an alias to any.
-      namespace.members.set(
-        "Value",
-        new GirAlias({
-          name: "Value",
-          type: AnyType,
         })
       );
     }

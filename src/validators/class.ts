@@ -5,6 +5,30 @@ import { resolveTypeIdentifier } from "../gir/util";
 import { GirVisitor } from "../visitor";
 
 /**
+ * Subtypes of ParamSpec are not supported (e.g. a subtype of ParamSpecString).
+ * 
+ * First, we transform the node to use ParamSpec as a parent and then flag it
+ * to not emit.
+ * 
+ * If a generator doesn't follow the emit() standard, the parent type will at least
+ * be valid.
+ *  
+ * @param node 
+ * @returns 
+ */
+const fixParamSpecSubtypes = <T extends GirBaseClass>(node: T): T => {
+    if (node.parent?.namespace === "GObject" && node.parent.name.startsWith("ParamSpec")) {
+        // We don't assert this import because we don't want to force libraries
+        // to unnecessarily import GObject.
+        node.parent = new TypeIdentifier("ParamSpec", "GObject");
+
+        node.noEmit();
+    }
+
+    return node;
+};
+
+/**
  * Checks if a class implements a GObject.Object-based interface
  * If the class is missing a direct parent we inject GObject.Object
  * as a stand-in considering it already indirectly inherits
@@ -58,10 +82,14 @@ const removeComplexFields = <T extends GirBaseClass>(node: T): T => {
 
 export class ClassVisitor extends GirVisitor {
     visitClass = (node: GirClass) => removeComplexFields(
-        fixMissingParent(node)
+        fixParamSpecSubtypes(
+            fixMissingParent(node)
+        )
     );
 
     visitRecord = (node: GirRecord) => removeComplexFields(
-        fixMissingParent(node)
+        fixParamSpecSubtypes(
+            fixMissingParent(node)
+        )
     );
 }
