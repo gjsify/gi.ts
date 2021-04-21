@@ -458,7 +458,7 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
       return new BinaryType(type, Uint8ArrayType);
     } else if (type.is("GObject", "Value")) {
       if (direction === Direction.In || direction === Direction.Inout) {
-        return AnyType;
+        return new BinaryType(type, AnyType);
       } else {
         return UnknownType;
       }
