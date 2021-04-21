@@ -170,6 +170,32 @@ export class GirNamespace {
     return namespace;
   }
 
+  getInstalledImport(name: string): GirNamespace | null {
+    let version = this.default_imports.get(name) ?? this.imports.get(name);
+
+    if (name === this.name) {
+      return this;
+    }
+
+    if (!version) {
+      version = this.parent.defaultVersionOf(name) ?? undefined;
+    }
+
+    if (!version) {
+      return null;
+    }
+
+    const namespace = this.parent.namespace(name, version);
+
+    if (namespace) {
+      if (!this.imports.has(namespace.name)) {
+        this.imports.set(namespace.name, namespace.version);
+      }
+    }
+
+    return namespace;
+  }
+
   assertInstalledImport(name: string): GirNamespace {
     let namespace = this._getImport(name);
 
