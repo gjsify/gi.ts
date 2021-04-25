@@ -1077,6 +1077,10 @@ export class GirRecord extends GirBaseClass {
       || (typeof klass.$["glib:is-gtype-struct-for"] === "string" && !!klass.$["glib:is-gtype-struct-for"])
     );
 
+    if (typeof klass.$["glib:is-gtype-struct-for"] === "string" && !!klass.$["glib:is-gtype-struct-for"]) {
+      clazz.noEmit();
+    }
+
     if (options.loadDocs) {
       clazz.doc = parseDoc(klass);
       clazz.metadata = parseMetadata(klass);
