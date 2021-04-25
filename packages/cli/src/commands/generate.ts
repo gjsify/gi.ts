@@ -63,6 +63,7 @@ export interface GenerationOptions {
   importPrefix: string;
   emitMetadata: boolean;
   noAdvancedVariants: boolean;
+  noPrettyPrint: boolean;
 }
 
 export interface CLIOptions extends GenerationOptions {
@@ -94,6 +95,9 @@ export default class Generate extends Command {
     promisify: flags.boolean({}),
     propertyCase: flags.enum<PropertyCase | undefined>({ options: ["both", "underscore", "camel"] }),
     outputFormat: flags.enum<OutputFormat | undefined>({ options: ["file", "folder"] }),
+    noPrettyPrint: flags.boolean({
+      description: "Disables the pretty-printer. For .d.ts files this will significantly speed up generation.",
+    }),
     withDocs: flags.boolean({}),
     versionedOutput: flags.boolean({}),
     versionedImports: flags.boolean({}),
@@ -147,7 +151,7 @@ export default class Generate extends Command {
     // --versionedOutput
     let versionedImports = false;
 
-    // --importPrefox=@gi.ts/
+    // --importPrefix=@gi.ts/
     let importPrefix = "" as string;
 
     // --emitMetadata
@@ -155,6 +159,9 @@ export default class Generate extends Command {
 
     // --noAdvancedVariants
     let noAdvancedVariants = false;
+
+    // --noPrettyPrint
+    let noPrettyPrint = false;
 
     let propertyCase: PropertyCase = "both";
     let format: "dts" | "json" | string = "dts" as const;
@@ -236,6 +243,7 @@ export default class Generate extends Command {
     const _importPrefix = expectsString("importPrefix");
     const _emitMetadata = expectsBoolean("emitMetadata");
     const _noAdvancedVariants = expectsBoolean("noAdvancedVariants");
+    const _noPrettyPrint = expectsBoolean("noPrettyPrint");
 
     if (options) {
       if (_out(options.out)) {
@@ -287,6 +295,10 @@ export default class Generate extends Command {
       if (_noAdvancedVariants(options.noAdvancedVariants)) {
         noAdvancedVariants = options.noAdvancedVariants;
       }
+
+      if (_noPrettyPrint(options.noPrettyPrint)) {
+        noPrettyPrint = options.noPrettyPrint;
+      }
     }
 
     emitMetadata ||= flags.emitMetadata;
@@ -296,6 +308,7 @@ export default class Generate extends Command {
     promisify ||= flags.promisify;
     withDocs ||= flags.withDocs;
     noAdvancedVariants ||= flags.noAdvancedVariants;
+    noPrettyPrint ||= flags.noPrettyPrint;
 
     // Verbose isn't allowed as a configuration option.
     verbose = flags.verbose;
@@ -418,7 +431,8 @@ export default class Generate extends Command {
           noAdvancedVariants,
           importPrefix,
           emitMetadata,
-          verbose
+          verbose,
+          noPrettyPrint
         }, registry, name, version);
 
         if (!generated) {

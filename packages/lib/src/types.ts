@@ -25,6 +25,7 @@ export interface GenerationOptions extends Options {
     importPrefix: string;
     emitMetadata: boolean;
     noAdvancedVariants: boolean;
+    noPrettyPrint: boolean;
 }
 
 export interface Metadata {

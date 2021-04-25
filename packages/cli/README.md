@@ -64,12 +64,22 @@ OPTIONS
   --importPrefix=importPrefix
   --inferGenerics
   --noAdvancedVariants
+
+  --noPrettyPrint                         Disables the pretty-printer. For .d.ts files this will significantly speed up
+                                          generation.
+
   --out=out
+
   --outputFormat=(file|folder)
+
   --promisify
+
   --propertyCase=(both|underscore|camel)
+
   --versionedImports
+
   --versionedOutput
+
   --withDocs
 
 EXAMPLE
