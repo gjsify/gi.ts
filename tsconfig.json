@@ -8,6 +8,7 @@
     "noImplicitThis": true,
     "noImplicitReturns": true,
     "strictBindCallApply": true,
+    "removeComments": true,
     "strictNullChecks": true,
     "declaration": true,
     "strictPropertyInitialization": true,
