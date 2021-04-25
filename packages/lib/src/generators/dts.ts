@@ -1,5 +1,3 @@
-import { EOL } from "os";
-
 import { FormatGenerator } from "./generator";
 import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
 
@@ -162,15 +160,15 @@ export class DtsGenerator extends FormatGenerator<string> {
     this.namespace.assertInstalledImport("GObject");
 
     return `
-      export namespace ${node.name} {
-          export const $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${node.name}>;
-      }
+export namespace ${node.name} {
+    export const $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${node.name}>;
+}
 
-      export enum ${node.name} {
-                    ${Array.from(node.members.values())
+export enum ${node.name} {
+    ${Array.from(node.members.values())
         .map(member => `${member.asString(this)}`)
-        .join(EOL)}
-                }`;
+        .join(`\n    `)}
+}`;
   }
 
   generateError(node: GirError): string {
@@ -289,7 +287,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     return `
         ${node.callbacks.length > 0
         ? `export module ${name} {
-  ${node.callbacks.map(c => c.asString(this)).join(EOL)}
+  ${node.callbacks.map(c => c.asString(this)).join(`\n`)}
   }`
         : ""
       }
@@ -297,26 +295,26 @@ export class DtsGenerator extends FormatGenerator<string> {
         ? `export interface ${name}Namespace {
     ${isGObject ? `$gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;` : ""}
     prototype: ${name}Prototype;
-    ${staticFields.length > 0 ? staticFields.map(sf => sf.asString(this)).join(EOL) : ""}
+    ${staticFields.length > 0 ? staticFields.map(sf => sf.asString(this)).join(`\n`) : ""}
     ${staticFunctions.length > 0
-          ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, this)).join(EOL)
+          ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, this)).join(`\n`)
           : ""
         }    
     }`
         : ""
       }
-    export type ${name}${Generics} = ${name}Prototype${GenericTypes};
-    export interface ${name}Prototype${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
+export type ${name}${Generics} = ${name}Prototype${GenericTypes};
+export interface ${name}Prototype${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
     ${node.props.length > 0 ? `// Properties` : ""}
     ${filterConflicts(node.namespace, node, node.props)
         .map(p => p.asString(this))
-        .join(EOL)}
+        .join(`\n`)}
     ${nonStaticFields.length > 0 ? `// Fields` : ""}
     ${filterConflicts(node.namespace, node, nonStaticFields)
         .map(p => p.asString(this))
-        .join(EOL)}
+        .join(`\n`)}
     ${nonStaticFunctions.length > 0 ? `// Members\n` : ""}
-    ${nonStaticFunctions.map(m => m.asString(this)).join(EOL)}
+    ${nonStaticFunctions.map(m => m.asString(this)).join(`\n`)}
     }${hasNamespace ? `\n\nexport const ${name}: ${name}Namespace;\n` : ""}`;
   }
 
@@ -354,7 +352,7 @@ export class DtsGenerator extends FormatGenerator<string> {
 
           return copied.asString(this);
         })
-        .join(EOL);
+        .join(`\n`);
       MainConstructor += `
         constructor(properties?: Partial<{
           ${ConstructorFields}
@@ -365,20 +363,20 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const Properties = filterConflicts(node.namespace, node, node.props)
       .map(v => v.asString(this))
-      .join(EOL);
+      .join(`\n`);
 
     const Fields = filterConflicts(node.namespace, node, node.fields)
       .map(v => v.asString(this))
-      .join(EOL);
+      .join(`\n`);
 
     const Constructors = filterConflicts(node.namespace, node, node.constructors)
       .map(v => this.generateConstructorFunction(v))
-      .join(EOL);
+      .join(`\n`);
 
     const FilteredMembers = filterFunctionConflict(node.namespace, node, node.members, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
-      .join(EOL);
+      .join(`\n`);
 
 
     // So we can use GObject.GType
@@ -386,29 +384,29 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     return `${hasCallbacks
       ? `export module ${name} {
-                ${node.callbacks.map(c => c.asString(this)).join(EOL)}
-             }`
+                ${node.callbacks.map(c => c.asString(this)).join(`\n`)}
+}`
       : ``
       }
   
-      export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
-        static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
+export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
+    static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
 
-        ${MainConstructor}
-        constructor(copy: ${node.name});
+    ${MainConstructor}
+    constructor(copy: ${node.name});
     
-        ${node.props.length > 0 ? `// Properties` : ""}
-        ${Properties}
+    ${node.props.length > 0 ? `// Properties` : ""}
+    ${Properties}
         
-        ${node.fields.length > 0 ? `// Fields` : ""}
-        ${Fields}
+    ${node.fields.length > 0 ? `// Fields` : ""}
+    ${Fields}
 
-        ${node.constructors.length > 0 ? `// Constructors` : ""}
-        ${Constructors}
-        
-        ${node.members.length > 0 ? `// Members` : ""}
-        ${Members}
-    }`;
+    ${node.constructors.length > 0 ? `// Constructors` : ""}
+    ${Constructors}
+      
+    ${node.members.length > 0 ? `// Members` : ""}
+    ${Members}
+}`;
   }
 
   generateClass(node: GirClass): string {
@@ -448,28 +446,28 @@ export class DtsGenerator extends FormatGenerator<string> {
       node.props
     )
       .map(v => v.asString(this, true))
-      .join(EOL);
+      .join(`\n    `);
 
     const Properties = filterConflicts(node.namespace, node, node.props)
       .map(v => v.asString(this))
-      .join(EOL);
+      .join(`\n    `);
 
     const Fields = filterConflicts(node.namespace, node, node.fields)
       .map(v => v.asString(this))
-      .join(EOL);
+      .join(`\n    `);
 
     const Constructors = filterFunctionConflict(node.namespace, node, node.constructors, [])
       .map(v => this.generateConstructorFunction(v))
-      .join(EOL);
+      .join(`\n    `);
 
     const FilteredMembers = filterFunctionConflict(node.namespace, node, node.members, []);
     const Members = (options.promisify ? promisifyFunctions(FilteredMembers) : FilteredMembers)
       .map(v => v.asString(this))
-      .join(EOL);
+      .join(`\n    `);
 
     const ImplementedProperties = filterConflicts(node.namespace, node, implementedProperties)
       .map(m => m.asString(this))
-      .join(EOL);
+      .join(`\n    `);
 
     const FilteredImplMethods = filterFunctionConflict(
       node.namespace,
@@ -479,7 +477,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     );
     const ImplementedMethods = (options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods)
       .map(m => m.asString(this))
-      .join(EOL);
+      .join(`\n    `);
 
     // TODO Move these to a cleaner place.
 
@@ -585,7 +583,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     ];
 
     const hasSignals = SignalsList.length > 0;
-    const Signals = SignalsList.join(EOL);
+    const Signals = SignalsList.join(`\n`);
 
     const hasCallbacks = node.callbacks.length > 0;
     const hasModule = injectConstructorBucket || hasCallbacks;
@@ -601,16 +599,16 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     return `${hasModule
       ? `export module ${name} {
-                ${hasCallbacks ? node.callbacks.map(c => c.asString(this)).join(EOL) : ""}
+                ${hasCallbacks ? node.callbacks.map(c => c.asString(this)).join(`\n`) : ""}
                 ${injectConstructorBucket
         ? `export interface ConstructorProperties${Generics}${Extends ? `${ExtendsInterface}.ConstructorProperties${ExtendsGenerics}` : ""
         } {
-                          [key: string]: any;
-                          ${ConstructorProps}
-                        }`
+    [key: string]: any;
+    ${ConstructorProps}
+}`
         : ""
       }
-              }`
+}`
       : ""
       }
       export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
@@ -638,7 +636,7 @@ export class DtsGenerator extends FormatGenerator<string> {
       
       ${implementedMethods.length > 0 ? `// Implemented Members\n` : ""}
       ${ImplementedMethods}
-    }`;
+}`;
   }
 
   generateField(node: GirField): string {
@@ -897,14 +895,14 @@ export class DtsGenerator extends FormatGenerator<string> {
 
       const content = Array.from(node.members.values())
         .map(m => {
-          return `${(Array.isArray(m) ? m : [m]).map(m => m.emit ? (m as GirBase).asString(this) : '').join(EOL)}`;
+          return `${(Array.isArray(m) ? m : [m]).map(m => m.emit ? (m as GirBase).asString(this) : '').join(`\n`)}`;
         })
-        .join(EOL);
+        .join(`\n`);
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
       const imports = Array.from(node.getImports())
         .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
-        .join(`${EOL}`);
+        .join(`${`\n`}`);
 
       const output = [header, imports, base, content, suffix].join(`\n\n`);
 
