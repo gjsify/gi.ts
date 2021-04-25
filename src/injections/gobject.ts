@@ -22,7 +22,7 @@ import {
 import { Direction } from "@gi.ts/parser";
 import { GirField } from "../gir/property";
 import { GirAlias } from "../gir/alias";
-import { GirBaseClass, GirInterface } from "../gir/class";
+import { GirInterface } from "../gir/class";
 import { GirNSRegistry } from "../gir/registry";
 
 function typeParam(name: string, type: TypeExpression) {

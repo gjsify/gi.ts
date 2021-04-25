@@ -1,5 +1,5 @@
 import { deprecatedVersion, GirNamespace, introducedVersion, isDeprecated } from "./namespace";
-import { ClassMethodParameter, Direction, AliasElement, DocElement, NamespacedElement, DocDeprecatedElement } from "@gi.ts/parser";
+import { CallableParamElement, Direction, AliasElement, DocElement, InfoAttrs } from "@gi.ts/parser";
 import {
   TypeIdentifier,
   ThisType,
@@ -111,11 +111,13 @@ export function getAliasType(modName: string, _ns: GirNamespace, param: AliasEle
 
 /* Decode the type */
 export function getType(modName: string, _ns: GirNamespace, param: any): TypeExpression {
+  if (!param) return VoidType;
+
   let name = "";
   let arrayDepth: number | null = null;
   let length: number | null = null;
 
-  let parameter = param as ClassMethodParameter;
+  let parameter = param as CallableParamElement;
   if (parameter.array && parameter.array[0]) {
     arrayDepth = 1;
 
@@ -140,13 +142,13 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
         depth++;
       }
 
-      name = arr.type[0].$["name"] || "unknown";
+      name = arr.type?.[0].$["name"] ?? "unknown";
       arrayDepth = depth;
     } else {
       name = "unknown";
     }
   } else if (parameter.type && parameter.type[0] && parameter.type[0].$) {
-    name = parameter.type[0].$["name"] || "unknown";
+    name = parameter.type[0].$["name"] ?? "unknown";
     // todo one sec
   } else if (parameter.varargs || (parameter.$ && parameter.$.name === "...")) {
     arrayDepth = 1;
@@ -185,7 +187,7 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
 
   if (variableType instanceof TypeIdentifier) {
     if (variableType.is("GLib", "List") || variableType.is("GLib", "SList")) {
-      const listType = parameter?.type?.[0]?.type?.[0]?.$.name;
+      const listType = parameter?.type?.[0].type?.[0]?.$.name;
 
       if (listType) {
         name = listType;
@@ -279,17 +281,15 @@ export function isInvalid(name: string): boolean {
   return false;
 }
 
-export function parseDoc(element: { doc?: DocElement[] }): string | null {
-  return element.doc?.[0]?.["#text"] ?? null;
+export function parseDoc(element: DocElement): string | null {
+  return element.doc?.[0]?._ ?? null;
 }
 
-type ElementWithDeprecatedDoc = { ["doc-deprecated"]?: DocDeprecatedElement[] };
-
-export function parseDeprecatedDoc(element: ElementWithDeprecatedDoc): string | null {
-  return element["doc-deprecated"]?.[0]?.["#text"] ?? null;
+export function parseDeprecatedDoc(element: DocElement): string | null {
+  return element["doc-deprecated"]?.[0]?._ ?? null;
 }
 
-export function parseMetadata(element: NamespacedElement<{}> & ElementWithDeprecatedDoc): GirMetadata | undefined {
+export function parseMetadata(element: { $: InfoAttrs } & DocElement): GirMetadata | undefined {
   const version = introducedVersion(element);
   const deprecatedIn = deprecatedVersion(element);
   const deprecated = isDeprecated(element);
