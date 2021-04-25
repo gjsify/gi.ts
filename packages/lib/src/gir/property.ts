@@ -1,5 +1,5 @@
 import { GirBase, TypeExpression } from "../gir";
-import { ClassField, ClassProperty } from "@gi.ts/parser";
+import { FieldElement, PropertyElement } from "@gi.ts/parser";
 
 import { getType } from "./util";
 import { GirNamespace } from "./namespace";
@@ -69,7 +69,7 @@ export class GirField extends GirBase {
     return visitor.visitField?.(node) ?? node;
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, _options: LoadOptions, _parent, field: ClassField): GirField {
+  static fromXML(namespace: string, ns: GirNamespace, _options: LoadOptions, _parent, field: FieldElement): GirField {
     let name = field.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const f = new GirField({ name: _name, type: getType(namespace, ns, field) });
@@ -159,7 +159,7 @@ export class GirProperty extends GirBase {
     });
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, parent: GirBaseClass | GirEnum, prop: ClassProperty): GirProperty {
+  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, parent: GirBaseClass | GirEnum, prop: PropertyElement): GirProperty {
     let name = prop.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const property = new GirProperty({

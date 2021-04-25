@@ -12,13 +12,13 @@ import {
   FunctionType
 } from "../gir";
 import {
-  Function,
-  Method,
+  FunctionElement,
+  MethodElement,
   Direction,
-  ClassMethodParameter,
-  Callback,
-  VirtualMethod,
-  ClassConstructor
+  CallableParamElement,
+  CallbackElement,
+  VirtualMethodElement,
+  ConstructorElement,
 } from "@gi.ts/parser";
 
 import { GirNamespace } from "./namespace";
@@ -30,7 +30,7 @@ import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
 
-function hasShadow(obj: Function | Method): obj is Function & { $: { shadows: string } } {
+function hasShadow(obj: FunctionElement | MethodElement): obj is FunctionElement & { $: { shadows: string } } {
   return obj.$["shadows"] != null;
 }
 
@@ -101,7 +101,7 @@ export class GirFunction extends GirBase {
     ns: GirNamespace,
     options: LoadOptions,
     _parent,
-    func: Function | Method
+    func: FunctionElement | MethodElement
   ): GirFunction {
     let raw_name = func.$.name;
     let name = sanitizeIdentifierName(null, raw_name);
@@ -127,7 +127,9 @@ export class GirFunction extends GirBase {
       const param = func.parameters[0].parameter;
 
       if (param) {
-        const inputs = param;
+        const inputs = param.filter((p): p is typeof p & { $: { name: string } } => {
+          return !!p.$.name;
+        });
 
         parameters.push(...inputs.map(i => GirFunctionParameter.fromXML(modName, ns, options, null, i)));
 
@@ -290,9 +292,9 @@ export class GirConstructor extends GirBase {
     ns: GirNamespace,
     options: LoadOptions,
     parent: GirBaseClass,
-    m: ClassConstructor
+    m: ConstructorElement
   ): GirConstructor {
-    return GirClassFunction.fromXML(modName, ns, options, parent, m as Function).asConstructor();
+    return GirClassFunction.fromXML(modName, ns, options, parent, m as FunctionElement).asConstructor();
   }
 
   accept(visitor: GirVisitor): GirConstructor {
@@ -388,7 +390,7 @@ export class GirFunctionParameter extends GirBase {
     ns: GirNamespace,
     options: LoadOptions,
     parent: GirSignal | GirClassFunction | GirFunction | GirConstructor | null,
-    parameter: ClassMethodParameter
+    parameter: CallableParamElement & { $: { name: string } }
   ): GirFunctionParameter {
     let name = sanitizeMemberName(parameter.$.name);
 
@@ -564,7 +566,7 @@ export class GirClassFunction extends GirBase {
     ns: GirNamespace,
     options: LoadOptions,
     parent: GirBaseClass | GirEnum,
-    m: Function | Method
+    m: FunctionElement | MethodElement
   ): GirClassFunction {
     const fn = GirFunction.fromXML(modName, ns, options, null, m);
 
@@ -629,7 +631,7 @@ export class GirVirtualClassFunction extends GirClassFunction {
     ns: GirNamespace,
     options: LoadOptions,
     parent: GirBaseClass,
-    m: VirtualMethod
+    m: VirtualMethodElement
   ): GirVirtualClassFunction {
     const fn = GirFunction.fromXML(modName, ns, options, parent, m);
 
@@ -665,7 +667,7 @@ export class GirStaticClassFunction extends GirClassFunction {
     ns: GirNamespace,
     options: LoadOptions,
     parent: GirBaseClass | GirEnum,
-    m: Function
+    m: FunctionElement
   ): GirStaticClassFunction {
     const fn = GirFunction.fromXML(modName, ns, options, parent, m);
 
@@ -719,7 +721,7 @@ export class GirCallback extends GirFunction {
     ns: GirNamespace,
     options: LoadOptions,
     _parent,
-    func: Callback
+    func: CallbackElement
   ): GirCallback {
     const cb = GirFunction.fromXML(modName, ns, options, null, func).asCallback();
 

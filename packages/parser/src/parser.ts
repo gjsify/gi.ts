@@ -4,7 +4,8 @@ import { GirXML } from "./xml";
 export function parseGir(contents: string): GirXML {
     return parse(contents, {
         attributeNamePrefix: "",
-        attrNodeName: "$", //default is 'false'
+        attrNodeName: "$", // default is 'false',
+        textNodeName: "_",
         ignoreAttributes : false,
         ignoreNameSpace : false,
         allowBooleanAttributes : true,

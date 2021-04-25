@@ -2,7 +2,7 @@ import { GirBase, VoidType, UnknownType, NativeType, TypeExpression, ThisType, N
 import { GirNamespace } from "./namespace";
 import { GirClass } from "./class";
 import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
-import { ClassGLibSignalElement, Direction } from "@gi.ts/parser";
+import { SignalElement, Direction, CallableParamElement } from "@gi.ts/parser";
 import { getType, parseDoc, parseMetadata } from "./util";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
@@ -67,7 +67,7 @@ export class GirSignal extends GirBase {
     ns: GirNamespace,
     options: LoadOptions,
     parent: GirClass,
-    sig: ClassGLibSignalElement
+    sig: SignalElement
   ): GirSignal {
     const signal = new GirSignal({
       name: sig.$.name,
@@ -76,11 +76,13 @@ export class GirSignal extends GirBase {
 
     if (sig.parameters && sig.parameters[0].parameter) {
       signal.parameters.push(
-        ...sig.parameters[0].parameter.map(p => GirFunctionParameter.fromXML(modName, ns, options, signal, p))
+        ...sig.parameters[0].parameter
+          .filter((p): p is CallableParamElement & { $: { name: string } } => !!p.$.name)
+          .map(p => GirFunctionParameter.fromXML(modName, ns, options, signal, p))
       );
     }
 
-    signal.return_type = getType(modName, ns, sig["return-value"][0]);
+    signal.return_type = getType(modName, ns, sig["return-value"]?.[0]);
 
     if (options.loadDocs) {
       signal.doc = parseDoc(sig);

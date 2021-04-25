@@ -1,5 +1,5 @@
 import { GirBase, NumberType, TypeIdentifier } from "../gir";
-import { MemberElement, Enumeration, BitfieldElement } from "@gi.ts/parser";
+import { MemberElement, EnumElement, BitfieldElement } from "@gi.ts/parser";
 
 import { GirComplexRecord, GirRecord } from "./class";
 import { GirField } from "./property";
@@ -55,7 +55,7 @@ export class GirEnum extends GirBase {
     return new TypeIdentifier(this.name, this.ns);
   }
 
-  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateEnum"]> | null {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateEnum"]> {
     return generator.generateEnum(this);
   }
 
@@ -83,7 +83,7 @@ export class GirEnum extends GirBase {
     ns: GirNamespace,
     options: LoadOptions,
     _parent,
-    m: Enumeration | BitfieldElement,
+    m: EnumElement | BitfieldElement,
     flags = false
   ): GirEnum {
     const em = new GirEnum(sanitizeMemberName(m.$.name), ns);
@@ -162,7 +162,7 @@ export class GirEnumMember extends GirBase {
   }
 }
 
-function isEnumeration(e: unknown): e is Enumeration {
+function isEnumElement(e: unknown): e is EnumElement {
   return typeof e === "object" && e != null && "function" in e;
 }
 
@@ -199,7 +199,7 @@ export class GirError extends GirEnum {
     ns: GirNamespace,
     options: LoadOptions,
     parent,
-    m: Enumeration | BitfieldElement
+    m: EnumElement | BitfieldElement
   ): GirEnum {
     const err = new GirError(sanitizeMemberName(m.$.name), ns);
 
@@ -223,7 +223,7 @@ export class GirError extends GirEnum {
       });
     }
 
-    if (isEnumeration(m) && m.function) {
+    if (isEnumElement(m) && m.function) {
       m.function.forEach(f => {
         const func = GirStaticClassFunction.fromXML(modName, ns, options, err, f);
         err.functions.set(func.name, func);

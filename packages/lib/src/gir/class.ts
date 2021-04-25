@@ -15,11 +15,10 @@ import {
   GenericType,
   GenerifiedTypeIdentifier,
   AnyType,
-  ThisType,
   ConflictType,
   TypeConflict
 } from "../gir";
-import { InterfaceElement, NamespacedElement, ClassElement, RecordElement, Direction } from "@gi.ts/parser";
+import { InterfaceElement, ClassElement, RecordElement, Direction, UnionElement } from "@gi.ts/parser";
 import {
   GirClassFunction,
   GirVirtualClassFunction,
@@ -1058,7 +1057,11 @@ export class GirRecord extends GirBaseClass {
     return foreignRecord;
   }
 
-  static fromXML(modName: string, namespace: GirNamespace, options: LoadOptions, klass: RecordElement): GirRecord {
+  static fromXML(modName: string, namespace: GirNamespace, options: LoadOptions, klass: RecordElement | UnionElement): GirRecord {
+    if (!klass.$.name) {
+      throw new Error(`Invalid GIR File: No name provided for union.`);
+    }
+
     const name = sanitizeIdentifierName(namespace.name, klass.$.name);
 
     if (options.verbose) {
@@ -1066,6 +1069,13 @@ export class GirRecord extends GirBaseClass {
     }
 
     const clazz = new GirRecord({ name, namespace });
+
+    clazz.setPrivate(
+      klass.$.name.startsWith("_")
+      || ("disguised" in klass.$ && klass.$.disguised === "1")
+      // Don't generate records for structs
+      || (typeof klass.$["glib:is-gtype-struct-for"] === "string" && !!klass.$["glib:is-gtype-struct-for"])
+    );
 
     if (options.loadDocs) {
       clazz.doc = parseDoc(klass);
@@ -1114,7 +1124,7 @@ export class GirRecord extends GirBaseClass {
 
       // Is this a foreign type? (don't allow construction if foreign)
 
-      clazz._isForeign = klass.$.foreign && klass.$.foreign === "1";
+      clazz._isForeign = "foreign" in klass.$ && klass.$.foreign === "1";
 
       // Fields (for "non-class" records)
       if (klass.field) {
