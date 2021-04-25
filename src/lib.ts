@@ -71,7 +71,7 @@ export async function generateModule(
     };
 
     const formatter = registry.getFormatter(options.format);
-    const formatted = formatter.format(generated);
+    const formatted = !options.noPrettyPrint ? formatter.format(generated) : generated;
 
     return {
       formattedOutput: formatted,
