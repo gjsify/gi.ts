@@ -60,6 +60,7 @@ export type NodeJson = {
   kind: NodeKind;
   doc: string | null;
   metadata: MetadataJson | null;
+  private: boolean;
 } & Json;
 
 export const enum TypeKind {
@@ -166,6 +167,8 @@ export type TypeJson = Json & ({
 })
 export interface EnumMemberJson extends NodeJson {
   kind: NodeKind.enumMember;
+  name: string;
+  value: string | null;
 }
 
 export interface EnumJson extends NodeJson {
@@ -272,6 +275,23 @@ export interface ConstructorJson extends NodeJson {
   name: string;
   kind: NodeKind.constructor;
   parameters: ParameterJson[];
+}
+
+export type ImportsJson = { [lib: string]: string };
+
+export interface NamespaceJson extends Json {
+  kind: NodeKind.namespace,
+  imports: ImportsJson;
+  version: string;
+  name: string;
+  alias: AliasJson[];
+  enums: EnumJson[];
+  functions: FunctionJson[];
+  callbacks: CallbackJson[];
+  constants: ConstJson[];
+  records: RecordJson[];
+  interfaces: InterfaceJson[];
+  classes: ClassJson[];
 }
 
 export class JsonGenerator extends FormatGenerator<Json> {
@@ -514,8 +534,8 @@ export class JsonGenerator extends FormatGenerator<Json> {
       });
   }
 
-  private generateMetadata(metadata: GirMetadata): Json {
-    return metadata as Record<string, Primitive>;
+  private generateMetadata(metadata: GirMetadata): MetadataJson {
+    return { ...metadata } as MetadataJson;
   }
 
   private generateParameters(parameters: GirFunctionParameter[]): ParameterJson[] {
@@ -575,28 +595,13 @@ export class JsonGenerator extends FormatGenerator<Json> {
     return generateType(type);
   }
 
-  generateEnum(node: GirEnum): EnumJson | RecordJson | null {
-    try {
-      // TODO Pull invalid enum detection out of JSON
-      const isInvalidEnum = Array.from(node.members.keys()).some(
-        name => !Number.isNaN(Number.parseFloat(name)) || name === "NaN" || name === "Infinity"
-      );
-
-      if (isInvalidEnum) {
-        return this.generateRecord(node.asClass());
-      }
-
-      return {
-        kind: NodeKind.enum,
-        name: node.name,
-        members: Array.from(node.members.values()).map(member => member.asString(this)),
-        ...this._generateDocAndMetadata(node)
-      };
-    } catch (e) {
-      console.error(`Failed to generate enum: ${node.name}.`);
-      console.error(e);
-      return null;
-    }
+  generateEnum(node: GirEnum): EnumJson {
+    return {
+      kind: NodeKind.enum,
+      name: node.name,
+      members: Array.from(node.members.values()).map(member => member.asString(this)),
+      ...this._generateDocAndMetadata(node)
+    };
   }
 
   generateError(node: GirError): ErrorJson {
@@ -635,13 +640,14 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     if (options.withDocs) {
       return {
+        private: node.isPrivate,
         doc: this.generateDoc(node.doc ?? "") ?? null,
         metadata: this.generateMetadata(node.metadata ?? {}) ?? null
       };
     }
 
     return {
-      doc: null, metadata: null
+      private: false, doc: null, metadata: null
     };
   }
 
@@ -771,8 +777,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
       MainConstructor = {
         kind: NodeKind.constructor,
         name: "new",
+        private: false,
         parameters: ConstructorProps.map(p => ({
           kind: NodeKind.parameter,
+          private: p.private,
           varargs: false,
           name: p.name,
           type: p.type,
@@ -1105,7 +1113,58 @@ export class JsonGenerator extends FormatGenerator<Json> {
     }
   }
 
-  generateNamespace(node: GirNamespace): string | null {
+  async generateNamespace(node: GirNamespace): Promise<NamespaceJson> {
+    const { name, version } = node;
+
+    const members = Array.from(node.members.values()).flatMap(m => m);
+
+    const classes = members.filter((m): m is GirClass => m instanceof GirClass).map(m => m.asString(this));
+    const interfaces = members
+      .filter((m): m is GirInterface => m instanceof GirInterface)
+      .map(m => m.asString(this));
+    const records = members
+      .filter((m): m is GirRecord => m instanceof GirRecord)
+      .map(m => m.asString(this));
+    const constants = members
+      .filter((m): m is GirConst => m instanceof GirConst)
+      .map(m => m.asString(this));
+    const callbacks = members
+      .filter((m): m is GirCallback => m instanceof GirCallback)
+      .map(m => m.asString(this));
+    // Functions can have overrides.
+    const functions = [
+      ...members
+        .filter((m): m is GirFunction => !(m instanceof GirCallback) && m instanceof GirFunction)
+        .reduce((prev, next) => {
+          if (!prev.has(next.name))
+            prev.set(next.name, next.asString(this));
+
+          return prev;
+        }, new Map<string, FunctionJson>()).values()
+    ];
+    const enums = members.filter((m): m is GirEnum => m instanceof GirEnum).map(m => m.asString(this));
+    const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
+
+    // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
+    const imports = node.getImports();
+
+    return {
+      kind: NodeKind.namespace,
+      name,
+      version,
+      imports: Object.fromEntries(imports),
+      classes,
+      interfaces,
+      records,
+      constants,
+      functions,
+      callbacks,
+      enums,
+      alias,
+    };
+  }
+
+  async stringifyNamespace(node: GirNamespace): Promise<string | null> {
     const { namespace, options } = this;
 
     if (options.verbose) {
@@ -1113,53 +1172,15 @@ export class JsonGenerator extends FormatGenerator<Json> {
     }
 
     try {
-      const { name, version } = node;
-
-      const members = Array.from(node.members.values()).flatMap(m => m);
-
-      members.filter((m): m is GirEnum => m instanceof GirEnum).forEach(m => {
-        m.members.forEach(() => {
-        });
-      });
-
-      const classes = members.filter((m): m is GirClass => m instanceof GirClass).map(m => m.asString(this));
-      const interfaces = members
-        .filter((m): m is GirInterface => m instanceof GirInterface)
-        .map(m => m.asString(this));
-      const records = members
-        .filter((m): m is GirRecord => m instanceof GirRecord)
-        .map(m => m.asString(this));
-      const constants = members
-        .filter((m): m is GirConst => m instanceof GirConst)
-        .map(m => m.asString(this));
-      const functions = members
-        .filter((m): m is GirConst => m instanceof GirFunction)
-        .map(m => m.asString(this));
-      const enums = members.filter((m): m is GirEnum => m instanceof GirEnum).map(m => m.asString(this));
-      const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
-
-      // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
-      const imports = node.getImports();
-
-      const raw_output = {
-        kind: NodeKind.namespace,
-        name,
-        version,
-        imports: Object.fromEntries(imports),
-        classes,
-        interfaces,
-        records,
-        constants,
-        functions,
-        enums,
-        alias
-      };
+      const output = await this.generateNamespace(node);
 
       if (options.verbose) {
         console.debug(`Printing ${namespace.name}...`);
       }
 
-      return JSON.stringify(raw_output, null, 4);
+      if (!output) return null;
+
+      return JSON.stringify(output, null, 4);
     } catch (err) {
       console.error(`Failed to generate namespace: ${node.name}`);
       console.error(err);

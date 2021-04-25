@@ -26,7 +26,8 @@ export abstract class FormatGenerator<T = string> {
     this.options = options;
   }
   
-  abstract generateNamespace(node: GirNamespace): string | null;
+  abstract generateNamespace(node: GirNamespace): Promise<T | null>;
+  abstract stringifyNamespace(node: GirNamespace): Promise<string | null>;
 
   abstract generateCallback(node: GirCallback): T;
   abstract generateAlias(node: GirAlias): T;
@@ -36,7 +37,7 @@ export abstract class FormatGenerator<T = string> {
   abstract generateInterface(node: GirInterface): T;
   abstract generateEnumMember(node: GirEnumMember): T;
   abstract generateError(node: GirError): T;
-  abstract generateEnum(node: GirEnum): T | null;
+  abstract generateEnum(node: GirEnum): T;
   abstract generateConst(node: GirConst): T;
   abstract generateClass(node: GirClass): T;
   abstract generateParameter(node: GirFunctionParameter): T;

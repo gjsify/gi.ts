@@ -39,7 +39,7 @@ export class GirAlias extends GirBase {
     return new GirAlias({ name, type: options?.type ?? type })._copyBaseProperties(this);
   }
 
-  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateAlias"]> | null {
+  asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateAlias"]> {
     return generator.generateAlias(this);
   }
 

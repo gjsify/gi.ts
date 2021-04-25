@@ -20,6 +20,7 @@ export abstract class GirBase {
   resolve_names: string[] = [];
   private _emit = true;
   private _commentWarning?: string;
+  private _isPrivate: boolean = false;
 
   constructor(name: string) {
     this.name = name;
@@ -39,6 +40,14 @@ export abstract class GirBase {
     return this._commentWarning;
   }
 
+  get isPrivate() {
+    return this._isPrivate;
+  }
+
+  setPrivate(priv: boolean){
+    this._isPrivate = priv;
+  }
+
   noEmit() {
     this._emit = false;
   }
@@ -55,6 +64,7 @@ export abstract class GirBase {
 
     // Whether this node should be emitted.
     this._emit = from._emit;
+    this._isPrivate = from._isPrivate;
 
     return this;
   }
