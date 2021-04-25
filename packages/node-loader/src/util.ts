@@ -4,15 +4,14 @@ import { sync as Dirglob } from "glob";
 import * as fs from "fs";
 import * as path from "path";
 
-// Depends on: sax, xmlbuilder, util.promisify
-import { Parser as XMLParser } from "xml2js";
+import { GirXML, parser } from "@gi.ts/parser";
 
-const parser = new XMLParser();
+function readGir(path): GirXML {
+    const data = fs.readFileSync(path, {
+        encoding: 'utf-8'
+    });
 
-function read_gir(path) {
-    const data = fs.readFileSync(path);
-
-    return new Promise((res, rej) => parser.parseString(data, (err, result) => (err ? rej(err) : res(result))));
+    return parser.parseGir(data);
 }
 
 interface Namespace {
@@ -52,18 +51,18 @@ export type GirInfo = Namespace & {
 export async function generate(gir_path): Promise<GirInfo | null> {
     if (typeof gir_path === "object") return gir_path;
 
-    let gir;
+    let gir: GirXML;
 
     try {
         console.log(`Found ${gir_path}...`);
-        gir = await read_gir(gir_path);
+        gir = readGir(gir_path);
     } catch (err) {
         console.error(err);
         console.error("Failed for " + gir_path);
         return null;
     }
 
-    const namespace = gir.repository.namespace;
+    const namespace = gir.repository[0].namespace;
 
     const ns_info = {
         ...process_namespace(namespace)
