@@ -727,10 +727,14 @@ export class GirCallback extends GirFunction {
 
     if (func.$["glib:type-name"]) {
       cb.resolve_names.push(func.$["glib:type-name"]);
+
+      ns.registerResolveName(func.$["glib:type-name"], ns.name, cb.name);
     }
 
     if (func.$["c:type"]) {
       cb.resolve_names.push(func.$["c:type"]);
+
+      ns.registerResolveName(func.$["c:type"], ns.name, cb.name);
     }
 
     return cb;

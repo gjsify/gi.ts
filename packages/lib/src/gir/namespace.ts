@@ -1,4 +1,15 @@
-import { GirBase, NullableType, ObjectType, BinaryType, VoidType, PromiseType, BooleanType, TupleType, TypeIdentifier, ClosureType } from "../gir";
+import {
+  GirBase,
+  NullableType,
+  ObjectType,
+  BinaryType,
+  VoidType,
+  PromiseType,
+  BooleanType,
+  TupleType,
+  TypeIdentifier,
+  ClosureType
+} from "../gir";
 import { AliasElement, GirXML, InfoAttrs, Type } from "@gi.ts/parser";
 import { isPrimitiveType } from "./util";
 
@@ -14,40 +25,38 @@ import { GirVisitor } from "../visitor";
 
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 
-export const isIntrospectable = (e: { $: InfoAttrs }) => e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
+export const isIntrospectable = (e: { $: InfoAttrs }) =>
+  e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
 export const isDeprecated = (e: { $: InfoAttrs }) => e && e.$ && e.$.deprecated === "1";
 export const deprecatedVersion = (e: { $: InfoAttrs }) => e?.$?.["deprecated-version"];
 export const introducedVersion = (e: { $: InfoAttrs }) => e?.$?.version;
 
 export function promisifyNamespaceFunctions(namespace: GirNamespace) {
   return namespace.members.forEach(node => {
-    if (!(node instanceof GirFunction))
-      return;
+    if (!(node instanceof GirFunction)) return;
 
-    if (node.parameters.length < 1)
-      return;
+    if (node.parameters.length < 1) return;
 
     const last_param = node.parameters[node.parameters.length - 1];
 
-    if (!last_param)
-      return;
+    if (!last_param) return;
 
     const last_param_unwrapped = last_param.type.unwrap();
 
-    if (!(last_param_unwrapped instanceof ClosureType))
-      return;
+    if (!(last_param_unwrapped instanceof ClosureType)) return;
 
     const internal = last_param_unwrapped.type;
 
     if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
       let async_res = [
-        ...Array.from(namespace.members.values())
-          .filter((m): m is GirFunction => m instanceof GirFunction),
-      ].find(m => m.name === `${node.name.replace(/_async$/, '')}_finish` || m.name === `${node.name}_finish`);
+        ...Array.from(namespace.members.values()).filter((m): m is GirFunction => m instanceof GirFunction)
+      ].find(
+        m => m.name === `${node.name.replace(/_async$/, "")}_finish` || m.name === `${node.name}_finish`
+      );
 
       if (async_res) {
         const async_parameters = node.parameters.slice(0, -1).map(p => p.copy());
-        const sync_parameters = node.parameters.map(p => p.copy({ isOptional: false }))
+        const sync_parameters = node.parameters.map(p => p.copy({ isOptional: false }));
         const output_parameters = async_res.output_parameters;
 
         let async_return = new PromiseType(async_res.return());
@@ -69,15 +78,15 @@ export function promisifyNamespaceFunctions(namespace: GirNamespace) {
             return_type: async_return
           }),
           node.copy({
-            parameters: sync_parameters,
+            parameters: sync_parameters
           }),
           node.copy({
             return_type: new BinaryType(async_return, node.return())
-          }),
+          })
         ]);
       }
     }
-  })
+  });
 }
 
 export class GirNamespace {
@@ -90,6 +99,7 @@ export class GirNamespace {
   private _default_imports?: Map<string, string>;
   private _members?: Map<string, GirNSMember | GirNSMember[]>;
   private _enum_constants?: Map<string, readonly [string, string]>;
+  private _resolve_names: Map<string, TypeIdentifier> = new Map();
 
   package_version!: readonly [string, string] | readonly [string, string, string];
   parent!: GirNSRegistry;
@@ -98,6 +108,10 @@ export class GirNamespace {
     this.name = name;
     this.version = version;
     this.c_prefixes = [...prefixes];
+  }
+
+  registerResolveName(resolveName: string, namespace: string, name: string) {
+    this._resolve_names.set(resolveName, new TypeIdentifier(name,namespace));
   }
 
   get members(): Map<string, GirNSMember | GirNSMember[]> {
@@ -131,9 +145,12 @@ export class GirNamespace {
       if (!member) continue;
 
       if (Array.isArray(member)) {
-        this.members.set(key, member.map(m => {
-          return m.accept(visitor);
-        }));
+        this.members.set(
+          key,
+          member.map(m => {
+            return m.accept(visitor);
+          })
+        );
       } else {
         this.members.set(key, member.accept(visitor));
       }
@@ -249,9 +266,12 @@ export class GirNamespace {
         return null;
       }
     } else {
-      // TODO Optimize this with a map.
-      for (const member of this.members.values()) {
-        if (member instanceof GirBaseClass && member.resolve_names.includes(name)) {
+      const resolvedName = this._resolve_names.get(name);
+
+      if (resolvedName) {
+        const member = this.members.get(resolvedName.name);
+
+        if (member instanceof GirBaseClass) {
           return member;
         }
       }
@@ -266,9 +286,12 @@ export class GirNamespace {
 
       return (member instanceof GirEnum && member) || null;
     } else {
-      // TODO Optimize this with a map.
-      for (const member of this.members.values()) {
-        if (member instanceof GirEnum && member.resolve_names.includes(name)) {
+      const resolvedName = this._resolve_names.get(name);
+
+      if (resolvedName) {
+        const member = this.members.get(resolvedName.name);
+
+        if (member instanceof GirEnum) {
           return member;
         }
       }
@@ -278,16 +301,19 @@ export class GirNamespace {
   }
 
   hasSymbol(name: string) {
-    return this.members.has(name);
+    return this.members.has(name)
   }
 
   resolveSymbolFromTypeName(name: string): string | null {
-    for (const member of this.members.values()) {
-      if (member instanceof GirBase) {
-        if (member.resolve_names.includes(name)) {
-          return member.name;
-        }
-      }
+    const resolvedName = this._resolve_names.get(name);
+
+    if (!resolvedName) {
+      return null;
+    }
+
+    const member = this.members.get(resolvedName.name);
+    if (member instanceof GirBase) {
+      return member.name;
     }
 
     return null;
@@ -335,14 +361,13 @@ export class GirNamespace {
     building.parent = registry;
     const includes = repo.repository[0].include || [];
 
-    includes.map(i => [i.$.name, i.$.version] as const)
-      .forEach(
-        ([name, version]) => {
-          if (version) {
-            building.default_imports.set(name, version);
-          }
+    includes
+      .map(i => [i.$.name, i.$.version] as const)
+      .forEach(([name, version]) => {
+        if (version) {
+          building.default_imports.set(name, version);
         }
-      );
+      });
 
     const importConflicts = (el: GirConst | GirBaseClass | GirFunction) => {
       return !building.hasImport(el.name);
@@ -350,7 +375,8 @@ export class GirNamespace {
 
     // Constants
     if (ns.constant) {
-      ns.constant?.filter(isIntrospectable)
+      ns.constant
+        ?.filter(isIntrospectable)
         .map(constant => GirConst.fromXML(modName, building, options, null, constant))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
@@ -358,40 +384,45 @@ export class GirNamespace {
 
     // Get the requested functions
     if (ns.function) {
-      ns.function?.filter(isIntrospectable)
+      ns.function
+        ?.filter(isIntrospectable)
         .map(func => GirFunction.fromXML(modName, building, options, null, func))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.callback) {
-      ns.callback?.filter(isIntrospectable)
+      ns.callback
+        ?.filter(isIntrospectable)
         .map(callback => GirCallback.fromXML(modName, building, options, null, callback))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns["glib:boxed"]) {
-      ns["glib:boxed"]?.filter(isIntrospectable)
+      ns["glib:boxed"]
+        ?.filter(isIntrospectable)
         .map(boxed => new GirAlias({ name: boxed.$["glib:name"], type: new NullableType(ObjectType) }))
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.enumeration) {
       // Get the requested enums
-      ns.enumeration?.map(enumeration => {
-        if (enumeration.$["glib:error-domain"]) {
-          return GirError.fromXML(modName, building, options, null, enumeration);
-        } else {
-          return GirEnum.fromXML(modName, building, options, null, enumeration);
-        }
-      })
+      ns.enumeration
+        ?.map(enumeration => {
+          if (enumeration.$["glib:error-domain"]) {
+            return GirError.fromXML(modName, building, options, null, enumeration);
+          } else {
+            return GirEnum.fromXML(modName, building, options, null, enumeration);
+          }
+        })
         .forEach(c => building.members.set(c.name, c));
     }
 
     // Bitfield is a type of enum
     if (ns.bitfield) {
-      ns.bitfield?.filter(isIntrospectable)
+      ns.bitfield
+        ?.filter(isIntrospectable)
         .map(field => GirEnum.fromXML(modName, building, options, building, field, true))
         .forEach(c => building.members.set(c.name, c));
     }
@@ -403,33 +434,37 @@ export class GirNamespace {
       .forEach(m => {
         m.members.forEach(member => {
           building.enum_constants.set(member.c_identifier, [m.name, member.name] as const);
-        })
+        });
       });
 
     // Get the requested classes
     if (ns.class) {
-      ns.class?.filter(isIntrospectable)
+      ns.class
+        ?.filter(isIntrospectable)
         .map(klass => GirClass.fromXML(modName, building, options, building, klass))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.record) {
-      ns.record?.filter(isIntrospectable)
+      ns.record
+        ?.filter(isIntrospectable)
         .map(record => GirRecord.fromXML(modName, building, options, record))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.union) {
-      ns.union?.filter(isIntrospectable)
+      ns.union
+        ?.filter(isIntrospectable)
         .map(union => GirRecord.fromXML(modName, building, options, union))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
 
     if (ns.interface) {
-      ns.interface?.map(inter => GirInterface.fromXML(modName, building, options, inter))
+      ns.interface
+        ?.map(inter => GirInterface.fromXML(modName, building, options, inter))
         .filter(importConflicts)
         .forEach(c => building.members.set(c.name, c));
     }
@@ -437,13 +472,19 @@ export class GirNamespace {
     if (ns.alias) {
       type NamedAlias = AliasElement & { $: { name: string } };
 
-      ns.alias?.filter(isIntrospectable)
+      ns.alias
+        ?.filter(isIntrospectable)
         // Avoid attempting to alias non-introspectable symbols.
         .map(b => {
           b.type = b.type
             .filter((t): t is NamedAlias => !!(t && t.$.name))
             .map(t => {
-              if (t.$.name && !building.hasSymbol(t.$.name) && !isPrimitiveType(t.$.name) && !t.$.name.includes(".")) {
+              if (
+                t.$.name &&
+                !building.hasSymbol(t.$.name) &&
+                !isPrimitiveType(t.$.name) &&
+                !t.$.name.includes(".")
+              ) {
                 return { $: { name: "unknown", "c:type": "unknown" } } as Type;
               }
 
@@ -468,7 +509,7 @@ export class GirNamespace {
         building.package_version = [major.value, minor.value] as const;
       }
     } else {
-      const [major = '', minor = '0', micro] = building.version.split('.').filter(v => v != '');
+      const [major = "", minor = "0", micro] = building.version.split(".").filter(v => v != "");
 
       if (micro) {
         building.package_version = [major, minor, micro];

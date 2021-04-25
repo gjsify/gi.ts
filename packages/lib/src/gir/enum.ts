@@ -90,10 +90,14 @@ export class GirEnum extends GirBase {
 
     if (m.$["glib:type-name"]) {
       em.resolve_names.push(m.$["glib:type-name"]);
+
+      ns.registerResolveName(m.$["glib:type-name"], ns.name, em.name);
     }
 
     if (m.$["c:type"]) {
       em.resolve_names.push(m.$["c:type"]);
+
+      ns.registerResolveName(m.$["c:type"], ns.name, em.name);
     }
 
     if (options.loadDocs) {
@@ -205,10 +209,14 @@ export class GirError extends GirEnum {
 
     if (m.$["glib:type-name"]) {
       err.resolve_names.push(m.$["glib:type-name"]);
+
+      ns.registerResolveName(m.$["glib:type-name"], ns.name, err.name);
     }
 
     if (m.$["c:type"]) {
       err.resolve_names.push(m.$["c:type"]);
+
+      ns.registerResolveName(m.$["c:type"], ns.name, err.name);
     }
 
     if (options.loadDocs) {

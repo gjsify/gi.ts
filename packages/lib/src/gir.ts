@@ -131,14 +131,20 @@ export class TypeIdentifier extends TypeExpression {
     return type;
   }
 
-  protected _resolve(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier {
+  protected _resolve(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
     const type = this;
     let name: string = sanitizeIdentifierName(null, type.name);
     let ns_name = type.namespace;
 
     let ns = namespace.assertInstalledImport(ns_name);
 
-    if (ns.hasSymbol(name) || ns.hasSymbol(`${ns_name}.${name}`)) {
+    if (ns.hasSymbol(name)) {
+      const c = ns.getClass(name);
+
+      // Some records are structs for other class types.
+      // GirRecord.prototype.getType resolves this relationship.
+      if (c) return c.getType();
+
       return new TypeIdentifier(name, ns_name);
     }
 
@@ -186,10 +192,12 @@ export class TypeIdentifier extends TypeExpression {
 
       return new TypeIdentifier(c_resolved_name, ns_name);
     } else if (namespace.name === ns_name) {
-      throw new Error(`Unable to resolve type ${type.name} in same namespace ${ns_name}!`);
+      console.error(`Unable to resolve type ${type.name} in same namespace ${ns_name}!`);
+      return null;
     }
 
-    throw new Error(`Type ${type.namespace}.${type.name} could not be resolved in ${namespace.name}`);
+    console.error(`Type ${type.namespace}.${type.name} could not be resolved in ${namespace.name}`);
+    return null;
   }
 
   resolveIdentifier(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
@@ -199,7 +207,9 @@ export class TypeIdentifier extends TypeExpression {
   resolve(namespace: GirNamespace, options: GenerationOptions): TypeExpression {
     const resolved = this._resolve(namespace, options);
 
-    return resolved;
+    // Generally if we can't resolve a type it is not introspectable,
+    // thus we annotate it as "never".
+    return resolved ?? NeverType;
   }
 
   static new({ name, namespace }: { name: string; namespace: string }) {
@@ -233,7 +243,7 @@ export class GenerifiedTypeIdentifier extends TypeIdentifier {
     }
   }
 
-  _resolve(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier {
+  _resolve(namespace: GirNamespace, options: GenerationOptions): TypeIdentifier | null {
     const iden = super._resolve(namespace, options);
 
     if (iden) {
