@@ -25,7 +25,12 @@ export function createRegistry(): GirNSRegistry {
     return new GirNSRegistry();
 }
 
-export function generateModule(options: GenerationOptions, registry: GirNSRegistry, name: string, version: string): [string, Metadata] | null {
+export interface GeneratedModule {
+    meta: Metadata;
+    formattedOutput: string;
+}
+
+export async function generateModule(options: GenerationOptions, registry: GirNSRegistry, name: string, version: string): Promise<GeneratedModule | null> {
     const ns = registry.namespace(name, version);
 
     if (ns) {
@@ -34,10 +39,10 @@ export function generateModule(options: GenerationOptions, registry: GirNSRegist
         if (!Generator) {
             throw new Error(`Invalid output format selected: ${options.format}.`);
         }
-    
+
         const generator = new Generator(ns, options);
 
-        const generated = generator.generateNamespace(ns);
+        const generated = await generator.stringifyNamespace(ns);
 
         if (!generated) {
             return null;
@@ -53,7 +58,10 @@ export function generateModule(options: GenerationOptions, registry: GirNSRegist
         const formatter = registry.getFormatter(options.format);
         const formatted = formatter.format(generated);
 
-        return [formatted, meta];
+        return {
+            formattedOutput: formatted,
+            meta
+        };
     }
 
     return null;

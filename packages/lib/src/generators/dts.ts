@@ -147,35 +147,30 @@ export class DtsGenerator extends FormatGenerator<string> {
     return type;
   }
 
-  generateEnum(node: GirEnum): string | null {
+  generateEnum(node: GirEnum): string {
     const { namespace } = this;
 
-    try {
-      const isInvalidEnum = Array.from(node.members.keys()).some(
-        name => name.match(/^[0-9]+$/) || name === "NaN" || name === "Infinity"
-      );
-      if (isInvalidEnum) {
-        return node.asClass().asString(this);
-      }
+    const isInvalidEnum = Array.from(node.members.keys()).some(
+      name => name.match(/^[0-9]+$/) || name === "NaN" || name === "Infinity"
+    );
 
-      // So we can use GObject.GType
-      this.namespace.assertInstalledImport("GObject");
+    if (isInvalidEnum) {
+      return node.asClass().asString(this);
+    }
 
-      return `
+    // So we can use GObject.GType
+    this.namespace.assertInstalledImport("GObject");
+
+    return `
       export namespace ${node.name} {
           export const $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${node.name}>;
       }
 
       export enum ${node.name} {
                     ${Array.from(node.members.values())
-          .map(member => `${member.asString(this)}`)
-          .join(EOL)}
+        .map(member => `${member.asString(this)}`)
+        .join(EOL)}
                 }`;
-    } catch (e) {
-      console.error(`Failed to generate enum: ${node.name}.`);
-      console.error(e);
-      return null;
-    }
   }
 
   generateError(node: GirError): string {
@@ -860,7 +855,7 @@ export class DtsGenerator extends FormatGenerator<string> {
     return this.generateClassFunction(node);
   }
 
-  generateNamespace(node: GirNamespace): string | null {
+  async generateNamespace(node: GirNamespace): Promise<string | null> {
     const { namespace, options } = this;
 
     if (options.verbose) {
@@ -919,5 +914,9 @@ export class DtsGenerator extends FormatGenerator<string> {
 
       return null;
     }
+  }
+
+  async stringifyNamespace(node: GirNamespace): Promise<string | null> {
+    return this.generateNamespace(node);
   }
 }

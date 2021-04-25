@@ -2,7 +2,12 @@ import { Command, flags } from '@oclif/command';
 
 import prettier from 'prettier';
 
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from "fs";
+import * as fs from "fs";
+import { promisify as $ } from "util";
+
+const readFile = $(fs.readFile);
+const mkdir = $(fs.mkdir);
+const writeFile = $(fs.writeFile);
 
 import { dirname, join as buildPath, resolve as resolvePath } from "path";
 
@@ -117,7 +122,7 @@ export default class Generate extends Command {
       dependencies?: { [lib: string]: string | string[] },
       options?: Unknown<CLIOptions>
     } = JSON.parse(
-      readFileSync(buildPath(process.cwd(), docsPath), { encoding: "utf-8" })
+      fs.readFileSync(buildPath(process.cwd(), docsPath), { encoding: "utf-8" })
     );
 
     // Default options
@@ -340,7 +345,7 @@ export default class Generate extends Command {
     for (const [name, library] of Array.from(girs.entries())) {
       for (const version of Object.keys(library)) {
         const doc = library[version];
-        const src = readFileSync(doc.path, { encoding: "utf8" });
+        const src = await readFile(doc.path, { encoding: "utf8" });
         const result = () => parser.parseGir(src);
 
         gir.set(name, {
@@ -389,17 +394,21 @@ export default class Generate extends Command {
       return;
     }
 
+    const dir = buildPath(output_base);
+    try {
+      await mkdir(dir, { recursive: true });
+    } catch { }
+
     // Generate the content
-    for (let [name, versions] of Object.entries(docs.libraries)) {
+    await Promise.all(Object.entries(docs.libraries).map(async ([name, versions]) => {
       for (const version of Array.isArray(versions) ? versions : [versions]) {
-        let generated: [string, lib.Metadata] | null = null;
+        let generated: lib.GeneratedModule | null = null;
 
         const output = name as string;
-        const dir = buildPath(output_base);
+        const version_suffix = versionedOutput ? version.toLowerCase().split('.')[0] : '';
+        const output_slug = `${output.toLowerCase()}${version_suffix}`;
 
-        const output_slug = `${output.toLowerCase()}${versionedOutput ? version.toLowerCase().split('.')[0] : ''}`;
-
-        generated = lib.generateModule({
+        generated = await lib.generateModule({
           outputPath: resolvePath(buildPath(output_base, output_slug)),
           format,
           promisify,
@@ -412,13 +421,12 @@ export default class Generate extends Command {
           verbose
         }, registry, name, version);
 
-
         if (!generated) {
           console.error(`Failed to generate ${name} ${version}!`);
-          continue;
+          return;
         }
 
-        let [contents, meta] = generated;
+        let { formattedOutput, meta } = generated;
         let file: string;
 
         if (outputFormat === "file") {
@@ -429,16 +437,13 @@ export default class Generate extends Command {
           throw new Error(`Unknown output format: ${outputFormat}.`);
         }
 
-        if (!existsSync(dir)) {
-          mkdirSync(dir, { recursive: true });
-        }
 
         if (outputFormat === "folder") {
           const directory = dirname(file);
 
-          if (!existsSync(directory)) {
-            mkdirSync(directory);
-          }
+          try {
+            await mkdir(directory);
+          } catch { }
         }
 
         if (emitMetadata) {
@@ -448,17 +453,17 @@ export default class Generate extends Command {
             const directory = dirname(file);
             const metaPath = buildPath(directory, "doc.json");
 
-            writeFileSync(metaPath, metaData);
+            await writeFile(metaPath, metaData);
           } else {
             const metaPath = buildPath(output_base, `${output_slug}.doc.json`);
 
-            writeFileSync(metaPath, metaData);
+            await writeFile(metaPath, metaData);
           }
         }
 
-        writeFileSync(file, contents);
+        await writeFile(file, formattedOutput);
       }
-    }
+    }));
 
     const identifiers = lib.getSanitizedIdentifiers();
 
