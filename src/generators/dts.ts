@@ -214,9 +214,14 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     const interfaces = node.interfaces
       .map(i => {
-        return i.resolveIdentifier(namespace, options);
-      })
-      .filter((i): i is TypeIdentifier => i != null);
+        const identifier = i.resolveIdentifier(namespace, options);
+
+        if (!identifier) {
+          throw new Error(`Unable to resolve type: ${i.name} from ${i.namespace} in ${node.namespace.name} ${node.namespace.version}`);
+        }
+        
+        return identifier;
+      });
 
     if (interfaces.length > 0) {
       return ` implements ${interfaces.map(i => {

@@ -30,7 +30,14 @@ import {
 } from "./function";
 import { GirProperty, GirField } from "./property";
 import { GirNamespace, isIntrospectable } from "./namespace";
-import { sanitizeIdentifierName, parseTypeIdentifier, isSubtypeOf, resolveTypeIdentifier, parseDoc, parseMetadata } from "./util";
+import {
+  sanitizeIdentifierName,
+  parseTypeIdentifier,
+  isSubtypeOf,
+  resolveTypeIdentifier,
+  parseDoc,
+  parseMetadata
+} from "./util";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
@@ -49,7 +56,7 @@ export function filterConflicts<T extends GirBase>(
   elements: T[],
   behavior = FilterBehavior.PRESERVE
 ): T[] {
-  const filtered = [...elements.filter(p => p && p.name)]
+  const filtered = [...elements.filter(p => p && p.name)];
   const prev = [] as T[];
   const thisType = c.getType();
   for (const next of filtered) {
@@ -60,7 +67,10 @@ export function filterConflicts<T extends GirBase>(
             return ConflictType.ACCESSOR_PROPERTY_CONFLICT;
           }
 
-          if (next instanceof GirField && !isSubtypeOf(ns, thisType, resolved_parent.getType(), next.type, p.type)) {
+          if (
+            next instanceof GirField &&
+            !isSubtypeOf(ns, thisType, resolved_parent.getType(), next.type, p.type)
+          ) {
             return ConflictType.FIELD_NAME_CONFLICT;
           }
         }
@@ -69,45 +79,56 @@ export function filterConflicts<T extends GirBase>(
       });
     });
 
-    const prop_conflicts = !field_conflicts ? c.findParentMap(resolved_parent => {
-      return findMap([...resolved_parent.props], p => {
-        if (p.name && p.name == next.name) {
-          if (next instanceof GirField) {
-            return ConflictType.PROPERTY_ACCESSOR_CONFLICT;
-          }
+    const prop_conflicts = !field_conflicts
+      ? c.findParentMap(resolved_parent => {
+          return findMap([...resolved_parent.props], p => {
+            if (p.name && p.name == next.name) {
+              if (next instanceof GirField) {
+                return ConflictType.PROPERTY_ACCESSOR_CONFLICT;
+              }
 
-          if (next instanceof GirProperty && !isSubtypeOf(ns, thisType, resolved_parent.getType(), next.type, p.type)) {
-            console.log(`>> Conflict in ${next.parent?.name}.${next.name} with ${p.parent?.name}.${p.name}.`)
-            return ConflictType.PROPERTY_NAME_CONFLICT;
-          }
-        }
-
-        return undefined;
-      });
-    }) : undefined;
-
-    let function_conflicts = !field_conflicts && !prop_conflicts ? c.findParentMap(resolved_parent =>
-      findMap([...resolved_parent.constructors, ...resolved_parent.members],
-        p => {
-          if (p.name && p.name == next.name) {
-            if (!(next instanceof GirClassFunction) || isConflictingFunction(ns, thisType, next, resolved_parent.getType(), p)) {
-              return ConflictType.FUNCTION_NAME_CONFLICT;
+              if (
+                next instanceof GirProperty &&
+                !isSubtypeOf(ns, thisType, resolved_parent.getType(), next.type, p.type)
+              ) {
+                console.log(
+                  `>> Conflict in ${next.parent?.name}.${next.name} with ${p.parent?.name}.${p.name}.`
+                );
+                return ConflictType.PROPERTY_NAME_CONFLICT;
+              }
             }
-          }
 
-          return undefined;
+            return undefined;
+          });
         })
-    ) : undefined;
+      : undefined;
+
+    let function_conflicts =
+      !field_conflicts && !prop_conflicts
+        ? c.findParentMap(resolved_parent =>
+            findMap([...resolved_parent.constructors, ...resolved_parent.members], p => {
+              if (p.name && p.name == next.name) {
+                if (
+                  !(next instanceof GirClassFunction) ||
+                  isConflictingFunction(ns, thisType, next, resolved_parent.getType(), p)
+                ) {
+                  return ConflictType.FUNCTION_NAME_CONFLICT;
+                }
+              }
+
+              return undefined;
+            })
+          )
+        : undefined;
     const conflict = field_conflicts || prop_conflicts || function_conflicts;
     if (conflict) {
       if (behavior === FilterBehavior.PRESERVE) {
         if (next instanceof GirField || next instanceof GirProperty) {
-          prev.push(next.copy({
-            type: new TypeConflict(
-              next.type,
-              conflict
-            )
-          }) as T);
+          prev.push(
+            next.copy({
+              type: new TypeConflict(next.type, conflict)
+            }) as T
+          );
         } else {
           prev.push(next);
         }
@@ -115,7 +136,7 @@ export function filterConflicts<T extends GirBase>(
     } else {
       prev.push(next);
     }
-  };
+  }
 
   return prev;
 }
@@ -131,12 +152,13 @@ function isConflictingFunction(
     return (
       child.parameters.length > parent.parameters.length ||
       !isSubtypeOf(namespace, childThis, parentThis, child.return(), parent.return()) ||
-      child.parameters.some((p, i) => !isSubtypeOf(namespace, childThis, parentThis, p.type, parent.parameters[i].type))
+      child.parameters.some(
+        (p, i) => !isSubtypeOf(namespace, childThis, parentThis, p.type, parent.parameters[i].type)
+      )
     );
   } else if (child instanceof GirConstructor || parent instanceof GirConstructor) {
     return true;
   }
-
 
   // This occurs if two functions of the same name are passed but they
   // are different types (e.g. GirStaticClassFunction vs GirClassFunction)
@@ -148,19 +170,18 @@ function isConflictingFunction(
     child.parameters.length > parent.parameters.length ||
     child.output_parameters.length !== parent.output_parameters.length ||
     !isSubtypeOf(namespace, childThis, parentThis, child.return(), parent.return()) ||
-    child.parameters.some((np, i) => !isSubtypeOf(namespace, childThis, parentThis, np.type, parent.parameters[i].type)) ||
-    child.output_parameters.some((np, i) => !isSubtypeOf(namespace, childThis, parentThis, np.type, parent.output_parameters[i].type))
+    child.parameters.some(
+      (np, i) => !isSubtypeOf(namespace, childThis, parentThis, np.type, parent.parameters[i].type)
+    ) ||
+    child.output_parameters.some(
+      (np, i) => !isSubtypeOf(namespace, childThis, parentThis, np.type, parent.output_parameters[i].type)
+    )
   );
 }
 
 export function filterFunctionConflict<
   T extends GirStaticClassFunction | GirVirtualClassFunction | GirClassFunction | GirConstructor
->(
-  ns: GirNamespace,
-  base: GirBaseClass,
-  elements: T[],
-  conflict_ids: string[]
-) {
+>(ns: GirNamespace, base: GirBaseClass, elements: T[], conflict_ids: string[]) {
   const nextType = base.getType();
   return elements
     .filter(m => m.name)
@@ -169,7 +190,7 @@ export function filterFunctionConflict<
       let msg: string | null = null;
       let conflicts =
         conflict_ids.includes(next.name) ||
-        base.someParent((resolved_parent) => {
+        base.someParent(resolved_parent => {
           const parentType = resolved_parent.getType();
           return [...resolved_parent.constructors, ...resolved_parent.members].some(p => {
             if (p.name && p.name == next.name) {
@@ -182,18 +203,14 @@ export function filterFunctionConflict<
               return conflicting;
             }
             return false;
-          })
+          });
         });
 
-      let field_conflicts = base.someParent((resolved_parent) =>
-        [...resolved_parent.props, ...resolved_parent.fields].some(
-          p =>
-            p.name &&
-            p.name == next.name
-        )
+      let field_conflicts = base.someParent(resolved_parent =>
+        [...resolved_parent.props, ...resolved_parent.fields].some(p => p.name && p.name == next.name)
       );
 
-      const isGObject = base.someParent((p) => p.namespace.name === "GObject" && p.name === "Object");
+      const isGObject = base.someParent(p => p.namespace.name === "GObject" && p.name === "Object");
 
       if (isGObject) {
         conflicts = conflicts || ["connect", "connect_after", "emit"].includes(next.name);
@@ -227,8 +244,7 @@ export function filterFunctionConflict<
           throw new Error(`Unknown function type ${Object.getPrototypeOf(next)?.name} encountered.`);
         }
 
-        if (msg)
-          never.setWarning(msg);
+        if (msg) never.setWarning(msg);
 
         prev.push(next, never as T);
       } else if (field_conflicts) {
@@ -242,68 +258,77 @@ export function filterFunctionConflict<
 }
 
 export function promisifyFunctions(functions: GirClassFunction[]) {
-  return functions.map(node => {
-    if (node.parameters.length > 0) {
-      const last_param = node.parameters[node.parameters.length - 1];
+  return functions
+    .map(node => {
+      if (node.parameters.length > 0) {
+        const last_param = node.parameters[node.parameters.length - 1];
 
-      if (last_param) {
-        const last_param_unwrapped = last_param.type.unwrap();
+        if (last_param) {
+          const last_param_unwrapped = last_param.type.unwrap();
 
-        if (last_param_unwrapped instanceof ClosureType) {
-          const internal = last_param_unwrapped.type;
-          if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
-            const parent = node.parent;
-            const interfaceParent = node.interfaceParent;
+          if (last_param_unwrapped instanceof ClosureType) {
+            const internal = last_param_unwrapped.type;
+            if (internal instanceof TypeIdentifier && internal.is("Gio", "AsyncReadyCallback")) {
+              const parent = node.parent;
+              const interfaceParent = node.interfaceParent;
 
-            if (parent instanceof GirBaseClass) {
-              let async_res = (node instanceof GirStaticClassFunction ? [
-                ...parent.constructors,
-                ...parent.members.filter(m => m instanceof GirStaticClassFunction)]
-                : [
-                  ...interfaceParent instanceof GirInterface ? [...interfaceParent.members] : [],
-                  ...parent.members.filter(m => !(m instanceof GirStaticClassFunction))
-                ]).find(m => m.name === `${node.name.replace(/_async$/, '')}_finish` || m.name === `${node.name}_finish`);
+              if (parent instanceof GirBaseClass) {
+                let async_res = (node instanceof GirStaticClassFunction
+                  ? [
+                      ...parent.constructors,
+                      ...parent.members.filter(m => m instanceof GirStaticClassFunction)
+                    ]
+                  : [
+                      ...(interfaceParent instanceof GirInterface ? [...interfaceParent.members] : []),
+                      ...parent.members.filter(m => !(m instanceof GirStaticClassFunction))
+                    ]
+                ).find(
+                  m =>
+                    m.name === `${node.name.replace(/_async$/, "")}_finish` ||
+                    m.name === `${node.name}_finish`
+                );
 
-              if (async_res) {
-                const async_parameters = node.parameters.slice(0, -1).map(p => p.copy());
-                const sync_parameters = node.parameters.map(p => p.copy({ isOptional: false }))
-                const output_parameters = async_res instanceof GirConstructor ? [] : async_res.output_parameters;
+                if (async_res) {
+                  const async_parameters = node.parameters.slice(0, -1).map(p => p.copy());
+                  const sync_parameters = node.parameters.map(p => p.copy({ isOptional: false }));
+                  const output_parameters =
+                    async_res instanceof GirConstructor ? [] : async_res.output_parameters;
 
-                let async_return = new PromiseType(async_res.return());
+                  let async_return = new PromiseType(async_res.return());
 
-                if (output_parameters.length > 0) {
-                  const raw_return = async_res.return();
-                  if (raw_return.equals(VoidType) || raw_return.equals(BooleanType)) {
-                    const [output_type, ...output_types] = output_parameters.map(op => op.type);
-                    async_return = new PromiseType(new TupleType(output_type, ...output_types));
-                  } else {
-                    const [...output_types] = output_parameters.map(op => op.type);
-                    async_return = new PromiseType(new TupleType(raw_return, ...output_types));
+                  if (output_parameters.length > 0) {
+                    const raw_return = async_res.return();
+                    if (raw_return.equals(VoidType) || raw_return.equals(BooleanType)) {
+                      const [output_type, ...output_types] = output_parameters.map(op => op.type);
+                      async_return = new PromiseType(new TupleType(output_type, ...output_types));
+                    } else {
+                      const [...output_types] = output_parameters.map(op => op.type);
+                      async_return = new PromiseType(new TupleType(raw_return, ...output_types));
+                    }
                   }
+
+                  return [
+                    node.copy({
+                      parameters: async_parameters,
+                      returnType: async_return
+                    }),
+                    node.copy({
+                      parameters: sync_parameters
+                    }),
+                    node.copy({
+                      returnType: new BinaryType(async_return, node.return())
+                    })
+                  ];
                 }
-
-                return [
-                  node.copy({
-                    parameters: async_parameters,
-                    returnType: async_return
-                  }),
-                  node.copy({
-                    parameters: sync_parameters,
-                  }),
-                  node.copy({
-                    returnType: new BinaryType(async_return, node.return())
-                  }),
-                ];
-
               }
             }
           }
         }
       }
-    }
 
-    return node;
-  }).flat(1);
+      return node;
+    })
+    .flat(1);
 }
 
 export const enum ClassInjectionMember {
@@ -361,10 +386,12 @@ export abstract class GirBaseClass extends GirBase {
   // Generics support
   generics: Generic[] = [];
 
-  constructor(options: {
-    name: string;
-    namespace: GirNamespace;
-  } & Partial<ClassDefinition>) {
+  constructor(
+    options: {
+      name: string;
+      namespace: GirNamespace;
+    } & Partial<ClassDefinition>
+  ) {
     super(options.name);
 
     const {
@@ -393,11 +420,11 @@ export abstract class GirBaseClass extends GirBase {
 
   abstract copy(options?: {
     parent?: undefined;
-    constructors?: GirConstructor[],
-    members?: GirClassFunction[],
-    props?: GirProperty[],
-    fields?: GirField[],
-    callbacks?: GirCallback[]
+    constructors?: GirConstructor[];
+    members?: GirClassFunction[];
+    props?: GirProperty[];
+    fields?: GirField[];
+    callbacks?: GirCallback[];
   }): GirBaseClass;
 
   getGenericName = GenericNameGenerator.new();
@@ -407,12 +434,14 @@ export abstract class GirBaseClass extends GirBase {
   abstract findParent(predicate: (b: GirBaseClass) => boolean): GirBaseClass | undefined;
   abstract findParentMap<K>(predicate: (b: GirBaseClass) => K | undefined): K | undefined;
 
-  addGeneric(definition: { deriveFrom?: TypeIdentifier; default?: TypeExpression, constraint?: TypeExpression, propagate?: boolean }) {
+  addGeneric(definition: {
+    deriveFrom?: TypeIdentifier;
+    default?: TypeExpression;
+    constraint?: TypeExpression;
+    propagate?: boolean;
+  }) {
     const param = new Generic(
-      new GenericType(
-        this.getGenericName(),
-        definition.constraint
-      ),
+      new GenericType(this.getGenericName(), definition.constraint),
       definition.default,
       definition.deriveFrom,
       definition.constraint,
@@ -465,9 +494,11 @@ export class GirClass extends GirBaseClass {
   }
 
   hasSymbol(s: GirBase): boolean {
-    return this.members.some(p => s.name === p.name) ||
+    return (
+      this.members.some(p => s.name === p.name) ||
       this.props.some(p => s.name === p.name) ||
-      this.fields.some(p => s.name === p.name);
+      this.fields.some(p => s.name === p.name)
+    );
   }
 
   someParent(predicate: (p: GirClass | GirInterface) => boolean): boolean {
@@ -482,11 +513,15 @@ export class GirClass extends GirBaseClass {
       if (some) return some;
     }
 
-    return resolution.implements().map(i => i.node).some(n => predicate(n)) || resolution.implements().some(i => i.node.someParent(predicate));
+    return (
+      resolution
+        .implements()
+        .map(i => i.node)
+        .some(n => predicate(n)) || resolution.implements().some(i => i.node.someParent(predicate))
+    );
   }
 
   findParent(predicate: (p: GirClass | GirInterface) => boolean): GirClass | GirInterface | undefined {
-
     const resolution = this.resolveParents();
 
     const parent = resolution.extends();
@@ -504,7 +539,6 @@ export class GirClass extends GirBaseClass {
   }
 
   findParentMap<K>(predicate: (p: GirClass | GirInterface) => K | undefined): K | undefined {
-
     const resolution = this.resolveParents();
 
     const parent = resolution.extends();
@@ -522,25 +556,28 @@ export class GirClass extends GirBaseClass {
     const interfaces = resolution.implements().map(i => i.node);
 
     const result = findMap(interfaces, i => predicate(i));
-    if (result !== undefined)
-      return result;
+    if (result !== undefined) return result;
 
     return findMap(interfaces, i => i.findParentMap(predicate));
   }
 
   implementedProperties(potentialConflicts: GirBase[] = []) {
     const resolution = this.resolveParents();
-    const implemented_on_parent = [...(resolution.extends() ?? [])].map(r => r.implements()).flat().map(i => i.identifier);
+    const implemented_on_parent = [...(resolution.extends() ?? [])]
+      .map(r => r.implements())
+      .flat()
+      .map(i => i.identifier);
     const properties = new Map<string, GirProperty>();
 
-    const validateProp = (prop: GirProperty) => !this.hasSymbol(prop) && !properties.has(prop.name) && potentialConflicts.every(p => prop.name !== p.name);
+    const validateProp = (prop: GirProperty) =>
+      !this.hasSymbol(prop) &&
+      !properties.has(prop.name) &&
+      potentialConflicts.every(p => prop.name !== p.name);
 
     for (const implemented of resolution.implements()) {
-      if (implemented.node instanceof GirClass)
-        continue;
+      if (implemented.node instanceof GirClass) continue;
 
-      if (implemented_on_parent.some(p => p.equals(implemented.identifier)))
-        continue;
+      if (implemented_on_parent.some(p => p.equals(implemented.identifier))) continue;
 
       for (const prop of implemented.node.props) {
         if (!validateProp(prop)) {
@@ -552,11 +589,9 @@ export class GirClass extends GirBaseClass {
 
     for (const implemented of resolution.implements()) {
       [...implemented].forEach(e => {
-        if (e.node instanceof GirClass)
-          return;
+        if (e.node instanceof GirClass) return;
 
-        if (implemented_on_parent.some(p => p.equals(e.identifier)))
-          return;
+        if (implemented_on_parent.some(p => p.equals(e.identifier))) return;
 
         for (const prop of e.node.props) {
           if (!validateProp(prop)) {
@@ -576,44 +611,46 @@ export class GirClass extends GirBaseClass {
     const implemented_on_parent = [...(resolution.extends() ?? [])].map(r => r.implements()).flat();
     const methods = new Map<string, GirClassFunction>();
 
-    const validateMethod = (method: GirClassFunction) => !(method instanceof GirStaticClassFunction) && !this.hasSymbol(method) && !methods.has(method.name) && potentialConflicts.every(m => method.name !== m.name);
+    const validateMethod = (method: GirClassFunction) =>
+      !(method instanceof GirStaticClassFunction) &&
+      !this.hasSymbol(method) &&
+      !methods.has(method.name) &&
+      potentialConflicts.every(m => method.name !== m.name);
 
     for (const implemented of resolution.implements()) {
-      if (implemented.node instanceof GirClass)
-        continue;
+      if (implemented.node instanceof GirClass) continue;
 
-      if (implemented_on_parent.find(p => p.identifier.equals(implemented.identifier))?.node?.generics?.length === 0)
+      if (
+        implemented_on_parent.find(p => p.identifier.equals(implemented.identifier))?.node?.generics
+          ?.length === 0
+      )
         continue;
       for (const member of implemented.node.members) {
-        if (!validateMethod(member))
-          continue;
+        if (!validateMethod(member)) continue;
         methods.set(member.name, member);
       }
     }
 
     for (const implemented of resolution.implements()) {
       [...implemented].forEach(e => {
-        if (e.node instanceof GirClass)
-          return;
+        if (e.node instanceof GirClass) return;
 
         if (implemented_on_parent.find(p => p.identifier.equals(e.identifier))?.node.generics.length === 0)
           return;
         for (const member of e.node.members) {
-          if (!validateMethod(member))
-            continue;
+          if (!validateMethod(member)) continue;
 
           methods.set(member.name, member);
         }
       });
     }
 
-    return [...methods.values()].map((f) => {
+    return [...methods.values()].map(f => {
       const mapping = new Map<string, TypeExpression>();
       if (f.parent instanceof GirBaseClass) {
         const inter = this.interfaces.find(i => i.equals(f.parent.getType()));
 
         if (inter instanceof GenerifiedTypeIdentifier) {
-
           f.parent.generics.forEach((g, i) => {
             if (inter.generics.length > i) {
               mapping.set(g.type.identifier, inter.generics[i]);
@@ -664,7 +701,7 @@ export class GirClass extends GirBaseClass {
           return p;
         }),
         returnType: modifiedReturn
-      })
+      });
     });
   }
 
@@ -691,8 +728,7 @@ export class GirClass extends GirBaseClass {
       extends() {
         let parentType = parent;
         let resolved_parent = parentType && resolveTypeIdentifier(namespace, parentType);
-        if (resolved_parent instanceof GirClass)
-          return resolved_parent.resolveParents();
+        if (resolved_parent instanceof GirClass) return resolved_parent.resolveParents();
         return undefined;
       },
       node: this,
@@ -700,15 +736,17 @@ export class GirClass extends GirBaseClass {
     };
   }
 
-  copy(options: {
-    parent?: undefined;
-    signals?: GirSignal[],
-    constructors?: GirConstructor[],
-    members?: GirClassFunction[],
-    props?: GirProperty[],
-    fields?: GirField[],
-    callbacks?: GirCallback[]
-  } = {}): GirClass {
+  copy(
+    options: {
+      parent?: undefined;
+      signals?: GirSignal[];
+      constructors?: GirConstructor[];
+      members?: GirClassFunction[];
+      props?: GirProperty[];
+      fields?: GirField[];
+      callbacks?: GirCallback[];
+    } = {}
+  ): GirClass {
     const {
       name,
       namespace,
@@ -772,14 +810,26 @@ export class GirClass extends GirBaseClass {
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
+
+      ns.registerResolveName(klass.$["glib:type-name"], ns.name, name);
     }
 
     if (klass.$["glib:type-struct"]) {
-      clazz.resolve_names.push(klass.$["glib:type-struct"]);
+      clazz.resolve_names.push();
+
+      ns.registerResolveName(klass.$["glib:type-struct"], ns.name, name);
     }
 
     if (klass.$["c:type"]) {
       clazz.resolve_names.push(klass.$["c:type"]);
+
+      ns.registerResolveName(klass.$["c:type"], ns.name, name);
+    }
+
+    if (klass.$["glib:type-struct"]) {
+      clazz.resolve_names.push(klass.$["glib:type-struct"]);
+
+      ns.registerResolveName(klass.$["glib:type-struct"], ns.name, name);
     }
 
     try {
@@ -869,10 +919,7 @@ export class GirClass extends GirBaseClass {
 
           // Sometimes namespaces will implicitly import
           // other namespaces like Atk via interface implements.
-          if (
-            type && type.namespace &&
-            type.namespace !== modName &&
-            !ns.hasImport(type.namespace)) {
+          if (type && type.namespace && type.namespace !== modName && !ns.hasImport(type.namespace)) {
             ns.addImport(type.namespace);
           }
 
@@ -927,13 +974,21 @@ export class GirClass extends GirBaseClass {
 
 export class GirRecord extends GirBaseClass {
   private _isForeign: boolean = false;
+  private _structFor: TypeIdentifier | null = null;
 
   isForeign(): boolean {
     return this._isForeign;
   }
 
-  someParent(predicate: (p: GirRecord) => boolean): boolean {
+  getType(): TypeIdentifier {
+    if (this._structFor) {
+      return this._structFor;
+    }
 
+    return new TypeIdentifier(this.name, this.namespace.name);
+  }
+
+  someParent(predicate: (p: GirRecord) => boolean): boolean {
     const resolution = this.resolveParents();
     const parent = resolution.extends();
 
@@ -972,7 +1027,6 @@ export class GirRecord extends GirBaseClass {
     return undefined;
   }
 
-
   accept(visitor: GirVisitor): GirRecord {
     const node = this.copy({
       constructors: this.constructors.map(c => c.accept(visitor)),
@@ -1000,23 +1054,25 @@ export class GirRecord extends GirBaseClass {
       extends() {
         let parentType = parent;
         let resolved_parent = parentType ? resolveTypeIdentifier(namespace, parentType) : undefined;
-        if (resolved_parent instanceof GirRecord)
-          return resolved_parent.resolveParents();
+        if (resolved_parent instanceof GirRecord) return resolved_parent.resolveParents();
 
         return undefined;
-      }, node: this,
+      },
+      node: this,
       identifier: this.getType()
     };
   }
 
-  copy(options: {
-    parent?: undefined;
-    constructors?: GirConstructor[],
-    members?: GirClassFunction[],
-    props?: GirProperty[],
-    fields?: GirField[],
-    callbacks?: GirCallback[]
-  } = {}): GirRecord {
+  copy(
+    options: {
+      parent?: undefined;
+      constructors?: GirConstructor[];
+      members?: GirClassFunction[];
+      props?: GirProperty[];
+      fields?: GirField[];
+      callbacks?: GirCallback[];
+    } = {}
+  ): GirRecord {
     const {
       name,
       namespace,
@@ -1024,6 +1080,7 @@ export class GirRecord extends GirBaseClass {
       members,
       constructors,
       _isForeign,
+      _structFor,
       props,
       fields,
       callbacks,
@@ -1039,6 +1096,7 @@ export class GirRecord extends GirBaseClass {
       clazz.parent = parent;
     }
 
+    clazz._structFor = _structFor;
     clazz._isForeign = _isForeign;
     clazz.props = (options.props ?? props).map(p => p.copy());
     clazz.fields = (options.fields ?? fields).map(f => f.copy());
@@ -1057,7 +1115,12 @@ export class GirRecord extends GirBaseClass {
     return foreignRecord;
   }
 
-  static fromXML(modName: string, namespace: GirNamespace, options: LoadOptions, klass: RecordElement | UnionElement): GirRecord {
+  static fromXML(
+    modName: string,
+    namespace: GirNamespace,
+    options: LoadOptions,
+    klass: RecordElement | UnionElement
+  ): GirRecord {
     if (!klass.$.name) {
       throw new Error(`Invalid GIR File: No name provided for union.`);
     }
@@ -1071,31 +1134,40 @@ export class GirRecord extends GirBaseClass {
     const clazz = new GirRecord({ name, namespace });
 
     clazz.setPrivate(
-      klass.$.name.startsWith("_")
-      || ("disguised" in klass.$ && klass.$.disguised === "1")
-      // Don't generate records for structs
-      || (typeof klass.$["glib:is-gtype-struct-for"] === "string" && !!klass.$["glib:is-gtype-struct-for"])
+      klass.$.name.startsWith("_") ||
+        ("disguised" in klass.$ && klass.$.disguised === "1") ||
+        // Don't generate records for structs
+        (typeof klass.$["glib:is-gtype-struct-for"] === "string" && !!klass.$["glib:is-gtype-struct-for"])
     );
 
     if (typeof klass.$["glib:is-gtype-struct-for"] === "string" && !!klass.$["glib:is-gtype-struct-for"]) {
       clazz.noEmit();
+
+      // This let's us replace these references when generating.
+      clazz._structFor = parseTypeIdentifier(modName, klass.$["glib:is-gtype-struct-for"]);
+    } else {
+      if (klass.$["glib:type-name"]) {
+        clazz.resolve_names.push(klass.$["glib:type-name"]);
+
+        namespace.registerResolveName(klass.$["glib:type-name"], namespace.name, name);
+      }
+
+      if (klass.$["glib:type-struct"]) {
+        clazz.resolve_names.push();
+
+        namespace.registerResolveName(klass.$["glib:type-struct"], namespace.name, name);
+      }
+
+      if (klass.$["c:type"]) {
+        clazz.resolve_names.push(klass.$["c:type"]);
+
+        namespace.registerResolveName(klass.$["c:type"], namespace.name, name);
+      }
     }
 
     if (options.loadDocs) {
       clazz.doc = parseDoc(klass);
       clazz.metadata = parseMetadata(klass);
-    }
-
-    if (klass.$["glib:type-name"]) {
-      clazz.resolve_names.push(klass.$["glib:type-name"]);
-    }
-
-    if (klass.$["glib:type-struct"]) {
-      clazz.resolve_names.push(klass.$["glib:type-struct"]);
-    }
-
-    if (klass.$["c:type"]) {
-      clazz.resolve_names.push(klass.$["c:type"]);
     }
 
     try {
@@ -1143,9 +1215,7 @@ export class GirRecord extends GirBaseClass {
             .map(field => GirField.fromXML(modName, namespace, options, null, field))
             // Ensure identifiers don't overlap
             .filter(
-              f =>
-                !clazz.members.some(n => n.name === f.name) &&
-                !clazz.props.some(n => n.name === f.name)
+              f => !clazz.members.some(n => n.name === f.name) && !clazz.props.some(n => n.name === f.name)
             )
         );
       }
@@ -1204,15 +1274,17 @@ export class GirComplexRecord extends GirRecord {
 export class GirInterface extends GirBaseClass {
   noParent = false;
 
-  copy(options: {
-    parent?: undefined;
-    noParent?: boolean;
-    constructors?: GirConstructor[],
-    members?: GirClassFunction[],
-    props?: GirProperty[],
-    fields?: GirField[],
-    callbacks?: GirCallback[]
-  } = {}): GirInterface {
+  copy(
+    options: {
+      parent?: undefined;
+      noParent?: boolean;
+      constructors?: GirConstructor[];
+      members?: GirClassFunction[];
+      props?: GirProperty[];
+      fields?: GirField[];
+      callbacks?: GirCallback[];
+    } = {}
+  ): GirInterface {
     const {
       name,
       namespace,
@@ -1299,8 +1371,7 @@ export class GirInterface extends GirBaseClass {
         }
       },
       extends() {
-        if (!parent)
-          return undefined;
+        if (!parent) return undefined;
         const resolved = resolveTypeIdentifier(namespace, parent);
         if (resolved && (resolved instanceof GirClass || resolved instanceof GirInterface))
           return resolved.resolveParents();
@@ -1312,15 +1383,13 @@ export class GirInterface extends GirBaseClass {
   }
 
   accept(visitor: GirVisitor): GirInterface {
-    const node = this.copy(
-      {
-        constructors: this.constructors.map(c => c.accept(visitor)),
-        members: this.members.map(m => m.accept(visitor)),
-        props: this.props.map(p => p.accept(visitor)),
-        fields: this.fields.map(f => f.accept(visitor)),
-        callbacks: this.callbacks.map(c => c.accept(visitor))
-      }
-    );
+    const node = this.copy({
+      constructors: this.constructors.map(c => c.accept(visitor)),
+      members: this.members.map(m => m.accept(visitor)),
+      props: this.props.map(p => p.accept(visitor)),
+      fields: this.fields.map(f => f.accept(visitor)),
+      callbacks: this.callbacks.map(c => c.accept(visitor))
+    });
 
     return visitor.visitInterface?.(node) ?? node;
   }
@@ -1346,14 +1415,20 @@ export class GirInterface extends GirBaseClass {
 
     if (klass.$["glib:type-name"]) {
       clazz.resolve_names.push(klass.$["glib:type-name"]);
+
+      namespace.registerResolveName(klass.$["glib:type-name"], namespace.name, name);
     }
 
     if (klass.$["glib:type-struct"]) {
-      clazz.resolve_names.push(klass.$["glib:type-struct"]);
+      clazz.resolve_names.push();
+
+      namespace.registerResolveName(klass.$["glib:type-struct"], namespace.name, name);
     }
 
     if (klass.$["c:type"]) {
       clazz.resolve_names.push(klass.$["c:type"]);
+
+      namespace.registerResolveName(klass.$["c:type"], namespace.name, name);
     }
 
     try {
