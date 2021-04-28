@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/node-loader",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "main": "dist/loader.js",
   "types": "dist/loader.d.ts",
   "files": [
