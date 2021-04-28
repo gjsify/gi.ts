@@ -26,7 +26,7 @@
     "format": "prettier --write src/**/*.ts src/**/*.tsx"
   },
   "dependencies": {
-    "@gi.ts/lib": "^1.4.1",
+    "@gi.ts/lib": "^1.5.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-syntax-highlighter": "^15.4.3",
