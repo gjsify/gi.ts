@@ -30,26 +30,35 @@ In the root folder:
 
 1. `yarn` (download dependencies)
 
-In each folder under `packages/` run:
+2. In `packages/parser`, run `yarn build`
 
-2. `yarn run build` (build the project)
-3. `yarn link` (make package available locally)
+3. In `packages/node-loader`, run `yarn build`
+
+3. In `packages/lib`, run `yarn build`
+
+4. In `packages/cli`, run `yarn prepack` and `yarn link`.
+
+For HTML...
+
+5. In `packages/generator-html`, run `yarn build` and `yarn link`.
 
 #### Generate type definitions:
 
 ##### In your project:
 
 1. `yarn link @gi.ts/cli`
-2. `yarn link @gi.ts/lib`
-3. `yarn link @gi.ts/parser`
-4. `gi-ts config` (list potential packages)
-5. `gi-ts generate` (generate files)
+2. `gi-ts config` (list potential packages)
+3. `gi-ts generate [--all]` (generate files)
+
+For HTML output...
+
+4. `yarn link @gi.ts/generator-html`
 
 ##### In gi.ts:
 
 1. `gi-ts config` (list potential packages)
 2. `gi-ts config --lock` (cache your local packages)
-3. `gi-ts generate` (generate files)
+3. `gi-ts generate [--all]` (generate files)
 
 ### Selecting Versions
 
