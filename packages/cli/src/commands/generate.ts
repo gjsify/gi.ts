@@ -88,6 +88,7 @@ export default class Generate extends Command {
   ]
 
   static flags = {
+    all: flags.boolean({ description: "Generate all found libraries" }),
     help: flags.help(),
     out: flags.string({}),
     format: flags.string({ description: "'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html." }),
@@ -121,15 +122,24 @@ export default class Generate extends Command {
       this.log("Loading docs.json...");
     }
 
+    let content: string | null = null;
+
+    try {
+      content =  fs.readFileSync(buildPath(process.cwd(), docsPath), { encoding: "utf-8" });
+    } catch (error) {
+      console.error("No docs.json found.");
+    }
+  
     const docs: {
       libraries?: { [lib: string]: string | string[] },
       dependencies?: { [lib: string]: string | string[] },
       options?: Unknown<CLIOptions>
-    } = JSON.parse(
-      fs.readFileSync(buildPath(process.cwd(), docsPath), { encoding: "utf-8" })
-    );
+    } = content ? JSON.parse(content) : {};
 
     // Default options
+
+    // --all
+    let all = false;
 
     // --verbose, -v
     let verbose = false;
@@ -313,6 +323,9 @@ export default class Generate extends Command {
     // Verbose isn't allowed as a configuration option.
     verbose = flags.verbose;
 
+    // --all isn't allowed as a configuration option.
+    all = flags.all;
+
     if (flags.importPrefix) {
       importPrefix = flags.importPrefix;
     }
@@ -349,7 +362,7 @@ export default class Generate extends Command {
     const girs = await resolveLibraries({
       ...(docs.dependencies || {}),
       ...(docs.libraries || {})
-    });
+    }, verbose);
 
     const gir: GirMap = new Map();
 
@@ -402,7 +415,16 @@ export default class Generate extends Command {
       verbose
     });
 
-    if (typeof docs.libraries !== 'object') {
+    let girsToGenerate: { [lib: string]: string | string[]; };
+
+    if (all) {
+      girsToGenerate = Object.fromEntries([...girs.entries()].map(([k, v]) => {
+        return [k, Object.keys(v)] as const; 
+      }));
+    } else if (typeof docs.libraries === 'object') {
+      girsToGenerate = docs.libraries;
+     
+    } else {
       console.error('No libraries selected to generate.');
       return;
     }
@@ -413,7 +435,7 @@ export default class Generate extends Command {
     } catch { }
 
     // Generate the content
-    await Promise.all(Object.entries(docs.libraries).map(async ([name, versions]) => {
+    await Promise.all(Object.entries(girsToGenerate).map(async ([name, versions]) => {
       for (const version of Array.isArray(versions) ? versions : [versions]) {
         let generated: lib.GeneratedModule | null = null;
 

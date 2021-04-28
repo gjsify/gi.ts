@@ -58,6 +58,7 @@ USAGE
 
 OPTIONS
   -v, --verbose                           prints detailed per-member generation info
+  --all                                   Generate all found libraries
   --emitMetadata
   --format=format                         'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html.
   --help                                  show CLI help

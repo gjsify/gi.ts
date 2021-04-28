@@ -48,13 +48,15 @@ export type GirInfo = Namespace & {
     slug: string;
 };
 
-export async function generate(gir_path): Promise<GirInfo | null> {
+export async function generate(gir_path, verbose = false): Promise<GirInfo | null> {
     if (typeof gir_path === "object") return gir_path;
 
     let gir: GirXML;
 
     try {
-        console.log(`Found ${gir_path}...`);
+        if (verbose) {
+            console.log(`Found ${gir_path}...`);
+        }
         gir = readGir(gir_path);
     } catch (err) {
         console.error(err);
@@ -110,14 +112,18 @@ export function generateAll(gir_dir?: string): string[] {
     return glob;
 }
 
-export async function resolveLibraries(libraries: { [key: string]: string | string[] }): Promise<Map<string, {
+export async function resolveLibraries(libraries: { [key: string]: string | string[] }, verbose = false): Promise<Map<string, {
     [version: string]: GirInfo
 }>> {
+    console.log("Finding GIR files...");
+
     let allLibraries = (
         await Promise.all(
-            generateAll().map(l => generate(l))
+            generateAll().map(l => generate(l, verbose))
         )
     ).filter((l): l is GirInfo => l != null);
+
+    console.log("Resolving libraries...");
 
     const libraryMap = new Map<string, { [key: string]: GirInfo }>();
 

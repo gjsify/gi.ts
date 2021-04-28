@@ -405,6 +405,10 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
     function wrapRenderer<T extends NamedNode>(renderNode: RenderNode<T>) {
       const { node: HtmlRenderer, json } = renderNode;
 
+      if (options.verbose) {
+        console.log(`Rendering ${namespace.name}.${node.name} for version ${namespace.version}`);
+      }
+
       return renderRoute(
         dirname(outputPath),
         getPath(json),
@@ -431,6 +435,10 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
         .map(elements => wrapRenderers(elements))
         .flat()
     );
+
+    if (options.verbose) {
+      console.log(`Rendering index.html for ${namespace.name} ${namespace.version}`);
+    }
 
     return renderElement(
       <NamespaceContext.Provider
