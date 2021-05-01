@@ -1,4 +1,4 @@
-import { Direction } from "../../../../parser/dist/xml";
+import { Direction } from "@gi.ts/parser/dist/xml";
 import { NativeType, NeverType } from "../../gir";
 import { GirClassFunction, GirFunctionParameter } from "../../gir/function";
 import { GirNamespace } from "../../gir/namespace";
