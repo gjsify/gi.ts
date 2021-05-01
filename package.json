@@ -17,7 +17,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepack": "rm -rf dist && yarn build"
   },
   "dependencies": {
     "fast-xml-parser": "^3.17.5"
