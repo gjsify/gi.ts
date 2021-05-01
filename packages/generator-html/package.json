@@ -23,7 +23,8 @@
     "config-docs": "XDG_DATA_DIRS=/usr/share/:/usr/share/gnome-shell/:/usr/lib/mutter-8/ gi-ts config --lock",
     "list-docs": "gi-ts config",
     "gen-docs": "gi-ts generate --withDocs --format=json --versionedOutput --propertyCase=underscore --out=./json",
-    "format": "prettier --write src/**/*.ts src/**/*.tsx"
+    "format": "prettier --write src/**/*.ts src/**/*.tsx",
+    "prepack": "rm -rf dist && yarn build"
   },
   "dependencies": {
     "react": "^16.9.0",
