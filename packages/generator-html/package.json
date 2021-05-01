@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/generator-html",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
