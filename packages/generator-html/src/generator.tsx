@@ -26,7 +26,7 @@ import InterfaceNode from "./nodes/Interface";
 import EnumMemberComponent from "./components/EnumMember";
 import ConstructorComponent from "./components/Constructor";
 
-import { Json, NamespaceJson, ImportsJson, EnumMemberJson } from "@gi.ts/lib/dist/generators/json";
+import type { Json, NamespaceJson, ImportsJson, EnumMemberJson } from "@gi.ts/lib/dist/generators/json";
 
 import {
   JsonGenerator,
@@ -398,14 +398,16 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
       await mkdir(outputPath, { recursive: true });
     } catch {}
 
-    if (options.verbose) {
+    const verbose = options.verbose;
+
+    if (verbose) {
       console.debug(`Printing ${namespace.name}...`);
     }
 
-    function wrapRenderer<T extends NamedNode>(renderNode: RenderNode<T>) {
+    function wrapRenderer<T extends NamedNode>(renderNode: RenderNode<T>): Promise<void> {
       const { node: HtmlRenderer, json } = renderNode;
 
-      if (options.verbose) {
+      if (verbose) {
         console.log(`Rendering ${namespace.name}.${node.name} for version ${namespace.version}`);
       }
 
@@ -422,21 +424,27 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
         >
           <HtmlRenderer />
         </NamespaceContext.Provider>,
-        options.verbose
+        verbose
       );
     }
 
-    function wrapRenderers<T extends NamedNode>(renderers: RenderNode<T>[]) {
+    function wrapRenderers<T extends NamedNode>(renderers: RenderNode<T>[]): Promise<void>[] {
       return renderers.map(renderer => wrapRenderer(renderer));
     }
 
     await Promise.all(
-      ([classes, interfaces, records, constants, functions, enums, alias] as RenderNode<NamedNode>[][])
-        .map(elements => wrapRenderers(elements))
-        .flat()
+      wrapRenderers([
+        ...classes,
+        ...interfaces,
+        ...records,
+        ...constants,
+        ...functions,
+        ...enums,
+        ...alias
+      ] as RenderNode<NamedNode>[])
     );
 
-    if (options.verbose) {
+    if (verbose) {
       console.log(`Rendering index.html for ${namespace.name} ${namespace.version}`);
     }
 

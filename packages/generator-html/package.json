@@ -26,7 +26,6 @@
     "format": "prettier --write src/**/*.ts src/**/*.tsx"
   },
   "dependencies": {
-    "@gi.ts/lib": "^1.5.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-syntax-highlighter": "^15.4.3",
@@ -48,6 +47,9 @@
     "@types/react-dom": "^16.8.5",
     "@types/react-syntax-highlighter": "^11.0.5",
     "typescript": "^4.2.4"
+  },
+  "peerDependencies": {
+    "@gi.ts/lib": "^1.5.0"
   },
   "resolutions": {
     "@types/react": "16.14.5",
