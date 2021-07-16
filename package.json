@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/lib",
-  "version": "1.5.3",
+  "version": "1.5.6",
   "main": "dist/lib.js",
   "types": "dist/lib.d.ts",
   "files": [
