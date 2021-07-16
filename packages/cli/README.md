@@ -65,6 +65,7 @@ OPTIONS
   --importPrefix=importPrefix
   --inferGenerics
   --noAdvancedVariants
+  --noInitTypes                           Disables strict typing for _init() functions in TypeScript files.
 
   --noPrettyPrint                         Disables the pretty-printer. For .d.ts files this will significantly speed up
                                           generation.
