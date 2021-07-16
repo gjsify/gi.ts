@@ -1,7 +1,6 @@
 import { FormatGenerator } from "./generator";
 import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
 
-
 import {
   GirBaseClass,
   GirRecord,
@@ -33,7 +32,7 @@ import {
   Generic,
   ConflictType,
   TypeConflict,
-  BinaryType,
+  BinaryType
 } from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias";
@@ -44,7 +43,6 @@ import { override as overrideGObject } from "./dts/gobject";
 import { override as overrideGio } from "./dts/gio";
 
 export class DtsGenerator extends FormatGenerator<string> {
-
   constructor(namespace: GirNamespace, options: GenerationOptions) {
     super(namespace, options);
   }
@@ -97,19 +95,10 @@ export class DtsGenerator extends FormatGenerator<string> {
 
       return [
         `${GenericDefinitions}`,
-        `(${Parameters}) => ${node
-          .return()
-          .resolve(namespace, options)
-          .print(namespace, options)}`
+        `(${Parameters}) => ${node.return().resolve(namespace, options).print(namespace, options)}`
       ];
     }
-    return [
-      ``,
-      `(${Parameters}) => ${node
-        .return()
-        .resolve(namespace, options)
-        .print(namespace, options)}`
-    ];
+    return [``, `(${Parameters}) => ${node.return().resolve(namespace, options).print(namespace, options)}`];
   }
 
   generateCallback(node: GirCallback): string {
@@ -119,9 +108,9 @@ export class DtsGenerator extends FormatGenerator<string> {
   generateReturn(return_type: TypeExpression, output_parameters: GirFunctionParameter[]) {
     const { namespace, options } = this;
 
-    let resolved_return_type = resolveDirectedType(
-      return_type, Direction.Out
-    )?.resolve(namespace, options) ?? return_type.resolve(namespace, options);
+    let resolved_return_type =
+      resolveDirectedType(return_type, Direction.Out)?.resolve(namespace, options) ??
+      return_type.resolve(namespace, options);
 
     const type = resolved_return_type.rootPrint(namespace, options);
 
@@ -129,11 +118,14 @@ export class DtsGenerator extends FormatGenerator<string> {
       const exclude_first = type === "void" || type === "";
       const returns = [
         ...(exclude_first ? [] : [`${type}`]),
-        ...output_parameters.map(op => {
-          return resolveDirectedType(
-            op.type, Direction.Out
-          )?.resolve(namespace, options) ?? op.type.resolve(namespace, options);
-        }).map(p => p.rootPrint(namespace, options))
+        ...output_parameters
+          .map(op => {
+            return (
+              resolveDirectedType(op.type, Direction.Out)?.resolve(namespace, options) ??
+              op.type.resolve(namespace, options)
+            );
+          })
+          .map(p => p.rootPrint(namespace, options))
       ];
       if (returns.length > 1) {
         return `[${returns.join(", ")}]`;
@@ -161,13 +153,13 @@ export class DtsGenerator extends FormatGenerator<string> {
 
     return `
 export namespace ${node.name} {
-    export const $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${node.name}>;
+    export const $gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${node.name}>;
 }
 
 export enum ${node.name} {
     ${Array.from(node.members.values())
-        .map(member => `${member.asString(this)}`)
-        .join(`\n    `)}
+      .map(member => `${member.asString(this)}`)
+      .join(`\n    `)}
 }`;
   }
 
@@ -202,30 +194,30 @@ export enum ${node.name} {
   generateConst(node: GirConst): string {
     const { namespace, options } = this;
 
-    return `export const ${node.name}: ${node.type
-      .resolve(namespace, options)
-      .print(namespace, options)};`;
+    return `export const ${node.name}: ${node.type.resolve(namespace, options).print(namespace, options)};`;
   }
 
   private implements(node: GirClass) {
     const { namespace, options } = this;
 
-    const interfaces = node.interfaces
-      .map(i => {
-        const identifier = i.resolveIdentifier(namespace, options);
+    const interfaces = node.interfaces.map(i => {
+      const identifier = i.resolveIdentifier(namespace, options);
 
-        if (!identifier) {
-          throw new Error(`Unable to resolve type: ${i.name} from ${i.namespace} in ${node.namespace.name} ${node.namespace.version}`);
-        }
-        
-        return identifier;
-      });
+      if (!identifier) {
+        throw new Error(
+          `Unable to resolve type: ${i.name} from ${i.namespace} in ${node.namespace.name} ${node.namespace.version}`
+        );
+      }
+
+      return identifier;
+    });
 
     if (interfaces.length > 0) {
-      return ` implements ${interfaces.map(i => {
-        const Type = i.print(namespace, options);
-        return `${Type}`;
-      })
+      return ` implements ${interfaces
+        .map(i => {
+          const Type = i.print(namespace, options);
+          return `${Type}`;
+        })
         .join(", ")}`;
     }
 
@@ -242,7 +234,9 @@ export enum ${node.name} {
         return ` extends ${Type}`;
       }
 
-      throw new Error(`Unable to resolve type: ${node.parent.name} from ${node.parent.namespace} in ${node.namespace.name} ${node.namespace.version}`);
+      throw new Error(
+        `Unable to resolve type: ${node.parent.name} from ${node.parent.namespace} in ${node.namespace.name} ${node.namespace.version}`
+      );
     }
 
     return "";
@@ -251,7 +245,7 @@ export enum ${node.name} {
   generateInterface(node: GirInterface): string {
     const { namespace, options } = this;
 
-    const isGObject = node.someParent((p) => p.namespace.name === "GObject" && p.name === "Object");
+    const isGObject = node.someParent(p => p.namespace.name === "GObject" && p.name === "Object");
 
     const name = node.name;
 
@@ -262,7 +256,7 @@ export enum ${node.name} {
 
     if (generics.length > 0) {
       Generics = `${this.generateGenerics(generics)}`;
-      GenericTypes = `${this.generateGenerics(generics, false)}`
+      GenericTypes = `${this.generateGenerics(generics, false)}`;
     }
 
     const Extends = this.extends(node);
@@ -270,9 +264,13 @@ export enum ${node.name} {
     const functions = options.promisify ? promisifyFunctions(filteredFunctions) : filteredFunctions;
 
     const staticFunctions = functions.filter(f => f instanceof GirStaticClassFunction);
-    const staticFields = node.fields.filter(f => f.isStatic).map(f => f.copy({
-      isStatic: false
-    }));
+    const staticFields = node.fields
+      .filter(f => f.isStatic)
+      .map(f =>
+        f.copy({
+          isStatic: false
+        })
+      );
 
     const nonStaticFunctions = functions.filter(f => !(f instanceof GirStaticClassFunction));
     const nonStaticFields = node.fields.filter(f => !f.isStatic);
@@ -285,34 +283,39 @@ export enum ${node.name} {
     }
 
     return `
-        ${node.callbacks.length > 0
-        ? `export module ${name} {
+        ${
+          node.callbacks.length > 0
+            ? `export module ${name} {
   ${node.callbacks.map(c => c.asString(this)).join(`\n`)}
   }`
-        : ""
-      }
-      ${hasNamespace
-        ? `export interface ${name}Namespace {
-    ${isGObject ? `$gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;` : ""}
+            : ""
+        }
+      ${
+        hasNamespace
+          ? `export interface ${name}Namespace {
+    ${isGObject ? `$gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${name}>;` : ""}
     prototype: ${name}Prototype;
     ${staticFields.length > 0 ? staticFields.map(sf => sf.asString(this)).join(`\n`) : ""}
-    ${staticFunctions.length > 0
-          ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, this)).join(`\n`)
-          : ""
-        }    
-    }`
+    ${
+      staticFunctions.length > 0
+        ? staticFunctions.map(sf => GirClassFunction.prototype.asString.call(sf, this)).join(`\n`)
         : ""
+    }    
+    }`
+          : ""
       }
 export type ${name}${Generics} = ${name}Prototype${GenericTypes};
-export interface ${name}Prototype${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
+export interface ${name}Prototype${Generics}${Extends} {${
+      node.indexSignature ? `\n${node.indexSignature}\n` : ""
+    }
     ${node.props.length > 0 ? `// Properties` : ""}
     ${filterConflicts(node.namespace, node, node.props)
-        .map(p => p.asString(this))
-        .join(`\n`)}
+      .map(p => p.asString(this))
+      .join(`\n`)}
     ${nonStaticFields.length > 0 ? `// Fields` : ""}
     ${filterConflicts(node.namespace, node, nonStaticFields)
-        .map(p => p.asString(this))
-        .join(`\n`)}
+      .map(p => p.asString(this))
+      .join(`\n`)}
     ${nonStaticFunctions.length > 0 ? `// Members\n` : ""}
     ${nonStaticFunctions.map(m => m.asString(this)).join(`\n`)}
     }${hasNamespace ? `\n\nexport const ${name}: ${name}Namespace;\n` : ""}`;
@@ -378,19 +381,19 @@ export interface ${name}Prototype${Generics}${Extends} {${node.indexSignature ? 
       .map(v => v.asString(this))
       .join(`\n`);
 
-
     // So we can use GObject.GType
     this.namespace.assertInstalledImport("GObject");
 
-    return `${hasCallbacks
-      ? `export module ${name} {
+    return `${
+      hasCallbacks
+        ? `export module ${name} {
                 ${node.callbacks.map(c => c.asString(this)).join(`\n`)}
 }`
-      : ``
-      }
+        : ``
+    }
   
-export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
-    static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
+export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ""}
+    static $gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${name}>;
 
     ${MainConstructor}
     constructor(copy: ${node.name});
@@ -435,8 +438,13 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     if (node.mainConstructor) {
       MainConstructor = `\n${node.mainConstructor.asString(this)}`;
     } else {
-      MainConstructor = `\nconstructor(properties?: Partial<${name}.ConstructorProperties${GenericTypes}>, ...args: any[]);
-                  _init(properties?: Partial<${name}.ConstructorProperties${GenericTypes}>, ...args: any[]): void;\n`;
+      MainConstructor = `\nconstructor(properties?: Partial<${name}.ConstructorProperties${GenericTypes}>, ...args: any[]);\n`;
+
+      if (!options.noInitTypes) {
+        MainConstructor += `_init(properties?: Partial<${name}.ConstructorProperties${GenericTypes}>, ...args: any[]): void;\n`;
+      } else {
+        MainConstructor += `_init(...args: any[]): void;\n`;
+      }
     }
 
     const ConstructorProps = filterConflicts(
@@ -469,13 +477,11 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       .map(m => m.asString(this))
       .join(`\n    `);
 
-    const FilteredImplMethods = filterFunctionConflict(
-      node.namespace,
-      node,
-      implementedMethods,
-      []
-    );
-    const ImplementedMethods = (options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods)
+    const FilteredImplMethods = filterFunctionConflict(node.namespace, node, implementedMethods, []);
+    const ImplementedMethods = (options.promisify
+      ? promisifyFunctions(FilteredImplMethods)
+      : FilteredImplMethods
+    )
       .map(m => m.asString(this))
       .join(`\n    `);
 
@@ -554,12 +560,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
         default_signals.push(Emit);
       }
 
-      default_signals = filterConflicts(
-        namespace,
-        node,
-        default_signals,
-        FilterBehavior.DELETE
-      );
+      default_signals = filterConflicts(namespace, node, default_signals, FilterBehavior.DELETE);
 
       hasConnect = !default_signals.some(s => s.name === "connect");
       hasConnectAfter = !default_signals.some(s => s.name === "connect_after");
@@ -597,22 +598,27 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       ExtendsGenerics = `<${ExtendsGenerics}`;
     }
 
-    return `${hasModule
-      ? `export module ${name} {
+    return `${
+      hasModule
+        ? `export module ${name} {
                 ${hasCallbacks ? node.callbacks.map(c => c.asString(this)).join(`\n`) : ""}
-                ${injectConstructorBucket
-        ? `export interface ConstructorProperties${Generics}${Extends ? `${ExtendsInterface}.ConstructorProperties${ExtendsGenerics}` : ""
-        } {
+                ${
+                  injectConstructorBucket
+                    ? `export interface ConstructorProperties${Generics}${
+                        Extends ? `${ExtendsInterface}.ConstructorProperties${ExtendsGenerics}` : ""
+                      } {
     [key: string]: any;
     ${ConstructorProps}
 }`
-        : ""
-      }
+                    : ""
+                }
 }`
-      : ""
-      }
-      export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {${node.indexSignature ? `\n${node.indexSignature}\n` : ''}
-      static $gtype: ${namespace.name !== 'GObject' ? 'GObject.' : ''}GType<${name}>;
+        : ""
+    }
+      export ${node.isAbstract ? `abstract ` : ""}class ${name}${Generics}${Extends}${Implements} {${
+      node.indexSignature ? `\n${node.indexSignature}\n` : ""
+    }
+      static $gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${name}>;
 
       ${MainConstructor}
       
@@ -652,10 +658,11 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
     let { type } = node;
-    if (type instanceof TypeConflict)
-      type = new BinaryType(type.unwrap(), AnyType);
+    if (type instanceof TypeConflict) type = new BinaryType(type.unwrap(), AnyType);
 
-    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${type.resolve(namespace, options).rootPrint(namespace, options)};`;
+    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${type
+      .resolve(namespace, options)
+      .rootPrint(namespace, options)};`;
   }
 
   generateProperty(node: GirProperty, construct: boolean = false): string {
@@ -696,8 +703,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       }
     }
 
-    let Type =
-      type.resolve(namespace, options).rootPrint(namespace, options) || "any";
+    let Type = type.resolve(namespace, options).rootPrint(namespace, options) || "any";
 
     if (construct) {
       return `${Name}: ${Type};`;
@@ -707,7 +713,6 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
 
     let hasGetter = readable;
     let hasSetter = writable && !constructOnly;
-
 
     if (node.parent instanceof GirInterface) {
       if (!hasSetter && hasGetter) {
@@ -740,9 +745,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
 
   generateEnumMember(node: GirEnumMember): string {
     const invalid = isInvalid(node.name);
-    if (
-      node.value != null &&
-      !Number.isNaN(Number.parseInt(node.value, 10))) {
+    if (node.value != null && !Number.isNaN(Number.parseInt(node.value, 10))) {
       return invalid ? `"${node.name}" = ${node.value},` : `${node.name} = ${node.value},`;
     } else {
       return invalid ? `"${node.name}",` : `${node.name},`;
@@ -755,8 +758,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     let type: string =
       resolveDirectedType(node.type, node.direction)
         ?.resolve(namespace, options)
-        .rootPrint(namespace, options) ??
-      node.type.resolve(namespace, options).rootPrint(namespace, options);
+        .rootPrint(namespace, options) ?? node.type.resolve(namespace, options).rootPrint(namespace, options);
 
     if (node.isVarArgs) {
       return `...args: ${type}`;
@@ -809,30 +811,32 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     let output_parameters = node.output_parameters;
     let return_type = node.return();
 
-
     const Parameters = this.generateParameters(parameters);
     let ReturnType = this.generateReturn(return_type, output_parameters);
 
     const Generics = this.generateGenerics(node.generics);
 
     if (node.shouldAnyify()) {
-      return `${invalid ? `["${node.name}"]` : node.name}: ${Generics}((${Parameters}) => ${ReturnType}) | any;`;
+      return `${
+        invalid ? `["${node.name}"]` : node.name
+      }: ${Generics}((${Parameters}) => ${ReturnType}) | any;`;
     }
 
     const warning = node.getWarning();
-    return `${warning ? `${warning}\n` : ""}${invalid ? `["${node.name}"]` : node.name}${Generics}(${Parameters}): ${ReturnType};`;
+    return `${warning ? `${warning}\n` : ""}${
+      invalid ? `["${node.name}"]` : node.name
+    }${Generics}(${Parameters}): ${ReturnType};`;
   }
 
   generateStaticClassFunction(node: GirStaticClassFunction): string {
     const Generics = this.generateGenerics(node.generics);
 
-    let ReturnType = this.generateReturn(
-      node.return(),
-      node.output_parameters
-    );
+    let ReturnType = this.generateReturn(node.return(), node.output_parameters);
 
     const warning = node.getWarning();
-    return `${warning ? `${warning}\n` : ""}static ${node.name}${Generics}(${this.generateParameters(node.parameters)}): ${ReturnType};`;
+    return `${warning ? `${warning}\n` : ""}static ${node.name}${Generics}(${this.generateParameters(
+      node.parameters
+    )}): ${ReturnType};`;
   }
 
   generateAlias(node: GirAlias): string {
@@ -841,9 +845,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     const GenericBase = node.generics
       .map(g => {
         if (g.type) {
-          return `${g.name} = ${g.type
-            .resolve(namespace, options)
-            .rootPrint(namespace, options)}`;
+          return `${g.name} = ${g.type.resolve(namespace, options).rootPrint(namespace, options)}`;
         }
 
         return `${g.name}`;
@@ -865,13 +867,13 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       console.debug(`Resolving the types of ${namespace.name}...`);
     }
 
-    let suffix = '';
+    let suffix = "";
 
-    if (!options.noAdvancedVariants && node.name === 'GLib') {
+    if (!options.noAdvancedVariants && node.name === "GLib") {
       suffix = `\n${overrideGLib(node)}\n`;
-    } else if (node.name === 'GObject') {
+    } else if (node.name === "GObject") {
       suffix = `\n${overrideGObject(node)}\n`;
-    } else if (node.name === 'Gio') {
+    } else if (node.name === "Gio") {
       suffix = `\n${overrideGio(node)}\n`;
     }
 
@@ -882,7 +884,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
 /**
  * ${name} ${node.version}
  * 
- * Generated from ${node.package_version.join('.')}
+ * Generated from ${node.package_version.join(".")}
  */
 `;
       const base = `
@@ -895,13 +897,20 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
 
       const content = Array.from(node.members.values())
         .map(m => {
-          return `${(Array.isArray(m) ? m : [m]).map(m => m.emit ? (m as GirBase).asString(this) : '').join(`\n`)}`;
+          return `${(Array.isArray(m) ? m : [m])
+            .map(m => (m.emit ? (m as GirBase).asString(this) : ""))
+            .join(`\n`)}`;
         })
         .join(`\n`);
 
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
       const imports = Array.from(node.getImports())
-        .map(([i, version]) => `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${options.versionedImports ? version.toLowerCase().split('.')[0] : ''}";`)
+        .map(
+          ([i, version]) =>
+            `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${
+              options.versionedImports ? version.toLowerCase().split(".")[0] : ""
+            }";`
+        )
         .join(`${`\n`}`);
 
       const output = [header, imports, base, content, suffix].join(`\n\n`);

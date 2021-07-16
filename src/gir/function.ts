@@ -7,7 +7,6 @@ import {
   ClosureType,
   NullableType,
   TypeExpression,
-  ThisType,
   Generic,
   FunctionType
 } from "../gir";
@@ -18,11 +17,18 @@ import {
   CallableParamElement,
   CallbackElement,
   VirtualMethodElement,
-  ConstructorElement,
+  ConstructorElement
 } from "@gi.ts/parser";
 
 import { GirNamespace } from "./namespace";
-import { getType, isInvalid, sanitizeMemberName, sanitizeIdentifierName, resolveDirectedType, parseDoc, parseMetadata } from "./util";
+import {
+  getType,
+  isInvalid,
+  sanitizeMemberName,
+  sanitizeIdentifierName,
+  parseDoc,
+  parseMetadata
+} from "./util";
 import { GirBaseClass } from "./class";
 import { GirEnum } from "./enum";
 import { GirSignal } from "./signal";
@@ -30,7 +36,9 @@ import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
 
-function hasShadow(obj: FunctionElement | MethodElement): obj is FunctionElement & { $: { shadows: string } } {
+function hasShadow(
+  obj: FunctionElement | MethodElement
+): obj is FunctionElement & { $: { shadows: string } } {
   return obj.$["shadows"] != null;
 }
 
@@ -63,11 +71,15 @@ export class GirFunction extends GirBase {
     this.return_type = return_type;
   }
 
-  copy({ outputParameters, parameters, return_type }: {
-    parent?: undefined,
-    parameters?: GirFunctionParameter[],
-    outputParameters?: GirFunctionParameter[],
-    return_type?: TypeExpression
+  copy({
+    outputParameters,
+    parameters,
+    return_type
+  }: {
+    parent?: undefined;
+    parameters?: GirFunctionParameter[];
+    outputParameters?: GirFunctionParameter[];
+    return_type?: TypeExpression;
   } = {}): GirFunction {
     const fn = new GirFunction({
       raw_name: this.raw_name,
@@ -140,7 +152,7 @@ export class GirFunction extends GirBase {
         const user_data_params = [] as number[];
 
         parameters = parameters
-          .map((p) => {
+          .map(p => {
             const unwrapped_type = p.type.unwrap();
 
             if (unwrapped_type instanceof ArrayType && unwrapped_type.length != null) {
@@ -163,33 +175,35 @@ export class GirFunction extends GirBase {
           })
           .filter(v => !(v.type instanceof TypeIdentifier && v.type.is("GLib", "DestroyNotify")))
           .reverse()
-          .reduce(({ allowOptions, params }, p) => {
-            const { type, isOptional } = p;
+          .reduce(
+            ({ allowOptions, params }, p) => {
+              const { type, isOptional } = p;
 
-            if (allowOptions) {
-              if (type instanceof NullableType) {
-                params.push(p.copy({ isOptional: true }));
-              } else if (!isOptional) {
-                params.push(p);
-                return { allowOptions: false, params };
+              if (allowOptions) {
+                if (type instanceof NullableType) {
+                  params.push(p.copy({ isOptional: true }));
+                } else if (!isOptional) {
+                  params.push(p);
+                  return { allowOptions: false, params };
+                } else {
+                  params.push(p);
+                }
               } else {
-                params.push(p);
+                if (isOptional) {
+                  params.push(p.copy({ type: new NullableType(type), isOptional: false }));
+                } else {
+                  params.push(p);
+                }
               }
-            } else {
-              if (isOptional) {
-                params.push(p.copy({ type: new NullableType(type), isOptional: false }));
-              } else {
-                params.push(p);
-              }
+
+              return { allowOptions, params };
+            },
+            {
+              allowOptions: true,
+              params: [] as GirFunctionParameter[]
             }
-
-            return { allowOptions, params };
-          }, {
-            allowOptions: true,
-            params: [] as GirFunctionParameter[]
-          })
-          .params
-          .reverse()
+          )
+          .params.reverse()
           .filter((p): p is GirFunctionParameter => p != null);
       }
     }
@@ -274,12 +288,14 @@ export class GirConstructor extends GirBase {
     this.parameters = parameters.map(p => p.copy({ parent: this }));
   }
 
-  copy({ parameters, return_type }: {
-    parent?: undefined,
-    parameters?: GirFunctionParameter[],
-    return_type?: TypeExpression
+  copy({
+    parameters,
+    return_type
+  }: {
+    parent?: undefined;
+    parameters?: GirFunctionParameter[];
+    return_type?: TypeExpression;
   } = {}): GirConstructor {
-
     return new GirConstructor({
       name: this.name,
       return_type: return_type ?? this.return_type,
@@ -357,8 +373,8 @@ export class GirFunctionParameter extends GirBase {
       type?: TypeExpression;
       isOptional?: boolean;
     } = {
-        parent: this.parent
-      }
+      parent: this.parent
+    }
   ): GirFunctionParameter {
     const { type, parent, direction, isVarArgs, isOptional, name, doc } = this;
 
@@ -508,7 +524,7 @@ export class GirClassFunction extends GirBase {
     interfaceParent?: GirBaseClass | GirEnum;
     parameters?: GirFunctionParameter[];
     outputParameters?: GirFunctionParameter[];
-    returnType?: TypeExpression
+    returnType?: TypeExpression;
   } = {}): GirClassFunction {
     let constr = GirClassFunction;
 
@@ -612,7 +628,6 @@ export class GirVirtualClassFunction extends GirClassFunction {
     return this.return_type;
   }
 
-
   accept(visitor: GirVisitor): GirVirtualClassFunction {
     const node = this.copy({
       parameters: this.parameters.map(p => {
@@ -677,18 +692,22 @@ export class GirStaticClassFunction extends GirClassFunction {
 
 export class GirCallback extends GirFunction {
   asFunctionType(): FunctionType {
-    return new FunctionType(Object.fromEntries(
-      this.parameters.map(p => [p.name, p.type] as const)
-    ), this.return_type);
+    return new FunctionType(
+      Object.fromEntries(this.parameters.map(p => [p.name, p.type] as const)),
+      this.return_type
+    );
   }
 
-  copy({ parameters, returnType, outputParameters }: {
-    parent?: undefined,
-    parameters?: GirFunctionParameter[],
-    outputParameters?: GirFunctionParameter[],
-    returnType?: TypeExpression
+  copy({
+    parameters,
+    returnType,
+    outputParameters
+  }: {
+    parent?: undefined;
+    parameters?: GirFunctionParameter[];
+    outputParameters?: GirFunctionParameter[];
+    returnType?: TypeExpression;
   } = {}): GirCallback {
-
     const cb = new GirCallback({
       name: this.name,
       raw_name: this.raw_name,
