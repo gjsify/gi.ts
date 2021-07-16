@@ -1,7 +1,7 @@
 {
   "name": "@gi.ts/cli",
   "description": "The command line interface for gi.ts (type checking for GObject Introspection and GJS)",
-  "version": "1.5.5",
+  "version": "1.5.6",
   "author": "Evan Welsh",
   "bin": {
     "gi-ts": "./bin/run"
