@@ -17,7 +17,7 @@
     "tslib": "^1"
   },
   "peerDependencies": {
-    "@gi.ts/lib": "^1.5.3"
+    "@gi.ts/lib": "^1.5.6"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
