@@ -498,9 +498,21 @@ export class GirNamespace {
         .forEach(c => building.members.set(c.name, c));
     }
 
-    const [major = null] = building.getMembers("MAJOR_VERSION");
-    const [minor = null] = building.getMembers("MINOR_VERSION");
-    const [micro = null] = building.getMembers("MICRO_VERSION");
+    let [major = null] = building.getMembers("MAJOR_VERSION");
+    let [minor = null] = building.getMembers("MINOR_VERSION");
+    let [micro = null] = building.getMembers("MICRO_VERSION");
+
+    if (!major) {
+      major = building.getMembers("VERSION_MAJOR")[0] ?? null;
+    }
+
+    if (!minor) {
+      minor = building.getMembers("VERSION_MINOR")[0] ?? null;
+    }
+
+    if (!micro) {
+      micro = building.getMembers("VERSION_MICRO")[0] ?? null;
+    }
 
     if (major instanceof GirConst && minor instanceof GirConst && major.value && minor.value) {
       if (micro instanceof GirConst && micro.value) {
