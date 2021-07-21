@@ -62,7 +62,7 @@ export function override(node: GirNamespace) {
         : State extends \`\${infer Key}\${''}\${infer State}\`
         ? $ParseDeepVariantValue<State> extends [infer Value, \`\${infer State}\`]
         ? State extends \`}\${infer State}\`
-        ? [[...Memo, Key, Value], State]
+        ? [[...Memo, $ParseVariant<Key>, Value], State]
         : VariantTypeError<\`$ParseDeepVariantKeyValue encountered an invalid variant string: \${State} (1)\`>
         : VariantTypeError<\`$ParseDeepVariantKeyValue returned unexpected value for: \${State}\`>
         : VariantTypeError<\`$ParseDeepVariantKeyValue encountered an invalid variant string: \${State} (2)\`>;
@@ -102,6 +102,10 @@ export function override(node: GirNamespace) {
         ? $ParseDeepVariantKeyValue<State>
         : State extends \`ay\${infer State}\` ?
         [Uint8Array, State]
+        : State extends \`m\${infer State}\`
+        ? $ParseDeepVariantValue<State> extends [infer Value, \`\${infer State}\`]
+          ? [Value | null, State]
+          : VariantTypeError<\`$ParseDeepVariantValue encountered an invalid variant string: \${State} (3)\`>
         : State extends \`a\${infer State}\` ?
         $ParseDeepVariantValue<State> extends [infer Value, \`\${infer State}\`] ?
         [Value[], State]
@@ -177,6 +181,10 @@ export function override(node: GirNamespace) {
         ? $ParseRecursiveVariantKeyValue<State>
         : State extends \`ay\${infer State}\` ?
         [Uint8Array, State]
+        : State extends \`m\${infer State}\`
+        ? $ParseRecursiveVariantValue<State> extends [infer Value, \`\${infer State}\`]
+          ? [Value | null, State]
+          : VariantTypeError<\`$ParseRecursiveVariantValue encountered an invalid variant string: \${State} (3)\`>
         : State extends \`a\${infer State}\` ?
         $ParseRecursiveVariantValue<State> extends [infer Value, \`\${infer State}\`] ?
         [Value[], State]
@@ -254,11 +262,13 @@ export function override(node: GirNamespace) {
         ? $ParseVariantKeyValue<State>
         : State extends \`ay\${infer State}\` ?
         [Uint8Array, State]
+        : State extends \`m\${infer State}\`
+        ? $ParseVariantValue<State> extends [infer Value, \`\${infer State}\`]
+          ? [Value | null, State]
+          : VariantTypeError<\`$ParseShallowRootVariantValue encountered an invalid variant string: \${State} (2)\`>
         : State extends \`a\${infer State}\` ?
-        $ParseVariantValue<State> extends [infer Value, \`\${infer State}\`] ?
-        [Value[], State]
-        : VariantTypeError<\`$ParseShallowRootVariantValue encountered an invalid variant string: \${State} (1)\`>
-        : VariantTypeError<\`$ParseShallowRootVariantValue encountered an invalid variant string: \${State} (2)\`>;
+        [Variant<State>[], State]
+        : VariantTypeError<\`$ParseShallowRootVariantValue encountered an invalid variant string: \${State} (1)\`>;
     
     type $ParseVariantValue<State extends string> =
         string extends State
@@ -269,9 +279,22 @@ export function override(node: GirNamespace) {
         ? ['o', State]
         : State extends \`g\${infer State}\`
         ? ['g', State]
-        : State extends \`\${\`n\` | \`q\` | \`t\` | \`d\` | \`u\` | \`i\` | \`x\` | \`y\`}\${infer State}\`
-        // TODO
-        ? ['u', State]
+        : State extends \`n\${infer State}\`
+        ? ["n", State]
+        : State extends \`q\${infer State}\`
+        ? ["q", State]
+        : State extends \`t\${infer State}\`
+        ? ["t", State]
+        : State extends \`d\${infer State}\`
+        ? ["d", State]
+        : State extends \`u\${infer State}\`
+        ? ["u", State]
+        : State extends \`i\${infer State}\`
+        ? ["i", State]
+        : State extends \`x\${infer State}\`
+        ? ["x", State]
+        : State extends \`y\${infer State}\`
+        ? ["y", State]
         : State extends \`b\${infer State}\`
         ? ['b', State]
         : State extends \`v\${infer State}\`
@@ -288,6 +311,10 @@ export function override(node: GirNamespace) {
         ? $ParseVariantKeyValue<State>
         : State extends \`ay\${infer State}\` ?
         [Uint8Array, State]
+        : State extends \`m\${infer State}\`
+        ? $ParseVariantValue<State> extends [infer Value, \`\${infer State}\`]
+          ? [Value | null, State]
+          : VariantTypeError<\`$ParseVariantValue encountered an invalid variant string: \${State} (3)\`>
         : State extends \`a\${infer State}\` ?
         $ParseVariantValue<State> extends [infer Value, \`\${infer State}\`] ?
         [Value[], State]
@@ -314,13 +341,11 @@ export function override(node: GirNamespace) {
         static ["new"]<S extends string>(sig: S, value: $ParseDeepVariant<typeof sig>): Variant<S>;
         static _new_internal<S extends string>(sig: S, value: $ParseDeepVariant<typeof sig>): Variant<S>;
         static new_array<C extends string = "a?">(
-            child_type: null,
-            children: Variant<C>[] | null
-        ): Variant<\`a\${C}\`>;
-        static new_array<C extends string = "a?">(
-            child_type: VariantType<C>,
-            children: Variant<$VariantTypeToString<typeof child_type>>[] | null
-        ): Variant<\`a\${C}\`>;
+            child_type: VariantType<C> | null,
+            children: typeof child_type extends VariantType<any>
+              ? Variant<$VariantTypeToString<typeof child_type>>[]
+              : Variant<C>[]
+          ): Variant<\`a\${C}\`>;
         static new_boolean(value: boolean): Variant<'b'>;
         static new_byte(value: number): Variant<'y'>;
         static new_bytestring(string: Uint8Array | string): Variant<'ay'>;
