@@ -484,9 +484,15 @@ export default class Generate extends Command {
           let generated: lib.GeneratedModule | null = null;
 
           const output = name as string;
-          const version_suffix = versionedOutput
+          let version_suffix = versionedOutput
             ? version.toLowerCase().split(".")[0]
             : "";
+          
+          // Hardcode harfbuzz for now...
+          if (output.toLowerCase() === 'harfbuzz' && version_suffix === '0') {
+            version_suffix = '2';
+          }
+
           const output_slug = `${output.toLowerCase()}${version_suffix}`;
 
           generated = await lib.generateModule(
