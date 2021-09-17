@@ -20,7 +20,8 @@ import {
   VoidType,
   GenerifiedTypeIdentifier,
   GenericType,
-  GirMetadata
+  GirMetadata,
+  NativeType
 } from "../gir";
 import { GirBaseClass } from "./class";
 import { TwoKeyMap } from "../util";
@@ -168,7 +169,8 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
     }
   }
 
-  const nullable = parameter.$ && (parameter.$["allow-none"] === "1" || parameter.$["nullable"] === "1");
+  const nullable = parameter.$ && parameter.$["nullable"] === "1";
+  const allowNone = parameter.$ && parameter.$["allow-none"] === "1";
 
   let x = name.split(" ");
   if (x.length === 1) {
@@ -226,7 +228,15 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
     variableType = ClosureType.new({ type: variableType, user_data: closure });
   }
 
-  if (nullable) {
+  if (
+    (parameter.$.direction === "inout" || parameter.$.direction === "out") &&
+    (nullable || allowNone) &&
+    !(variableType instanceof NativeType)
+  ) {
+    return new NullableType(variableType);
+  }
+
+  if ((!parameter.$.direction || parameter.$.direction === "in") && nullable) {
     return new NullableType(variableType);
   }
 

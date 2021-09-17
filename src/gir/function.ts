@@ -211,9 +211,11 @@ export class GirFunction extends GirBase {
     let input_parameters = parameters.filter(
       param => param.direction === Direction.In || param.direction === Direction.Inout
     );
-    let output_parameters = parameters.filter(
-      param => param.direction && (param.direction === Direction.Out || param.direction === Direction.Inout)
-    );
+    let output_parameters = parameters
+      .filter(
+        param => param.direction && (param.direction === Direction.Out || param.direction === Direction.Inout)
+      )
+      .map(parameter => parameter.copy({ isOptional: false }));
 
     const fn = new GirFunction({
       parameters: input_parameters,
@@ -338,6 +340,7 @@ export class GirFunctionParameter extends GirBase {
   readonly direction: Direction;
   readonly isVarArgs: boolean = false;
   readonly isOptional: boolean = false;
+  readonly isNullable: boolean = false;
   readonly parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
 
   constructor({
@@ -347,7 +350,8 @@ export class GirFunctionParameter extends GirBase {
     parent,
     doc,
     isVarArgs = false,
-    isOptional = false
+    isOptional = false,
+    isNullable = false
   }: {
     name: string;
     parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
@@ -356,6 +360,7 @@ export class GirFunctionParameter extends GirBase {
     doc?: string | null;
     isVarArgs?: boolean;
     isOptional?: boolean;
+    isNullable?: boolean;
   }) {
     super(name);
 
@@ -365,6 +370,7 @@ export class GirFunctionParameter extends GirBase {
     this.doc = doc;
     this.isVarArgs = isVarArgs;
     this.isOptional = isOptional;
+    this.isNullable = isNullable;
   }
 
   copy(
@@ -372,11 +378,12 @@ export class GirFunctionParameter extends GirBase {
       parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
       type?: TypeExpression;
       isOptional?: boolean;
+      isNullable?: boolean;
     } = {
       parent: this.parent
     }
   ): GirFunctionParameter {
-    const { type, parent, direction, isVarArgs, isOptional, name, doc } = this;
+    const { type, parent, direction, isVarArgs, isOptional, isNullable, name, doc } = this;
 
     return new GirFunctionParameter({
       parent: options.parent ?? parent,
@@ -384,6 +391,7 @@ export class GirFunctionParameter extends GirBase {
       direction,
       isVarArgs,
       isOptional: options.isOptional ?? isOptional,
+      isNullable: options.isNullable ?? isNullable,
       type: options.type ?? type,
       doc
     })._copyBaseProperties(this);
@@ -414,8 +422,9 @@ export class GirFunctionParameter extends GirBase {
       name = `_${name}`;
     }
 
-    let isVarArgs: boolean = false;
-    let isOptional: boolean = false;
+    let isVarArgs = false;
+    let isOptional = false;
+    let isNullable = false;
 
     let type: TypeExpression;
     let direction: Direction;
@@ -433,10 +442,15 @@ export class GirFunctionParameter extends GirBase {
       // Default to "in" direction
       direction = parameter.$.direction || Direction.In;
 
-      const opt = parameter.$.optional === "1";
+      const optional = parameter.$.optional === "1";
+      const nullable = parameter.$.nullable === "1";
 
-      if (opt) {
+      if (optional) {
         isOptional = true;
+      }
+
+      if (nullable) {
+        isNullable = true;
       }
 
       type = getType(modName, ns, parameter);
@@ -453,6 +467,7 @@ export class GirFunctionParameter extends GirBase {
       direction,
       parent: parent ?? undefined,
       isOptional,
+      isNullable,
       name
     });
 
