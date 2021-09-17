@@ -111,7 +111,7 @@ export class GirNamespace {
   }
 
   registerResolveName(resolveName: string, namespace: string, name: string) {
-    this._resolve_names.set(resolveName, new TypeIdentifier(name,namespace));
+    this._resolve_names.set(resolveName, new TypeIdentifier(name, namespace));
   }
 
   get members(): Map<string, GirNSMember | GirNSMember[]> {
@@ -301,7 +301,7 @@ export class GirNamespace {
   }
 
   hasSymbol(name: string) {
-    return this.members.has(name)
+    return this.members.has(name);
   }
 
   resolveSymbolFromTypeName(name: string): string | null {
@@ -341,7 +341,12 @@ export class GirNamespace {
     const ns = repo.repository[0].namespace[0];
 
     const modName = ns.$["name"];
-    const version = ns.$["version"];
+    let version = ns.$["version"];
+
+    // Hardcode harfbuzz version for now...
+    if (modName === "HarfBuzz" && version === "0.0") {
+      version = "2.0";
+    }
 
     if (!modName) {
       throw new Error(`Invalid GIR file: no namespace name specified.`);
