@@ -340,12 +340,11 @@ export interface ${name}Prototype${Generics}${Extends} {${
       MainConstructor = "";
     } else if (node.mainConstructor) {
       MainConstructor = node.mainConstructor.asString(this);
-    } else if (node.constructors.length > 0) {
-      const [firstConstructor] = node.constructors;
-      MainConstructor = firstConstructor.asString(this);
     }
 
-    if (node.isSimple(namespace.name)) {
+    const hasZeroArgsConstructor = node.mainConstructor && node.mainConstructor.parameters.length === 0;
+
+    if (hasZeroArgsConstructor || node.isSimple()) {
       const ConstructorFields = node.fields
         .filter(f => !f.isStatic && !f.isNative)
         .map(v => {
@@ -691,9 +690,8 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
           type = new BinaryType(type.unwrap(), AnyType);
           break;
         case ConflictType.PROPERTY_NAME_CONFLICT:
-          getterSetterAnnotation = setterAnnotation = getterAnnotation = `// This accessor conflicts with another accessor's type in a parent class or interface.
-                  // @ts-expect-error\n`;
-          type = type.unwrap();
+          getterSetterAnnotation = setterAnnotation = getterAnnotation = `// This accessor conflicts with another accessor's type in a parent class or interface.\n`;
+          type = new BinaryType(type.unwrap(), AnyType);
           break;
       }
 
