@@ -2,6 +2,7 @@ import gio from "./gio";
 import glib from "./glib";
 import clutter from "./clutter";
 import st from "./st";
+import meta from "./meta";
 
 import { GirNamespace } from "../gir/namespace";
 import { GirNSRegistry } from "../gir/registry";
@@ -38,6 +39,7 @@ export function generify(registry: GirNSRegistry, inferGenerics: boolean) {
 
   $_(clutter);
   $_(st);
+  $_(meta);
 
   const visitor = new GenericVisitor(registry, inferGenerics);
 
