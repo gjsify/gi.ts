@@ -975,6 +975,7 @@ export class GirClass extends GirBaseClass {
 export class GirRecord extends GirBaseClass {
   private _isForeign: boolean = false;
   private _structFor: TypeIdentifier | null = null;
+  private _isSimple: boolean | null = null;
 
   isForeign(): boolean {
     return this._isForeign;
@@ -1098,8 +1099,8 @@ export class GirRecord extends GirBaseClass {
 
     clazz._structFor = _structFor;
     clazz._isForeign = _isForeign;
-    clazz.props = (options.props ?? props).map(p => p.copy());
-    clazz.fields = (options.fields ?? fields).map(f => f.copy());
+    clazz.props = (options.props ?? props).map(p => p.copy({ parent: clazz }));
+    clazz.fields = (options.fields ?? fields).map(f => f.copy({ parent: clazz }));
     clazz.callbacks = (options.callbacks ?? callbacks).map(c => c.copy());
     clazz.mainConstructor = mainConstructor?.copy() ?? null;
     clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
@@ -1227,37 +1228,54 @@ export class GirRecord extends GirBaseClass {
     return clazz;
   }
 
-  isSimple(modName: string) {
+  /**
+   * Calculate if a type expression is "simple"
+   */
+  isSimpleType(typeContainer: TypeExpression): boolean {
+    // Primitive types can be directly allocated.
+    if (typeContainer instanceof NativeType) {
+      return true;
+    }
+
+    if (typeContainer instanceof TypeIdentifier) {
+      const type = typeContainer;
+
+      const child_ns = this.namespace.assertInstalledImport(type.namespace);
+      const child = child_ns.getClass(type.name);
+      if (child === this) {
+        return false;
+      }
+
+      if (child instanceof GirRecord) {
+        return child.isSimple();
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * 
+   */
+  isSimple() {
+    // Records with no fields are not
+    // constructable.
     if (this.fields.length === 0) {
       return false;
     }
 
-    const isSimpleType = (typeContainer: TypeExpression) => {
-      // Primitive types can be directly allocated.
-      if (typeContainer instanceof NativeType) {
-        return true;
-      }
+    // Because we may have to recursively check
+    // if types are instantiable we cache whether
+    // or not a given Record is simple.
+    if (this._isSimple !== null) {
+      return this._isSimple;
+    }
 
-      if (typeContainer instanceof TypeIdentifier) {
-        const type = typeContainer;
+    const isSimple = this.fields.every(f => this.isSimpleType(f.type));
 
-        const child_ns = this.namespace.assertInstalledImport(type.namespace || modName);
-        const child = child_ns.getClass(type.name);
+    this._isSimple = isSimple;
 
-        // TODO Handle Unions
-        if (child instanceof GirRecord) {
-          if (child === this) {
-            return false;
-          }
-
-          return child.isSimple(modName);
-        } else {
-          return false;
-        }
-      }
-    };
-
-    return this.fields.every(f => isSimpleType(f.type));
+    return isSimple;
   }
 
   asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateRecord"]> {
@@ -1309,8 +1327,8 @@ export class GirInterface extends GirBaseClass {
       clazz.parent = parent;
     }
 
-    clazz.props = (options.props ?? props).map(p => p.copy());
-    clazz.fields = (options.fields ?? fields).map(f => f.copy());
+    clazz.props = (options.props ?? props).map(p => p.copy({ parent: clazz }));
+    clazz.fields = (options.fields ?? fields).map(f => f.copy({ parent: clazz }));
     clazz.callbacks = (options.callbacks ?? callbacks).map(c => c.copy());
     clazz.mainConstructor = mainConstructor?.copy() ?? null;
     clazz.constructors = (options.constructors ?? constructors).map(c => c.copy());
