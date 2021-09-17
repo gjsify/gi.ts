@@ -1,6 +1,16 @@
 import { GirNamespace } from "../gir/namespace";
 import { GirConstructor, GirFunctionParameter, GirClassFunction, GirFunction } from "../gir/function";
-import { NativeType, AnyType, BooleanType, Uint8ArrayType, StringType, UnknownType, GenericType } from "../gir";
+import {
+  NativeType,
+  AnyType,
+  BooleanType,
+  Uint8ArrayType,
+  StringType,
+  UnknownType,
+  GenericType,
+  TypeIdentifier,
+  BinaryType
+} from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirNSRegistry } from "../gir/registry";
 import { GirRecord } from "../gir/class";
@@ -60,17 +70,24 @@ export default {
     {
       const Error = namespace.assertClass("Error");
 
-      Error.mainConstructor = new GirConstructor({
-        name: "new",
-        parameters: [
-          new GirFunctionParameter({
-            name: "options",
-            type: NativeType.of("{ message: string, code: number }"),
-            direction: Direction.In
+      const fixQuark = <T extends GirConstructor | GirClassFunction>(c: T): T => {
+        return c.copy({
+          parameters: c.parameters.map(p => {
+            if (p.type instanceof TypeIdentifier && p.type.is("GLib", "Quark")) {
+              return p.copy({
+                type: new BinaryType(new NativeType("({ new(...args: any[] ): Error })"), p.type)
+              });
+            }
+
+            return p;
           })
-        ],
-        return_type: Error.getType()
-      });
+        }) as T;
+      };
+
+      if (Error.mainConstructor) Error.mainConstructor = fixQuark(Error.mainConstructor);
+
+      Error.constructors = Error.constructors.map(c => fixQuark(c));
+      Error.members = Error.members.map(m => fixQuark(m));
     }
 
     {
@@ -94,11 +111,11 @@ export default {
         default: new NativeType(`any`),
         constraint: StringType
       });
-  
+
       const VariantParams = [
         new GirFunctionParameter({
           name: "sig",
-          type: new GenericType('A'),
+          type: new GenericType("A"),
           direction: Direction.In
         }),
         new GirFunctionParameter({
@@ -159,7 +176,7 @@ export default {
           parameters: VariantParams.map(vp => vp.copy())
         })
       );
-    };
+    }
 
     // GLib.VariantDict
 
