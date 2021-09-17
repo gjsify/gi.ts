@@ -472,6 +472,12 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
       } else {
         return UnknownType;
       }
+    } else if (type.is("GLib", "HashTable")) {
+      if (direction === Direction.In) {
+        return new BinaryType(new NativeType("{ [key: string]: any }"), type);
+      } else {
+        return type;
+      }
     }
   }
 
@@ -480,17 +486,14 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
 
 /**
  * Resolves a class identifier.
- * 
+ *
  * If the identifier is a class type it is returned,
  * otherwise `null`.
- * 
- * @param namespace 
- * @param type 
+ *
+ * @param namespace
+ * @param type
  */
-export function resolveTypeIdentifier(
-  namespace: GirNamespace,
-  type: TypeIdentifier
-): GirBaseClass | null {
+export function resolveTypeIdentifier(namespace: GirNamespace, type: TypeIdentifier): GirBaseClass | null {
   const ns = type.namespace;
   const name = type.name;
 
@@ -505,9 +508,9 @@ export function resolveTypeIdentifier(
 }
 
 /**
- * 
- * @param a 
- * @param b 
+ *
+ * @param a
+ * @param b
  */
 function isTypeConflict(a: TypeExpression, b: TypeExpression) {
   return !a.equals(b) || !b.equals(a);
@@ -517,14 +520,20 @@ function isTypeConflict(a: TypeExpression, b: TypeExpression) {
  * Checks if a given type expression in the context of a given this type
  * is a subtype (compatible with) of another type expression in the context
  * of a parent type.
- * 
- * @param namespace 
- * @param thisType 
- * @param parentThisType 
- * @param potentialSubtype 
- * @param parentType 
+ *
+ * @param namespace
+ * @param thisType
+ * @param parentThisType
+ * @param potentialSubtype
+ * @param parentType
  */
-export function isSubtypeOf(namespace: GirNamespace, thisType: TypeIdentifier, parentThisType: TypeIdentifier, potentialSubtype: TypeExpression, parentType: TypeExpression) {
+export function isSubtypeOf(
+  namespace: GirNamespace,
+  thisType: TypeIdentifier,
+  parentThisType: TypeIdentifier,
+  potentialSubtype: TypeExpression,
+  parentType: TypeExpression
+) {
   if (!isTypeConflict(potentialSubtype, parentType)) {
     return true;
   }
@@ -532,7 +541,10 @@ export function isSubtypeOf(namespace: GirNamespace, thisType: TypeIdentifier, p
   const unwrappedSubtype = potentialSubtype.unwrap();
   let unwrappedParent = parentType.unwrap();
 
-  if ((potentialSubtype.equals(ThisType) && unwrappedParent.equals(thisType)) || (parentType.equals(ThisType) && unwrappedSubtype.equals(parentThisType))) {
+  if (
+    (potentialSubtype.equals(ThisType) && unwrappedParent.equals(thisType)) ||
+    (parentType.equals(ThisType) && unwrappedSubtype.equals(parentThisType))
+  ) {
     return true;
   }
 
@@ -551,10 +563,12 @@ export function isSubtypeOf(namespace: GirNamespace, thisType: TypeIdentifier, p
     return false;
   }
 
-  const resolutions = namespace.parent.subtypes.get(unwrappedSubtype.name, unwrappedSubtype.namespace) ?? new TwoKeyMap<string, string, boolean>();
+  const resolutions =
+    namespace.parent.subtypes.get(unwrappedSubtype.name, unwrappedSubtype.namespace) ??
+    new TwoKeyMap<string, string, boolean>();
   const resolution = resolutions.get(unwrappedParent.name, unwrappedParent.namespace);
 
-  if (typeof resolution === 'boolean') {
+  if (typeof resolution === "boolean") {
     return resolution;
   }
 
@@ -568,7 +582,7 @@ export function isSubtypeOf(namespace: GirNamespace, thisType: TypeIdentifier, p
   // This checks that the two types have the same form, regardless of identifier (e.g. A | null and B | null)
   const isStructurallySubtype = potentialSubtype.rewrap(AnyType).equals(parentType.rewrap(AnyType));
 
-  const isSubtype = isStructurallySubtype && x.node.someParent((t) => t.getType().equals(unwrappedParent));
+  const isSubtype = isStructurallySubtype && x.node.someParent(t => t.getType().equals(unwrappedParent));
 
   resolutions.set(unwrappedParent.name, unwrappedParent.namespace, isSubtype);
 
