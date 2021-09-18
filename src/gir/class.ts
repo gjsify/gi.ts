@@ -894,11 +894,11 @@ export class GirClass extends GirBaseClass {
         );
       }
 
-      // Fields (for "non-class" records)
+      // Fields
       if (klass.field) {
         klass.field
           .filter(isIntrospectable)
-          .filter(field => !field.$.private || field.$.private !== "1")
+          .filter(field => "private" in field.$ && field.$.private !== "1")
           .filter(field => !("callback" in field) && !field.$.name.startsWith("_"))
           .forEach(field => {
             const f = GirField.fromXML(modName, ns, options, null, field);
@@ -1208,6 +1208,7 @@ export class GirRecord extends GirBaseClass {
         clazz.fields.push(
           ...klass.field
             .filter(isIntrospectable)
+            .filter(field => "private" in field.$ && field.$.private !== "1")
             // TODO investigate these field callbacks.
             // Record fields can just be mirrors of existing functions.
             .filter(field => !("callback" in field))
