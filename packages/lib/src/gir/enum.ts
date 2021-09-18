@@ -22,9 +22,11 @@ export class GirEnum extends GirBase {
     this.ns = namespace.name;
   }
 
-  copy({ members }: {
+  copy({
+    members
+  }: {
     parent?: undefined;
-    members?: Map<string, GirEnumMember>
+    members?: Map<string, GirEnumMember>;
   } = {}): GirEnum {
     const { namespace, name, flags } = this;
 
@@ -43,9 +45,11 @@ export class GirEnum extends GirBase {
 
   accept(visitor: GirVisitor): GirEnum {
     const node = this.copy({
-      members: new Map(Array.from(this.members.entries()).map(([name, m]) => {
-        return [name, m.accept(visitor)];
-      }))
+      members: new Map(
+        Array.from(this.members.entries()).map(([name, m]) => {
+          return [name, m.accept(visitor)];
+        })
+      )
     });
 
     return visitor.visitEnum?.(node) ?? node;
@@ -177,9 +181,11 @@ export class GirError extends GirEnum {
     return generator.generateError(this);
   }
 
-  copy({ members }: {
+  copy({
+    members
+  }: {
     parent?: undefined;
-    members?: Map<string, GirEnumMember>
+    members?: Map<string, GirEnumMember>;
   } = {}): GirEnum {
     const { namespace, name, flags } = this;
 

@@ -19,7 +19,7 @@ export class GirField extends GirBase {
   writable: boolean;
   isNative: boolean = false;
 
-  copy(options?: { parent?: GirBase; type?: TypeExpression, isStatic?: boolean }): GirField {
+  copy(options?: { parent?: GirBase; type?: TypeExpression; isStatic?: boolean }): GirField {
     const { type, name, optional, computed, isStatic, writable } = this;
 
     return new GirField({
@@ -69,7 +69,13 @@ export class GirField extends GirBase {
     return visitor.visitField?.(node) ?? node;
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, _options: LoadOptions, _parent, field: FieldElement): GirField {
+  static fromXML(
+    namespace: string,
+    ns: GirNamespace,
+    _options: LoadOptions,
+    _parent,
+    field: FieldElement
+  ): GirField {
     let name = field.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const f = new GirField({ name: _name, type: getType(namespace, ns, field) });
@@ -100,7 +106,7 @@ export class GirProperty extends GirBase {
       readable,
       type: options?.type ?? type,
       constructOnly,
-      parent: options?.parent ?? parent,
+      parent: options?.parent ?? parent
     })._copyBaseProperties(this);
   }
 
@@ -137,29 +143,38 @@ export class GirProperty extends GirBase {
     this.parent = parent;
   }
 
-  asString<T extends FormatGenerator<any>>(generator: T, construct?: boolean): ReturnType<T["generateProperty"]> {
+  asString<T extends FormatGenerator<any>>(
+    generator: T,
+    construct?: boolean
+  ): ReturnType<T["generateProperty"]> {
     return generator.generateProperty(this, construct);
   }
 
   toCamelCase() {
-    const [part, ...parts] = this.name.split('_');
+    const [part, ...parts] = this.name.split("_");
 
     if (parts.length === 0) {
       return this.copy({
         name: part,
-        parent: this.parent,
+        parent: this.parent
       });
     }
 
-    const camelCase = `${part}${parts.map(s => `${s[0].toUpperCase()}${s.slice(1)}`).join('')}`
+    const camelCase = `${part}${parts.map(s => `${s[0].toUpperCase()}${s.slice(1)}`).join("")}`;
 
     return this.copy({
       name: camelCase,
-      parent: this.parent,
+      parent: this.parent
     });
   }
 
-  static fromXML(namespace: string, ns: GirNamespace, options: LoadOptions, parent: GirBaseClass | GirEnum, prop: PropertyElement): GirProperty {
+  static fromXML(
+    namespace: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    parent: GirBaseClass | GirEnum,
+    prop: PropertyElement
+  ): GirProperty {
     let name = prop.$["name"];
     let _name = name.replace(/[-]/g, "_");
     const property = new GirProperty({
@@ -168,7 +183,7 @@ export class GirProperty extends GirBase {
       readable: prop.$?.readable !== "0",
       constructOnly: prop.$?.["construct-only"] === "1",
       type: getType(namespace, ns, prop),
-      parent,
+      parent
     });
 
     return property;

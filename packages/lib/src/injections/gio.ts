@@ -1,6 +1,24 @@
 import { GirNamespace } from "../gir/namespace";
-import { GirClassFunction, GirConstructor, GirFunction, GirFunctionParameter, GirStaticClassFunction } from "../gir/function";
-import { StringType, NativeType, FunctionType, GenerifiedType, GenericType, AnyFunctionType, ArrayType, AnyType, VoidType, GenerifiedTypeIdentifier, Generic } from "../gir";
+import {
+  GirClassFunction,
+  GirConstructor,
+  GirFunction,
+  GirFunctionParameter,
+  GirStaticClassFunction
+} from "../gir/function";
+import {
+  StringType,
+  NativeType,
+  FunctionType,
+  GenerifiedType,
+  GenericType,
+  AnyFunctionType,
+  ArrayType,
+  AnyType,
+  VoidType,
+  GenerifiedTypeIdentifier,
+  Generic
+} from "../gir";
 import { Direction } from "@gi.ts/parser";
 import { GirField, JSField } from "../gir/property";
 import { GirClass, GirInterface } from "../gir/class";
@@ -52,13 +70,16 @@ export default {
         new GirField({
           name: "Symbol.iterator",
           computed: true,
-          type: new FunctionType({}, new GenerifiedType(new NativeType("IterableIterator"), new GenericType("A")))
+          type: new FunctionType(
+            {},
+            new GenerifiedType(new NativeType("IterableIterator"), new GenericType("A"))
+          )
         })
       );
     }
 
     {
-      const SettingsSchema = namespace.assertClass('SettingsSchema');
+      const SettingsSchema = namespace.assertClass("SettingsSchema");
 
       SettingsSchema.fields.push(
         new JSField({
@@ -69,7 +90,7 @@ export default {
     }
 
     {
-      const Settings = namespace.assertClass('Settings');
+      const Settings = namespace.assertClass("Settings");
 
       Settings.fields.push(
         new JSField({
@@ -87,22 +108,22 @@ export default {
         new JSField({
           name: "_children",
           type: new ArrayType(StringType)
-        }),
+        })
       );
     }
     {
       const DBusProxy = namespace.assertClass("DBusProxy");
 
       // This is not ideal, but DBusProxy's define functions and properties on the prototype.
-      DBusProxy.indexSignature = '[key: string]: any;';
+      DBusProxy.indexSignature = "[key: string]: any;";
 
       DBusProxy.members.push(
         new GirStaticClassFunction({
-          name: 'makeProxyWrapper',
+          name: "makeProxyWrapper",
           parent: DBusProxy,
           parameters: [
             new GirFunctionParameter({
-              name: 'args',
+              name: "args",
               type: new ArrayType(AnyType),
               isVarArgs: true,
               direction: Direction.In
@@ -111,11 +132,11 @@ export default {
           return_type: AnyType
         }),
         new GirClassFunction({
-          name: 'connectSignal',
+          name: "connectSignal",
           parent: DBusProxy,
           parameters: [
             new GirFunctionParameter({
-              name: 'args',
+              name: "args",
               type: new ArrayType(AnyType),
               isVarArgs: true,
               direction: Direction.In
@@ -124,11 +145,11 @@ export default {
           return_type: AnyType
         }),
         new GirClassFunction({
-          name: 'disconnectSignal',
+          name: "disconnectSignal",
           parent: DBusProxy,
           parameters: [
             new GirFunctionParameter({
-              name: 'args',
+              name: "args",
               type: new ArrayType(AnyType),
               isVarArgs: true,
               direction: Direction.In
@@ -150,22 +171,26 @@ export default {
       const [bus_unwatch_name] = namespace.getMembers("bus_unwatch_name");
       const [bus_watch_name_on_connection] = namespace.getMembers("bus_watch_name_on_connection");
 
-      if (!(bus_get instanceof GirFunction &&
-        bus_get_finish instanceof GirFunction &&
-        bus_get_sync instanceof GirFunction &&
-        bus_own_name instanceof GirFunction &&
-        bus_own_name_on_connection instanceof GirFunction &&
-        bus_unown_name instanceof GirFunction &&
-        bus_watch_name instanceof GirFunction &&
-        bus_unwatch_name instanceof GirFunction &&
-        bus_watch_name_on_connection instanceof GirFunction)) {
+      if (
+        !(
+          bus_get instanceof GirFunction &&
+          bus_get_finish instanceof GirFunction &&
+          bus_get_sync instanceof GirFunction &&
+          bus_own_name instanceof GirFunction &&
+          bus_own_name_on_connection instanceof GirFunction &&
+          bus_unown_name instanceof GirFunction &&
+          bus_watch_name instanceof GirFunction &&
+          bus_unwatch_name instanceof GirFunction &&
+          bus_watch_name_on_connection instanceof GirFunction
+        )
+      ) {
         throw new Error(`Invalid dbus functions found in Gio!`);
       }
 
       const DBus = new GirInterface({
-        name: 'DBus',
+        name: "DBus",
         namespace
-      })
+      });
 
       DBus.members.push(
         ...[
@@ -178,19 +203,21 @@ export default {
           bus_watch_name,
           bus_unwatch_name,
           bus_watch_name_on_connection
-        ].map(fn => fn.asStaticClassFunction(DBus)).map(fn => {
-          const member = fn.copy();
+        ]
+          .map(fn => fn.asStaticClassFunction(DBus))
+          .map(fn => {
+            const member = fn.copy();
 
-          member.name = member.name.substring(4);
+            member.name = member.name.substring(4);
 
-          return member;
-        }),
+            return member;
+          })
       );
 
-      const DBusConnection = namespace.assertClass('DBusConnection');
+      const DBusConnection = namespace.assertClass("DBusConnection");
 
-      const call = DBusConnection.members.find(m => m.name === 'call');
-      const callFinish = DBusConnection.members.find(m => m.name === 'call_finish');
+      const call = DBusConnection.members.find(m => m.name === "call");
+      const callFinish = DBusConnection.members.find(m => m.name === "call_finish");
 
       if (!call || !callFinish) {
         throw new Error(`Missing call or call_finish in Gio.DBusConnection.`);
@@ -201,12 +228,13 @@ export default {
       call.generics.push(call_generic);
       callFinish.generics.push(call_generic);
 
-
       const replacement = call.copy({
         parameters: call.parameters.map(p => {
-          if (p.name === 'reply_type') {
+          if (p.name === "reply_type") {
             // Generify the parameter
-            return p.copy({ type: p.type.rewrap(new GenerifiedTypeIdentifier("VariantType", "GLib", [new GenericType("T")])) });
+            return p.copy({
+              type: p.type.rewrap(new GenerifiedTypeIdentifier("VariantType", "GLib", [new GenericType("T")]))
+            });
           }
 
           return p;
@@ -214,7 +242,9 @@ export default {
       });
 
       const finishReplacement = callFinish.copy({
-        returnType: callFinish.return().rewrap(new GenerifiedTypeIdentifier("Variant", "GLib", [new GenericType("T")]))
+        returnType: callFinish
+          .return()
+          .rewrap(new GenerifiedTypeIdentifier("Variant", "GLib", [new GenericType("T")]))
       });
 
       DBusConnection.members.splice(DBusConnection.members.indexOf(call), 1, replacement);
@@ -222,25 +252,25 @@ export default {
 
       DBusConnection.members.push(
         new GirClassFunction({
-          name: 'watch_name',
+          name: "watch_name",
           parameters: bus_watch_name_on_connection.parameters.slice(1),
           return_type: bus_watch_name_on_connection.return_type,
           parent: DBusConnection
         }),
         new GirClassFunction({
-          name: 'unwatch_name',
+          name: "unwatch_name",
           parameters: bus_unwatch_name.parameters.slice(),
           return_type: bus_unwatch_name.return_type,
           parent: DBusConnection
         }),
         new GirClassFunction({
-          name: 'own_name',
+          name: "own_name",
           parameters: bus_own_name_on_connection.parameters.slice(1),
           return_type: bus_own_name_on_connection.return_type,
           parent: DBusConnection
         }),
         new GirClassFunction({
-          name: 'unown_name',
+          name: "unown_name",
           parameters: bus_unown_name.parameters.slice(),
           return_type: bus_unown_name.return_type,
           parent: DBusConnection
@@ -250,13 +280,13 @@ export default {
       DBus.fields.push(
         new JSField({
           isStatic: true,
-          name: 'session',
+          name: "session",
           type: DBusConnection.getType(),
           writable: false
         }),
         new JSField({
           isStatic: true,
-          name: 'system',
+          name: "system",
           type: DBusConnection.getType(),
           writable: false
         })
@@ -281,20 +311,20 @@ export default {
       const Variant = namespace.assertInstalledImport("GLib").assertClass("Variant");
       const DBusConnection = namespace.assertClass("DBusConnection");
       const DBusInterfaceInfo = namespace.assertClass("DBusInterfaceInfo");
-      const DBusExportedObject = new GirClass('DBusExportedObject', namespace);
+      const DBusExportedObject = new GirClass("DBusExportedObject", namespace);
 
       DBusExportedObject.members.push(
         new GirStaticClassFunction({
-          name: 'wrapJSObject',
+          name: "wrapJSObject",
           parent: DBusExportedObject,
           parameters: [
             new GirFunctionParameter({
-              name: 'info',
+              name: "info",
               type: StringType,
               direction: Direction.In
             }),
             new GirFunctionParameter({
-              name: 'obj',
+              name: "obj",
               type: AnyType,
               direction: Direction.In
             })
@@ -302,29 +332,29 @@ export default {
           return_type: DBusExportedObject.getType()
         }),
         new GirClassFunction({
-          name: 'get_info',
+          name: "get_info",
           parent: DBusExportedObject,
           parameters: [],
           return_type: DBusInterfaceInfo.getType()
         }),
         new GirClassFunction({
-          name: 'get_connection',
+          name: "get_connection",
           parent: DBusExportedObject,
           parameters: [],
           return_type: DBusConnection.getType()
         }),
         new GirClassFunction({
-          name: 'get_object_path',
+          name: "get_object_path",
           parent: DBusExportedObject,
           parameters: [],
           return_type: StringType
         }),
         new GirClassFunction({
-          name: 'unexport_from_connection',
+          name: "unexport_from_connection",
           parent: DBusExportedObject,
           parameters: [
             new GirFunctionParameter({
-              name: 'connection',
+              name: "connection",
               type: DBusConnection.getType(),
               direction: Direction.In
             })
@@ -333,16 +363,16 @@ export default {
         }),
         // export(busConnection, objectPath)
         new GirClassFunction({
-          name: 'export',
+          name: "export",
           parent: DBusExportedObject,
           parameters: [
             new GirFunctionParameter({
-              name: 'busConnection',
+              name: "busConnection",
               type: DBusConnection.getType(),
               direction: Direction.In
             }),
             new GirFunctionParameter({
-              name: 'objectPath',
+              name: "objectPath",
               type: StringType,
               direction: Direction.In
             })
@@ -351,28 +381,28 @@ export default {
         }),
         // unexport()
         new GirClassFunction({
-          name: 'unexport',
+          name: "unexport",
           parent: DBusExportedObject,
           return_type: VoidType
         }),
         // flush()
         new GirClassFunction({
-          name: 'flush',
+          name: "flush",
           parent: DBusExportedObject,
           return_type: VoidType
         }),
         // emit_signal(name, variant)
         new GirClassFunction({
-          name: 'emit_signal',
+          name: "emit_signal",
           parent: DBusExportedObject,
           parameters: [
             new GirFunctionParameter({
-              name: 'name',
+              name: "name",
               type: StringType,
               direction: Direction.In
             }),
             new GirFunctionParameter({
-              name: 'variant',
+              name: "variant",
               type: Variant.getType(),
               direction: Direction.In
             })
@@ -381,26 +411,25 @@ export default {
         }),
         // emit_property_changed(name, variant)
         new GirClassFunction({
-          name: 'emit_property_changed',
+          name: "emit_property_changed",
           parent: DBusExportedObject,
           parameters: [
             new GirFunctionParameter({
-              name: 'name',
+              name: "name",
               type: StringType,
               direction: Direction.In
             }),
             new GirFunctionParameter({
-              name: 'variant',
+              name: "variant",
               type: Variant.getType(),
               direction: Direction.In
             })
           ],
           return_type: VoidType
-        }),
+        })
       );
 
-      namespace.members.set('DBusExportedObject', DBusExportedObject);
-
+      namespace.members.set("DBusExportedObject", DBusExportedObject);
     }
   }
 };

@@ -2,84 +2,83 @@
  * A simple two-key map.
  */
 export class TwoKeyMap<K1, K2, V> {
-    private baseMap = new Map<K1, Map<K2, V>>();
+  private baseMap = new Map<K1, Map<K2, V>>();
 
-    forEach(op: (v: V) => void) {
-        this.baseMap.forEach(map => {
-            map.forEach(v => {
-                op(v);
-            });
-        })
+  forEach(op: (v: V) => void) {
+    this.baseMap.forEach(map => {
+      map.forEach(v => {
+        op(v);
+      });
+    });
+  }
+
+  has(key1: K1, key2: K2): boolean {
+    const obj = this.baseMap.get(key1);
+
+    if (!obj) {
+      return false;
     }
 
-    has(key1: K1, key2: K2): boolean {
-        const obj = this.baseMap.get(key1);
+    return obj.has(key2);
+  }
 
-        if (!obj) {
-            return false;
-        }
+  getIfOnly(key1: K1): readonly [K2, V] | undefined {
+    const obj = this.baseMap.get(key1);
 
-        return obj.has(key2);
+    if (!obj) {
+      return undefined;
     }
 
-    getIfOnly(key1: K1): readonly [K2, V] | undefined {
-        const obj = this.baseMap.get(key1);
+    if (obj.size === 1) {
+      const [k2] = obj.keys();
+      const v = obj.get(k2);
 
-        if (!obj) {
-            return undefined;
-        }
-
-        if (obj.size === 1) {
-            const [k2] = obj.keys();
-            const v = obj.get(k2);
-
-            if (!v) {
-                return undefined;
-            }
-
-            return [k2, v] as const;
-        }
-
+      if (!v) {
         return undefined;
+      }
+
+      return [k2, v] as const;
     }
 
-    get(key1: K1, key2: K2): V | undefined {
-        const obj = this.baseMap.get(key1);
+    return undefined;
+  }
 
-        if (!obj) {
-            return undefined;
-        }
+  get(key1: K1, key2: K2): V | undefined {
+    const obj = this.baseMap.get(key1);
 
-        return obj.get(key2);
+    if (!obj) {
+      return undefined;
     }
 
-    set(key1: K1, key2: K2, value: V): void {
-        let obj = this.baseMap.get(key1);
+    return obj.get(key2);
+  }
 
-        if (!obj) {
-            obj = new Map<K2, V>();
+  set(key1: K1, key2: K2, value: V): void {
+    let obj = this.baseMap.get(key1);
 
-            this.baseMap.set(key1, obj);
-        }
+    if (!obj) {
+      obj = new Map<K2, V>();
 
-        obj.set(key2, value);
+      this.baseMap.set(key1, obj);
     }
+
+    obj.set(key2, value);
+  }
 }
 
 /**
  * If the predicate returns a value other than undefined,
  * that value is returned. It combines the .find() and
  * .map() APIs for convenience.
- * 
- * @param arr 
- * @param predicate 
+ *
+ * @param arr
+ * @param predicate
  */
 export function findMap<T, K>(arr: T[], predicate: (p: T) => K | undefined): K | undefined {
-    for (const a of arr) {
-        const val = predicate(a);
-        if (val !== undefined)
-            return val;
-    }
+  for (const a of arr) {
+    const val = predicate(a);
+    if (val !== undefined) return val;
+  }
 
-    return undefined;
+  return undefined;
 }
