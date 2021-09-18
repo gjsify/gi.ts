@@ -45,19 +45,15 @@ export default {
     const Settings = namespace.assertClass("Settings");
 
     Settings.members = Settings.members.map(m => {
-      if (m.name === 'get_value' || m.name === 'get_default_value' || m.name === 'get_user_value') {
-        m.generics.push(new Generic(new GenericType('T'), AnyType, undefined, StringType));
+      if (m.name === "get_value" || m.name === "get_default_value" || m.name === "get_user_value") {
+        m.generics.push(new Generic(new GenericType("T"), AnyType, undefined, StringType));
         const returnType = m.return().deepUnwrap();
 
         if (returnType instanceof TypeIdentifier && returnType.is("GLib", "Variant")) {
           return m.copy({
-            returnType: m.return().rewrap(new GenerifiedTypeIdentifier(
-              "Variant",
-              "GLib",
-              [
-                new GenericType("T")
-              ]
-            ))
+            returnType: m
+              .return()
+              .rewrap(new GenerifiedTypeIdentifier("Variant", "GLib", [new GenericType("T")]))
           });
         }
 
@@ -65,8 +61,6 @@ export default {
       }
 
       return m;
-
     });
-
   }
 };

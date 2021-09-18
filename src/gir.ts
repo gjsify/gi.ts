@@ -10,7 +10,7 @@ export interface GirMetadata {
   deprecatedVersion?: string;
   deprecatedDoc?: string;
   introducedVersion?: string;
-};
+}
 
 export abstract class GirBase {
   name: string;
@@ -29,7 +29,7 @@ export abstract class GirBase {
   /**
    * Set a warning to be emitted with this node. Often used to note type
    * conflicts or potential differences from GJS code.
-   * 
+   *
    * @param warning
    */
   setWarning(warning: string) {
@@ -44,7 +44,7 @@ export abstract class GirBase {
     return this._isPrivate;
   }
 
-  setPrivate(priv: boolean){
+  setPrivate(priv: boolean) {
     this._isPrivate = priv;
   }
 
@@ -69,9 +69,7 @@ export abstract class GirBase {
     return this;
   }
 
-  abstract copy(options?: {
-    parent?: GirBase
-  }): GirBase;
+  abstract copy(options?: { parent?: GirBase }): GirBase;
 
   abstract accept(visitor: GirVisitor): GirBase;
 
@@ -237,9 +235,9 @@ export class GenerifiedTypeIdentifier extends TypeIdentifier {
     const Generics = this.generics.map(generic => generic.print(namespace, _options)).join(", ");
 
     if (namespace.name === this.namespace) {
-      return `${this.name}${this.generics.length > 0 ? `<${Generics}>` : ''}`;
+      return `${this.name}${this.generics.length > 0 ? `<${Generics}>` : ""}`;
     } else {
-      return `${this.namespace}.${this.name}${this.generics.length > 0 ? `<${Generics}>` : ''}`;
+      return `${this.namespace}.${this.name}${this.generics.length > 0 ? `<${Generics}>` : ""}`;
     }
   }
 
@@ -394,11 +392,15 @@ export class FunctionType extends TypeExpression {
 
   equals(type: TypeExpression): boolean {
     if (type instanceof FunctionType) {
-      return Object.values(this.parameterTypes)
-        .every(t => Object.values(type.parameterTypes).some(tp => t.equals(tp)))
-        && Object.values(type.parameterTypes)
-          .every(t => Object.values(this.parameterTypes).some(tp => t.equals(tp)))
-        && this.returnType.equals(type.returnType)
+      return (
+        Object.values(this.parameterTypes).every(t =>
+          Object.values(type.parameterTypes).some(tp => t.equals(tp))
+        ) &&
+        Object.values(type.parameterTypes).every(t =>
+          Object.values(this.parameterTypes).some(tp => t.equals(tp))
+        ) &&
+        this.returnType.equals(type.returnType)
+      );
     }
 
     return false;
@@ -420,13 +422,15 @@ export class FunctionType extends TypeExpression {
         })
       ),
       this.returnType.resolve(namespace, options)
-    )
+    );
   }
 
   rootPrint(namespace: GirNamespace, options: GenerationOptions): string {
-    const Parameters = Object.entries(this.parameterTypes).map(([k, v]) => {
-      return `${k}: ${v.rootPrint(namespace, options)}`;
-    }).join(", ");
+    const Parameters = Object.entries(this.parameterTypes)
+      .map(([k, v]) => {
+        return `${k}: ${v.rootPrint(namespace, options)}`;
+      })
+      .join(", ");
 
     return `(${Parameters}) => ${this.returnType.print(namespace, options)}`;
   }
@@ -443,7 +447,13 @@ export class Generic {
   private _constraint: TypeExpression | null;
   private _propagate: boolean;
 
-  constructor(genericType: GenericType, defaultType?: TypeExpression, deriveFrom?: TypeIdentifier, constraint?: TypeExpression, propagate = true) {
+  constructor(
+    genericType: GenericType,
+    defaultType?: TypeExpression,
+    deriveFrom?: TypeIdentifier,
+    constraint?: TypeExpression,
+    propagate = true
+  ) {
     this._genericType = genericType;
     this._defaultType = defaultType ?? null;
     this._deriveFrom = deriveFrom ?? null;
@@ -488,7 +498,10 @@ export class GenerifiedType extends TypeExpression {
   }
 
   resolve(namespace: GirNamespace, options: GenerationOptions) {
-    return new GenerifiedType(this.type.resolve(namespace, options), this.generic.resolve(namespace, options));
+    return new GenerifiedType(
+      this.type.resolve(namespace, options),
+      this.generic.resolve(namespace, options)
+    );
   }
 
   unwrap() {
@@ -496,11 +509,11 @@ export class GenerifiedType extends TypeExpression {
   }
 
   rootPrint(namespace: GirNamespace, options: GenerationOptions) {
-    return `${this.type.print(namespace, options)}<${this.generic.print(namespace, options)}>`
+    return `${this.type.print(namespace, options)}<${this.generic.print(namespace, options)}>`;
   }
 
   print(namespace: GirNamespace, options: GenerationOptions) {
-    return `${this.type.print(namespace, options)}<${this.generic.print(namespace, options)}>`
+    return `${this.type.print(namespace, options)}<${this.generic.print(namespace, options)}>`;
   }
 
   equals(type: TypeExpression): boolean {
@@ -515,7 +528,6 @@ export class GenerifiedType extends TypeExpression {
     return new GenerifiedType(this.type.rewrap(type), this.generic);
   }
 }
-
 
 export class GenericType extends TypeExpression {
   identifier: string;
@@ -538,7 +550,6 @@ export class GenericType extends TypeExpression {
   unwrap(): TypeExpression {
     return this;
   }
-
 
   rewrap(type: TypeExpression): TypeExpression {
     return type;
@@ -607,13 +618,13 @@ export class PromiseType extends TypeExpression {
 
 /**
  * A list of possible type conflicts.
- * 
+ *
  * The format is CHILD_PARENT_CONFLICT so
  * ACCESSOR_PROPERTY_CONFLICT means there
  * is an accessor on a child class and a
  * property on the parent class, which is a
  * conflict.
- * 
+ *
  * Starts at '1' because the value is often
  * used as truthy.
  */
@@ -622,7 +633,7 @@ export enum ConflictType {
   FIELD_NAME_CONFLICT,
   FUNCTION_NAME_CONFLICT,
   ACCESSOR_PROPERTY_CONFLICT,
-  PROPERTY_ACCESSOR_CONFLICT,
+  PROPERTY_ACCESSOR_CONFLICT
 }
 
 /**
@@ -630,7 +641,7 @@ export enum ConflictType {
  * system. To handle type conflicts we wrap conflicting types
  * in this class with a ConflictType to denote why they are a
  * conflict.
- * 
+ *
  * TypeConflict will throw if it is printed or resolved, so generators
  * must unwrap it and "resolve" the conflict. Some generators like JSON
  * just disregard this info, other generators like DTS attempt to
@@ -660,11 +671,19 @@ export class TypeConflict extends TypeExpression {
   }
 
   resolve(namespace: GirNamespace, options: GenerationOptions): TypeExpression {
-    throw new Error(`Type conflict was not resolved for ${this.type.resolve(namespace, options).print(namespace, options)} in ${namespace}`);
+    throw new Error(
+      `Type conflict was not resolved for ${this.type
+        .resolve(namespace, options)
+        .print(namespace, options)} in ${namespace}`
+    );
   }
 
   print(namespace: GirNamespace, options: GenerationOptions): string {
-    throw new Error(`Type conflict was not resolved for ${this.type.resolve(namespace, options).print(namespace, options)} in ${namespace}`);
+    throw new Error(
+      `Type conflict was not resolved for ${this.type
+        .resolve(namespace, options)
+        .print(namespace, options)} in ${namespace}`
+    );
   }
 }
 
@@ -814,4 +833,3 @@ export const UnknownType = new NativeType("unknown");
 export const AnyFunctionType = new NativeType("(...args: any[]) => any");
 
 export type GirClassField = GirProperty | GirField;
-

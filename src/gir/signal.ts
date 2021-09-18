@@ -43,13 +43,16 @@ export class GirSignal extends GirBase {
         return p.accept(visitor);
       }),
       returnType: visitor.visitType?.(this.return_type)
-
     });
 
     return visitor.visitSignal?.(node) ?? node;
   }
 
-  copy({ parent = this.parent, parameters, returnType }: {
+  copy({
+    parent = this.parent,
+    parameters,
+    returnType
+  }: {
     parent?: GirClass;
     parameters?: GirFunctionParameter[];
     returnType?: TypeExpression;
@@ -91,7 +94,6 @@ export class GirSignal extends GirBase {
 
     return signal;
   }
-
 
   asEmit() {
     const emit = this.copy();
@@ -161,7 +163,10 @@ export class GirSignal extends GirBase {
     });
   }
 
-  asString<T extends FormatGenerator<any>>(generator: T, type?: GirSignalType): ReturnType<T["generateProperty"]> {
+  asString<T extends FormatGenerator<any>>(
+    generator: T,
+    type?: GirSignalType
+  ): ReturnType<T["generateProperty"]> {
     return generator.generateSignal(this, type);
   }
 }

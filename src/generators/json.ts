@@ -54,7 +54,7 @@ export const enum NodeKind {
 
 export type Primitive = string[] | number[] | boolean[] | null | string | number | boolean;
 export type Json = {
-  [key: string]: Primitive | Json | Json[]
+  [key: string]: Primitive | Json | Json[];
 };
 export type NodeJson = {
   kind: NodeKind;
@@ -125,7 +125,7 @@ function generateType(type: TypeExpression): TypeJson {
 
 function capitalize(str: string) {
   if (str.length === 0) {
-    return '';
+    return "";
   }
 
   if (str.length === 1) {
@@ -143,28 +143,36 @@ export interface ParameterJson extends NodeJson {
   type: TypeJson;
 }
 
-export type TypeJson = Json & ({
-  kind: TypeKind.native,
-  type: string
-} | {
-  kind: TypeKind.array,
-  depth: number,
-  type: TypeJson
-} | {
-  kind: TypeKind.or | TypeKind.tuple,
-  types: TypeJson[]
-} | {
-  kind: TypeKind.nulled,
-  type: TypeJson
-} | {
-  kind: TypeKind.closure,
-  user_data: number | null,
-  type: TypeJson
-} | {
-  kind: TypeKind.identifier,
-  namespace: string,
-  name: string
-})
+export type TypeJson = Json &
+  (
+    | {
+        kind: TypeKind.native;
+        type: string;
+      }
+    | {
+        kind: TypeKind.array;
+        depth: number;
+        type: TypeJson;
+      }
+    | {
+        kind: TypeKind.or | TypeKind.tuple;
+        types: TypeJson[];
+      }
+    | {
+        kind: TypeKind.nulled;
+        type: TypeJson;
+      }
+    | {
+        kind: TypeKind.closure;
+        user_data: number | null;
+        type: TypeJson;
+      }
+    | {
+        kind: TypeKind.identifier;
+        namespace: string;
+        name: string;
+      }
+  );
 export interface EnumMemberJson extends NodeJson {
   kind: NodeKind.enumMember;
   name: string;
@@ -195,25 +203,25 @@ export interface FieldJson extends NodeJson {
 }
 
 export interface MethodJson extends NodeJson {
-  kind: NodeKind.classFunction,
+  kind: NodeKind.classFunction;
   name: string;
   parameters: ParameterJson[];
   returnType: TypeJson[] | TypeJson;
 }
 
 export interface StaticMethodJson extends NodeJson {
-  kind: NodeKind.staticClassFunction,
+  kind: NodeKind.staticClassFunction;
   name: string;
   parameters: ParameterJson[];
   returnType: TypeJson[] | TypeJson;
 }
 export interface VirtualMethodJson extends NodeJson {
-  kind: NodeKind.virtualClassFunction,
+  kind: NodeKind.virtualClassFunction;
   name: string;
   parameters: ParameterJson[];
   returnType: TypeJson[] | TypeJson;
 }
-export interface MetadataJson extends Json { }
+export interface MetadataJson extends Json {}
 export interface ConstJson extends NodeJson {
   kind: NodeKind.constant;
   name: string;
@@ -260,7 +268,7 @@ export interface ErrorJson extends BaseClassJson {
 
 export interface FunctionJson extends NodeJson {
   name: string;
-  kind: NodeKind.function
+  kind: NodeKind.function;
   parameters: ParameterJson[];
   returnType: TypeJson[] | TypeJson;
 }
@@ -280,7 +288,7 @@ export interface ConstructorJson extends NodeJson {
 export type ImportsJson = { [lib: string]: string };
 
 export interface NamespaceJson extends Json {
-  kind: NodeKind.namespace,
+  kind: NodeKind.namespace;
   imports: ImportsJson;
   version: string;
   name: string;
@@ -295,7 +303,6 @@ export interface NamespaceJson extends Json {
 }
 
 export class JsonGenerator extends FormatGenerator<Json> {
-
   constructor(namespace: GirNamespace, options: GenerationOptions) {
     super(namespace, options);
   }
@@ -303,8 +310,8 @@ export class JsonGenerator extends FormatGenerator<Json> {
   /**
    * Intelligently reformats # and () references
    * to handle c-prefixes and namespacing.
-   * 
-   * @param doc 
+   *
+   * @param doc
    */
   private generateDoc(doc: string): string {
     const { namespace } = this;
@@ -314,19 +321,19 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
       let plural = false;
 
-      if (classes.length === 0 && className.endsWith('Class')) {
+      if (classes.length === 0 && className.endsWith("Class")) {
         classes = ns.getMembers(className.slice(0, -5));
       }
 
-      if (classes.length === 0 && className.endsWith('Iface')) {
+      if (classes.length === 0 && className.endsWith("Iface")) {
         classes = ns.getMembers(className.slice(0, -5));
       }
 
-      if (classes.length === 0 && className.endsWith('Interface')) {
+      if (classes.length === 0 && className.endsWith("Interface")) {
         classes = ns.getMembers(className.slice(0, -9));
       }
 
-      if (classes.length === 0 && className.endsWith('s')) {
+      if (classes.length === 0 && className.endsWith("s")) {
         plural = true;
         classes = ns.getMembers(className.slice(0, -1));
       }
@@ -335,33 +342,43 @@ export class JsonGenerator extends FormatGenerator<Json> {
     }
 
     function formatReference(identifier: string, member_name: string, punc?: string): string | null {
-      const parts = identifier.split(/([A-Z])/).filter(p => p != '').reduce((prev, next) => {
-        if (next.toUpperCase() === next) {
-          prev.push(`${next}`);
-        } else {
-          const lastCapital = prev.pop();
+      const parts = identifier
+        .split(/([A-Z])/)
+        .filter(p => p != "")
+        .reduce((prev, next) => {
+          if (next.toUpperCase() === next) {
+            prev.push(`${next}`);
+          } else {
+            const lastCapital = prev.pop();
 
-          prev.push(`${lastCapital}${next}`);
-        }
+            prev.push(`${lastCapital}${next}`);
+          }
 
-        return prev;
-      }, [] as string[]);
+          return prev;
+        }, [] as string[]);
 
       let [base_part] = parts;
 
-      const [, , namespaces, className] = parts.slice(1).reduce(([underscore, camel, ns, selected], next) => {
+      const [, , namespaces, className] = parts.slice(1).reduce(
+        ([underscore, camel, ns, selected], next) => {
+          const next_underscore = [underscore, next.toLowerCase()].join("_");
 
-        const next_underscore = [underscore, next.toLowerCase()].join('_');
+          const namespaces = namespace.getImportsForCPrefix(next_underscore);
+          const nextCamel = camel + capitalize(next);
 
-        const namespaces = namespace.getImportsForCPrefix(next_underscore);
-        const nextCamel = camel + capitalize(next);
+          if (namespaces.length > 0) {
+            return [next_underscore, nextCamel, namespaces, capitalize(next)] as const;
+          }
 
-        if (namespaces.length > 0) {
-          return [next_underscore, nextCamel, namespaces, capitalize(next)] as const;
-        }
-
-        return [next_underscore, nextCamel, ns, selected + capitalize(next)] as const;
-      }, [base_part.toLowerCase(), capitalize(base_part), namespace.getImportsForCPrefix(base_part.toLowerCase()), ""] as const);
+          return [next_underscore, nextCamel, ns, selected + capitalize(next)] as const;
+        },
+        [
+          base_part.toLowerCase(),
+          capitalize(base_part),
+          namespace.getImportsForCPrefix(base_part.toLowerCase()),
+          ""
+        ] as const
+      );
 
       let ns = namespaces.find(n => n.hasSymbol(className));
 
@@ -380,11 +397,13 @@ export class JsonGenerator extends FormatGenerator<Json> {
         let [clazz, plural] = resolveClass(ns, className);
 
         if (clazz instanceof GirBaseClass || clazz instanceof GirEnum) {
-          const r = `#${plural ? '{' : ''}${ns.name}.${clazz.name}${punc ? `${punc}${modified_name}` : ''}${plural ? '}s' : ''}`;
+          const r = `#${plural ? "{" : ""}${ns.name}.${clazz.name}${punc ? `${punc}${modified_name}` : ""}${
+            plural ? "}s" : ""
+          }`;
           return r;
         }
 
-        return `#${ns.name}${punc ? ` (${punc}${modified_name})` : ''}`;
+        return `#${ns.name}${punc ? ` (${punc}${modified_name})` : ""}`;
       } else {
         return null;
       }
@@ -401,22 +420,29 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
       // ['namespace']
 
-      const namespaceBase = [base_part.toLowerCase(), capitalize(base_part), namespace.getImportsForCPrefix(base_part.toLowerCase()), 0] as const;
+      const namespaceBase = [
+        base_part.toLowerCase(),
+        capitalize(base_part),
+        namespace.getImportsForCPrefix(base_part.toLowerCase()),
+        0
+      ] as const;
 
       // ['namespace', 'Namespace', { Namespace }, -1]
 
-      const [, , namespaces, i] = parts.slice(1).reduce(([prev, camel, currentNamespaces, selected], next, i) => {
-        const underscore = [prev, next.toLowerCase()].join('_');
-        const namespaces = namespace.getImportsForCPrefix(underscore);
-        const identifier = camel + capitalize(next);
+      const [, , namespaces, i] = parts
+        .slice(1)
+        .reduce(([prev, camel, currentNamespaces, selected], next, i) => {
+          const underscore = [prev, next.toLowerCase()].join("_");
+          const namespaces = namespace.getImportsForCPrefix(underscore);
+          const identifier = camel + capitalize(next);
 
-        // We've found namespace(s) which matches the c_prefix
-        if (namespaces.length > 0) {
-          return [underscore, identifier, namespaces, i] as const;
-        }
+          // We've found namespace(s) which matches the c_prefix
+          if (namespaces.length > 0) {
+            return [underscore, identifier, namespaces, i] as const;
+          }
 
-        return [underscore, identifier, currentNamespaces, selected] as const;
-      }, namespaceBase);
+          return [underscore, identifier, currentNamespaces, selected] as const;
+        }, namespaceBase);
 
       // If no namespaces are found for the function's c_prefix, we return the original reference.
       if (namespaces.length === 0) {
@@ -467,38 +493,48 @@ export class JsonGenerator extends FormatGenerator<Json> {
       } else {
         // ['class', 'do', 'thing']
 
-        const { selectedClassName, resolvedNamespace, selectedIndex } = parts.slice(i + 1).reduce(({
-          className, selectedClassName, resolvedNamespace, selectedIndex
-        }, next, i) => {
-          // Class
-          const identifier = `${className}${capitalize(next)}`;
+        const { selectedClassName, resolvedNamespace, selectedIndex } = parts.slice(i + 1).reduce(
+          ({ className, selectedClassName, resolvedNamespace, selectedIndex }, next, i) => {
+            // Class
+            const identifier = `${className}${capitalize(next)}`;
 
-          const withSymbol = namespaces.find(n => n.hasSymbol(identifier));
+            const withSymbol = namespaces.find(n => n.hasSymbol(identifier));
 
-          if (withSymbol) {
-            // { className: Class, resolvedNamespace: {Namespace}, selectedIndex: 0 }
-            return { className: identifier, selectedClassName: identifier, resolvedNamespace: withSymbol, selectedIndex: i } as const;
+            if (withSymbol) {
+              // { className: Class, resolvedNamespace: {Namespace}, selectedIndex: 0 }
+              return {
+                className: identifier,
+                selectedClassName: identifier,
+                resolvedNamespace: withSymbol,
+                selectedIndex: i
+              } as const;
+            }
+
+            return { className: identifier, selectedClassName, resolvedNamespace, selectedIndex } as const;
+          },
+          {
+            className: "" as string,
+            selectedClassName: "" as string,
+            resolvedNamespace: null as GirNamespace | null,
+            selectedIndex: -1
           }
-
-          return { className: identifier, selectedClassName, resolvedNamespace, selectedIndex } as const;
-        }, {
-          className: "" as string,
-          selectedClassName: "" as string,
-          resolvedNamespace: null as GirNamespace | null,
-          selectedIndex: -1
-        });
+        );
 
         if (resolvedNamespace && selectedIndex >= 0) {
-          const nextIndex = i + selectedIndex + 1 /* (slice omits first index) */ + 1 /* (the next index) */;
+          const nextIndex = i + selectedIndex + 1 /* (slice omits first index) */ + 1; /* (the next index) */
           const functionName = parts.slice(nextIndex).join("_");
 
           let [klass] = resolveClass(resolvedNamespace, selectedClassName);
 
           if (klass instanceof GirBaseClass || klass instanceof GirEnum) {
-            return `${resolvedNamespace.name}.${klass.name}.${upper ? functionName.toUpperCase() : functionName}`;
+            return `${resolvedNamespace.name}.${klass.name}.${
+              upper ? functionName.toUpperCase() : functionName
+            }`;
           }
 
-          return `${resolvedNamespace.name}.${selectedClassName}.${upper ? functionName.toUpperCase() : functionName}`;
+          return `${resolvedNamespace.name}.${selectedClassName}.${
+            upper ? functionName.toUpperCase() : functionName
+          }`;
         }
       }
 
@@ -506,22 +542,29 @@ export class JsonGenerator extends FormatGenerator<Json> {
     }
 
     return `${doc}`
-      .replace(/[#]{0,1}([A-Z][A-z]+)\.([a-z_]+)\(\)/g, (original, identifier: string, member_name: string) => {
-        const resolved = formatReference(identifier, member_name, '.');
-        return resolved != null ? `${resolved}()` : original;
-      })
-      .replace(/#([A-Z][A-z]*)(([:]{1,2})([a-z\-]+)){0,1}/g,
+      .replace(
+        /[#]{0,1}([A-Z][A-z]+)\.([a-z_]+)\(\)/g,
+        (original, identifier: string, member_name: string) => {
+          const resolved = formatReference(identifier, member_name, ".");
+          return resolved != null ? `${resolved}()` : original;
+        }
+      )
+      .replace(
+        /#([A-Z][A-z]*)(([:]{1,2})([a-z\-]+)){0,1}/g,
         (original, identifier: string, _: string, punc: string, member_name: string) => {
           const resolved = formatReference(identifier, member_name, punc);
           return resolved != null ? resolved : original;
-        })
-      .replace(/([A-Z][A-z]*)(([:]{1,2})([a-z\-]+))/g,
+        }
+      )
+      .replace(
+        /([A-Z][A-z]*)(([:]{1,2})([a-z\-]+))/g,
         (original, identifier: string, _: string, punc: string, member_name: string) => {
           const resolved = formatReference(identifier, member_name, punc);
           return resolved != null ? resolved : original;
-        })
+        }
+      )
       .replace(/(\s)([a-z_]+)\(\)/g, (original: string, w: string, func: string) => {
-        const resolved = formatFunctionReference(func)
+        const resolved = formatFunctionReference(func);
         return resolved != null ? `${w}${resolved}()` : original;
       })
       .replace(/%([A-Z_]+)/g, (original: string, identifier: string) => {
@@ -554,10 +597,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateCallbackType(node: GirCallback): [Json, Json] {
-    return [
-      {},
-      {}
-    ];
+    return [{}, {}];
   }
 
   generateCallback(node: GirCallback): CallbackJson {
@@ -570,15 +610,15 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name: node.name,
       type: this.generateCallbackType(node),
       parameters,
-      returnType: generateType(node
-        .return()
-        .resolve(namespace, options)
-      ),
+      returnType: generateType(node.return().resolve(namespace, options)),
       ...this._generateDocAndMetadata(node)
     };
   }
 
-  generateReturn(return_type: TypeExpression, output_parameters: GirFunctionParameter[]): TypeJson | TypeJson[] {
+  generateReturn(
+    return_type: TypeExpression,
+    output_parameters: GirFunctionParameter[]
+  ): TypeJson | TypeJson[] {
     const { namespace, options } = this;
     const type = return_type.resolve(namespace, options);
 
@@ -631,7 +671,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     return {
       ...clazz.asString(this),
-      kind: NodeKind.error,
+      kind: NodeKind.error
     };
   }
 
@@ -647,7 +687,9 @@ export class JsonGenerator extends FormatGenerator<Json> {
     }
 
     return {
-      private: false, doc: null, metadata: null
+      private: false,
+      doc: null,
+      metadata: null
     };
   }
 
@@ -698,7 +740,9 @@ export class JsonGenerator extends FormatGenerator<Json> {
       const GObject = gobject.getClass("Object");
 
       if (!GObject) {
-        throw new Error(`GObject.Object could not be found while generating ${node.namespace.name}.${node.name}`);
+        throw new Error(
+          `GObject.Object could not be found while generating ${node.namespace.name}.${node.name}`
+        );
       }
 
       node.parent = GObject.getType();
@@ -710,9 +754,15 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Properties = node.props.map(v => v && v.asString(this));
 
-    const Methods = node.members.filter(m => !(m instanceof GirStaticClassFunction) && !(m instanceof GirVirtualClassFunction)).map(v => v && v.asString(this));
-    const StaticMethods = node.members.filter((m): m is GirStaticClassFunction => m instanceof GirStaticClassFunction).map(v => v && v.asString(this));
-    const VirtualMethods = node.members.filter((m): m is GirVirtualClassFunction => m instanceof GirVirtualClassFunction).map(v => v && v.asString(this));
+    const Methods = node.members
+      .filter(m => !(m instanceof GirStaticClassFunction) && !(m instanceof GirVirtualClassFunction))
+      .map(v => v && v.asString(this));
+    const StaticMethods = node.members
+      .filter((m): m is GirStaticClassFunction => m instanceof GirStaticClassFunction)
+      .map(v => v && v.asString(this));
+    const VirtualMethods = node.members
+      .filter((m): m is GirVirtualClassFunction => m instanceof GirVirtualClassFunction)
+      .map(v => v && v.asString(this));
 
     return {
       kind: NodeKind.interface,
@@ -738,9 +788,15 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Constructors = node.constructors.map(v => v && this.generateConstructorFunction(v));
 
-    const Methods = node.members.filter(m => !(m instanceof GirStaticClassFunction) && !(m instanceof GirVirtualClassFunction)).map(v => v && v.asString(this));
-    const StaticMethods = node.members.filter((m): m is GirStaticClassFunction => m instanceof GirStaticClassFunction).map(v => v && v.asString(this));
-    const VirtualMethods = node.members.filter((m): m is GirVirtualClassFunction => m instanceof GirVirtualClassFunction).map(v => v && v.asString(this));
+    const Methods = node.members
+      .filter(m => !(m instanceof GirStaticClassFunction) && !(m instanceof GirVirtualClassFunction))
+      .map(v => v && v.asString(this));
+    const StaticMethods = node.members
+      .filter((m): m is GirStaticClassFunction => m instanceof GirStaticClassFunction)
+      .map(v => v && v.asString(this));
+    const VirtualMethods = node.members
+      .filter((m): m is GirVirtualClassFunction => m instanceof GirVirtualClassFunction)
+      .map(v => v && v.asString(this));
 
     const Callbacks = node.callbacks.map(c => c && c.asString(this));
 
@@ -768,8 +824,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     let MainConstructor: ConstructorJson | null = null;
 
-    const ConstructorProps = node.props
-      .map(v => this.generateProperty(v, true));
+    const ConstructorProps = node.props.map(v => this.generateProperty(v, true));
 
     if (node.mainConstructor) {
       MainConstructor = this.generateConstructor(node.mainConstructor);
@@ -786,7 +841,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
           type: p.type,
           doc: p.doc,
           metadata: p.metadata,
-          optional: true,
+          optional: true
         })),
         doc: null,
         metadata: null
@@ -799,9 +854,15 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     const Constructors = node.constructors.map(v => this.generateConstructorFunction(v));
 
-    const Methods = node.members.filter(m => !(m instanceof GirStaticClassFunction) && !(m instanceof GirVirtualClassFunction)).map(v => v && v.asString(this));
-    const StaticMethods = node.members.filter((m): m is GirStaticClassFunction => m instanceof GirStaticClassFunction).map(v => v && v.asString(this));
-    const VirtualMethods = node.members.filter((m): m is GirVirtualClassFunction => m instanceof GirVirtualClassFunction).map(v => v && v.asString(this));
+    const Methods = node.members
+      .filter(m => !(m instanceof GirStaticClassFunction) && !(m instanceof GirVirtualClassFunction))
+      .map(v => v && v.asString(this));
+    const StaticMethods = node.members
+      .filter((m): m is GirStaticClassFunction => m instanceof GirStaticClassFunction)
+      .map(v => v && v.asString(this));
+    const VirtualMethods = node.members
+      .filter((m): m is GirVirtualClassFunction => m instanceof GirVirtualClassFunction)
+      .map(v => v && v.asString(this));
 
     // TODO Move these to a cleaner place.
 
@@ -985,7 +1046,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       Number.isNaN(Number.parseInt(node.name, 10)) &&
       node.name !== "NaN"
     ) {
-      enumMember = { name: invalid ? `"${node.name}"` : `${node.name}`, value: `${node.value}` }
+      enumMember = { name: invalid ? `"${node.name}"` : `${node.name}`, value: `${node.value}` };
     } else {
       enumMember = { name: invalid ? `"${node.name}"` : `${node.name}`, value: null };
     }
@@ -994,7 +1055,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       kind: NodeKind.enumMember,
       ...enumMember,
       ...this._generateDocAndMetadata(node)
-    }
+    };
   }
 
   generateParameter(node: GirFunctionParameter): ParameterJson {
@@ -1002,7 +1063,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
 
     let type = generateType(
       resolveDirectedType(node.type, node.direction)?.resolve(namespace, options) ??
-      node.type.resolve(namespace, options)
+        node.type.resolve(namespace, options)
     );
 
     return {
@@ -1059,7 +1120,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateClassFunction(node: GirClassFunction): MethodJson {
-
     let parameters = node.parameters.map(p => this.generateParameter(p));
     let output_parameters = node.output_parameters;
     let return_type = node.return();
@@ -1076,7 +1136,6 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   generateStaticClassFunction(node: GirStaticClassFunction): StaticMethodJson {
-
     let parameters = node.parameters.map(p => this.generateParameter(p));
     let output_parameters = node.output_parameters;
     let return_type = node.return();
@@ -1109,8 +1168,8 @@ export class JsonGenerator extends FormatGenerator<Json> {
   generateVirtualClassFunction(node: GirVirtualClassFunction): VirtualMethodJson {
     return {
       ...this.generateClassFunction(node),
-      kind: NodeKind.virtualClassFunction,
-    }
+      kind: NodeKind.virtualClassFunction
+    };
   }
 
   async generateNamespace(node: GirNamespace): Promise<NamespaceJson> {
@@ -1122,12 +1181,8 @@ export class JsonGenerator extends FormatGenerator<Json> {
     const interfaces = members
       .filter((m): m is GirInterface => m instanceof GirInterface)
       .map(m => m.asString(this));
-    const records = members
-      .filter((m): m is GirRecord => m instanceof GirRecord)
-      .map(m => m.asString(this));
-    const constants = members
-      .filter((m): m is GirConst => m instanceof GirConst)
-      .map(m => m.asString(this));
+    const records = members.filter((m): m is GirRecord => m instanceof GirRecord).map(m => m.asString(this));
+    const constants = members.filter((m): m is GirConst => m instanceof GirConst).map(m => m.asString(this));
     const callbacks = members
       .filter((m): m is GirCallback => m instanceof GirCallback)
       .map(m => m.asString(this));
@@ -1136,11 +1191,11 @@ export class JsonGenerator extends FormatGenerator<Json> {
       ...members
         .filter((m): m is GirFunction => !(m instanceof GirCallback) && m instanceof GirFunction)
         .reduce((prev, next) => {
-          if (!prev.has(next.name))
-            prev.set(next.name, next.asString(this));
+          if (!prev.has(next.name)) prev.set(next.name, next.asString(this));
 
           return prev;
-        }, new Map<string, FunctionJson>()).values()
+        }, new Map<string, FunctionJson>())
+        .values()
     ];
     const enums = members.filter((m): m is GirEnum => m instanceof GirEnum).map(m => m.asString(this));
     const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
@@ -1160,7 +1215,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       functions,
       callbacks,
       enums,
-      alias,
+      alias
     };
   }
 

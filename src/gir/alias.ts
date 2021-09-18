@@ -43,7 +43,13 @@ export class GirAlias extends GirBase {
     return generator.generateAlias(this);
   }
 
-  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, _parent, m: AliasElement): GirAlias | null {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    _parent,
+    m: AliasElement
+  ): GirAlias | null {
     if (!m.$.name) {
       console.error(`Alias in ${modName} lacks name.`);
       return null;

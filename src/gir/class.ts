@@ -1256,7 +1256,7 @@ export class GirRecord extends GirBaseClass {
   }
 
   /**
-   * 
+   *
    */
   isSimple() {
     // Records with no fields are not

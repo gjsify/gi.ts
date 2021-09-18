@@ -4,28 +4,27 @@ import { GirClassFunction, GirFunctionParameter } from "../../gir/function";
 import { GirNamespace } from "../../gir/namespace";
 
 export function override(node: GirNamespace) {
-    const ParamSpec = node.assertClass("ParamSpec");
+  const ParamSpec = node.assertClass("ParamSpec");
 
-    // We only inject __type__ for .d.ts files.
-    const type_function = new GirClassFunction({
-        name: "__type__",
-        parent: ParamSpec,
-        parameters: [
-            new GirFunctionParameter({
-                "name": "arg",
-                type: NeverType,
-                direction: Direction.In
-            })
-        ],
-        return_type: new NativeType("A"),
-        // TODO: Add support for generic native type replacement.
-        // return_type: UnknownType
-    });
+  // We only inject __type__ for .d.ts files.
+  const type_function = new GirClassFunction({
+    name: "__type__",
+    parent: ParamSpec,
+    parameters: [
+      new GirFunctionParameter({
+        name: "arg",
+        type: NeverType,
+        direction: Direction.In
+      })
+    ],
+    return_type: new NativeType("A")
+    // TODO: Add support for generic native type replacement.
+    // return_type: UnknownType
+  });
 
-    ParamSpec.members.push(type_function.copy());
+  ParamSpec.members.push(type_function.copy());
 
-
-    return `
+  return `
 // GJS OVERRIDES
 
 // __type__ forces all GTypes to not match structurally.
@@ -201,4 +200,3 @@ export function registerClass<
 ): RegisteredClass<T, Props, Interfaces>;
 `;
 }
-

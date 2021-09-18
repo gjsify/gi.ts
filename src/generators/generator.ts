@@ -25,7 +25,7 @@ export abstract class FormatGenerator<T = string> {
     this.namespace = namespace;
     this.options = options;
   }
-  
+
   abstract generateNamespace(node: GirNamespace): Promise<T | null>;
   abstract stringifyNamespace(node: GirNamespace): Promise<string | null>;
 

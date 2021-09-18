@@ -11,7 +11,7 @@ export class GirConst extends GirBase {
   type: TypeExpression;
   value: string | null;
 
-  constructor({ name, type, value }: { name: string; type: TypeExpression; value: string | null; }) {
+  constructor({ name, type, value }: { name: string; type: TypeExpression; value: string | null }) {
     super(name);
 
     this.type = type;
@@ -26,10 +26,12 @@ export class GirConst extends GirBase {
     return visitor.visitConst?.(node) ?? node;
   }
 
-  copy(options: {
-    parent?: undefined;
-    type?: TypeExpression;
-  } = {}): GirConst {
+  copy(
+    options: {
+      parent?: undefined;
+      type?: TypeExpression;
+    } = {}
+  ): GirConst {
     const { type, name, value } = this;
 
     return new GirConst({
@@ -39,7 +41,13 @@ export class GirConst extends GirBase {
     })._copyBaseProperties(this);
   }
 
-  static fromXML(modName: string, ns: GirNamespace, options: LoadOptions, _parent, constant: ConstantElement): GirConst {
+  static fromXML(
+    modName: string,
+    ns: GirNamespace,
+    options: LoadOptions,
+    _parent,
+    constant: ConstantElement
+  ): GirConst {
     const c = new GirConst({
       name: sanitizeIdentifierName(ns.name, constant.$.name),
       type: getType(modName, ns, constant),

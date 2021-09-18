@@ -74,8 +74,7 @@ export default {
 
       const GType = new GirAlias({
         name: "GType",
-        type: new NativeType("any"),
-
+        type: new NativeType("any")
       });
       namespace.members.set("GType", GType);
 
@@ -94,7 +93,7 @@ export default {
         type: string | null = null,
         defaultValue = false,
         defaultValueType: TypeExpression = AnyType,
-        addGeneric = false,
+        addGeneric = false
       ) {
         const fn = new GirStaticClassFunction({
           name,
@@ -104,15 +103,17 @@ export default {
             typeParam("blurb", StringType),
             typeParam("flags", new BinaryType(ParamFlags?.getType() ?? AnyType, NumberType)),
             ...(minMax ? [typeParam("minimum", NumberType), typeParam("maximum", NumberType)] : []),
-            ...(type ? (
-              !addGeneric ?
-                [anyParam(`${type}Type`)] :
-                [new GirFunctionParameter({
-                  name: `${type}Type`,
-                  direction: Direction.In,
-                  type: new NativeType("GType<T> | { $gtype: GType<T> }")
-                })]
-            ) : []),
+            ...(type
+              ? !addGeneric
+                ? [anyParam(`${type}Type`)]
+                : [
+                    new GirFunctionParameter({
+                      name: `${type}Type`,
+                      direction: Direction.In,
+                      type: new NativeType("GType<T> | { $gtype: GType<T> }")
+                    })
+                  ]
+              : []),
             ...(defaultValue ? [typeParam("defaultValue", defaultValueType)] : [])
           ],
           parent: ParamSpec,
@@ -185,9 +186,7 @@ export default {
       object.generics.push(new Generic(new GenericType("T")));
 
       function ParamSpecWithGenerics(type: TypeExpression) {
-        return new GenerifiedTypeIdentifier("ParamSpec", "GObject", [
-          type
-        ])
+        return new GenerifiedTypeIdentifier("ParamSpec", "GObject", [type]);
       }
 
       ParamSpec.members.push(
@@ -214,13 +213,29 @@ export default {
         //   "flags": "static flags(name: any, nick: any, blurb: any, flags: any, flagsType: any, defaultValue: any): ParamSpec;",
         generateParamSpec("flags", ParamSpecWithGenerics(NumberType), false, "flags", true),
         //   "enum": "static enum(name: any, nick: any, blurb: any, flags: any, enumType: any, defaultValue: any): ParamSpec;",
-        generateParamSpec("enum", ParamSpecWithGenerics(new NativeType("T")), false, "enum", true, undefined, true),
+        generateParamSpec(
+          "enum",
+          ParamSpecWithGenerics(new NativeType("T")),
+          false,
+          "enum",
+          true,
+          undefined,
+          true
+        ),
         //   "double": "static double(name: any, nick: any, blurb: any, flags: any, minimum: any, maximum: any, defaultValue: any): ParamSpec;",
         generateParamSpec("double", ParamSpecWithGenerics(NumberType), true, null, true, NumberType),
         //   "string": "static string(name: any, nick: any, blurb: any, flags: any, defaultValue: any): ParamSpec;",
         generateParamSpec("string", ParamSpecWithGenerics(StringType), false, null, true, StringType),
         //   "boxed": "static boxed(name: any, nick: any, blurb: any, flags: any, boxedType: any): ParamSpec;",
-        generateParamSpec("boxed", ParamSpecWithGenerics(new NativeType("T")), false, "boxed", false, undefined, true),
+        generateParamSpec(
+          "boxed",
+          ParamSpecWithGenerics(new NativeType("T")),
+          false,
+          "boxed",
+          false,
+          undefined,
+          true
+        ),
         //   "object": "static object(name: any, nick: any, blurb: any, flags: any, objectType: any): ParamSpec;",
         object,
         //   "param": "static param(name: any, nick: any, blurb: any, flags: any, paramType: any): ParamSpec;",
@@ -321,7 +336,7 @@ export default {
               name: "properties",
               type: new NativeType("{ [key: string]: any }"),
               direction: Direction.In
-            }),
+            })
           ],
           return_type: VoidType
         }),
