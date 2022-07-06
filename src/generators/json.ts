@@ -46,6 +46,7 @@ export const enum NodeKind {
   constant = "constant",
   record = "record",
   constructor = "constructor",
+  propertiesConstructor = "properties_constructor",
   parameter = "parameter",
   enum = "enum",
   enumMember = "enum_member",
@@ -243,7 +244,7 @@ export interface BaseClassJson extends NodeJson {
   name: string;
   type: TypeJson;
   constructors: MethodJson[];
-  mainConstructor: ConstructorJson | null;
+  mainConstructor: PropertiesConstructorJson | ConstructorJson | null;
   extends: TypeJson | null;
   implements: TypeJson[];
   props: PropertyJson[];
@@ -260,10 +261,12 @@ export interface ClassJson extends BaseClassJson {
 
 export interface RecordJson extends BaseClassJson {
   kind: NodeKind.record;
+  mainConstructor: ConstructorJson | null;
 }
 
 export interface ErrorJson extends BaseClassJson {
   kind: NodeKind.error;
+  mainConstructor: ConstructorJson | null;
 }
 
 export interface FunctionJson extends NodeJson {
@@ -277,6 +280,12 @@ export interface AliasJson extends NodeJson {
   name: string;
   kind: NodeKind.alias;
   type: TypeJson;
+}
+
+export interface PropertiesConstructorJson extends NodeJson {
+  name: string;
+  kind: NodeKind.propertiesConstructor;
+  properties: ParameterJson[];
 }
 
 export interface ConstructorJson extends NodeJson {
@@ -294,6 +303,7 @@ export interface NamespaceJson extends Json {
   name: string;
   alias: AliasJson[];
   enums: EnumJson[];
+  errors: ErrorJson[];
   functions: FunctionJson[];
   callbacks: CallbackJson[];
   constants: ConstJson[];
@@ -804,7 +814,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       kind: NodeKind.record,
       name,
       type: generateType(node.getType()),
-      mainConstructor: null,
+      mainConstructor: node.mainConstructor ? this.generateConstructor(node.mainConstructor) : null,
       extends: Extends ? generateType(Extends) : null,
       implements: [],
       props: Properties,
@@ -822,7 +832,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
     const Extends = this.extends(node);
     const Implements = this.implements(node);
 
-    let MainConstructor: ConstructorJson | null = null;
+    let MainConstructor: PropertiesConstructorJson | ConstructorJson | null = null;
 
     const ConstructorProps = node.props.map(v => this.generateProperty(v, true));
 
@@ -830,10 +840,10 @@ export class JsonGenerator extends FormatGenerator<Json> {
       MainConstructor = this.generateConstructor(node.mainConstructor);
     } else {
       MainConstructor = {
-        kind: NodeKind.constructor,
+        kind: NodeKind.propertiesConstructor,
         name: "new",
         private: false,
-        parameters: ConstructorProps.map(p => ({
+        properties: ConstructorProps.map(p => ({
           kind: NodeKind.parameter,
           private: p.private,
           varargs: false,
@@ -1173,22 +1183,31 @@ export class JsonGenerator extends FormatGenerator<Json> {
   }
 
   async generateNamespace(node: GirNamespace): Promise<NamespaceJson> {
+    function shouldGenerate(node: GirBase) {
+      return node.emit;
+    }
+
     const { name, version } = node;
 
-    const members = Array.from(node.members.values()).flatMap(m => m);
+    const members = Array.from(node.members.values())
+      .flatMap(m => m)
+      .filter(shouldGenerate);
 
     const classes = members.filter((m): m is GirClass => m instanceof GirClass).map(m => m.asString(this));
     const interfaces = members
+
       .filter((m): m is GirInterface => m instanceof GirInterface)
       .map(m => m.asString(this));
     const records = members.filter((m): m is GirRecord => m instanceof GirRecord).map(m => m.asString(this));
     const constants = members.filter((m): m is GirConst => m instanceof GirConst).map(m => m.asString(this));
     const callbacks = members
+
       .filter((m): m is GirCallback => m instanceof GirCallback)
       .map(m => m.asString(this));
     // Functions can have overrides.
     const functions = [
       ...members
+
         .filter((m): m is GirFunction => !(m instanceof GirCallback) && m instanceof GirFunction)
         .reduce((prev, next) => {
           if (!prev.has(next.name)) prev.set(next.name, next.asString(this));
@@ -1197,7 +1216,11 @@ export class JsonGenerator extends FormatGenerator<Json> {
         }, new Map<string, FunctionJson>())
         .values()
     ];
-    const enums = members.filter((m): m is GirEnum => m instanceof GirEnum).map(m => m.asString(this));
+    const errors = members.filter((m): m is GirError => m instanceof GirError).map(m => m.asString(this));
+    const enums = members
+
+      .filter((m): m is GirEnum => !(m instanceof GirError) && m instanceof GirEnum)
+      .map(m => m.asString(this));
     const alias = members.filter((m): m is GirAlias => m instanceof GirAlias).map(m => m.asString(this));
 
     // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
@@ -1214,6 +1237,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       constants,
       functions,
       callbacks,
+      errors,
       enums,
       alias
     };

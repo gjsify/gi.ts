@@ -229,6 +229,7 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
   }
 
   if (
+    parameter.$ &&
     (parameter.$.direction === "inout" || parameter.$.direction === "out") &&
     (nullable || allowNone) &&
     !(variableType instanceof NativeType)
@@ -236,7 +237,7 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
     return new NullableType(variableType);
   }
 
-  if ((!parameter.$.direction || parameter.$.direction === "in") && nullable) {
+  if ((!parameter.$?.direction || parameter.$.direction === "in") && nullable) {
     return new NullableType(variableType);
   }
 
