@@ -1,7 +1,7 @@
 import { GirBase, TypeExpression } from "../gir";
 import { FieldElement, PropertyElement } from "@gi.ts/parser";
 
-import { getType } from "./util";
+import { getType, parseDoc, parseMetadata } from "./util";
 import { GirNamespace } from "./namespace";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
@@ -185,6 +185,11 @@ export class GirProperty extends GirBase {
       type: getType(namespace, ns, prop),
       parent
     });
+
+    if (options.loadDocs) {
+      property.doc = parseDoc(prop);
+      property.metadata = parseMetadata(prop);
+    }
 
     return property;
   }
