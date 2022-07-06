@@ -1,34 +1,34 @@
-import { Command, flags } from "@oclif/command";
+import { Command, flags } from '@oclif/command';
 
-import prettier from "prettier";
+import prettier from 'prettier';
 
-import * as fs from "fs";
-import { promisify as $ } from "util";
+import * as fs from 'fs';
+import { promisify as $ } from 'util';
 
 const readFile = $(fs.readFile);
 const mkdir = $(fs.mkdir);
 const writeFile = $(fs.writeFile);
 
-import { dirname, join as buildPath, resolve as resolvePath } from "path";
+import { dirname, join as buildPath, resolve as resolvePath } from 'path';
 
-import { GirXML, parser } from "@gi.ts/parser";
+import { GirXML, parser } from '@gi.ts/parser';
 
-import { resolveLibraries } from "@gi.ts/node-loader";
+import { resolveLibraries } from '@gi.ts/node-loader';
 
-import * as lib from "@gi.ts/lib";
+import * as lib from '@gi.ts/lib';
 
-import { PropertyCase } from "@gi.ts/lib";
+import { PropertyCase } from '@gi.ts/lib';
 
 class TypeScriptFormatter extends lib.Formatter {
   format(input: string): string {
     try {
       return prettier.format(input, {
-        parser: "typescript",
+        parser: 'typescript',
         printWidth: 120,
-        tabWidth: 4,
+        tabWidth: 4
       });
     } catch (error) {
-      console.error("Failed to format output...");
+      console.error('Failed to format output...');
       console.error(input);
       throw error;
     }
@@ -47,8 +47,8 @@ export interface DocDescription {
 
 type Unknown<T> = { [key in keyof T]?: unknown };
 
-type OutputFormat = "file" | "folder";
-type Format = "dts" | "json" | string;
+type OutputFormat = 'file' | 'folder';
+type Format = 'dts' | 'json' | string;
 
 export interface GenerationOptions {
   inferGenerics: boolean;
@@ -75,39 +75,66 @@ export interface LoadOptions {
   propertyCase: PropertyCase;
 }
 
+export function loadDocsConfig(log: (message: string) => void, file?: string) {
+  let docsPath = 'docs.json';
+
+  if (file) {
+    docsPath = file;
+    log(`Loading docs.json from ${docsPath}...`);
+  } else {
+    log('Loading docs.json...');
+  }
+
+  let content: string | null = null;
+
+  try {
+    content = fs.readFileSync(buildPath(process.cwd(), docsPath), {
+      encoding: 'utf-8'
+    });
+  } catch (error) {
+    console.error('No docs.json found.');
+  }
+
+  const docs: {
+    libraries?: { [lib: string]: string | string[] };
+    dependencies?: { [lib: string]: string | string[] };
+    searchPath?: string | readonly string[];
+    options?: Unknown<CLIOptions>;
+  } = content ? JSON.parse(content) : {};
+
+  return docs;
+}
+
 class ConfigurationError extends Error {}
 
 export default class Generate extends Command {
-  static description = "generate documentation files";
+  static description = 'generate documentation files';
 
   static examples = [
     `$ gi-ts generate
-`,
+`
   ];
 
   static flags = {
-    all: flags.boolean({ description: "Generate all found libraries" }),
+    all: flags.boolean({ description: 'Generate all found libraries' }),
     help: flags.help(),
     out: flags.string({}),
     format: flags.string({
-      description:
-        "'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html.",
+      description: "'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html."
     }),
     inferGenerics: flags.boolean({}),
     promisify: flags.boolean({}),
     propertyCase: flags.enum<PropertyCase | undefined>({
-      options: ["both", "underscore", "camel"],
+      options: ['both', 'underscore', 'camel']
     }),
     outputFormat: flags.enum<OutputFormat | undefined>({
-      options: ["file", "folder"],
+      options: ['file', 'folder']
     }),
     noPrettyPrint: flags.boolean({
-      description:
-        "Disables the pretty-printer. For .d.ts files this will significantly speed up generation.",
+      description: 'Disables the pretty-printer. For .d.ts files this will significantly speed up generation.'
     }),
     noInitTypes: flags.boolean({
-      description:
-        "Disables strict typing for _init() functions in TypeScript files.",
+      description: 'Disables strict typing for _init() functions in TypeScript files.'
     }),
     withDocs: flags.boolean({}),
     versionedOutput: flags.boolean({}),
@@ -116,40 +143,17 @@ export default class Generate extends Command {
     emitMetadata: flags.boolean({}),
     noAdvancedVariants: flags.boolean({}),
     verbose: flags.boolean({
-      char: "v",
-      description: "prints detailed per-member generation info ",
-    }),
+      char: 'v',
+      description: 'prints detailed per-member generation info '
+    })
   };
 
-  static args = [{ name: "file" }];
+  static args = [{ name: 'file' }];
 
   async run() {
     const { args, flags } = this.parse(Generate);
 
-    let docsPath = "docs.json";
-
-    if (args["file"]) {
-      docsPath = args["file"];
-      this.log(`Loading docs.json from ${docsPath}...`);
-    } else {
-      this.log("Loading docs.json...");
-    }
-
-    let content: string | null = null;
-
-    try {
-      content = fs.readFileSync(buildPath(process.cwd(), docsPath), {
-        encoding: "utf-8",
-      });
-    } catch (error) {
-      console.error("No docs.json found.");
-    }
-
-    const docs: {
-      libraries?: { [lib: string]: string | string[] };
-      dependencies?: { [lib: string]: string | string[] };
-      options?: Unknown<CLIOptions>;
-    } = content ? JSON.parse(content) : {};
+    const docs = loadDocsConfig(this.log.bind(this), args['file']);
 
     // Default options
 
@@ -160,7 +164,7 @@ export default class Generate extends Command {
     let verbose = false;
 
     // --outputFormat=file
-    let outputFormat: OutputFormat = "file" as const;
+    let outputFormat: OutputFormat = 'file' as const;
 
     // --withDocs
     let withDocs = false;
@@ -177,7 +181,7 @@ export default class Generate extends Command {
     let versionedImports = false;
 
     // --importPrefix=@gi.ts/
-    let importPrefix = "" as string;
+    let importPrefix = '' as string;
 
     // --emitMetadata
     let emitMetadata = false;
@@ -191,25 +195,25 @@ export default class Generate extends Command {
     // --noInitTypes
     let noInitTypes = false;
 
-    let propertyCase: PropertyCase = "both";
-    let format: "dts" | "json" | string = "dts" as const;
-    let file_extension = "d.ts";
-    let default_directory = "./types";
+    let propertyCase: PropertyCase = 'both';
+    let format: 'dts' | 'json' | string = 'dts' as const;
+    let file_extension = 'd.ts';
+    let default_directory = './types';
     let output_directory: string | null = null;
 
-    function setFormat(format: "dts" | "json" | string) {
+    function setFormat(format: 'dts' | 'json' | string) {
       switch (format) {
-        case "json":
-          file_extension = "json";
-          default_directory = "./json";
+        case 'json':
+          file_extension = 'json';
+          default_directory = './json';
           break;
-        case "dts":
-          file_extension = "d.ts";
-          default_directory = "./types";
+        case 'dts':
+          file_extension = 'd.ts';
+          default_directory = './types';
           break;
         default:
           file_extension = format;
-          default_directory = "./output";
+          default_directory = './output';
       }
     }
 
@@ -223,7 +227,7 @@ export default class Generate extends Command {
           return false;
         }
 
-        if (typeof bool === "boolean") {
+        if (typeof bool === 'boolean') {
           return true;
         }
 
@@ -237,7 +241,7 @@ export default class Generate extends Command {
           return false;
         }
 
-        if (typeof str === "string") {
+        if (typeof str === 'string') {
           return true;
         }
 
@@ -245,10 +249,7 @@ export default class Generate extends Command {
       };
     }
 
-    function expectsStringType<K extends string>(
-      flag: string,
-      types: readonly K[]
-    ) {
+    function expectsStringType<K extends string>(flag: string, types: readonly K[]) {
       return (type: unknown): type is K => {
         if (type === undefined) {
           return false;
@@ -258,30 +259,24 @@ export default class Generate extends Command {
           return true;
         }
 
-        throw new ConfigurationError(
-          `${flag} expects one of ${types.join(", ")}.`
-        );
+        throw new ConfigurationError(`${flag} expects one of ${types.join(', ')}.`);
       };
     }
 
-    const _out = expectsString("out");
-    const _format = expectsString("format");
-    const _inferGenerics = expectsBoolean("inferGenerics");
-    const _promisify = expectsBoolean("promisify");
-    const _propertyCase = expectsStringType("propertyCase", [
-      "both",
-      "underscore",
-      "camel",
-    ]);
-    const _outputFormat = expectsStringType("outputFormat", ["file", "folder"]);
-    const _withDocs = expectsBoolean("withDocs");
-    const _versionedOutput = expectsBoolean("versionedOutput");
-    const _versionedImports = expectsBoolean("versionedImports");
-    const _importPrefix = expectsString("importPrefix");
-    const _emitMetadata = expectsBoolean("emitMetadata");
-    const _noAdvancedVariants = expectsBoolean("noAdvancedVariants");
-    const _noPrettyPrint = expectsBoolean("noPrettyPrint");
-    const _noInitTypes = expectsBoolean("noInitTypes");
+    const _out = expectsString('out');
+    const _format = expectsString('format');
+    const _inferGenerics = expectsBoolean('inferGenerics');
+    const _promisify = expectsBoolean('promisify');
+    const _propertyCase = expectsStringType('propertyCase', ['both', 'underscore', 'camel']);
+    const _outputFormat = expectsStringType('outputFormat', ['file', 'folder']);
+    const _withDocs = expectsBoolean('withDocs');
+    const _versionedOutput = expectsBoolean('versionedOutput');
+    const _versionedImports = expectsBoolean('versionedImports');
+    const _importPrefix = expectsString('importPrefix');
+    const _emitMetadata = expectsBoolean('emitMetadata');
+    const _noAdvancedVariants = expectsBoolean('noAdvancedVariants');
+    const _noPrettyPrint = expectsBoolean('noPrettyPrint');
+    const _noInitTypes = expectsBoolean('noInitTypes');
 
     if (options) {
       if (_out(options.out)) {
@@ -386,7 +381,7 @@ export default class Generate extends Command {
     const registry = lib.createRegistry();
 
     // Register a 'dts' formatter so our output looks decent.
-    registry.registerFormatter("dts", new TypeScriptFormatter());
+    registry.registerFormatter('dts', new TypeScriptFormatter());
 
     type GirMap = Map<
       string,
@@ -398,24 +393,25 @@ export default class Generate extends Command {
     const girs = await resolveLibraries(
       {
         ...(docs.dependencies || {}),
-        ...(docs.libraries || {}),
+        ...(docs.libraries || {})
       },
-      verbose
+      verbose,
+      typeof docs.searchPath === 'string' ? [docs.searchPath] : docs.searchPath ?? []
     );
 
     const gir: GirMap = new Map();
 
-    this.log("Loading GIR files...");
+    this.log('Loading GIR files...');
 
     for (const [name, library] of Array.from(girs.entries())) {
       for (const version of Object.keys(library)) {
         const doc = library[version];
-        const src = await readFile(doc.path, { encoding: "utf8" });
+        const src = await readFile(doc.path, { encoding: 'utf8' });
         const result = () => parser.parseGir(src);
 
         gir.set(name, {
           ...(gir.get(name) ?? {}),
-          [version]: result,
+          [version]: result
         });
       }
     }
@@ -439,22 +435,22 @@ export default class Generate extends Command {
           const xml = gir.get(namespace);
 
           if (xml) {
-            return Object.values(xml).map((x) => x());
+            return Object.values(xml).map(x => x());
           }
 
           return [];
-        },
+        }
       },
       {
         loadDocs: withDocs,
         propertyCase,
-        verbose,
+        verbose
       }
     );
 
     registry.transform({
       inferGenerics,
-      verbose,
+      verbose
     });
 
     let girsToGenerate: { [lib: string]: string | string[] };
@@ -465,10 +461,10 @@ export default class Generate extends Command {
           return [k, Object.keys(v)] as const;
         })
       );
-    } else if (typeof docs.libraries === "object") {
+    } else if (typeof docs.libraries === 'object') {
       girsToGenerate = docs.libraries;
     } else {
-      console.error("No libraries selected to generate.");
+      console.error('No libraries selected to generate.');
       return;
     }
 
@@ -484,10 +480,8 @@ export default class Generate extends Command {
           let generated: lib.GeneratedModule | null = null;
 
           const output = name as string;
-          let version_suffix = versionedOutput
-            ? version.toLowerCase().split(".")[0]
-            : "";
-          
+          let version_suffix = versionedOutput ? version.toLowerCase().split('.')[0] : '';
+
           // Hardcode harfbuzz for now...
           if (output.toLowerCase() === 'harfbuzz' && version_suffix === '0') {
             version_suffix = '2';
@@ -508,7 +502,7 @@ export default class Generate extends Command {
               emitMetadata,
               verbose,
               noPrettyPrint,
-              noInitTypes,
+              noInitTypes
             },
             registry,
             name,
@@ -523,19 +517,15 @@ export default class Generate extends Command {
           let { formattedOutput, meta } = generated;
           let file: string;
 
-          if (outputFormat === "file") {
+          if (outputFormat === 'file') {
             file = buildPath(output_base, `${output_slug}.${file_extension}`);
-          } else if (outputFormat === "folder") {
-            file = buildPath(
-              output_base,
-              `${output_slug}`,
-              `index.${file_extension}`
-            );
+          } else if (outputFormat === 'folder') {
+            file = buildPath(output_base, `${output_slug}`, `index.${file_extension}`);
           } else {
             throw new Error(`Unknown output format: ${outputFormat}.`);
           }
 
-          if (outputFormat === "folder") {
+          if (outputFormat === 'folder') {
             const directory = dirname(file);
 
             try {
@@ -546,16 +536,13 @@ export default class Generate extends Command {
           if (emitMetadata) {
             const metaData = JSON.stringify(meta, null, 4);
 
-            if (outputFormat === "folder") {
+            if (outputFormat === 'folder') {
               const directory = dirname(file);
-              const metaPath = buildPath(directory, "doc.json");
+              const metaPath = buildPath(directory, 'doc.json');
 
               await writeFile(metaPath, metaData);
             } else {
-              const metaPath = buildPath(
-                output_base,
-                `${output_slug}.doc.json`
-              );
+              const metaPath = buildPath(output_base, `${output_slug}.doc.json`);
 
               await writeFile(metaPath, metaData);
             }
@@ -569,14 +556,12 @@ export default class Generate extends Command {
     const identifiers = lib.getSanitizedIdentifiers();
 
     if (identifiers.size > 0) {
-      console.error(
-        "The following types were prefixed with __ to preserve valid JavaScript identifiers."
-      );
+      console.error('The following types were prefixed with __ to preserve valid JavaScript identifiers.');
       for (const [sanitized, unsanitized] of identifiers.entries()) {
         console.error(`${unsanitized} = ${sanitized}`);
       }
     }
 
-    this.log("Generated!");
+    this.log('Generated!');
   }
 }

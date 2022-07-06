@@ -19,7 +19,7 @@ $ npm install -g @gi.ts/cli
 $ gi-ts COMMAND
 running command...
 $ gi-ts (-v|--version|version)
-@gi.ts/cli/1.5.7 linux-x64 node-v12.18.3
+@gi.ts/cli/1.5.7 linux-x64 node-v14.18.0
 $ gi-ts --help [COMMAND]
 USAGE
   $ gi-ts COMMAND
@@ -28,17 +28,17 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`gi-ts config`](#gi-ts-config)
+* [`gi-ts config [FILE]`](#gi-ts-config-file)
 * [`gi-ts generate [FILE]`](#gi-ts-generate-file)
 * [`gi-ts help [COMMAND]`](#gi-ts-help-command)
 
-## `gi-ts config`
+## `gi-ts config [FILE]`
 
 create docs configurations
 
 ```
 USAGE
-  $ gi-ts config
+  $ gi-ts config [FILE]
 
 OPTIONS
   --help  show CLI help
