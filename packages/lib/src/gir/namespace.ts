@@ -25,7 +25,7 @@ import { GirVisitor } from "../visitor";
 
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 
-export const isIntrospectable = (e: { $: InfoAttrs }) =>
+export const isIntrospectable = (e: { $?: InfoAttrs }) =>
   e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
 export const isDeprecated = (e: { $: InfoAttrs }) => e && e.$ && e.$.deprecated === "1";
 export const deprecatedVersion = (e: { $: InfoAttrs }) => e?.$?.["deprecated-version"];

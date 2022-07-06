@@ -29,7 +29,7 @@ import {
   parseDoc,
   parseMetadata
 } from "./util";
-import { GirBaseClass } from "./class";
+import { GirBaseClass, GirClass } from "./class";
 import { GirEnum } from "./enum";
 import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
@@ -526,6 +526,18 @@ export class GirClassFunction extends GirBase {
     throw new Error(
       `Attempted to convert GirClassFunction into GirConstructor from invalid parent: ${this.parent.name}`
     );
+  }
+
+  asStaticClassFunction(parent: GirClass): any {
+    const { name, parameters, return_type, output_parameters } = this;
+
+    return new GirStaticClassFunction({
+      name,
+      parameters,
+      output_parameters,
+      return_type,
+      parent
+    });
   }
 
   copy({

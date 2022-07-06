@@ -476,6 +476,7 @@ export class GirClass extends GirBaseClass {
   signals: GirSignal[] = [];
   interfaces: TypeIdentifier[] = [];
   isAbstract: boolean = false;
+  private _staticDefinition: string | null = null;
 
   constructor(name: string, namespace: GirNamespace) {
     super({ name, namespace });
@@ -760,7 +761,8 @@ export class GirClass extends GirBaseClass {
       isAbstract,
       mainConstructor,
       signals,
-      generics
+      generics,
+      _staticDefinition,
     } = this;
 
     const clazz = new GirClass(name, namespace);
@@ -771,6 +773,7 @@ export class GirClass extends GirBaseClass {
       clazz.parent = parent;
     }
 
+    clazz._staticDefinition = _staticDefinition;
     clazz.signals = (options.signals ?? signals).map(s => s.copy());
     clazz.interfaces = [...interfaces];
     clazz.props = (options.props ?? props).map(p => p.copy());
@@ -786,6 +789,10 @@ export class GirClass extends GirBaseClass {
     clazz.getGenericName = GenericNameGenerator.at(this.getGenericName());
 
     return clazz;
+  }
+
+  get staticDefinition() {
+    return this._staticDefinition;
   }
 
   static fromXML(
@@ -826,10 +833,13 @@ export class GirClass extends GirBaseClass {
       ns.registerResolveName(klass.$["c:type"], ns.name, name);
     }
 
-    if (klass.$["glib:type-struct"]) {
-      clazz.resolve_names.push(klass.$["glib:type-struct"]);
+    const typeStruct = klass.$["glib:type-struct"];
+    if (typeStruct) {
+      clazz.registerStaticDefinition(typeStruct);
 
-      ns.registerResolveName(klass.$["glib:type-struct"], ns.name, name);
+      clazz.resolve_names.push(typeStruct);
+
+      ns.registerResolveName(typeStruct, ns.name, name);
     }
 
     try {
@@ -966,6 +976,9 @@ export class GirClass extends GirBaseClass {
 
     return clazz;
   }
+  registerStaticDefinition(typeStruct: string) {
+    this._staticDefinition = typeStruct;
+  }
 
   asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateClass"]> {
     return generator.generateClass(this);
@@ -1086,7 +1099,7 @@ export class GirRecord extends GirBaseClass {
       fields,
       callbacks,
       generics,
-      mainConstructor
+      mainConstructor,
     } = this;
 
     const clazz = new GirRecord({ name, namespace });

@@ -1,6 +1,7 @@
 import { ArrayType, NativeType, TypeIdentifier } from "../gir";
 import { GirBaseClass, GirClass, GirRecord } from "../gir/class";
 import { GirEnum, GirError } from "../gir/enum";
+import { GirClassFunction, GirStaticClassFunction } from "../gir/nodes";
 import { resolveTypeIdentifier } from "../gir/util";
 import { GirVisitor } from "../visitor";
 
@@ -138,8 +139,35 @@ const resolveMainConstructor = (node: GirRecord): GirRecord => {
   return node;
 };
 
+const mergeStaticDefinitions = (node: GirClass): GirClass => {
+  if (!node.staticDefinition) {
+    return node;
+  }
+
+  const { namespace } = node;
+  const staticDefinition = namespace.getClass(node.staticDefinition);
+
+  if (!(staticDefinition instanceof GirRecord)) {
+    return node;
+  }
+
+  const staticMethods = staticDefinition.members
+    .filter(m => m instanceof GirClassFunction)
+    .map(m => m.asStaticClassFunction(node));
+
+  for (const staticMethod of staticMethods) {
+    if (!(node.members.some(member => member.name === staticMethod.name && member instanceof GirStaticClassFunction))) {
+      node.members.push(staticMethod);
+    }
+  }
+
+
+  return node;
+};
+
 export class ClassVisitor extends GirVisitor {
-  visitClass = (node: GirClass) => removeComplexFields(fixParamSpecSubtypes(fixMissingParent(node)));
+  visitClass = (node: GirClass) =>
+    mergeStaticDefinitions(removeComplexFields(fixParamSpecSubtypes(fixMissingParent(node))));
 
   visitRecord = (node: GirRecord) =>
     resolveMainConstructor(removeComplexFields(fixParamSpecSubtypes(fixMissingParent(node))));
