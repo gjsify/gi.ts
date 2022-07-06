@@ -1,8 +1,8 @@
-import * as React from "react";
+import * as React from 'react';
 
-import Type from "../components/Type";
+import Type from '../components/Type.js';
 
-import { Alias } from "../types/nodes";
+import { Alias } from '../types/nodes.js';
 
 export interface AliasProps {
   node: Alias;

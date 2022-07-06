@@ -1,3 +1,7 @@
-import { HtmlGenerator } from "./generator";
+import { HtmlGenerator } from './generator.js';
 
-export = HtmlGenerator;
+export * from './components.js';
+export * from './path.js';
+export * from './nodes.js';
+
+export default HtmlGenerator;

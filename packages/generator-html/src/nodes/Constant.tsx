@@ -1,10 +1,10 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { Constant } from "../types/nodes";
+import { Constant } from '../types/nodes.js';
 
-import ConstantDeclaration from "../components/ConstantDeclaration";
-import Doc from "../components/Doc";
-import Metadata from "../components/Metadata";
+import ConstantDeclaration from '../components/ConstantDeclaration.js';
+import Doc from '../components/Doc.js';
+import Metadata from '../components/Metadata.js';
 
 export interface ConstantProps {
   node: Constant;

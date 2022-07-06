@@ -1,13 +1,13 @@
 import * as React from "react";
 import { useContext } from "react";
-import { FunctionDeclaration } from "../types/nodes";
+import { FunctionDeclaration } from "../types/nodes.js";
 
-import Parameter from "./Parameter";
-import List from "./List";
-import Type from "./Type";
+import Parameter from "./Parameter.js";
+import List from "./List.js";
+import Type from "./Type.js";
 
-import { LinkContext } from "../renderer";
-import { NamespaceContext } from "../path";
+import { LinkContext } from "../path.js";
+import { NamespaceContext } from "../path.js";
 
 export interface FunctionProps {
   node: FunctionDeclaration;
@@ -33,7 +33,7 @@ const FunctionDeclaration: React.FC<FunctionProps> = ({ node }) => {
   );
 
   return (
-    <div>
+    <div className="function-declaration">
       <Link to={path}>{node.name}</Link>
       <span>(</span>
       <List separator=", ">

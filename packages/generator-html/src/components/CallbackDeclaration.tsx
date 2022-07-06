@@ -1,12 +1,12 @@
-import * as React from "react";
-import { useContext } from "react";
-import Parameter from "./Parameter";
-import List from "./List";
-import Type from "./Type";
+import * as React from 'react';
+import { useContext } from 'react';
+import Parameter from './Parameter.js';
+import List from './List.js';
+import Type from './Type.js';
 
-import { CallbackDeclaration } from "../types/nodes";
-import { LinkContext } from "../renderer";
-import { NamespaceContext } from "../path";
+import { CallbackDeclaration } from '../types/nodes.js';
+
+import { LinkContext, NamespaceContext } from '../path.js';
 
 export interface CallbackProps {
   node: CallbackDeclaration;

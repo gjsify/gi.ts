@@ -1,9 +1,9 @@
-import * as React from "react";
+import * as React from 'react';
 
-import CallbackDeclaration from "../components/CallbackDeclaration";
-import Doc from "../components/Doc";
-import Metadata from "../components/Metadata";
-import { Callback } from "../types/nodes";
+import CallbackDeclaration from '../components/CallbackDeclaration.js';
+import Doc from '../components/Doc.js';
+import Metadata from '../components/Metadata.js';
+import { Callback } from '../types/nodes.js';
 
 export interface CallbackProps {
   node: Callback;

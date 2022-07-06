@@ -1,6 +1,26 @@
-import { useCallback, useContext } from "react";
-import { NamespaceContext } from "./path";
-import { NamespaceMetadata } from "./types/meta";
+import { useCallback, useContext } from 'react';
+import { NamespaceContext } from './path.js';
+import { NamespaceMetadata } from './types/meta.js';
+
+export const namespacePath = () => {
+  const namespaces = useContext(NamespaceContext);
+
+  const path = useCallback(
+    (namespace: string, version: string) => {
+      switch (namespaces.pathFormat) {
+        case 'slug':
+          return `${namespace.toLowerCase()}${version.split('.')[0]}`;
+        case 'slug-major-minor':
+          return `${namespace.toLowerCase()}${version.split('.').slice(0, 2).join('')}`;
+        case 'name-version':
+          return `${namespace.toLowerCase()}-${version}`;
+      }
+    },
+    [namespaces]
+  );
+
+  return path;
+};
 
 export const namespaceReference = () => {
   const namespaces = useContext(NamespaceContext);
@@ -20,20 +40,15 @@ export const namespaceReference = () => {
     [namespaces]
   );
 
+  const path = namespacePath();
+
   const ref = useCallback(
     (namespace: string, meta: NamespaceMetadata) => {
       const version = getVersion(namespace, meta);
 
-      switch (namespaces.pathFormat) {
-        case "slug":
-          return `${namespace.toLowerCase()}${version.split(".")[0]}`;
-        case "slug-major-minor":
-          return `${namespace.toLowerCase()}${version.split(".").slice(0, 2).join("")}`;
-        case "name-version":
-          return `${namespace.toLowerCase()}-${version}`;
-      }
+      return path(namespace, version);
     },
-    [getVersion]
+    [path, getVersion]
   );
 
   return ref;

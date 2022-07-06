@@ -1,10 +1,36 @@
 {
   "name": "@gi.ts/generator-html",
-  "version": "1.5.4",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "version": "1.5.5",
+  "type": "module",
+  "main": "./dist-cjs/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist-cjs/index.js"
+    },
+    "./nodes": {
+      "types": "./dist/nodes.d.ts",
+      "import": "./dist/nodes.js",
+      "require": "./dist-cjs/nodes.js"
+    },
+    "./path": {
+      "types": "./dist/path.d.ts",
+      "import": "./dist/path.js",
+      "require": "./dist-cjs/path.js"
+    },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.js",
+      "require": "./dist-cjs/components.js"
+    }
+  },
   "files": [
     "dist",
+    "dist-cjs",
+    "src",
     "package.json",
     "package-lock.json",
     "README.md"
@@ -17,7 +43,9 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build:esm": "tsc -p tsconfig.json --outDir dist",
+    "build:cjs": "tsc -p tsconfig.json --outDir dist-cjs --module commonjs && echo '{\"module\":\"commonjs\"}' > dist-cjs/package.json",
+    "build": "yarn build:esm && yarn build:cjs",
     "export:html": "node ./_build/html/generator.js",
     "serve:html": "http-server html -p 8080 -d",
     "config-docs": "XDG_DATA_DIRS=/usr/share/:/usr/share/gnome-shell/:/usr/lib/mutter-8/ gi-ts config --lock",
@@ -39,7 +67,8 @@
     "remark-heading-id": "^1.0.0",
     "remark-parse": "^9.0.0",
     "remark-rehype": "^8.1.0",
-    "unified": "^9.2.1"
+    "unified": "^9.2.1",
+    "unist-util-visit": "^2.0.3"
   },
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",
@@ -47,7 +76,7 @@
     "@types/react": "^16.9.1",
     "@types/react-dom": "^16.8.5",
     "@types/react-syntax-highlighter": "^11.0.5",
-    "typescript": "^4.2.4"
+    "typescript": "^4.7.4"
   },
   "peerDependencies": {
     "@gi.ts/lib": "^1.5.3"

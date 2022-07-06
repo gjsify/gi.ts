@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Class, Interface, Method as ClassMember, Record } from "../types/nodes";
+import { Class, Interface, Method as ClassMember, Record } from "../types/nodes.js";
 
 export interface ClassIndexProps {
   node: Class | Record | Interface;

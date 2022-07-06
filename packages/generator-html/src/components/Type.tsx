@@ -1,12 +1,12 @@
 import * as React from "react";
 
-import List from "./List";
+import List from "./List.js";
 
-import { namespaceReference } from "../util";
+import { namespaceReference } from "../util.js";
 
-import { Type } from "../types/nodes";
-import { LinkContext } from "../renderer";
-import { NamespaceContext } from "../path";
+import { Type } from "../types/nodes.js";
+import { LinkContext } from "../path.js";
+import { NamespaceContext } from "../path.js";
 
 /**
  * Translate a primitive type into a MDN link.

@@ -1,10 +1,10 @@
 import * as React from "react";
 import { useContext } from "react";
 
-import { EnumDeclaration } from "../types/nodes";
+import { EnumDeclaration } from "../types/nodes.js";
 
-import { LinkContext } from "../renderer";
-import { NamespaceContext } from "../path";
+import { LinkContext } from "../path.js";
+import { NamespaceContext } from "../path.js";
 
 export interface EnumProps {
   node: EnumDeclaration;

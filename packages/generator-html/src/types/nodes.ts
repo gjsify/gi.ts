@@ -1,5 +1,5 @@
 import {
-  ErrorJson,
+  ErrorJson as Error,
   NodeKind,
   TypeJson,
   NodeJson,
@@ -21,12 +21,12 @@ import {
   InterfaceJson as Interface,
   ConstJson as Constant,
   ImportsJson as Imports
-} from "@gi.ts/lib/dist/generators/json";
+} from '@gi.ts/lib/generators/json.js';
 
 export type Method = ClassMethod | ClassVirtualMethod | ClassStaticMethod;
 
 export {
-  ErrorJson,
+  Error,
   Prop,
   Const,
   Constructor,
@@ -34,6 +34,8 @@ export {
   Record,
   Enum,
   EnumMember,
+  // For backward compatibility
+  Error as ErrorJson,
   Field,
   Function,
   Parameter,
@@ -51,9 +53,9 @@ export {
 
 export type Type = TypeJson;
 
-export type NodeDeclaration<K extends NodeJson, V extends keyof K = "name" | "kind"> = Pick<
+export type NodeDeclaration<K extends NodeJson, V extends keyof K = 'name' | 'kind'> = Pick<
   K,
-  "name" | "kind" | V
+  'name' | 'kind' | V
 >;
 
 export interface NodeMetadata {
@@ -68,14 +70,15 @@ export interface ChildNode {
   doc?: string;
 }
 
-export type AliasDeclaration = NodeDeclaration<Alias, "type">;
+export type AliasDeclaration = NodeDeclaration<Alias, 'type'>;
 export type EnumDeclaration = NodeDeclaration<Enum>;
-export type FunctionDeclaration = NodeDeclaration<Function, "returnType" | "parameters">;
-export type CallbackDeclaration = NodeDeclaration<Callback, "returnType" | "parameters">;
-export type ConstantDeclaration = NodeDeclaration<Constant, "type">;
-export type RecordDeclaration = NodeDeclaration<Record, "type" | "extends" | "implements">;
-export type InterfaceDeclaration = NodeDeclaration<Interface, "type" | "extends">;
-export type ClassDeclaration = NodeDeclaration<Class, "abstract" | "type" | "extends" | "implements">;
+export type FunctionDeclaration = NodeDeclaration<Function, 'returnType' | 'parameters'>;
+export type CallbackDeclaration = NodeDeclaration<Callback, 'returnType' | 'parameters'>;
+export type ConstantDeclaration = NodeDeclaration<Constant, 'type'>;
+export type RecordDeclaration = NodeDeclaration<Record, 'type' | 'extends' | 'implements'>;
+export type ErrorDeclaration = NodeDeclaration<Error, 'type' | 'extends'>;
+export type InterfaceDeclaration = NodeDeclaration<Interface, 'type' | 'extends'>;
+export type ClassDeclaration = NodeDeclaration<Class, 'abstract' | 'type' | 'extends' | 'implements'>;
 
 export interface Namespace {
   kind: string;
@@ -83,6 +86,7 @@ export interface Namespace {
   name: string;
   alias: Alias[];
   enums: Enum[];
+  errors: Error[];
   functions: Function[];
   callbacks: Callback[];
   constants: Const[];

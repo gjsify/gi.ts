@@ -1,18 +1,19 @@
-import * as React from "react";
+import * as React from 'react';
 
-import { namespaceReference } from "../util";
+import { namespaceReference } from '../util.js';
 
-import * as unified from "unified";
-import * as parse from "remark-parse";
-import * as behead from "remark-behead";
-import * as headingId from "remark-heading-id";
-import * as remark2rehype from "remark-rehype";
-import * as highlight from "rehype-highlight";
-import * as rehype2react from "rehype-react";
+import unified from 'unified';
+import parse from 'remark-parse';
+import * as headingId from 'remark-heading-id';
+import remark2rehype from 'remark-rehype';
+import * as highlight from 'rehype-highlight';
+import rehype2react from 'rehype-react';
 // TODO: Consider adding breaks support.
 // import breaks from 'remark-breaks';
 
-import { NamespaceContext } from "../path";
+import normalizeHeadings from '../markdown/normalizeHeadings.js';
+
+import { NamespaceContext } from '../path.js';
 
 interface DocProps {
   doc: string;
@@ -20,7 +21,7 @@ interface DocProps {
   noContainer?: boolean;
 }
 
-const NotMarkdown = /^([A-z,.][ ])+$/.compile();
+const NotMarkdown = /^([A-z,.][ ])+$/;
 
 const Span: React.FC<{ className?: string }> = ({ className, children }) => (
   <span className={className}>{children}</span>
@@ -42,27 +43,59 @@ const Doc: React.FC<DocProps> = ({ doc, flattenParagraphs = false, noContainer =
       return (
         ` ${doc} `
           // |[ is equivalent to ``` in standard markdown
-          .replace(/\|\[/g, "```")
+          .replace(/\|\[/g, '```')
           // ]| is equivalent to ``` in standard markdown
-          .replace(/\]\|/g, "```")
+          .replace(/\]\|/g, '```')
           // |[ <!-- language="C" --> is transformed to ```C
-          .replace(/&lt;!-- language="(.*)" --&gt;/g, "$1")
-          .replace(/```[ ]*&lt;!--(.*)--&gt;/g, "```")
+          .replace(/&lt;!-- language="(.*)" --&gt;/g, '$1')
+          .replace(/```[ ]*&lt;!--(.*)--&gt;/g, '```')
           // To avoid editing content within code blocks we split on ```
-          .split("```")
+          .split('```')
           .map((part, i) => {
             // Even indices are outside a code block
             if (i % 2 === 0) {
               return (
                 part
                   // Escapes: <a and similar text.
-                  .replace(/<(.)/g, "\\<$1")
+                  .replace(/<(.)/g, '\\<$1')
                   // Converts %TRUE, %FALSE, and %NULL to true, false, and null
                   .replace(/%(TRUE|FALSE|NULL)/g, (_, value: string) => `\`${value.toLowerCase()}\``)
                   // Converts '## Header ##' to '## Header'
-                  .replace(/(#)+[ ]+(.+)[ ]+(#)+/g, "$1 $2")
+                  .replace(/(#)+[ ]+(.+)[ ]+(#)+/g, '$1 $2')
+                  // Handle gi-docgen link format...
+                  .replace(/\[struct@([A-z]+)\.([A-z]+)\]/g, (_: string, ns: string, clazz: string) => {
+                    return `[${ns}.${clazz}](/${ref(ns, meta)}/${clazz})`;
+                  })
+                  .replace(/\[iface@([A-z]+)\.([A-z]+)\]/g, (_: string, ns: string, clazz: string) => {
+                    return `[${ns}.${clazz}](/${ref(ns, meta)}/${clazz})`;
+                  })
+                  .replace(/\[class@([A-z]+)\.([A-z]+)\]/g, (_: string, ns: string, clazz: string) => {
+                    return `[${ns}.${clazz}](/${ref(ns, meta)}/${clazz})`;
+                  })
+                  .replace(
+                    /\[method@([A-z]+)\.([A-z]+)\.([a-z_]+)\]/g,
+                    (_: string, ns: string, clazz: string, method: string) => {
+                      return `[${ns}.${clazz}.${method}](/${ref(ns, meta)}/${clazz}#${method})()`;
+                    }
+                  )
+                  .replace(
+                    /\[vfunc@([A-z]+)\.([A-z]+)\.([a-z_]+)\]/g,
+                    (_: string, ns: string, clazz: string, method: string) => {
+                      return `[${ns}.${clazz}.vfunc_${method}](/${ref(ns, meta)}/${clazz}#vfunc_${method})()`;
+                    }
+                  )
+                  .replace(
+                    /\[property@([A-z]+)\.([A-z]+):([a-z-]+)\]/g,
+                    (_: string, ns: string, clazz: string, prop: string) => {
+                      return `[${ns}.${clazz}.${prop.replace(/-/g, '_')}](/${ref(
+                        ns,
+                        meta
+                      )}/${clazz}#${prop.replace(/-/g, '_')})`;
+                    }
+                  )
                   // Removes @ escapes.
-                  .replace(/([\w])\\@([\w])/g, "$1@$2")
+                  // Handle GTK Doc style references
+                  .replace(/([\w])\\@([\w])/g, '$1@$2')
                   // Transforms Namespace.Class.function() into [Namespace.Class.function()](...link...)
                   .replace(
                     /#{0,1}([A-z]+)\.([A-z]+)\.([a-z_]+)\(\)/g,
@@ -109,13 +142,25 @@ const Doc: React.FC<DocProps> = ({ doc, flattenParagraphs = false, noContainer =
                       }
                     }
                   )
+                  // Handle escaped < and > within code blocks
+                  .replace(/`(.*?)&lt;(.*?)`/g, '`$1<$2`')
+                  .replace(/`(.*?)&gt;(.*?)`/g, '`$1>$2`')
+                  // Handle "primitive" types
+                  .replace(/#(gint([123468]{0,2}))/g, (_, __, p2) => `number (int${p2 ?? ''})`)
+                  .replace(/#(guint([123468]{0,2}))/g, (_, __, p2) => `number (unsigned int${p2 ?? ''})`)
+                  .replace(/#gdouble/g, 'number')
+                  .replace(/#gfloat/g, 'number')
+                  .replace(/#glong/g, 'number (long)')
+                  .replace(/#gulong/g, 'number (unsigned long)')
+                  .replace(/#gchar/g, 'number (char)')
+                  .replace(/#guchar/g, 'number (unsigned char)')
               );
             }
 
             // Odd indices are inside a code block
-            return part;
+            return part.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
           })
-          .join("```")
+          .join('```')
           .slice(1, -1)
       );
     } catch (error) {
@@ -127,7 +172,7 @@ const Doc: React.FC<DocProps> = ({ doc, flattenParagraphs = false, noContainer =
 
   const formatted = format(doc);
   // If a doc does not contain markdown syntax we can avoid rendering it.
-  const isMarkdown = NotMarkdown.test(formatted);
+  const isMarkdown = !NotMarkdown.test(formatted);
 
   let Body: React.ReactElement | string;
 
@@ -139,11 +184,11 @@ const Doc: React.FC<DocProps> = ({ doc, flattenParagraphs = false, noContainer =
           .use(headingId)
           // TODO: Debugging remark plugins...
           //  .use(breaks)
-          .use(behead, { after: 0, depth: 3 })
+          .use(normalizeHeadings)
           .use(remark2rehype)
           .use(highlight, {
             aliases: {
-              plaintext: "plain"
+              plaintext: 'plain'
             }
           })
           .use(rehype2react, {

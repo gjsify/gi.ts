@@ -1,4 +1,4 @@
-import { Imports } from "./nodes";
+import { Imports } from './nodes.js';
 
 export interface NamespaceMetadata {
   imports: Imports;

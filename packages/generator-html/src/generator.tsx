@@ -1,5 +1,5 @@
-import * as React from "react";
-import * as fs from "fs";
+import * as React from 'react';
+import * as fs from 'fs';
 
 import {
   ErrorJson,
@@ -12,21 +12,21 @@ import {
   Function,
   Interface,
   Record
-} from "./types/nodes";
+} from './types/nodes.js';
 
-import FunctionNode from "./nodes/Function";
-import ClassNode from "./nodes/Class";
-import EnumNode from "./nodes/Enum";
-import AliasNode from "./nodes/Alias";
-import ConstantNode from "./nodes/Constant";
-import NamespaceNode from "./nodes/Namespace";
-import CallbackNode from "./nodes/Callback";
-import InterfaceNode from "./nodes/Interface";
+import FunctionNode from './nodes/Function.js';
+import ClassNode from './nodes/Class.js';
+import EnumNode from './nodes/Enum.js';
+import AliasNode from './nodes/Alias.js';
+import ConstantNode from './nodes/Constant.js';
+import NamespaceNode from './nodes/Namespace.js';
+import CallbackNode from './nodes/Callback.js';
+import InterfaceNode from './nodes/Interface.js';
 
-import EnumMemberComponent from "./components/EnumMember";
-import ConstructorComponent from "./components/Constructor";
+import EnumMemberComponent from './components/EnumMember.js';
+import ConstructorComponent from './components/Constructor.js';
 
-import type { Json, NamespaceJson, ImportsJson, EnumMemberJson } from "@gi.ts/lib/dist/generators/json";
+import type { Json, NamespaceJson, ImportsJson, EnumMemberJson } from '@gi.ts/lib/generators/json.js';
 
 import {
   JsonGenerator,
@@ -52,11 +52,11 @@ import {
   GirStaticClassFunction,
   GirVirtualClassFunction,
   GenerationOptions
-} from "@gi.ts/lib";
-import { basename, dirname, join } from "path";
-import { renderElement } from "./renderer";
-import { promisify as $ } from "util";
-import { NamedNode, NamespaceContext, PathFormat } from "./path";
+} from '@gi.ts/lib';
+import { basename, dirname, join } from 'path';
+import { renderElement } from './renderer.cjs';
+import { promisify as $ } from 'util';
+import { Link, LinkContext, NamedNode, NamespaceContext, PathFormat } from './path.js';
 
 const writeFile = $(fs.writeFile);
 const mkdir = $(fs.mkdir);
@@ -114,7 +114,7 @@ export class JsonToHtmlGenerator {
   }
 
   generateConstructorFunction(_node: GirConstructor): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateRecord(json: Record): HtmlRenderer {
@@ -157,19 +157,19 @@ export class JsonToHtmlGenerator {
   }
 
   generateParameter(_node: GirFunctionParameter): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateProperty(_node: GirProperty, _construct?: boolean): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateField(_node: GirField): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateSignal(_node: GirSignal, _type?: GirSignalType): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateFunction(json: Function): HtmlRenderer {
@@ -177,15 +177,15 @@ export class JsonToHtmlGenerator {
   }
 
   generateClassFunction(_node: GirClassFunction): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateStaticClassFunction(_node: GirStaticClassFunction): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateVirtualClassFunction(_node: GirVirtualClassFunction): HtmlRenderer {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   async generateNamespace(json: NamespaceJson): Promise<RenderedNamespace> {
@@ -275,7 +275,7 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
   }
 
   generateConstructorFunction(_node: GirConstructor): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateRecord(node: GirRecord): [Record, HtmlRenderer] {
@@ -457,7 +457,9 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
           pathFormat: PathFormat.SLUG_MAJOR
         }}
       >
-        <NamespaceRenderer />
+        <LinkContext.Provider value={Link}>
+          <NamespaceRenderer />
+        </LinkContext.Provider>
       </NamespaceContext.Provider>
     );
   }
@@ -465,30 +467,30 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
   // The JSON renderer already builds these nodes.
 
   generateClassFunction(_node: GirClassFunction): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateStaticClassFunction(_node: GirStaticClassFunction): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateVirtualClassFunction(_node: GirVirtualClassFunction): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateParameter(_node: GirFunctionParameter): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateProperty(_node: GirProperty, _construct?: boolean): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateField(_node: GirField): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   generateSignal(_node: GirSignal, _type?: GirSignalType): [Json, HtmlRenderer] {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }

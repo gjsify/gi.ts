@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Parameter } from "../types/nodes";
+import { Parameter } from "../types/nodes.js";
 
-import Type from "./Type";
+import Type from "./Type.js";
 
 export interface ParameterProps {
   node: Parameter;
@@ -9,7 +9,7 @@ export interface ParameterProps {
 
 const ParameterElement: React.FC<ParameterProps> = ({ node }) => {
   return (
-    <span>
+    <span className="param">
       {node.name}: <Type type={node.type} />
     </span>
   );

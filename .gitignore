@@ -1,6 +1,7 @@
 node_modules
 _build
 dist
+dist*
 
 docs-lock.json
 docs.json

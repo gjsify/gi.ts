@@ -1,15 +1,15 @@
-import * as React from "react";
+import * as React from 'react';
 
-import Property from "../components/Property";
-import Member from "../components/Member";
-import Doc from "../components/Doc";
-import Constructor from "../components/Constructor";
-import ClassDeclaration from "../components/ClassDeclaration";
-import ClassIndex from "../components/ClassIndex";
+import Property from '../components/Property.js';
+import Member from '../components/Member.js';
+import Doc from '../components/Doc.js';
+import Constructor from '../components/Constructor.js';
+import ClassDeclaration from '../components/ClassDeclaration.js';
+import ClassIndex from '../components/ClassIndex.js';
 
-import Metadata from "../components/Metadata";
+import Metadata from '../components/Metadata.js';
 
-import { ClassJson, RecordJson } from "@gi.ts/lib/dist/generators/json";
+import { ClassJson, RecordJson } from '@gi.ts/lib/generators/json.js';
 
 export interface ClassProps {
   node: ClassJson | RecordJson;
@@ -83,7 +83,7 @@ const ClassNode: React.FC<ClassProps> = ({ node }) => {
           <>
             <h3>Static Methods</h3>
             <div className="static-methods">
-              {methods.map(m => (
+              {staticMethods.map(m => (
                 <Member key={`method-${m.name}`} node={m} />
               ))}
             </div>

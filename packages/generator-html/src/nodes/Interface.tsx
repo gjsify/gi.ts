@@ -1,13 +1,14 @@
-import * as React from "react";
+import * as React from 'react';
 
-import Member from "../components/Member";
-import Doc from "../components/Doc";
+import Member from '../components/Member.js';
+import Doc from '../components/Doc.js';
 
-import { Interface } from "../types/nodes";
+import { Interface } from '../types/nodes.js';
 
-import InterfaceDeclaration from "../components/InterfaceDeclaration";
-import ClassIndex from "../components/ClassIndex";
-import Metadata from "../components/Metadata";
+import InterfaceDeclaration from '../components/InterfaceDeclaration.js';
+import ClassIndex from '../components/ClassIndex.js';
+import Metadata from '../components/Metadata.js';
+
 export interface InterfaceProps {
   node: Interface;
 }
@@ -26,18 +27,26 @@ const InterfaceNode: React.FC<InterfaceProps> = ({ node }) => {
       {node.doc && <Doc doc={node.doc} />}
 
       <div className="body">
-        <h3>Members</h3>
-        <div className="members">
-          {classMembers.map((m, i) => (
-            <Member key={i} node={m} />
-          ))}
-        </div>
-        <h3>Static Members</h3>
-        <div className="members">
-          {staticMembers.map((m, i) => (
-            <Member key={i} node={m} />
-          ))}
-        </div>
+        {staticMembers.length > 0 ? (
+          <>
+            <h3>Static Members</h3>
+            <div className="members">
+              {staticMembers.map((m, i) => (
+                <Member key={i} node={m} />
+              ))}
+            </div>
+          </>
+        ) : null}
+        {classMembers.length > 0 ? (
+          <>
+            <h3>Members</h3>
+            <div className="members">
+              {classMembers.map((m, i) => (
+                <Member key={i} node={m} />
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

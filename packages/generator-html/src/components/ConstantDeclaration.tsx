@@ -1,11 +1,11 @@
-import * as React from "react";
-import { useContext } from "react";
+import * as React from 'react';
+import { useContext } from 'react';
 
-import { ConstantDeclaration } from "../types/nodes";
+import { ConstantDeclaration } from '../types/nodes.js';
 
-import Type from "./Type";
-import { LinkContext } from "../renderer";
-import { NamespaceContext } from "../path";
+import Type from './Type.js';
+import { LinkContext } from '../path.js';
+import { NamespaceContext } from '../path.js';
 
 export interface ConstantProps {
   node: ConstantDeclaration;
@@ -21,7 +21,7 @@ const ConstantDeclarationNode: React.FC<ConstantProps> = ({ node, link }) => {
   return (
     <div className="constant-declaration">
       <span className="keyword">const</span>
-      {link ? <Link to={path}> {node.name}</Link> : <span>{node.name}</span>}
+      {link ? <Link to={path}> {node.name}</Link> : <span> {node.name}</span>}
       <span className="operator">: </span>
       <Type type={node.type} />;
     </div>

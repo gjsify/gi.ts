@@ -1,11 +1,11 @@
 import * as React from "react";
-import { Method } from "../types/nodes";
+import { Method } from "../types/nodes.js";
 
-import Parameter from "./Parameter";
-import List from "./List";
-import Type from "./Type";
-import Doc from "./Doc";
-import Metadata from "./Metadata";
+import Parameter from "./Parameter.js";
+import List from "./List.js";
+import Type from "./Type.js";
+import Doc from "./Doc.js";
+import Metadata from "./Metadata.js";
 
 export interface MemberProps {
   node: Method;
@@ -23,16 +23,16 @@ const MemberNode: React.FC<MemberProps> = ({ node }) => {
   );
 
   return (
-    <div id={node.name}>
-      <div id={`method-${node.name}`}>
+    <div id={node.name} className="class-member">
+      <div id={`method-${node.name}`} className="method-definition">
         {node.name}(
         <List separator=", ">{node.parameters?.map(p => <Parameter key={p.name} node={p} />) ?? []}</List>
         ): {ReturnType}
       </div>
-      <div className="documentation">
+      <div className="method-documentation">
         {node.parameters && node.parameters.length > 0 && (
           <dl className="parameters">
-            <dt>Parameters:</dt>
+            <dt>Parameters</dt>
             <dd>
               <ul>
                 {node.parameters.map(p => (
@@ -40,7 +40,7 @@ const MemberNode: React.FC<MemberProps> = ({ node }) => {
                     <strong>{p.name}</strong>({<Type type={p.type} />})
                     {p.doc && (
                       <>
-                        {" — "} <Doc noContainer flattenParagraphs doc={p.doc}></Doc>
+                        {" — "} <Doc flattenParagraphs doc={p.doc}></Doc>
                       </>
                     )}
                   </li>

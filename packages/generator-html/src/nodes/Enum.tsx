@@ -1,9 +1,9 @@
-import * as React from "react";
+import * as React from 'react';
 
-import Doc from "../components/Doc";
-import Metadata from "../components/Metadata";
+import Doc from '../components/Doc.js';
+import Metadata from '../components/Metadata.js';
 
-import { EnumJson } from "@gi.ts/lib/dist/generators/json";
+import { EnumJson } from '@gi.ts/lib/generators/json.js';
 
 export interface EnumProps {
   node: EnumJson;
@@ -17,7 +17,7 @@ const EnumNode: React.FC<EnumProps> = ({ node, children }) => {
         <span>{node.name}</span>
       </h2>
       {node.metadata && <Metadata metadata={node.metadata} />}
-      <div className="documentation">{node.doc && <Doc doc={node.doc} />}</div>
+      {node.doc && <Doc doc={node.doc} />}
       {node.members ? (
         <div>
           <h3>Members</h3>

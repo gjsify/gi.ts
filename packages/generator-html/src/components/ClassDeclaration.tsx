@@ -1,26 +1,26 @@
-import * as React from "react";
-import { useContext } from "react";
+import * as React from 'react';
+import { useContext } from 'react';
 
-import { ClassDeclaration, RecordDeclaration } from "../types/nodes";
+import { ClassDeclaration, RecordDeclaration, ErrorDeclaration } from '../types/nodes.js';
 
-import List from "./List";
-import Type from "./Type";
+import List from './List.js';
+import Type from './Type.js';
 
-import { LinkContext } from "../renderer";
-import { NamespaceContext } from "../path";
+import { LinkContext } from '../path.js';
+import { NamespaceContext } from '../path.js';
 
 export interface ClassProps {
-  node: ClassDeclaration | RecordDeclaration;
-  as?: "p" | "h1" | "h2" | "h3";
+  node: ClassDeclaration | RecordDeclaration | ErrorDeclaration;
+  as?: 'p' | 'h1' | 'h2' | 'h3';
 }
 
-const ClassDeclarationNode: React.FC<ClassProps> = ({ node, as = "p" }) => {
+const ClassDeclarationNode: React.FC<ClassProps> = ({ node, as = 'p' }) => {
   const Link = useContext(LinkContext);
 
   const { getPath } = useContext(NamespaceContext);
   const path = getPath(node);
 
-  const interfaces = node.implements?.filter(i => i != null) ?? [];
+  const interfaces = 'implements' in node ? node.implements?.filter(i => i != null) ?? [] : [];
   const Element = as;
 
   return (

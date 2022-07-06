@@ -11,10 +11,12 @@
 		},
 		{
 			"path": "packages/node-loader"
+		},
+		{
+			"path": "packages/generator-html"
 		}
 	],
 	"settings": {
 		"git.ignoreLimitWarning": true,
-		"typescript.tsdk": "node_modules/typescript/lib"
 	}
 }

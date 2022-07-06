@@ -1,13 +1,13 @@
-import * as React from "react";
-import { Function } from "../types/nodes";
+import * as React from 'react';
+import { Function } from '../types/nodes.js';
 
-import Parameter from "../components/Parameter";
-import List from "../components/List";
-import Type from "../components/Type";
+import Parameter from '../components/Parameter.js';
+import List from '../components/List.js';
+import Type from '../components/Type.js';
 
-import Doc from "../components/Doc";
+import Doc from '../components/Doc.js';
 
-import Metadata from "../components/Metadata";
+import Metadata from '../components/Metadata.js';
 
 export interface FunctionProps {
   node: Function;
@@ -35,7 +35,7 @@ const FunctionNode: React.FC<FunctionProps> = ({ node }) => {
       ): {ReturnType}
       <div className="documentation">
         {node.metadata && <Metadata metadata={node.metadata} />}
-        {node.doc && <Doc doc={node.doc} />}
+        {node.doc && <Doc noContainer doc={node.doc} />}
       </div>
     </div>
   );

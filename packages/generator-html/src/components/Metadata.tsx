@@ -1,8 +1,8 @@
 import * as React from "react";
 
-import { NodeMetadata } from "../types/nodes";
+import { NodeMetadata } from "../types/nodes.js";
 
-import Doc from "../components/Doc";
+import Doc from "../components/Doc.js";
 
 interface MetadataProps {
   metadata: NodeMetadata;
