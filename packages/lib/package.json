@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/lib",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "main": "./dist/lib.js",
   "types": "./dist/lib.d.ts",
   "exports": {
@@ -27,7 +27,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@gi.ts/parser": "^1.5.3"
+    "@gi.ts/parser": "^1.5.10"
   },
   "devDependencies": {
     "typescript": "^4.7.4"

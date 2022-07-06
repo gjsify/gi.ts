@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/node-loader",
-  "version": "1.5.3",
+  "version": "1.5.10",
   "main": "dist/loader.js",
   "types": "dist/loader.d.ts",
   "files": [
@@ -17,7 +17,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@gi.ts/parser": "^1.5.3",
+    "@gi.ts/parser": "^1.5.10",
     "glob": "^7.1.6"
   },
   "devDependencies": {

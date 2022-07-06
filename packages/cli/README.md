@@ -19,7 +19,7 @@ $ npm install -g @gi.ts/cli
 $ gi-ts COMMAND
 running command...
 $ gi-ts (-v|--version|version)
-@gi.ts/cli/1.5.7 linux-x64 node-v16.11.0
+@gi.ts/cli/1.5.10 linux-x64 node-v16.11.0
 $ gi-ts --help [COMMAND]
 USAGE
   $ gi-ts COMMAND

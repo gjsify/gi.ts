@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/parser",
-  "version": "1.5.3",
+  "version": "1.5.10",
   "main": "dist/lib.js",
   "types": "dist/lib.d.ts",
   "files": [
