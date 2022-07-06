@@ -1,8 +1,18 @@
 {
   "name": "@gi.ts/lib",
   "version": "1.5.9",
-  "main": "dist/lib.js",
-  "types": "dist/lib.d.ts",
+  "main": "./dist/lib.js",
+  "types": "./dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "require": "./dist/lib.js"
+    },
+    "./generators/*": {
+      "types": "./dist/generators/*",
+      "require": "./dist/generators/*"
+    }
+  },
   "files": [
     "dist",
     "package.json",
@@ -20,7 +30,7 @@
     "@gi.ts/parser": "^1.5.3"
   },
   "devDependencies": {
-    "typescript": "^4.1.0"
+    "typescript": "^4.7.4"
   },
   "scripts": {
     "build": "tsc",
