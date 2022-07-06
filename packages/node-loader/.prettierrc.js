@@ -11,8 +11,8 @@ module.exports = {
     "quoteProps": "as-needed",
     "requirePragma": false,
     "semi": true,
-    "singleQuote": false,
-    "tabWidth": 2,
+    "singleQuote": true,
+    "tabWidth": 4,
     "trailingComma": "none",
     "useTabs": false,
 
