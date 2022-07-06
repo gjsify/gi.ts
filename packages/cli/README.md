@@ -19,7 +19,7 @@ $ npm install -g @gi.ts/cli
 $ gi-ts COMMAND
 running command...
 $ gi-ts (-v|--version|version)
-@gi.ts/cli/1.5.7 linux-x64 node-v14.18.0
+@gi.ts/cli/1.5.7 linux-x64 node-v16.11.0
 $ gi-ts --help [COMMAND]
 USAGE
   $ gi-ts COMMAND
@@ -90,18 +90,18 @@ EXAMPLE
 
 ## `gi-ts help [COMMAND]`
 
-display help for gi-ts
+Display help for gi-ts.
 
 ```
 USAGE
   $ gi-ts help [COMMAND]
 
 ARGUMENTS
-  COMMAND  command to show help for
+  COMMAND  Command to show help for.
 
 OPTIONS
-  --all  see all commands in CLI
+  -n, --nested-commands  Include all nested commands in the output.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 <!-- commandsstop -->

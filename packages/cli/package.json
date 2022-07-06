@@ -12,7 +12,7 @@
     "@gi.ts/parser": "^1.5.3",
     "@oclif/command": "^1",
     "@oclif/config": "^1",
-    "@oclif/plugin-help": "^3",
+    "@oclif/plugin-help": "^5",
     "prettier": "^2.2.1",
     "tslib": "^1"
   },
