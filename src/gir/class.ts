@@ -494,9 +494,9 @@ export class GirClass extends GirBaseClass {
     return visitor.visitClass?.(node) ?? node;
   }
 
-  hasSymbol(s: GirBase): boolean {
+  hasInstanceSymbol(s: GirBase): boolean {
     return (
-      this.members.some(p => s.name === p.name) ||
+      this.members.some(p => s.name === p.name && !(p instanceof GirStaticClassFunction)) ||
       this.props.some(p => s.name === p.name) ||
       this.fields.some(p => s.name === p.name)
     );
@@ -571,7 +571,7 @@ export class GirClass extends GirBaseClass {
     const properties = new Map<string, GirProperty>();
 
     const validateProp = (prop: GirProperty) =>
-      !this.hasSymbol(prop) &&
+      !this.hasInstanceSymbol(prop) &&
       !properties.has(prop.name) &&
       potentialConflicts.every(p => prop.name !== p.name);
 
@@ -614,7 +614,7 @@ export class GirClass extends GirBaseClass {
 
     const validateMethod = (method: GirClassFunction) =>
       !(method instanceof GirStaticClassFunction) &&
-      !this.hasSymbol(method) &&
+      !this.hasInstanceSymbol(method) &&
       !methods.has(method.name) &&
       potentialConflicts.every(m => method.name !== m.name);
 
