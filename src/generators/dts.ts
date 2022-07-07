@@ -657,9 +657,17 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
     let { type } = node;
-    if (type instanceof TypeConflict) type = new BinaryType(type.unwrap(), AnyType);
+    let fieldAnnotation = '';
+    if (type instanceof TypeConflict) {
+      if (type.conflictType === ConflictType.PROPERTY_ACCESSOR_CONFLICT) {
+          fieldAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
+// @ts-expect-error\n`;
+      }
 
-    return `${Modifier} ${Name}${node.optional ? "?" : ""}: ${type
+      type = new BinaryType(type.unwrap(), AnyType);
+    }
+
+    return `${fieldAnnotation}${Modifier} ${Name}${node.optional ? "?" : ""}: ${type
       .resolve(namespace, options)
       .rootPrint(namespace, options)};`;
   }
