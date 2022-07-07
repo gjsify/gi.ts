@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/generator-html",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "type": "module",
   "main": "./dist-cjs/index.js",
   "module": "./dist/index.js",
