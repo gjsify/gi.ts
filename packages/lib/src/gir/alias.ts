@@ -1,6 +1,6 @@
-import { GirBase, TypeExpression } from "../gir";
+import { GirBase, GirOptions, TypeExpression } from "../gir";
 import { AliasElement } from "@gi.ts/parser";
-import { GirNamespace } from "./namespace";
+import { GirNamespace, isIntrospectable } from "./namespace";
 import { sanitizeIdentifierName, getAliasType, parseDoc, parseMetadata } from "./util";
 import { FormatGenerator, GenericDescriptor } from "../generators/generator";
 import { LoadOptions } from "../types";
@@ -13,13 +13,14 @@ export class GirAlias extends GirBase {
   constructor({
     name,
     type,
-    generics = []
-  }: {
+    generics = [],
+    ...args
+  }: GirOptions<{
     name: string;
     type: TypeExpression;
     generics?: GenericDescriptor[];
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.type = type;
     this.generics = generics;
@@ -57,7 +58,8 @@ export class GirAlias extends GirBase {
 
     const alias = new GirAlias({
       name: sanitizeIdentifierName(ns.name, m.$.name),
-      type: getAliasType(modName, ns, m)
+      type: getAliasType(modName, ns, m),
+      isIntrospectable: isIntrospectable(m)
     });
 
     if (options.loadDocs) {

@@ -1,9 +1,49 @@
-import { ArrayType, NativeType, TypeIdentifier } from "../gir";
-import { GirBaseClass, GirClass, GirRecord } from "../gir/class";
+import { FormatGenerator } from "../generators";
+import { AnyType, ArrayType, GirBase, NativeType, TypeIdentifier } from "../gir";
+import { GirBaseClass, GirClass, GirInterface, GirRecord } from "../gir/class";
 import { GirEnum, GirError } from "../gir/enum";
-import { GirClassFunction, GirStaticClassFunction } from "../gir/nodes";
+import { GirDirectAllocationConstructor } from "../gir/function";
+import { GirClassFunction, GirConstructor, GirStaticClassFunction } from "../gir/nodes";
 import { resolveTypeIdentifier } from "../gir/util";
 import { GirVisitor } from "../visitor";
+
+const filterIntrospectableClassMembers = <T extends GirBaseClass>(node: T): T => {
+  node.fields = node.fields.filter(field => field.isIntrospectable);
+  node.props = node.props.filter(prop => prop.isIntrospectable);
+  node.callbacks = node.callbacks.filter(prop => prop.isIntrospectable);
+  node.constructors = node.constructors.filter(prop => prop.isIntrospectable);
+  node.members = node.members.filter(prop => prop.isIntrospectable);
+
+  return node;
+};
+
+const PROTECTED_FIELD_NAMES = ["parent_instance", "parent", "parent_class", "object_class"];
+
+const filterProtectedFields = <T extends GirBaseClass>(node: T): T => {
+  const set = new Set(PROTECTED_FIELD_NAMES);
+
+  node.fields = node.fields.filter(f => {
+    return !set.has(f.name);
+  });
+
+  return node;
+};
+
+const filterConflictingNamedClassMembers = <T extends GirBaseClass>(node: T): T => {
+  // Props shadow members
+  node.members = node.members.filter(m => {
+    return !node.props.some(prop => prop.name === m.name && !(m instanceof GirStaticClassFunction));
+  });
+
+  // Props and members shadow fields
+  node.fields = node.fields.filter(
+    f =>
+      !node.members.some(n => n.name === f.name && !(n instanceof GirStaticClassFunction)) &&
+      !node.props.some(n => n.name === f.name)
+  );
+
+  return node;
+};
 
 /**
  * Subtypes of ParamSpec are not supported (e.g. a subtype of ParamSpecString).
@@ -62,40 +102,44 @@ const removeComplexFields = <T extends GirBaseClass>(node: T): T => {
   const { namespace } = node;
 
   node.fields = node.fields.filter(f => {
-    let type = f.type.unwrap();
+    let type = f.type.deepUnwrap();
 
-    if (type instanceof ArrayType) {
-      if (type.type instanceof NativeType) {
-        return true;
-      }
+    if (type instanceof NativeType) {
+      return true;
+    }
 
-      if (type.type instanceof TypeIdentifier) {
-        const classNode = resolveTypeIdentifier(namespace, type.type);
-
-        if (classNode instanceof GirEnum) {
-          return true;
-        }
-        if (classNode instanceof GirRecord && classNode.isSimple()) {
-          return true;
-        }
-
-        const en = namespace.assertInstalledImport(type.type.namespace).getEnum(type.type.name);
-        return !(en instanceof GirError);
-      }
-      return false;
-    } else if (type instanceof TypeIdentifier) {
+    if (type instanceof TypeIdentifier) {
+      // Find the type for the identifier
       const classNode = resolveTypeIdentifier(namespace, type);
 
-      // Allow fields pointing to simple structs.
-      if (classNode instanceof GirRecord && classNode.isSimple()) {
-        return true;
+      // Don't allow private or disguised fields
+      if (classNode && classNode.isPrivate) {
+        return false;
+      }
+
+      // Only allow fields pointing to simple structs.
+      if (classNode && classNode instanceof GirRecord && !classNode.isSimple()) {
+        return false;
       }
 
       const en = namespace.assertInstalledImport(type.namespace).getEnum(type.name);
-      return !(en instanceof GirError);
+
+      if (!(en instanceof GirError)) {
+        return true;
+      }
+
+      return false;
     }
 
     return true;
+  });
+
+  return node;
+};
+
+const removePrivateFields = <T extends GirBaseClass>(node: T): T => {
+  node.fields = node.fields.filter(f => {
+    return !f.isPrivate && !f.name.startsWith("_");
   });
 
   return node;
@@ -118,22 +162,27 @@ const resolveMainConstructor = (node: GirRecord): GirRecord => {
   const firstConstructor = node.constructors?.[0];
 
   if (node.isForeign()) {
-    return node;
-  }
-
-  if (zeroArgsConstructor) {
-    node.mainConstructor = zeroArgsConstructor.copy();
+    node.mainConstructor = null;
 
     return node;
   }
 
-  if (node.isSimple()) {
+  if (zeroArgsConstructor || node.isSimpleWithoutPointers()) {
+    node.mainConstructor = 
+      new GirDirectAllocationConstructor(node.fields);
+
     return node;
   }
 
   const resolvedConstructor = newConstructor ?? firstConstructor;
   if (resolvedConstructor) {
     node.mainConstructor = resolvedConstructor.copy();
+  }
+
+  if (node.isSimple()) {
+    node.mainConstructor = new GirDirectAllocationConstructor(node.fields);
+
+    return node;
   }
 
   return node;
@@ -156,19 +205,54 @@ const mergeStaticDefinitions = (node: GirClass): GirClass => {
     .map(m => m.asStaticClassFunction(node));
 
   for (const staticMethod of staticMethods) {
-    if (!(node.members.some(member => member.name === staticMethod.name && member instanceof GirStaticClassFunction))) {
+    if (
+      !node.members.some(
+        member => member.name === staticMethod.name && member instanceof GirStaticClassFunction
+      )
+    ) {
       node.members.push(staticMethod);
     }
   }
 
-
   return node;
 };
 
+function chainVisitors<T>(node: T, ...args: ((node: T) => T)[]) {
+  let currentNode = node;
+
+  for (const visitor of args) {
+    currentNode = visitor(currentNode);
+  }
+
+  return currentNode;
+}
+
 export class ClassVisitor extends GirVisitor {
   visitClass = (node: GirClass) =>
-    mergeStaticDefinitions(removeComplexFields(fixParamSpecSubtypes(fixMissingParent(node))));
+    chainVisitors(
+      node,
+      fixMissingParent,
+      fixParamSpecSubtypes,
+      removeComplexFields,
+      removePrivateFields,
+      mergeStaticDefinitions,
+      filterConflictingNamedClassMembers,
+      filterIntrospectableClassMembers,
+      filterProtectedFields
+    );
+
+  visitInterface = (node: GirInterface) => chainVisitors(node, filterIntrospectableClassMembers);
 
   visitRecord = (node: GirRecord) =>
-    resolveMainConstructor(removeComplexFields(fixParamSpecSubtypes(fixMissingParent(node))));
+    chainVisitors(
+      node,
+      fixMissingParent,
+      fixParamSpecSubtypes,
+      resolveMainConstructor,
+      removeComplexFields,
+      removePrivateFields,
+      filterConflictingNamedClassMembers,
+      filterIntrospectableClassMembers,
+      filterProtectedFields
+    );
 }

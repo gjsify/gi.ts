@@ -1,8 +1,8 @@
-import { GirBase, TypeExpression } from "../gir";
+import { GirBase, GirOptions, TypeExpression } from "../gir";
 import { FieldElement, PropertyElement } from "@gi.ts/parser";
 
 import { getType, parseDoc, parseMetadata } from "./util";
-import { GirNamespace } from "./namespace";
+import { GirNamespace, isIntrospectable } from "./namespace";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
@@ -38,21 +38,21 @@ export class GirField extends GirBase {
     computed = false,
     optional = false,
     isStatic = false,
-    writable = true
-  }: {
+    writable = true,
+    ...args
+  }: GirOptions<{
     name: string;
     type: TypeExpression;
     computed?: boolean;
     optional?: boolean;
     isStatic?: boolean;
     writable?: boolean;
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.type = type;
     this.computed = computed;
     this.optional = optional;
-
     this.isStatic = isStatic;
     this.writable = writable;
   }
@@ -78,7 +78,12 @@ export class GirField extends GirBase {
   ): GirField {
     let name = field.$["name"];
     let _name = name.replace(/[-]/g, "_");
-    const f = new GirField({ name: _name, type: getType(namespace, ns, field) });
+    const f = new GirField({
+      name: _name,
+      type: getType(namespace, ns, field),
+      isPrivate: field.$.private === "1",
+      isIntrospectable: isIntrospectable(field)
+    });
 
     return f;
   }
@@ -125,16 +130,17 @@ export class GirProperty extends GirBase {
     writable,
     readable,
     constructOnly,
-    parent
-  }: {
+    parent,
+    ...args
+  }: GirOptions<{
     name: string;
     type: TypeExpression;
     writable: boolean;
     readable: boolean;
     constructOnly: boolean;
     parent: GirBaseClass | GirEnum;
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.type = type;
     this.writable = writable;
@@ -183,7 +189,8 @@ export class GirProperty extends GirBase {
       readable: prop.$?.readable !== "0",
       constructOnly: prop.$?.["construct-only"] === "1",
       type: getType(namespace, ns, prop),
-      parent
+      parent,
+      isIntrospectable: isIntrospectable(prop),
     });
 
     if (options.loadDocs) {

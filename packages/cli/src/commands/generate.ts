@@ -47,7 +47,6 @@ export interface DocDescription {
 
 type Unknown<T> = { [key in keyof T]?: unknown };
 
-type OutputFormat = 'file' | 'folder';
 type Format = 'dts' | 'json' | string;
 
 export interface GenerationOptions {
@@ -55,7 +54,7 @@ export interface GenerationOptions {
   promisify: boolean;
   propertyCase: PropertyCase;
   withDocs: boolean;
-  outputFormat: OutputFormat;
+  outputFormat: lib.OutputFormat;
   format: Format;
   versionedOutput: boolean;
   versionedImports: boolean;
@@ -127,7 +126,7 @@ export default class Generate extends Command {
     propertyCase: flags.enum<PropertyCase | undefined>({
       options: ['both', 'underscore', 'camel']
     }),
-    outputFormat: flags.enum<OutputFormat | undefined>({
+    outputFormat: flags.enum<lib.OutputFormat | undefined>({
       options: ['file', 'folder']
     }),
     noPrettyPrint: flags.boolean({
@@ -164,7 +163,7 @@ export default class Generate extends Command {
     let verbose = false;
 
     // --outputFormat=file
-    let outputFormat: OutputFormat = 'file' as const;
+    let outputFormat: lib.OutputFormat = 'file' as const;
 
     // --withDocs
     let withDocs = false;
@@ -492,6 +491,7 @@ export default class Generate extends Command {
           generated = await lib.generateModule(
             {
               outputPath: resolvePath(buildPath(output_base, output_slug)),
+              outputFormat,
               format,
               promisify,
               withDocs,

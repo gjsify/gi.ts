@@ -4,7 +4,7 @@ import { GirConst } from "../gir/const";
 import { GirEnum, GirError, GirEnumMember } from "../gir/enum";
 import { GirProperty, GirField } from "../gir/property";
 import { GirSignal, GirSignalType } from "../gir/signal";
-import { GirFunction, GirFunctionParameter, GirConstructor, GirCallback } from "../gir/function";
+import { GirFunction, GirFunctionParameter, GirConstructor, GirCallback, GirDirectAllocationConstructor } from "../gir/function";
 import { GirClassFunction } from "../gir/function";
 import { GirStaticClassFunction } from "../gir/function";
 import { GirVirtualClassFunction } from "../gir/function";
@@ -32,6 +32,7 @@ export abstract class FormatGenerator<T = string> {
   abstract generateCallback(node: GirCallback): T;
   abstract generateAlias(node: GirAlias): T;
   abstract generateConstructor(node: GirConstructor): T;
+  abstract generateDirectAllocationConstructor(node: GirDirectAllocationConstructor): T;
   abstract generateConstructorFunction(node: GirConstructor): T;
   abstract generateRecord(node: GirRecord): T;
   abstract generateInterface(node: GirInterface): T;

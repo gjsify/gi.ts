@@ -5,7 +5,8 @@
         "packages/lib",
         "packages/parser",
         "packages/generator-html",
-        "packages/node-loader"
+        "packages/node-loader",
+        "tests"
     ],
     "name": "gi.ts",
     "devDependencies": {

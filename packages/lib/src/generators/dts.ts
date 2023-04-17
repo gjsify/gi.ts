@@ -15,7 +15,13 @@ import { GirConst } from "../gir/const";
 import { GirEnum, GirError, GirEnumMember } from "../gir/enum";
 import { GirProperty, GirField } from "../gir/property";
 import { GirSignal, GirSignalType } from "../gir/signal";
-import { GirFunction, GirConstructor, GirFunctionParameter, GirCallback } from "../gir/function";
+import {
+  GirFunction,
+  GirConstructor,
+  GirFunctionParameter,
+  GirCallback,
+  GirDirectAllocationConstructor
+} from "../gir/function";
 import { GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
 import { sanitizeIdentifierName, isInvalid, resolveDirectedType } from "../gir/util";
 import {
@@ -342,25 +348,6 @@ export interface ${name}Prototype${Generics}${Extends} {${
       MainConstructor = node.mainConstructor.asString(this);
     }
 
-    const hasZeroArgsConstructor = node.mainConstructor && node.mainConstructor.parameters.length === 0;
-
-    if (hasZeroArgsConstructor || node.isSimple()) {
-      const ConstructorFields = node.fields
-        .filter(f => !f.isStatic && !f.isNative)
-        .map(v => {
-          const copied = v.copy();
-
-          copied.optional = true;
-
-          return copied.asString(this);
-        })
-        .join(`\n`);
-      MainConstructor += `
-        constructor(properties?: Partial<{
-          ${ConstructorFields}
-        }>);`;
-    }
-
     const hasCallbacks = node.callbacks.length > 0;
 
     const Properties = filterConflicts(node.namespace, node, node.props)
@@ -477,9 +464,8 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       .join(`\n    `);
 
     const FilteredImplMethods = filterFunctionConflict(node.namespace, node, implementedMethods, []);
-    const ImplementedMethods = (options.promisify
-      ? promisifyFunctions(FilteredImplMethods)
-      : FilteredImplMethods
+    const ImplementedMethods = (
+      options.promisify ? promisifyFunctions(FilteredImplMethods) : FilteredImplMethods
     )
       .map(m => m.asString(this))
       .join(`\n    `);
@@ -657,10 +643,10 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     const Name = computed ? `[${name}]` : invalid ? `"${name}"` : name;
 
     let { type } = node;
-    let fieldAnnotation = '';
+    let fieldAnnotation = "";
     if (type instanceof TypeConflict) {
       if (type.conflictType === ConflictType.PROPERTY_ACCESSOR_CONFLICT) {
-          fieldAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
+        fieldAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
 // @ts-expect-error\n`;
       }
 
@@ -687,10 +673,12 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       switch (type.conflictType) {
         case ConflictType.FUNCTION_NAME_CONFLICT:
         case ConflictType.FIELD_NAME_CONFLICT:
-          getterSetterAnnotation = setterAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
+          getterSetterAnnotation =
+            setterAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
                   // @ts-expect-error\n`;
         case ConflictType.ACCESSOR_PROPERTY_CONFLICT:
-          getterSetterAnnotation = getterAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
+          getterSetterAnnotation =
+            getterAnnotation = `// This accessor conflicts with a property, field, or function name in a parent class or interface.
                   // @ts-expect-error\n`;
           type = type.unwrap();
           break;
@@ -698,7 +686,10 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
           type = new BinaryType(type.unwrap(), AnyType);
           break;
         case ConflictType.PROPERTY_NAME_CONFLICT:
-          getterSetterAnnotation = setterAnnotation = getterAnnotation = `// This accessor conflicts with another accessor's type in a parent class or interface.\n`;
+          getterSetterAnnotation =
+            setterAnnotation =
+            getterAnnotation =
+              `// This accessor conflicts with another accessor's type in a parent class or interface.\n`;
           type = new BinaryType(type.unwrap(), AnyType);
           break;
       }
@@ -810,6 +801,15 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     return `constructor(${Parameters});`;
   }
 
+  generateDirectAllocationConstructor(node: GirDirectAllocationConstructor): string {
+    const ConstructorFields = node.fields.map(field => field.asString(this)).join(`\n`);
+
+    return `
+    constructor(properties?: Partial<{
+      ${ConstructorFields}
+    }>);`;
+  }
+
   generateClassFunction(node: GirClassFunction): string {
     const invalid = isInvalid(node.name);
 
@@ -909,17 +909,48 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
         })
         .join(`\n`);
 
+      const pathSuffix = options.outputFormat === "folder" ? "/index.d.ts" : ".d.ts";
+      const referenceType = options.importPrefix.startsWith(".") ? "path" : "types";
+      const references = [
+        ...(node.__dts__references ?? []),
+        ...Array.from(node.getImports()).map(
+          ([i, version]) =>
+            `/// <reference ${referenceType}="${options.importPrefix}${i.toLowerCase()}${
+              options.versionedImports ? version.toLowerCase().split(".")[0] : ""
+            }${referenceType === "path" ? pathSuffix : ""}" />`
+        )
+      ].join(`\n`);
+
       // Resolve imports after we stringify everything else, sometimes we have to ad-hoc add an import.
       const imports = Array.from(node.getImports())
         .map(
           ([i, version]) =>
-            `import * as ${i} from "${options.importPrefix}${i.toLowerCase()}${
-              options.versionedImports ? version.toLowerCase().split(".")[0] : ""
-            }";`
+            `import * as ${i} from 'gi://${i}${options.versionedImports ? `?version=${version}` : ""}';`
         )
-        .join(`${`\n`}`);
+        .join(`\n`);
 
-      const output = [header, imports, base, content, suffix].join(`\n\n`);
+      const moduleIdentifier = `gi://${name}`;
+      const versionedModuleIdentifier = `${moduleIdentifier}?version=${node.version}`;
+
+      const [versionedModuleHeader, versionedModuleSuffix] = [
+        `declare module "${versionedModuleIdentifier}" {`,
+        "}"
+      ];
+      const moduleDefinition = `declare module "${moduleIdentifier}" {
+        export * from "${versionedModuleIdentifier}";
+      }`;
+
+      const output = [
+        header,
+        references,
+        versionedModuleHeader,
+        imports,
+        base,
+        content,
+        suffix,
+        versionedModuleSuffix,
+        moduleDefinition
+      ].join(`\n\n`);
 
       if (options.verbose) {
         console.debug(`Printing ${namespace.name}...`);

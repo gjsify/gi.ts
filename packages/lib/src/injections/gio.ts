@@ -27,6 +27,9 @@ export default {
   namespace: "Gio",
   version: "2.0",
   modifier(namespace: GirNamespace) {
+    // For IterableIterator...
+    namespace.___dts___addReference(`/// <reference lib="es2015.iterable" />`);
+
     {
       const DBusNodeInfo = namespace.assertClass("DBusNodeInfo");
 

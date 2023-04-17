@@ -1,5 +1,15 @@
 import { deprecatedVersion, GirNamespace, introducedVersion, isDeprecated } from "./namespace";
-import { CallableParamElement, Direction, AliasElement, DocElement, InfoAttrs } from "@gi.ts/parser";
+import {
+  CallableParamElement,
+  Direction,
+  AliasElement,
+  DocElement,
+  InfoAttrs,
+  Type,
+  ConstantElement,
+  CallableReturn,
+  FieldElement
+} from "@gi.ts/parser";
 import {
   TypeIdentifier,
   ThisType,
@@ -95,28 +105,52 @@ const reservedWords = [
   "yield"
 ];
 
-export function getAliasType(modName: string, _ns: GirNamespace, param: AliasElement): TypeExpression {
-  let parameter = param as AliasElement;
-  let name: string = parameter.type[0].$["name"] || "unknown";
+export function getAliasType(modName: string, _ns: GirNamespace, parameter: AliasElement): TypeExpression {
+  let name = parameter.type[0].$["name"] || "unknown";
 
-  let x = name.split(" ");
+  let nameParts = name.split(" ");
 
-  if (x.length === 1) {
-    name = x[0];
+  if (nameParts.length === 1) {
+    name = nameParts[0];
   } else {
-    name = x[1];
+    name = nameParts[1];
   }
 
   return parseTypeExpression(modName, name);
 }
 
+/**
+ * This function determines whether a given type is a "pointer type"...
+ *
+ * Any type where the c:type ends with *
+ */
+function isPointerType(types: Type[] | undefined) {
+  const type = types?.[0];
+  if (!type) return false;
+
+  const ctype = type.$["c:type"];
+  if (!ctype) return false;
+
+  const typeName = type.$.name;
+  if (!typeName) return false;
+
+  if (isPrimitiveType(typeName)) return false;
+
+  return ctype.endsWith("*");
+}
+
 /* Decode the type */
-export function getType(modName: string, _ns: GirNamespace, param: any): TypeExpression {
+export function getType(
+  modName: string,
+  _ns: GirNamespace,
+  param?: ConstantElement | CallableReturn | FieldElement
+): TypeExpression {
   if (!param) return VoidType;
 
   let name = "";
   let arrayDepth: number | null = null;
   let length: number | null = null;
+  let isPointer = false;
 
   let parameter = param as CallableParamElement;
   if (parameter.array && parameter.array[0]) {
@@ -143,20 +177,45 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
         depth++;
       }
 
-      name = arr.type?.[0].$["name"] ?? "unknown";
+      let possibleName = arr.type?.[0].$["name"];
+      if (possibleName) {
+        name = possibleName;
+      } else {
+        name = "unknown";
+        console.log(
+          `Failed to find array type in ${modName}: `,
+          JSON.stringify(parameter.$, null, 4),
+          "\nMarking as unknown!"
+        );
+      }
       arrayDepth = depth;
+      isPointer = isPointerType(array.type);
     } else {
       name = "unknown";
     }
   } else if (parameter.type && parameter.type[0] && parameter.type[0].$) {
-    name = parameter.type[0].$["name"] ?? "unknown";
-    // todo one sec
+    let possibleName = parameter.type[0].$["name"];
+    if (possibleName) {
+      name = possibleName;
+    } else {
+      name = "unknown";
+      console.log(
+        `Failed to find type in ${modName}: `,
+        JSON.stringify(parameter.$, null, 4),
+        "\nMarking as unknown!"
+      );
+    }
+    isPointer = isPointerType(parameter.type);
   } else if (parameter.varargs || (parameter.$ && parameter.$.name === "...")) {
     arrayDepth = 1;
     name = "any";
   } else {
     name = "unknown";
-    console.log("Unknown type: ", JSON.stringify(parameter.$, null, 4), "\nMarking as unknown!");
+    console.log(
+      `Unknown varargs type in ${modName}: `,
+      JSON.stringify(parameter.$, null, 4),
+      "\nMarking as unknown!"
+    );
   }
 
   let closure = null as null | number;
@@ -240,6 +299,8 @@ export function getType(modName: string, _ns: GirNamespace, param: any): TypeExp
   if ((!parameter.$?.direction || parameter.$.direction === "in") && nullable) {
     return new NullableType(variableType);
   }
+
+  variableType.isPointer = isPointer;
 
   return variableType;
 }
@@ -471,6 +532,8 @@ export function resolveDirectedType(type: TypeExpression, direction: Direction):
       if (direction === Direction.In || direction === Direction.Inout) {
         return new BinaryType(type, AnyType);
       } else {
+        // GJS converts GObject.Value out parameters to their unboxed type, which we don't know,
+        // so type as `unknown`
         return UnknownType;
       }
     } else if (type.is("GLib", "HashTable")) {

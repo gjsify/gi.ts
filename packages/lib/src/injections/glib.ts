@@ -1,5 +1,11 @@
 import { GirNamespace } from "../gir/namespace";
-import { GirConstructor, GirFunctionParameter, GirClassFunction, GirFunction } from "../gir/function";
+import {
+  GirConstructor,
+  GirFunctionParameter,
+  GirClassFunction,
+  GirFunction,
+  GirDirectAllocationConstructor
+} from "../gir/function";
 import {
   NativeType,
   AnyType,
@@ -84,7 +90,8 @@ export default {
         }) as T;
       };
 
-      if (Error.mainConstructor) Error.mainConstructor = fixQuark(Error.mainConstructor);
+      if (Error.mainConstructor && !(Error.mainConstructor instanceof GirDirectAllocationConstructor))
+        Error.mainConstructor = fixQuark(Error.mainConstructor);
 
       Error.constructors = Error.constructors.map(c => fixQuark(c));
       Error.members = Error.members.map(m => fixQuark(m));
