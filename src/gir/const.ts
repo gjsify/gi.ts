@@ -11,7 +11,16 @@ export class GirConst extends GirBase {
   type: TypeExpression;
   value: string | null;
 
-  constructor({ name, type, value }: { name: string; type: TypeExpression; value: string | null }) {
+  constructor({
+    name,
+    type,
+    value
+  }: {
+    name: string;
+    type: TypeExpression;
+    value: string | null;
+    isIntrospectable?: boolean;
+  }) {
     super(name);
 
     this.type = type;

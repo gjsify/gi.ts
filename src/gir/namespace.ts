@@ -26,7 +26,7 @@ import { GirVisitor } from "../visitor";
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 
 export const isIntrospectable = (e: { $?: InfoAttrs }) =>
-  e && e.$ && (!e.$.introspectable || e.$.introspectable === "1");
+  !e || !e.$ || !e.$.introspectable || e.$.introspectable === "1";
 export const isDeprecated = (e: { $: InfoAttrs }) => e && e.$ && e.$.deprecated === "1";
 export const deprecatedVersion = (e: { $: InfoAttrs }) => e?.$?.["deprecated-version"];
 export const introducedVersion = (e: { $: InfoAttrs }) => e?.$?.version;
@@ -100,6 +100,7 @@ export class GirNamespace {
   private _members?: Map<string, GirNSMember | GirNSMember[]>;
   private _enum_constants?: Map<string, readonly [string, string]>;
   private _resolve_names: Map<string, TypeIdentifier> = new Map();
+  __dts__references?: string[];
 
   package_version!: readonly [string, string] | readonly [string, string, string];
   parent!: GirNSRegistry;
@@ -246,6 +247,29 @@ export class GirNamespace {
     return members ? [members] : [];
   }
 
+  getMemberWithoutOverrides(name: string) {
+    if (this.members.has(name)) {
+      const member = this.members.get(name);
+
+      if (!Array.isArray(member)) {
+        return member;
+      }
+
+      return null;
+    }
+
+    const resolvedName = this._resolve_names.get(name);
+    if (resolvedName) {
+      const member = this.members.get(resolvedName.name);
+
+      if (!Array.isArray(member)) {
+        return member;
+      }
+    }
+
+    return null;
+  }
+
   assertClass(name: string): GirBaseClass {
     const clazz = this.getClass(name);
 
@@ -257,47 +281,30 @@ export class GirNamespace {
   }
 
   getClass(name: string): GirBaseClass | null {
-    if (this.members.has(name)) {
-      const member = this.members.get(name);
+    const member = this.getMemberWithoutOverrides(name);
 
-      if (member instanceof GirBaseClass) {
-        return member;
-      } else {
-        return null;
-      }
-    } else {
-      const resolvedName = this._resolve_names.get(name);
-
-      if (resolvedName) {
-        const member = this.members.get(resolvedName.name);
-
-        if (member instanceof GirBaseClass) {
-          return member;
-        }
-      }
-
-      return null;
+    if (member instanceof GirBaseClass) {
+      return member;
     }
+    return null;
   }
 
   getEnum(name: string): GirEnum | null {
-    if (this.members.has(name)) {
-      const member = this.members.get(name);
+    const member = this.getMemberWithoutOverrides(name);
 
-      return (member instanceof GirEnum && member) || null;
-    } else {
-      const resolvedName = this._resolve_names.get(name);
-
-      if (resolvedName) {
-        const member = this.members.get(resolvedName.name);
-
-        if (member instanceof GirEnum) {
-          return member;
-        }
-      }
-
-      return null;
+    if (member instanceof GirEnum) {
+      return member;
     }
+    return null;
+  }
+
+  getAlias(name: string): GirAlias | null {
+    const member = this.getMemberWithoutOverrides(name);
+
+    if (member instanceof GirAlias) {
+      return member;
+    }
+    return null;
   }
 
   hasSymbol(name: string) {
@@ -335,6 +342,16 @@ export class GirNamespace {
     } else {
       return [null, name];
     }
+  }
+
+  /**
+   * This is an internal method to add TypeScript <reference>
+   * comments when overrides use parts of the TypeScript standard
+   * libraries that are newer than default.
+   */
+  ___dts___addReference(reference: string) {
+    this.__dts__references ??= [];
+    this.__dts__references.push(reference);
   }
 
   static fromXML(repo: GirXML, options: LoadOptions, registry: GirNSRegistry): GirNamespace {

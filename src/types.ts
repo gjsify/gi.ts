@@ -14,8 +14,11 @@ export interface TransformOptions extends Options {
   inferGenerics: boolean;
 }
 
+export type OutputFormat = 'file' | 'folder';
+
 export interface GenerationOptions extends Options {
   [key: string]: boolean | string | number | undefined;
+  outputFormat?: OutputFormat | string;
   outputPath?: string;
   promisify: boolean;
   withDocs: boolean;

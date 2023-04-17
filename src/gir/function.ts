@@ -8,7 +8,8 @@ import {
   NullableType,
   TypeExpression,
   Generic,
-  FunctionType
+  FunctionType,
+  GirOptions
 } from "../gir";
 import {
   FunctionElement,
@@ -20,7 +21,7 @@ import {
   ConstructorElement
 } from "@gi.ts/parser";
 
-import { GirNamespace } from "./namespace";
+import { GirNamespace, isIntrospectable } from "./namespace";
 import {
   getType,
   isInvalid,
@@ -35,6 +36,7 @@ import { GirSignal } from "./signal";
 import { FormatGenerator } from "../generators/generator";
 import { LoadOptions } from "../types";
 import { GirVisitor } from "../visitor";
+import { GirField } from "./property";
 
 function hasShadow(
   obj: FunctionElement | MethodElement
@@ -55,15 +57,16 @@ export class GirFunction extends GirBase {
     raw_name,
     return_type = UnknownType,
     parameters = [],
-    output_parameters = []
-  }: {
+    output_parameters = [],
+    ...args
+  }: GirOptions<{
     name: string;
     raw_name: string;
     return_type?: TypeExpression;
     parameters?: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.raw_name = raw_name;
     this.parameters = parameters.map(p => p.copy({ parent: this }));
@@ -222,7 +225,8 @@ export class GirFunction extends GirBase {
       output_parameters,
       return_type,
       name,
-      raw_name
+      raw_name,
+      isIntrospectable: isIntrospectable(func)
     });
 
     if (options.loadDocs) {
@@ -250,25 +254,89 @@ export class GirFunction extends GirBase {
   }
 
   asClassFunction(parent: GirBaseClass | GirEnum): GirClassFunction {
-    const { raw_name: name, output_parameters, parameters, return_type, doc } = this;
+    const { raw_name: name, output_parameters, parameters, return_type, doc, isIntrospectable } = this;
 
-    return new GirClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
+    return new GirClassFunction({
+      parent,
+      name,
+      output_parameters,
+      parameters,
+      return_type,
+      doc,
+      isIntrospectable
+    });
   }
 
   asVirtualClassFunction(parent: GirBaseClass): GirVirtualClassFunction {
-    const { raw_name: name, output_parameters, parameters, return_type, doc } = this;
+    const { raw_name: name, output_parameters, parameters, return_type, doc, isIntrospectable } = this;
 
-    return new GirVirtualClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
+    return new GirVirtualClassFunction({
+      parent,
+      name,
+      output_parameters,
+      parameters,
+      return_type,
+      doc,
+      isIntrospectable
+    });
   }
 
   asStaticClassFunction(parent: GirBaseClass | GirEnum): GirStaticClassFunction {
-    const { raw_name: name, output_parameters, parameters, return_type, doc } = this;
+    const { raw_name: name, output_parameters, parameters, return_type, doc, isIntrospectable } = this;
 
-    return new GirStaticClassFunction({ parent, name, output_parameters, parameters, return_type, doc });
+    return new GirStaticClassFunction({
+      parent,
+      name,
+      output_parameters,
+      parameters,
+      return_type,
+      doc,
+      isIntrospectable
+    });
   }
 
   asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateFunction"]> {
     return generator.generateFunction(this);
+  }
+}
+
+export class GirDirectAllocationConstructor extends GirBase {
+  fields: GirField[];
+
+  constructor(fields: GirField[]) {
+    super("new", { isPrivate: false, isIntrospectable: true });
+
+    this.fields = fields
+      .filter(field => {
+        return !field.isStatic && !field.isPrivate && !field.type.isPointer;
+      })
+      .map(field => field.copy({ parent: this }));
+  }
+
+  asString<T extends FormatGenerator<any>>(
+    generator: T
+  ): ReturnType<T["generateDirectAllocationConstructor"]> {
+    return generator.generateDirectAllocationConstructor(this);
+  }
+
+  copy(
+    options?: { parent?: GirBase | undefined; fields: GirField[] } | undefined
+  ): GirDirectAllocationConstructor {
+    const copy = new GirDirectAllocationConstructor(options?.fields ?? this.fields);
+
+    copy._copyBaseProperties(this);
+
+    return copy;
+  }
+
+  accept(visitor: GirVisitor): GirDirectAllocationConstructor {
+    const node = this.copy({
+      fields: this.fields.map(field => {
+        return field.accept(visitor);
+      })
+    });
+
+    return visitor.visitDirectAllocationConstructor?.(node) ?? node;
   }
 }
 
@@ -279,13 +347,14 @@ export class GirConstructor extends GirBase {
   constructor({
     name,
     parameters = [],
-    return_type
-  }: {
+    return_type,
+    ...args
+  }: GirOptions<{
     name: string;
     parameters?: GirFunctionParameter[];
     return_type: TypeExpression;
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
     this.return_type = return_type;
     this.parameters = parameters.map(p => p.copy({ parent: this }));
   }
@@ -351,8 +420,9 @@ export class GirFunctionParameter extends GirBase {
     doc,
     isVarArgs = false,
     isOptional = false,
-    isNullable = false
-  }: {
+    isNullable = false,
+    ...args
+  }: GirOptions<{
     name: string;
     parent?: GirClassFunction | GirFunction | GirSignal | GirConstructor;
     type: TypeExpression;
@@ -361,8 +431,8 @@ export class GirFunctionParameter extends GirBase {
     isVarArgs?: boolean;
     isOptional?: boolean;
     isNullable?: boolean;
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.parent = parent;
     this.type = type;
@@ -468,7 +538,8 @@ export class GirFunctionParameter extends GirBase {
       parent: parent ?? undefined,
       isOptional,
       isNullable,
-      name
+      name,
+      isIntrospectable: isIntrospectable(parameter)
     });
 
     if (options.loadDocs) {
@@ -497,16 +568,17 @@ export class GirClassFunction extends GirBase {
     output_parameters = [],
     return_type = UnknownType,
     parent,
-    doc
-  }: {
+    doc,
+    ...args
+  }: GirOptions<{
     name: string;
     parameters?: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirBaseClass | GirEnum;
     doc?: string | null;
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.parameters = parameters.map(p => p.copy({ parent: this }));
     this.output_parameters = output_parameters.map(p => p.copy({ parent: this }));
@@ -520,7 +592,12 @@ export class GirClassFunction extends GirBase {
 
     if (this.parent instanceof GirBaseClass) {
       // Always force constructors to have the correct return type.
-      return new GirConstructor({ name, parameters, return_type: this.parent.getType() });
+      return new GirConstructor({
+        name,
+        parameters,
+        return_type: this.parent.getType(),
+        isIntrospectable: this.isIntrospectable
+      });
     }
 
     throw new Error(
@@ -536,7 +613,8 @@ export class GirClassFunction extends GirBase {
       parameters,
       output_parameters,
       return_type,
-      parent
+      parent,
+      isIntrospectable: this.isIntrospectable
     });
   }
 
@@ -632,22 +710,24 @@ export class GirVirtualClassFunction extends GirClassFunction {
     output_parameters = [],
     return_type = UnknownType,
     parent,
-    doc
-  }: {
+    doc,
+    ...args
+  }: GirOptions<{
     name: string;
     parameters: GirFunctionParameter[];
     output_parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirBaseClass;
     doc?: string | null;
-  }) {
+  }>) {
     super({
       parent,
       name: name.startsWith("vfunc_") ? name : `vfunc_${name}`,
       parameters,
       output_parameters,
       return_type,
-      doc
+      doc,
+      ...args
     });
   }
 

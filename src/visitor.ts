@@ -10,7 +10,8 @@ import {
   GirFunction,
   GirClassFunction,
   GirStaticClassFunction,
-  GirVirtualClassFunction
+  GirVirtualClassFunction,
+  GirDirectAllocationConstructor
 } from "./gir/function";
 import { GirNamespace } from "./gir/namespace";
 import { GirProperty, GirField } from "./gir/property";
@@ -21,6 +22,7 @@ export abstract class GirVisitor {
   visitCallback?: (node: GirCallback) => GirCallback;
   visitAlias?: (node: GirAlias) => GirAlias;
   visitConstructor?: (node: GirConstructor) => GirConstructor;
+  visitDirectAllocationConstructor?: (node: GirDirectAllocationConstructor) => GirDirectAllocationConstructor;
   visitConstructorFunction?: (node: GirConstructor) => GirConstructor;
   visitRecord?: (node: GirRecord) => GirRecord;
   visitInterface?: (node: GirInterface) => GirInterface;
@@ -37,6 +39,7 @@ export abstract class GirVisitor {
   visitClassFunction?: (node: GirClassFunction) => GirClassFunction;
   visitStaticClassFunction?: (node: GirStaticClassFunction) => GirStaticClassFunction;
   visitVirtualClassFunction?: (node: GirVirtualClassFunction) => GirVirtualClassFunction;
+  visitNamespace?: (node: GirNamespace) => GirNamespace;
 }
 
 export function visit(namespace: GirNamespace, visitor: GirVisitor) {

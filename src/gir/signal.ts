@@ -1,5 +1,16 @@
-import { GirBase, VoidType, UnknownType, NativeType, TypeExpression, ThisType, NumberType } from "../gir";
-import { GirNamespace } from "./namespace";
+import {
+  GirBase,
+  VoidType,
+  UnknownType,
+  NativeType,
+  TypeExpression,
+  ThisType,
+  NumberType,
+  GirOptions,
+  NullableType,
+  ArrayType
+} from "../gir";
+import { GirNamespace, isIntrospectable } from "./namespace";
 import { GirClass } from "./class";
 import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
 import { SignalElement, Direction, CallableParamElement } from "@gi.ts/parser";
@@ -23,14 +34,15 @@ export class GirSignal extends GirBase {
     name,
     parameters = [],
     return_type = UnknownType,
-    parent
-  }: {
+    parent,
+    ...args
+  }: GirOptions<{
     name: string;
     parameters?: GirFunctionParameter[];
     return_type?: TypeExpression;
     parent: GirClass;
-  }) {
-    super(name);
+  }>) {
+    super(name, { ...args });
 
     this.parameters = parameters.map(p => p.copy({ parent: this }));
     this.return_type = return_type;
@@ -74,7 +86,8 @@ export class GirSignal extends GirBase {
   ): GirSignal {
     const signal = new GirSignal({
       name: sig.$.name,
-      parent
+      parent,
+      isIntrospectable: isIntrospectable(sig)
     });
 
     if (sig.parameters && sig.parameters[0].parameter) {
@@ -84,6 +97,57 @@ export class GirSignal extends GirBase {
           .map(p => GirFunctionParameter.fromXML(modName, ns, options, signal, p))
       );
     }
+
+    const length_params = [] as number[];
+
+    signal.parameters = signal.parameters
+      .map(p => {
+        const unwrapped_type = p.type.unwrap();
+
+        if (unwrapped_type instanceof ArrayType && unwrapped_type.length != null) {
+          length_params.push(unwrapped_type.length);
+
+          return p;
+        }
+
+        return p;
+      })
+      .filter((_, i) => {
+        // We remove any length parameters.
+        return !length_params.includes(i);
+      })
+
+      .reverse()
+      .reduce(
+        ({ allowOptions, params }, p) => {
+          const { type, isOptional } = p;
+
+          if (allowOptions) {
+            if (type instanceof NullableType) {
+              params.push(p.copy({ isOptional: true }));
+            } else if (!isOptional) {
+              params.push(p);
+              return { allowOptions: false, params };
+            } else {
+              params.push(p);
+            }
+          } else {
+            if (isOptional) {
+              params.push(p.copy({ type: new NullableType(type), isOptional: false }));
+            } else {
+              params.push(p);
+            }
+          }
+
+          return { allowOptions, params };
+        },
+        {
+          allowOptions: true,
+          params: [] as GirFunctionParameter[]
+        }
+      )
+      .params.reverse()
+      .filter((p): p is GirFunctionParameter => p != null);
 
     signal.return_type = getType(modName, ns, sig["return-value"]?.[0]);
 

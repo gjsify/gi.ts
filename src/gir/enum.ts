@@ -16,7 +16,7 @@ export class GirEnum extends GirBase {
   namespace: GirNamespace;
   ns: string;
 
-  constructor(name: string, namespace: GirNamespace) {
+  constructor(name: string, namespace: GirNamespace, options: { isIntrospectable?: boolean } = {}) {
     super(sanitizeIdentifierName(namespace.name, name));
     this.namespace = namespace;
     this.ns = namespace.name;

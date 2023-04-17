@@ -26,7 +26,8 @@ import {
   GirCallback,
   GirFunction,
   GirConstructor,
-  GirFunctionParameter
+  GirFunctionParameter,
+  GirDirectAllocationConstructor
 } from "./function";
 import { GirProperty, GirField } from "./property";
 import { GirNamespace, isIntrospectable } from "./namespace";
@@ -273,15 +274,16 @@ export function promisifyFunctions(functions: GirClassFunction[]) {
               const interfaceParent = node.interfaceParent;
 
               if (parent instanceof GirBaseClass) {
-                let async_res = (node instanceof GirStaticClassFunction
-                  ? [
-                      ...parent.constructors,
-                      ...parent.members.filter(m => m instanceof GirStaticClassFunction)
-                    ]
-                  : [
-                      ...(interfaceParent instanceof GirInterface ? [...interfaceParent.members] : []),
-                      ...parent.members.filter(m => !(m instanceof GirStaticClassFunction))
-                    ]
+                let async_res = (
+                  node instanceof GirStaticClassFunction
+                    ? [
+                        ...parent.constructors,
+                        ...parent.members.filter(m => m instanceof GirStaticClassFunction)
+                      ]
+                    : [
+                        ...(interfaceParent instanceof GirInterface ? [...interfaceParent.members] : []),
+                        ...parent.members.filter(m => !(m instanceof GirStaticClassFunction))
+                      ]
                 ).find(
                   m =>
                     m.name === `${node.name.replace(/_async$/, "")}_finish` ||
@@ -376,7 +378,7 @@ export abstract class GirBaseClass extends GirBase {
   indexSignature?: string;
   parent: TypeIdentifier | null;
 
-  mainConstructor: null | GirConstructor;
+  mainConstructor: null | GirConstructor | GirDirectAllocationConstructor;
   constructors: GirConstructor[];
   members: GirClassFunction[];
   props: GirProperty[];
@@ -390,11 +392,11 @@ export abstract class GirBaseClass extends GirBase {
     options: {
       name: string;
       namespace: GirNamespace;
+      isIntrospectable?: boolean;
     } & Partial<ClassDefinition>
   ) {
-    super(options.name);
-
     const {
+      name,
       namespace,
       parent = null,
       mainConstructor = null,
@@ -402,8 +404,11 @@ export abstract class GirBaseClass extends GirBase {
       members = [],
       props = [],
       fields = [],
-      callbacks = []
+      callbacks = [],
+      ...args
     } = options;
+
+    super(name, { ...args });
 
     this.namespace = namespace;
     this.parent = parent;
@@ -468,14 +473,11 @@ export abstract class GirBaseClass extends GirBase {
   abstract asString<T = string>(generator: FormatGenerator<T>): T;
 }
 
-// These should never be overriden by fields/methods
-// TODO Do we need "draw" and "show_all" still?
-const PROTECTED_IDS = ["draw", "show_all", "parent_instance", "parent", "parent_class", "object_class"];
-
 export class GirClass extends GirBaseClass {
   signals: GirSignal[] = [];
   interfaces: TypeIdentifier[] = [];
   isAbstract: boolean = false;
+  mainConstructor: null | GirConstructor = null;
   private _staticDefinition: string | null = null;
 
   constructor(name: string, namespace: GirNamespace) {
@@ -762,7 +764,7 @@ export class GirClass extends GirBaseClass {
       mainConstructor,
       signals,
       generics,
-      _staticDefinition,
+      _staticDefinition
     } = this;
 
     const clazz = new GirClass(name, namespace);
@@ -854,9 +856,9 @@ export class GirClass extends GirBaseClass {
 
       if (Array.isArray(klass.constructor)) {
         clazz.constructors.push(
-          ...klass.constructor
-            .filter(isIntrospectable)
-            .map(constructor => GirConstructor.fromXML(modName, ns, options, clazz, constructor))
+          ...klass.constructor.map(constructor =>
+            GirConstructor.fromXML(modName, ns, options, clazz, constructor)
+          )
         );
       }
 
@@ -868,28 +870,26 @@ export class GirClass extends GirBaseClass {
 
       // Properties
       if (klass.property) {
-        klass.property.filter(isIntrospectable).forEach(prop => {
+        klass.property.forEach(prop => {
           const property = GirProperty.fromXML(modName, ns, options, clazz, prop);
-          if (!PROTECTED_IDS.includes(property.name)) {
-            switch (options.propertyCase) {
-              case "both":
-                clazz.props.push(property);
+          switch (options.propertyCase) {
+            case "both":
+              clazz.props.push(property);
 
-                const camelCase = property.toCamelCase();
+              const camelCase = property.toCamelCase();
 
-                // Ensure we don't duplicate properties like 'show'
-                if (property.name !== camelCase.name) {
-                  clazz.props.push(camelCase);
-                }
+              // Ensure we don't duplicate properties like 'show'
+              if (property.name !== camelCase.name) {
+                clazz.props.push(camelCase);
+              }
 
-                break;
-              case "camel":
-                clazz.props.push(property.toCamelCase());
-                break;
-              case "underscore":
-                clazz.props.push(property);
-                break;
-            }
+              break;
+            case "camel":
+              clazz.props.push(property.toCamelCase());
+              break;
+            case "underscore":
+              clazz.props.push(property);
+              break;
           }
         });
       }
@@ -897,28 +897,18 @@ export class GirClass extends GirBaseClass {
       // Instance Methods
       if (klass.method) {
         clazz.members.push(
-          ...klass.method
-            .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, ns, options, clazz, method))
-            .filter(m => !clazz.props.some(n => n.name === m.name))
+          ...klass.method.map(method => GirClassFunction.fromXML(modName, ns, options, clazz, method))
         );
       }
 
       // Fields
       if (klass.field) {
         klass.field
-          .filter(isIntrospectable)
-          .filter(field => !("private" in field.$) || field.$.private !== "1")
-          .filter(field => !("callback" in field) && !field.$.name.startsWith("_"))
+          .filter(field => !("callback" in field))
           .forEach(field => {
             const f = GirField.fromXML(modName, ns, options, null, field);
-            if (
-              !clazz.members.some(n => n.name === f.name) &&
-              !clazz.props.some(n => n.name === f.name) &&
-              !PROTECTED_IDS.includes(f.name)
-            ) {
-              clazz.fields.push(f);
-            }
+
+            clazz.fields.push(f);
           });
       }
 
@@ -942,7 +932,7 @@ export class GirClass extends GirBaseClass {
       // Callback Types
       if (klass.callback) {
         clazz.callbacks.push(
-          ...klass.callback.filter(isIntrospectable).map(callback => {
+          ...klass.callback.map(callback => {
             if (options.verbose) {
               console.debug(`Adding callback ${callback.$.name} for ${modName}`);
             }
@@ -955,18 +945,16 @@ export class GirClass extends GirBaseClass {
       // Virtual Methods
       if (klass["virtual-method"]) {
         clazz.members.push(
-          ...klass["virtual-method"]
-            .filter(isIntrospectable)
-            .map(method => GirVirtualClassFunction.fromXML(modName, ns, options, clazz, method))
+          ...klass["virtual-method"].map(method =>
+            GirVirtualClassFunction.fromXML(modName, ns, options, clazz, method)
+          )
         );
       }
 
       // Static methods (functions)
       if (klass.function) {
         clazz.members.push(
-          ...klass.function
-            .filter(isIntrospectable)
-            .map(func => GirStaticClassFunction.fromXML(modName, ns, options, clazz, func))
+          ...klass.function.map(func => GirStaticClassFunction.fromXML(modName, ns, options, clazz, func))
         );
       }
     } catch (e) {
@@ -989,6 +977,7 @@ export class GirRecord extends GirBaseClass {
   private _isForeign: boolean = false;
   private _structFor: TypeIdentifier | null = null;
   private _isSimple: boolean | null = null;
+  private _isSimpleWithoutPointers: string | null = null;
 
   isForeign(): boolean {
     return this._isForeign;
@@ -1099,7 +1088,7 @@ export class GirRecord extends GirBaseClass {
       fields,
       callbacks,
       generics,
-      mainConstructor,
+      mainConstructor
     } = this;
 
     const clazz = new GirRecord({ name, namespace });
@@ -1188,15 +1177,13 @@ export class GirRecord extends GirBaseClass {
       // Instance Methods
       if (klass.method) {
         clazz.members.push(
-          ...klass.method
-            .filter(isIntrospectable)
-            .map(method => GirClassFunction.fromXML(modName, namespace, options, clazz, method))
+          ...klass.method.map(method => GirClassFunction.fromXML(modName, namespace, options, clazz, method))
         );
       }
 
       // Constructors
       if (Array.isArray(klass.constructor)) {
-        klass.constructor.filter(isIntrospectable).forEach(constructor => {
+        klass.constructor.forEach(constructor => {
           const c = GirConstructor.fromXML(modName, namespace, options, clazz, constructor);
 
           clazz.constructors.push(c);
@@ -1206,9 +1193,9 @@ export class GirRecord extends GirBaseClass {
       // Static methods (functions)
       if (klass.function) {
         clazz.members.push(
-          ...klass.function
-            .filter(isIntrospectable)
-            .map(func => GirStaticClassFunction.fromXML(modName, namespace, options, clazz, func))
+          ...klass.function.map(func =>
+            GirStaticClassFunction.fromXML(modName, namespace, options, clazz, func)
+          )
         );
       }
 
@@ -1220,18 +1207,8 @@ export class GirRecord extends GirBaseClass {
       if (klass.field) {
         clazz.fields.push(
           ...klass.field
-            .filter(isIntrospectable)
-            .filter(field => !("private" in field.$) || field.$.private !== "1")
-            // TODO investigate these field callbacks.
-            // Record fields can just be mirrors of existing functions.
             .filter(field => !("callback" in field))
-            // If it starts with "_" it is most likely a private member of the class.
-            .filter(field => !field.$.name.startsWith("_"))
             .map(field => GirField.fromXML(modName, namespace, options, null, field))
-            // Ensure identifiers don't overlap
-            .filter(
-              f => !clazz.members.some(n => n.name === f.name) && !clazz.props.some(n => n.name === f.name)
-            )
         );
       }
     } catch (e) {
@@ -1243,6 +1220,54 @@ export class GirRecord extends GirBaseClass {
   }
 
   /**
+   * Calculate if a type expression is "simple" without pointers
+   */
+  isSimpleTypeWithoutPointers(typeContainer: TypeExpression): boolean {
+    if (!this.isSimpleType(typeContainer)) {
+      return false;
+    }
+
+    if (typeContainer.isPointer) {
+      return false;
+    }
+
+    // Primitive types can be directly allocated.
+    if (typeContainer instanceof NativeType) {
+      return true;
+    }
+
+    if (typeContainer instanceof ArrayType) {
+      if (typeContainer.type.equals(this.getType())) {
+        return true;
+      }
+
+      return this.isSimpleTypeWithoutPointers(typeContainer.type);
+    }
+
+    if (typeContainer instanceof TypeIdentifier) {
+      const type = typeContainer;
+
+      const child_ns = this.namespace.assertInstalledImport(type.namespace);
+
+      const alias = child_ns.getAlias(type.name);
+      if (alias) {
+        return this.isSimpleTypeWithoutPointers(alias.type);
+      }
+
+      const child = child_ns.getClass(type.name);
+      if (child === this) {
+        return false;
+      }
+
+      if (child instanceof GirRecord) {
+        return child.isSimpleWithoutPointers() !== null;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Calculate if a type expression is "simple"
    */
   isSimpleType(typeContainer: TypeExpression): boolean {
@@ -1251,10 +1276,24 @@ export class GirRecord extends GirBaseClass {
       return true;
     }
 
+    if (typeContainer instanceof ArrayType) {
+      if (typeContainer.type.equals(this.getType())) {
+        return true;
+      }
+
+      return this.isSimpleType(typeContainer.type);
+    }
+
     if (typeContainer instanceof TypeIdentifier) {
       const type = typeContainer;
 
       const child_ns = this.namespace.assertInstalledImport(type.namespace);
+
+      const alias = child_ns.getAlias(type.name);
+      if (alias) {
+        return this.isSimpleType(alias.type);
+      }
+
       const child = child_ns.getClass(type.name);
       if (child === this) {
         return false;
@@ -1269,7 +1308,7 @@ export class GirRecord extends GirBaseClass {
   }
 
   /**
-   *
+   * Check if a record is "simple" and can be constructed by GJS
    */
   isSimple() {
     // Records with no fields are not
@@ -1292,6 +1331,31 @@ export class GirRecord extends GirBaseClass {
     return isSimple;
   }
 
+  isSimpleWithoutPointers() {
+    // Records which are "simple without pointers" is a subset of
+    // "simple" records.
+    if (!this.isSimple()) {
+      return null;
+      ("not simple");
+    }
+
+    // Because we may have to recursively check
+    // if types are instantiable we cache whether
+    // or not a given Record is simple.
+    if (this._isSimpleWithoutPointers !== null) {
+      return this._isSimpleWithoutPointers;
+    }
+
+    const isSimpleWithoutPointers = this.fields.find(f => {
+      return !this.isSimpleTypeWithoutPointers(f.type);
+    });
+
+    if (!isSimpleWithoutPointers) this._isSimpleWithoutPointers = `all fields good`;
+    else this._isSimpleWithoutPointers = null;
+
+    return this._isSimpleWithoutPointers;
+  }
+
   asString<T extends FormatGenerator<any>>(generator: T): ReturnType<T["generateRecord"]> {
     return generator.generateRecord(this);
   }
@@ -1305,6 +1369,7 @@ export class GirComplexRecord extends GirRecord {
 
 export class GirInterface extends GirBaseClass {
   noParent = false;
+  mainConstructor: null | GirConstructor = null;
 
   copy(
     options: {
@@ -1472,7 +1537,7 @@ export class GirInterface extends GirBaseClass {
       }
 
       if (Array.isArray(klass.constructor)) {
-        for (let constructor of klass.constructor.filter(isIntrospectable)) {
+        for (let constructor of klass.constructor) {
           clazz.constructors.push(GirConstructor.fromXML(modName, namespace, options, clazz, constructor));
         }
       }
@@ -1481,7 +1546,7 @@ export class GirInterface extends GirBaseClass {
       if (klass.property) {
         clazz.props.push(
           ...klass.property
-            .filter(isIntrospectable)
+
             .map(prop => GirProperty.fromXML(modName, namespace, options, clazz, prop))
             .map(prop => {
               switch (options.propertyCase) {
@@ -1501,31 +1566,28 @@ export class GirInterface extends GirBaseClass {
               }
             })
             .flat(1)
-            .filter(property => !PROTECTED_IDS.includes(property.name))
         );
       }
 
       // Instance Methods
       if (klass.method) {
-        for (let method of klass.method.filter(isIntrospectable)) {
+        for (let method of klass.method) {
           const m = GirClassFunction.fromXML(modName, namespace, options, clazz, method);
 
-          if (!clazz.props.some(n => n.name === m.name)) {
-            clazz.members.push(m);
-          }
+          clazz.members.push(m);
         }
       }
 
       // Virtual Methods
       if (klass["virtual-method"]) {
-        for (let method of klass["virtual-method"].filter(isIntrospectable)) {
+        for (let method of klass["virtual-method"]) {
           clazz.members.push(GirVirtualClassFunction.fromXML(modName, namespace, options, clazz, method));
         }
       }
 
       // Callback Types
       if (klass.callback) {
-        for (let callback of klass.callback.filter(isIntrospectable)) {
+        for (let callback of klass.callback) {
           if (options.verbose) {
             console.debug(`Adding callback ${callback.$.name} for ${modName}`);
           }
@@ -1536,7 +1598,7 @@ export class GirInterface extends GirBaseClass {
 
       // Static methods (functions)
       if (klass.function) {
-        for (let func of klass.function.filter(isIntrospectable)) {
+        for (let func of klass.function) {
           clazz.members.push(GirStaticClassFunction.fromXML(modName, namespace, options, clazz, func));
         }
       }

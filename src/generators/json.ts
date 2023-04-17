@@ -6,7 +6,13 @@ import { GirConst } from "../gir/const";
 import { GirEnum, GirError, GirEnumMember } from "../gir/enum";
 import { GirProperty, GirField } from "../gir/property";
 import { GirSignal, GirSignalType } from "../gir/signal";
-import { GirFunction, GirConstructor, GirFunctionParameter, GirCallback } from "../gir/function";
+import {
+  GirFunction,
+  GirConstructor,
+  GirFunctionParameter,
+  GirCallback,
+  GirDirectAllocationConstructor
+} from "../gir/function";
 import { GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
 import { sanitizeIdentifierName, isInvalid, resolveDirectedType } from "../gir/util";
 import {
@@ -814,7 +820,7 @@ export class JsonGenerator extends FormatGenerator<Json> {
       kind: NodeKind.record,
       name,
       type: generateType(node.getType()),
-      mainConstructor: node.mainConstructor ? this.generateConstructor(node.mainConstructor) : null,
+      mainConstructor: node.mainConstructor?.asString(this) ?? null,
       extends: Extends ? generateType(Extends) : null,
       implements: [],
       props: Properties,
@@ -1125,6 +1131,25 @@ export class JsonGenerator extends FormatGenerator<Json> {
       name: node.name,
       kind: NodeKind.constructor,
       parameters: this.generateParameters(node.parameters),
+      ...this._generateDocAndMetadata(node)
+    };
+  }
+
+  generateDirectAllocationConstructor(node: GirDirectAllocationConstructor): ConstructorJson {
+    return {
+      name: node.name,
+      kind: NodeKind.constructor,
+      parameters: this.generateParameters(
+        node.fields.map(
+          field =>
+            new GirFunctionParameter({
+              name: field.name,
+              direction: Direction.In,
+              type: field.type,
+              isOptional: true
+            })
+        )
+      ),
       ...this._generateDocAndMetadata(node)
     };
   }

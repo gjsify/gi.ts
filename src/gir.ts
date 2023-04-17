@@ -12,6 +12,13 @@ export interface GirMetadata {
   introducedVersion?: string;
 }
 
+export interface GirBaseOptions {
+  isPrivate?: boolean;
+  isIntrospectable?: boolean;
+}
+
+export type GirOptions<T> = GirBaseOptions & T;
+
 export abstract class GirBase {
   name: string;
   doc?: string | null;
@@ -20,10 +27,14 @@ export abstract class GirBase {
   resolve_names: string[] = [];
   private _emit = true;
   private _commentWarning?: string;
-  private _isPrivate: boolean = false;
+  private _isPrivate: boolean;
+  private _isIntrospectable: boolean;
 
-  constructor(name: string) {
+  constructor(name: string, options: GirBaseOptions = {}) {
     this.name = name;
+
+    this._isPrivate = options.isPrivate ?? false;
+    this._isIntrospectable = options.isIntrospectable ?? true;
   }
 
   /**
@@ -38,6 +49,10 @@ export abstract class GirBase {
 
   getWarning(): string | undefined {
     return this._commentWarning;
+  }
+
+  get isIntrospectable() {
+    return this._isIntrospectable;
   }
 
   get isPrivate() {
@@ -65,6 +80,7 @@ export abstract class GirBase {
     // Whether this node should be emitted.
     this._emit = from._emit;
     this._isPrivate = from._isPrivate;
+    this._isIntrospectable = from.isIntrospectable;
 
     return this;
   }
@@ -87,6 +103,8 @@ export abstract class GirBase {
 }
 
 export abstract class TypeExpression {
+  isPointer = false;
+
   abstract equals(type: TypeExpression): boolean;
   abstract unwrap(): TypeExpression;
 
