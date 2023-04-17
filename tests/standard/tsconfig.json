@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "checkJs": true,
+        "allowJs": true,
+        "types": [
+            "./types/glib2",
+            "./types/gio2"
+        ],
+        "allowSyntheticDefaultImports": true,
+        "noEmit": true
+    },
+    "include": [
+        "javascript",
+        "types"
+    ]
+}
