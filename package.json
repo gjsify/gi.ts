@@ -1,6 +1,7 @@
 {
   "name": "@gi.ts/parser",
   "version": "1.5.10",
+  "type": "module",
   "main": "dist/lib.js",
   "types": "dist/lib.d.ts",
   "files": [
@@ -9,6 +10,12 @@
     "package-lock.json",
     "README.md"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    }
+  },
   "engines": {
     "node": ">=12.0.0"
   },
