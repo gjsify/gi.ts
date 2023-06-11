@@ -76,7 +76,7 @@
     "@types/react": "16.9.56",
     "@types/react-dom": "16.9.16",
     "@types/react-syntax-highlighter": "^11.0.5",
-    "typescript": "^4.7.4"
+    "typescript": "5.1.3"
   },
   "peerDependencies": {
     "@gi.ts/lib": "^1.5.3"
