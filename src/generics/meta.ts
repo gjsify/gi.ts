@@ -1,5 +1,5 @@
-import { GenerifiedTypeIdentifier } from "../gir";
-import { GirNamespace } from "../gir/namespace";
+import { GenerifiedTypeIdentifier } from "../gir.js";
+import { GirNamespace } from "../gir/namespace.js";
 
 export default {
   namespace: "Meta",

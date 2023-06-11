@@ -1,4 +1,4 @@
-import { Formatter } from "./formatter";
+import { Formatter } from "./formatter.js";
 
 export class JSONFormatter extends Formatter {
   format(source: string): string {

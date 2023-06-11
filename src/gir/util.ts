@@ -1,4 +1,4 @@
-import { deprecatedVersion, GirNamespace, introducedVersion, isDeprecated } from "./namespace";
+import { deprecatedVersion, GirNamespace, introducedVersion, isDeprecated } from "./namespace.js";
 import {
   CallableParamElement,
   Direction,
@@ -30,11 +30,12 @@ import {
   VoidType,
   GenerifiedTypeIdentifier,
   GenericType,
-  GirMetadata,
+
   NativeType
-} from "../gir";
-import { GirBaseClass } from "./class";
-import { TwoKeyMap } from "../util";
+} from "../gir.js";
+import {GirBase, GirOptions, GirMetadata} from './base.js';
+import { GirBaseClass } from "./class.js";
+import { TwoKeyMap } from "../util.js";
 
 const reservedWords = [
   // For now, at least, the typescript compiler doesn't throw on numerical types like int, float, etc.

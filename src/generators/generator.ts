@@ -1,16 +1,16 @@
-import { GirNamespace } from "../gir/namespace";
-import { GirClass, GirRecord, GirInterface } from "../gir/class";
-import { GirConst } from "../gir/const";
-import { GirEnum, GirError, GirEnumMember } from "../gir/enum";
-import { GirProperty, GirField } from "../gir/property";
-import { GirSignal, GirSignalType } from "../gir/signal";
-import { GirFunction, GirFunctionParameter, GirConstructor, GirCallback, GirDirectAllocationConstructor } from "../gir/function";
-import { GirClassFunction } from "../gir/function";
-import { GirStaticClassFunction } from "../gir/function";
-import { GirVirtualClassFunction } from "../gir/function";
-import { GirAlias } from "../gir/alias";
-import { TypeExpression } from "../gir";
-import { GenerationOptions } from "../types";
+import { GirNamespace } from "../gir/namespace.js";
+import { GirClass, GirRecord, GirInterface } from "../gir/class.js";
+import { GirConst } from "../gir/const.js";
+import { GirEnum, GirError, GirEnumMember } from "../gir/enum.js";
+import { GirProperty, GirField } from "../gir/property.js";
+import { GirSignal, GirSignalType } from "../gir/signal.js";
+import { GirFunction, GirFunctionParameter, GirConstructor, GirCallback, GirDirectAllocationConstructor } from "../gir/function.js";
+import { GirClassFunction } from "../gir/function.js";
+import { GirStaticClassFunction } from "../gir/function.js";
+import { GirVirtualClassFunction } from "../gir/function.js";
+import { GirAlias } from "../gir/alias.js";
+import { TypeExpression } from "../gir.js";
+import { GenerationOptions } from "../types.js";
 
 export interface GenericDescriptor {
   type: TypeExpression;

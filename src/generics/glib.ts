@@ -1,5 +1,5 @@
-import { AnyType, StringType } from "../gir";
-import { GirNamespace } from "../gir/namespace";
+import { AnyType, StringType } from "../gir.js";
+import { GirNamespace } from "../gir/namespace.js";
 
 export default {
   namespace: "GLib",

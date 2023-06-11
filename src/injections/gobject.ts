@@ -1,5 +1,5 @@
-import { GirNamespace } from "../gir/namespace";
-import { GirFunctionParameter, GirClassFunction, GirFunction, GirStaticClassFunction } from "../gir/function";
+import { GirNamespace } from "../gir/namespace.js";
+import { GirFunctionParameter, GirClassFunction, GirFunction, GirStaticClassFunction } from "../gir/function.js";
 import {
   NativeType,
   AnyType,
@@ -18,12 +18,12 @@ import {
   TypeExpression,
   BooleanType,
   GenerifiedTypeIdentifier
-} from "../gir";
+} from "../gir.js";
 import { Direction } from "@gi.ts/parser";
-import { GirField } from "../gir/property";
-import { GirAlias } from "../gir/alias";
-import { GirInterface } from "../gir/class";
-import { GirNSRegistry } from "../gir/registry";
+import { GirField } from "../gir/property.js";
+import { GirAlias } from "../gir/alias.js";
+import { GirInterface } from "../gir/class.js";
+import { GirNSRegistry } from "../gir/registry.js";
 
 function typeParam(name: string, type: TypeExpression) {
   return new GirFunctionParameter({

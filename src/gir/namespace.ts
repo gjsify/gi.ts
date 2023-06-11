@@ -1,5 +1,5 @@
 import {
-  GirBase,
+  
   NullableType,
   ObjectType,
   BinaryType,
@@ -9,19 +9,21 @@ import {
   TupleType,
   TypeIdentifier,
   ClosureType
-} from "../gir";
+} from "../gir.js";
+
+import {GirBase, GirOptions, GirMetadata} from './base.js';
 import { AliasElement, GirXML, InfoAttrs, Type } from "@gi.ts/parser";
-import { isPrimitiveType } from "./util";
+import { isPrimitiveType } from "./util.js";
 
-import { GirClass, GirInterface, GirRecord, GirBaseClass } from "./class";
-import { GirFunction, GirCallback } from "./function";
-import { GirEnum, GirError } from "./enum";
-import { GirConst } from "./const";
-import { GirAlias } from "./alias";
+import { GirClass, GirInterface, GirRecord, GirBaseClass } from "./class.js";
+import { GirFunction, GirCallback } from "./function.js";
+import { GirEnum, GirError } from "./enum.js";
+import { GirConst } from "./const.js";
+import { GirAlias } from "./alias.js";
 
-import { LoadOptions } from "../types";
-import { GirNSRegistry } from "./registry";
-import { GirVisitor } from "../visitor";
+import { LoadOptions } from "../types.js";
+import { GirNSRegistry } from "./registry.js";
+import { GirVisitor } from "../visitor.js";
 
 export type GirNSMember = GirBaseClass | GirFunction | GirConst | GirEnum | GirAlias;
 

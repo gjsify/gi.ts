@@ -1,12 +1,12 @@
-import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
+import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace.js";
 
-import { GirBase } from "../gir";
-import { GenerationOptions } from "../types";
+import { GirBase } from "../gir.js";
+import { GenerationOptions } from "../types.js";
 
-import { override as overrideGLib } from "./dts/glib";
-import { override as overrideGObject } from "./dts/gobject";
-import { override as overrideGio } from "./dts/gio";
-import { DtsGenerator } from "./dts";
+import { override as overrideGLib } from "./dts/glib.js";
+import { override as overrideGObject } from "./dts/gobject.js";
+import { override as overrideGio } from "./dts/gio.js";
+import { DtsGenerator } from "./dts.js";
 
 export class DtsInlineGenerator extends DtsGenerator {
   constructor(namespace: GirNamespace, options: GenerationOptions) {

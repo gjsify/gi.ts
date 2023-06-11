@@ -1,8 +1,8 @@
 import {
-  GirBase,
+  
   NativeType,
   TypeIdentifier,
-  TypeExpression,
+  
   NeverType,
   ArrayType,
   ClosureType,
@@ -17,7 +17,10 @@ import {
   AnyType,
   ConflictType,
   TypeConflict
-} from "../gir";
+} from "../gir.js";
+import {  TypeExpression } from "../gir.js";
+import {GirBase, GirOptions, GirMetadata} from './base.js';
+
 import { InterfaceElement, ClassElement, RecordElement, Direction, UnionElement } from "@gi.ts/parser";
 import {
   GirClassFunction,
@@ -28,9 +31,9 @@ import {
   GirConstructor,
   GirFunctionParameter,
   GirDirectAllocationConstructor
-} from "./function";
-import { GirProperty, GirField } from "./property";
-import { GirNamespace, isIntrospectable } from "./namespace";
+} from "./function.js";
+import { GirProperty, GirField } from "./property.js";
+import { GirNamespace, isIntrospectable } from "./namespace.js";
 import {
   sanitizeIdentifierName,
   parseTypeIdentifier,
@@ -38,13 +41,13 @@ import {
   resolveTypeIdentifier,
   parseDoc,
   parseMetadata
-} from "./util";
-import { GirSignal } from "./signal";
-import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
-import { GenericNameGenerator } from "./generics";
-import { findMap } from "../util";
+} from "./util.js";
+import { GirSignal } from "./signal.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
+import { GenericNameGenerator } from "./generics.js";
+import { findMap } from "../util.js";
 
 export enum FilterBehavior {
   DELETE,

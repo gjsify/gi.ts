@@ -1,20 +1,20 @@
-import { FormatGenerator } from "./generator";
-import { GirNamespace } from "../gir/namespace";
+import { FormatGenerator } from "./generator.js";
+import { GirNamespace } from "../gir/namespace.js";
 
-import { GirBaseClass, GirRecord, GirInterface, GirClass } from "../gir/class";
-import { GirConst } from "../gir/const";
-import { GirEnum, GirError, GirEnumMember } from "../gir/enum";
-import { GirProperty, GirField } from "../gir/property";
-import { GirSignal, GirSignalType } from "../gir/signal";
+import { GirBaseClass, GirRecord, GirInterface, GirClass } from "../gir/class.js";
+import { GirConst } from "../gir/const.js";
+import { GirEnum, GirError, GirEnumMember } from "../gir/enum.js";
+import { GirProperty, GirField } from "../gir/property.js";
+import { GirSignal, GirSignalType } from "../gir/signal.js";
 import {
   GirFunction,
   GirConstructor,
   GirFunctionParameter,
   GirCallback,
   GirDirectAllocationConstructor
-} from "../gir/function";
-import { GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
-import { sanitizeIdentifierName, isInvalid, resolveDirectedType } from "../gir/util";
+} from "../gir/function.js";
+import { GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function.js";
+import { sanitizeIdentifierName, isInvalid, resolveDirectedType } from "../gir/util.js";
 import {
   TypeExpression,
   NativeType,
@@ -32,10 +32,10 @@ import {
   AnyFunctionType,
   TypeConflict,
   GirMetadata
-} from "../gir";
+} from "../gir.js";
 import { Direction } from "@gi.ts/parser";
-import { GirAlias } from "../gir/alias";
-import { GenerationOptions } from "../types";
+import { GirAlias } from "../gir/alias.js";
+import { GenerationOptions } from "../types.js";
 
 export const enum NodeKind {
   class = "class",

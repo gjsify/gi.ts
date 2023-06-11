@@ -1,8 +1,8 @@
-import { TypeExpression } from "./gir";
-import { GirAlias } from "./gir/alias";
-import { GirRecord, GirInterface, GirClass } from "./gir/class";
-import { GirConst } from "./gir/const";
-import { GirEnumMember, GirError, GirEnum } from "./gir/enum";
+import { TypeExpression } from "./gir.js";
+import { GirAlias } from "./gir/alias.js";
+import { GirRecord, GirInterface, GirClass } from "./gir/class.js";
+import { GirConst } from "./gir/const.js";
+import { GirEnumMember, GirError, GirEnum } from "./gir/enum.js";
 import {
   GirCallback,
   GirConstructor,
@@ -12,10 +12,10 @@ import {
   GirStaticClassFunction,
   GirVirtualClassFunction,
   GirDirectAllocationConstructor
-} from "./gir/function";
-import { GirNamespace } from "./gir/namespace";
-import { GirProperty, GirField } from "./gir/property";
-import { GirSignal, GirSignalType } from "./gir/signal";
+} from "./gir/function.js";
+import { GirNamespace } from "./gir/namespace.js";
+import { GirProperty, GirField } from "./gir/property.js";
+import { GirSignal, GirSignalType } from "./gir/signal.js";
 
 export abstract class GirVisitor {
   visitType?: (node: TypeExpression) => TypeExpression;

@@ -1,5 +1,5 @@
 import {
-  GirBase,
+ 
   TypeIdentifier,
   UnknownType,
   VoidType,
@@ -9,8 +9,10 @@ import {
   TypeExpression,
   Generic,
   FunctionType,
-  GirOptions
-} from "../gir";
+  
+} from "../gir.js";
+
+import {GirBase, GirOptions, GirMetadata} from './base.js';
 import {
   FunctionElement,
   MethodElement,
@@ -21,7 +23,7 @@ import {
   ConstructorElement
 } from "@gi.ts/parser";
 
-import { GirNamespace, isIntrospectable } from "./namespace";
+import { GirNamespace, isIntrospectable } from "./namespace.js";
 import {
   getType,
   isInvalid,
@@ -29,14 +31,14 @@ import {
   sanitizeIdentifierName,
   parseDoc,
   parseMetadata
-} from "./util";
-import { GirBaseClass, GirClass } from "./class";
-import { GirEnum } from "./enum";
-import { GirSignal } from "./signal";
-import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
-import { GirField } from "./property";
+} from "./util.js";
+import { GirBaseClass, GirClass } from "./class.js";
+import { GirEnum } from "./enum.js";
+import { GirSignal } from "./signal.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
+import { GirField } from "./property.js";
 
 function hasShadow(
   obj: FunctionElement | MethodElement

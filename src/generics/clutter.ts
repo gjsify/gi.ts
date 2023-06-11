@@ -1,5 +1,5 @@
-import { GenericType } from "../gir";
-import { GirNamespace } from "../gir/namespace";
+import { GenericType } from "../gir.js";
+import { GirNamespace } from "../gir/namespace.js";
 
 export default {
   namespace: "Clutter",

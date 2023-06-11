@@ -1,10 +1,12 @@
-import { GirBase, GirOptions, TypeExpression } from "../gir";
+import {  TypeExpression } from "../gir.js";
+import {GirBase, GirOptions, GirMetadata} from './base.js';
+
 import { AliasElement } from "@gi.ts/parser";
-import { GirNamespace, isIntrospectable } from "./namespace";
-import { sanitizeIdentifierName, getAliasType, parseDoc, parseMetadata } from "./util";
-import { FormatGenerator, GenericDescriptor } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
+import { GirNamespace, isIntrospectable } from "./namespace.js";
+import { sanitizeIdentifierName, getAliasType, parseDoc, parseMetadata } from "./util.js";
+import { FormatGenerator, GenericDescriptor } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
 
 export class GirAlias extends GirBase {
   readonly type: TypeExpression;

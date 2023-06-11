@@ -1,23 +1,24 @@
 import {
-  GirBase,
+ 
   VoidType,
   UnknownType,
   NativeType,
   TypeExpression,
   ThisType,
   NumberType,
-  GirOptions,
+  
   NullableType,
   ArrayType
-} from "../gir";
-import { GirNamespace, isIntrospectable } from "./namespace";
-import { GirClass } from "./class";
-import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function";
+} from "../gir.js";
+import {GirBase, GirOptions, GirMetadata} from './base.js';
+import { GirNamespace, isIntrospectable } from "./namespace.js";
+import { GirClass } from "./class.js";
+import { GirClassFunction, GirFunctionParameter, GirCallback } from "./function.js";
 import { SignalElement, Direction, CallableParamElement } from "@gi.ts/parser";
-import { getType, parseDoc, parseMetadata } from "./util";
-import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
+import { getType, parseDoc, parseMetadata } from "./util.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
 
 export enum GirSignalType {
   CONNECT,

@@ -1,11 +1,11 @@
-import { GirNamespace } from "../gir/namespace";
+import { GirNamespace } from "../gir/namespace.js";
 import {
   GirClassFunction,
   GirConstructor,
   GirFunction,
   GirFunctionParameter,
   GirStaticClassFunction
-} from "../gir/function";
+} from "../gir/function.js";
 import {
   StringType,
   NativeType,
@@ -18,10 +18,10 @@ import {
   VoidType,
   GenerifiedTypeIdentifier,
   Generic
-} from "../gir";
+} from "../gir.js";
 import { Direction } from "@gi.ts/parser";
-import { GirField, JSField } from "../gir/property";
-import { GirClass, GirInterface } from "../gir/class";
+import { GirField, JSField } from "../gir/property.js";
+import { GirClass, GirInterface } from "../gir/class.js";
 
 export default {
   namespace: "Gio",

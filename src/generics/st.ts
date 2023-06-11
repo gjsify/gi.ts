@@ -1,5 +1,5 @@
-import { GenericType, GenerifiedTypeIdentifier } from "../gir";
-import { GirNamespace } from "../gir/namespace";
+import { GenericType, GenerifiedTypeIdentifier } from "../gir.js";
+import { GirNamespace } from "../gir/namespace.js";
 
 export default {
   namespace: "St",

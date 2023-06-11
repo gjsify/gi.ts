@@ -1,7 +1,7 @@
-export { GirAlias } from "./alias";
-export { GirClass, GirInterface, GirRecord, GirComplexRecord, GirBaseClass } from "./class";
-export { GirConst } from "./const";
-export { GirEnum, GirError, GirEnumMember } from "./enum";
+export { GirAlias } from "./alias.js";
+export { GirClass, GirInterface, GirRecord, GirComplexRecord, GirBaseClass } from "./class.js";
+export { GirConst } from "./const.js";
+export { GirEnum, GirError, GirEnumMember } from "./enum.js";
 export {
   GirFunction,
   GirClassFunction,
@@ -10,9 +10,9 @@ export {
   GirStaticClassFunction,
   GirVirtualClassFunction,
   GirFunctionParameter
-} from "./function";
-export { GirNamespace, GirNSMember } from "./namespace";
-export { GirNSRegistry, GirNSLoader } from "./registry";
-export { GirField, GirProperty } from "./property";
-export { GirSignal, GirSignalType } from "./signal";
-export * as nodeUtils from "./util";
+} from "./function.js";
+export { GirNamespace, GirNSMember } from "./namespace.js";
+export { GirNSRegistry, GirNSLoader } from "./registry.js";
+export { GirField, GirProperty } from "./property.js";
+export { GirSignal, GirSignalType } from "./signal.js";
+export * as nodeUtils from "./util.js";

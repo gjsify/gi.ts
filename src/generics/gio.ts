@@ -1,5 +1,5 @@
-import { AnyType, Generic, GenericType, GenerifiedTypeIdentifier, StringType, TypeIdentifier } from "../gir";
-import { GirNamespace } from "../gir/namespace";
+import { AnyType, Generic, GenericType, GenerifiedTypeIdentifier, StringType, TypeIdentifier } from "../gir.js";
+import { GirNamespace } from "../gir/namespace.js";
 
 export default {
   namespace: "Gio",

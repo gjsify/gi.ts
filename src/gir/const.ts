@@ -1,11 +1,12 @@
-import { GirBase, TypeExpression } from "../gir";
+import {  TypeExpression } from "../gir.js";
+import {GirBase, GirOptions, GirMetadata} from './base.js';
 import { ConstantElement } from "@gi.ts/parser";
 
-import { GirNamespace } from "./namespace";
-import { getType, parseDoc, parseMetadata, sanitizeIdentifierName } from "./util";
-import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
+import { GirNamespace } from "./namespace.js";
+import { getType, parseDoc, parseMetadata, sanitizeIdentifierName } from "./util.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
 
 export class GirConst extends GirBase {
   type: TypeExpression;
