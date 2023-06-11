@@ -13,6 +13,8 @@ import { ClassVisitor } from "../validators/class";
 import { InterfaceVisitor } from "../validators/interface";
 import { GirVisitor } from "../visitor";
 import { GirNamespace } from "./namespace";
+import { DtsModuleGenerator } from "../generators/dts-modules";
+import { DtsInlineGenerator } from "../generators/dts-inline";
 
 export interface GirNSLoader {
   load(namespace: string, version: string): GirXML | null;
@@ -65,7 +67,11 @@ export class GirNSRegistry {
   getGenerator<T>(output: string): GeneratorConstructor<T> | undefined;
   getGenerator(output: string): GeneratorConstructor<any> | undefined {
     if (output === "dts") {
-      return DtsGenerator;
+      return DtsModuleGenerator;
+    }
+
+    if (output === 'dts-inline') {
+      return DtsInlineGenerator;
     }
 
     if (output === "json") {

@@ -47,7 +47,7 @@ export interface DocDescription {
 
 type Unknown<T> = { [key in keyof T]?: unknown };
 
-type Format = 'dts' | 'json' | string;
+type Format = 'dts' | 'dts-inline' | 'json' | string;
 
 export interface GenerationOptions {
   inferGenerics: boolean;
@@ -119,7 +119,8 @@ export default class Generate extends Command {
     help: flags.help(),
     out: flags.string({}),
     format: flags.string({
-      description: "'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html."
+      description:
+        "'dts', 'dts-inline', or 'json' are bundled, 'html' is available via @gi.ts/generator-html."
     }),
     inferGenerics: flags.boolean({}),
     promisify: flags.boolean({}),
@@ -195,17 +196,18 @@ export default class Generate extends Command {
     let noInitTypes = false;
 
     let propertyCase: PropertyCase = 'both';
-    let format: 'dts' | 'json' | string = 'dts' as const;
+    let format: 'dts' | 'dts-inline' | 'json' | string = 'dts' as const;
     let file_extension = 'd.ts';
     let default_directory = './types';
     let output_directory: string | null = null;
 
-    function setFormat(format: 'dts' | 'json' | string) {
+    function setFormat(format: 'dts' | 'dts-inline' | 'json' | string) {
       switch (format) {
         case 'json':
           file_extension = 'json';
           default_directory = './json';
           break;
+        case 'dts-inline':
         case 'dts':
           file_extension = 'd.ts';
           default_directory = './types';
@@ -381,6 +383,7 @@ export default class Generate extends Command {
 
     // Register a 'dts' formatter so our output looks decent.
     registry.registerFormatter('dts', new TypeScriptFormatter());
+    registry.registerFormatter('dts-inline', new TypeScriptFormatter());
 
     type GirMap = Map<
       string,

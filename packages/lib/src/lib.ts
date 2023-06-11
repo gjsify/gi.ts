@@ -3,7 +3,7 @@ import { SanitizedIdentifiers } from "./gir/util";
 
 import { GenerationOptions, Metadata } from "./types";
 
-export * as dts from "./generators/dts";
+export * as dts from "./generators/dts-modules";
 
 export * as json from "./generators/json";
 
