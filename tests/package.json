@@ -4,11 +4,11 @@
     "private": true,
     "devDependencies": {
         "@gi.ts/cli": "workspace:*"
-      },
-      "scripts": {
+    },
+    "scripts": {
         "generate": "yarn generate:current && yarn generate:next && yarn generate:shell",
         "generate:standard": "cd ./standard && gi-ts generate docs.json",
         "generate:shell": "gi-ts generate docs-shell.json",
         "generate:next": "gi-ts generate docs-next.json"
-      }
+    }
 }

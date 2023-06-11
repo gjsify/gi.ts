@@ -15,5 +15,6 @@
     "resolutions": {
         "@types/react": "16.9.56",
         "@types/react-dom": "16.9.16"
-    }
+    },
+    "packageManager": "yarn@3.6.0"
 }
