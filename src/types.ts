@@ -25,6 +25,13 @@ export interface GenerationOptions extends Options {
   format: Format;
   versionedOutput: boolean;
   versionedImports: boolean;
+  /**
+   * A format for versioned imports
+   * 
+   * @example
+   * "{namespace}{version}{version-slug}"
+   */
+  versionFormat?: string;
   importPrefix: string;
   emitMetadata: boolean;
   noAdvancedVariants: boolean;

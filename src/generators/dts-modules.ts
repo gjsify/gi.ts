@@ -7,7 +7,7 @@ import { GenerationOptions } from "../types.js";
 import { override as overrideGLib } from "./dts/glib.js";
 import { override as overrideGObject } from "./dts/gobject.js";
 import { override as overrideGio } from "./dts/gio.js";
-import { DtsGenerator } from "./dts.js";
+import { DtsGenerator, versionImportFormat } from "./dts.js";
 
 export class DtsModuleGenerator extends DtsGenerator {
   constructor(namespace: GirNamespace, options: GenerationOptions) {
@@ -64,8 +64,8 @@ export class DtsModuleGenerator extends DtsGenerator {
         ...(node.__dts__references ?? []),
         ...Array.from(node.getImports()).map(
           ([i, version]) =>
-            `/// <reference ${referenceType}="${options.importPrefix}${i.toLowerCase()}${
-              options.versionedImports ? version.toLowerCase().split(".")[0] : ""
+            `/// <reference ${referenceType}="${options.importPrefix}${
+              options.versionedImports ? versionImportFormat(options.versionFormat ?? '{namespace-lower}{version-slug}', i, version) : ""
             }${referenceType === "path" ? pathSuffix : ""}" />`
         )
       ].join(`\n`);
@@ -90,8 +90,8 @@ export class DtsModuleGenerator extends DtsGenerator {
       }`;
 
       const output = [
-        header,
         references,
+        header,
         versionedModuleHeader,
         imports,
         base,
