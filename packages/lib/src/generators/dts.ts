@@ -10,7 +10,7 @@ import {
   filterFunctionConflict,
   FilterBehavior,
   promisifyFunctions
-} from "../gir/class";
+} from "../gir/class.js";
 import { GirConst } from "../gir/const.js";
 import { GirEnum, GirError, GirEnumMember } from "../gir/enum.js";
 import { GirProperty, GirField } from "../gir/property.js";
@@ -36,6 +36,12 @@ import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias.js";
 import { GenerationOptions } from "../types.js";
 
+export function versionImportFormat(versionFormat: string, namespace: string, version: string) {
+  const versionSlug = version.toLowerCase().split(".")[0];
+  const namespaceLowercase = namespace.toLowerCase();
+
+  return `${versionFormat.replace('{version}', version).replace('{version-slug}', versionSlug).replace('{namespace}', namespace).replace('{namespace-lower}', namespaceLowercase)}`;
+}
 
 export abstract class DtsGenerator extends FormatGenerator<string> {
   constructor(namespace: GirNamespace, options: GenerationOptions) {
