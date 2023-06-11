@@ -74,16 +74,21 @@ export class DtsModuleGenerator extends DtsGenerator {
       const imports = Array.from(node.getImports())
         .map(
           ([i, version]) =>
-            `import * as ${i} from 'gi://${i}${options.versionedImports ? `?version=${version}` : ""}';`
+            `import ${i} from 'gi://${i}${options.versionedImports ? `?version=${version}` : ""}';`
         )
         .join(`\n`);
 
       const moduleIdentifier = `gi://${name}`;
+      const versionedNamespaceIdentifier = `${name}${node.version.split('.')[0]}`;
       const versionedModuleIdentifier = `${moduleIdentifier}?version=${node.version}`;
 
       const [versionedModuleHeader, versionedModuleSuffix] = [
-        `declare module "${versionedModuleIdentifier}" {`,
-        "}"
+        `declare module "${versionedModuleIdentifier}" {
+          namespace ${versionedNamespaceIdentifier} {`,
+        `};
+
+        export default ${versionedNamespaceIdentifier};
+      }`
       ];
       const moduleDefinition = `declare module "${moduleIdentifier}" {
         export * from "${versionedModuleIdentifier}";
