@@ -397,6 +397,19 @@ export class GirNamespace {
       return !building.hasImport(el.name);
     };
 
+    if (ns.enumeration) {
+      // Get the requested enums
+      ns.enumeration
+        ?.map(enumeration => {
+          if (enumeration.$["glib:error-domain"]) {
+            return GirError.fromXML(modName, building, options, null, enumeration);
+          } else {
+            return GirEnum.fromXML(modName, building, options, null, enumeration);
+          }
+        })
+        .forEach(c => building.members.set(c.name, c));
+    }
+
     // Constants
     if (ns.constant) {
       ns.constant
@@ -430,18 +443,6 @@ export class GirNamespace {
         .forEach(c => building.members.set(c.name, c));
     }
 
-    if (ns.enumeration) {
-      // Get the requested enums
-      ns.enumeration
-        ?.map(enumeration => {
-          if (enumeration.$["glib:error-domain"]) {
-            return GirError.fromXML(modName, building, options, null, enumeration);
-          } else {
-            return GirEnum.fromXML(modName, building, options, null, enumeration);
-          }
-        })
-        .forEach(c => building.members.set(c.name, c));
-    }
 
     // Bitfield is a type of enum
     if (ns.bitfield) {
