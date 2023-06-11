@@ -72,12 +72,18 @@ export class GirEnum extends GirBase {
 
     clazz.fields.push(
       ...Array.from(this.members.values()).map(m => {
-        return new GirField({
+       const field = new GirField({
           name: m.name,
           type: NumberType,
           writable: true,
-          isStatic: true
+          isStatic: true,
         });
+        
+      
+          field.doc = m.doc;
+          field.metadata = m.metadata;
+
+        return field;
       })
     );
     clazz.members = [];
@@ -117,6 +123,7 @@ export class GirEnum extends GirBase {
 
     m.member.forEach(m => {
       const member = GirEnumMember.fromXML(modName, ns, options, em, m);
+      
       em.members.set(member.name, member);
     });
 

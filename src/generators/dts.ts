@@ -30,7 +30,8 @@ import {
   Generic,
   ConflictType,
   TypeConflict,
-  BinaryType
+  BinaryType,
+  GirBase
 } from "../gir.js";
 import { Direction } from "@gi.ts/parser";
 import { GirAlias } from "../gir/alias.js";
@@ -103,7 +104,7 @@ export abstract class DtsGenerator extends FormatGenerator<string> {
   }
 
   generateCallback(node: GirCallback): string {
-    return `export type ${node.name}${this.generateCallbackType(node).join(" = ")};`;
+    return `${this.docString(node)}export type ${node.name}${this.generateCallbackType(node).join(" = ")};`;
   }
 
   generateReturn(return_type: TypeExpression, output_parameters: GirFunctionParameter[]) {
@@ -157,7 +158,7 @@ export namespace ${node.name} {
     export const $gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${node.name}>;
 }
 
-export enum ${node.name} {
+${this.docString(node)}export enum ${node.name} {
     ${Array.from(node.members.values())
       .map(member => `${member.asString(this)}`)
       .join(`\n    `)}
@@ -195,7 +196,7 @@ export enum ${node.name} {
   generateConst(node: GirConst): string {
     const { namespace, options } = this;
 
-    return `export const ${node.name}: ${node.type.resolve(namespace, options).print(namespace, options)};`;
+    return `${this.docString(node)}export const ${node.name}: ${node.type.resolve(namespace, options).print(namespace, options)};`;
   }
 
   protected implements(node: GirClass) {
@@ -293,7 +294,7 @@ export enum ${node.name} {
         }
       ${
         hasNamespace
-          ? `export interface ${name}Namespace {
+          ? `${this.docString(node)}export interface ${name}Namespace {
     ${isGObject ? `$gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${name}>;` : ""}
     prototype: ${name}Prototype;
     ${staticFields.length > 0 ? staticFields.map(sf => sf.asString(this)).join(`\n`) : ""}
@@ -373,7 +374,7 @@ export interface ${name}Prototype${Generics}${Extends} {${
         : ``
     }
   
-export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ""}
+${this.docString(node)}export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.indexSignature}\n` : ""}
     static $gtype: ${namespace.name !== "GObject" ? "GObject." : ""}GType<${name}>;
 
     ${MainConstructor}
@@ -648,7 +649,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       type = new BinaryType(type.unwrap(), AnyType);
     }
 
-    return `${fieldAnnotation}${Modifier} ${Name}${node.optional ? "?" : ""}: ${type
+    return `${this.docString(node)}${fieldAnnotation}${Modifier} ${Name}${node.optional ? "?" : ""}: ${type
       .resolve(namespace, options)
       .rootPrint(namespace, options)};`;
   }
@@ -738,9 +739,9 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
   generateEnumMember(node: GirEnumMember): string {
     const invalid = isInvalid(node.name);
     if (node.value != null && !Number.isNaN(Number.parseInt(node.value, 10))) {
-      return invalid ? `"${node.name}" = ${node.value},` : `${node.name} = ${node.value},`;
+      return invalid ? `${this.docString(node)}"${node.name}" = ${node.value},` : `${this.docString(node)}${node.name} = ${node.value},`;
     } else {
-      return invalid ? `"${node.name}",` : `${node.name},`;
+      return invalid ? `${this.docString(node)}"${node.name}",` : `${this.docString(node)}${node.name},`;
     }
   }
 
@@ -763,6 +764,16 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     }
   }
 
+  docString(node: GirBase) {
+    return node.doc && this.options.withDocs ? `/**
+${node.doc.split('\n').map(line => ` * ${line.trim()
+  .replace('*/', '*\\/')
+.replace(/@([a-z_]+?)([. ])/g, '`$1$2`')}`
+.replace(/@([a-z])/g, '$1'))
+.join('\n')}
+    */\n` : ''
+  }
+
   generateFunction(node: GirFunction): string {
     const { namespace } = this;
     // Register our identifier with the sanitized identifiers.
@@ -773,7 +784,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     const Parameters = this.generateParameters(node.parameters);
     const ReturnType = this.generateReturn(node.return(), node.output_parameters);
     const Generics = this.generateGenerics(node.generics);
-    return `export function ${node.name}${Generics}(${Parameters}): ${ReturnType};`;
+    return `${this.docString(node)}export function ${node.name}${Generics}(${Parameters}): ${ReturnType};`;
   }
 
   generateConstructorFunction(node: GirConstructor): string {
@@ -784,7 +795,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     const invalid = isInvalid(node.name);
     const name = invalid ? `["${node.name}"]` : node.name;
     const warning = node.getWarning();
-    return `${warning ? `${warning}\n` : ""}static ${name}(${Parameters}): ${node
+    return `${warning ? `${warning}\n` : ""}${this.docString(node)}static ${name}(${Parameters}): ${node
       .return()
       .resolve(namespace, options)
       .rootPrint(namespace, options)};`;
@@ -824,7 +835,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     }
 
     const warning = node.getWarning();
-    return `${warning ? `${warning}\n` : ""}${
+    return `${warning ? `${warning}\n` : ""}${this.docString(node)}${
       invalid ? `["${node.name}"]` : node.name
     }${Generics}(${Parameters}): ${ReturnType};`;
   }
@@ -835,7 +846,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
     let ReturnType = this.generateReturn(node.return(), node.output_parameters);
 
     const warning = node.getWarning();
-    return `${warning ? `${warning}\n` : ""}static ${node.name}${Generics}(${this.generateParameters(
+    return `${warning ? `${warning}\n` : ""}${this.docString(node)}static ${node.name}${Generics}(${this.generateParameters(
       node.parameters
     )}): ${ReturnType};`;
   }
@@ -854,7 +865,7 @@ export class ${name}${Generics}${Extends} {${node.indexSignature ? `\n${node.ind
       .join(", ");
     const Generic = GenericBase ? `<${GenericBase}>` : "";
 
-    return `export type ${node.name}${Generic} = ${Type};`;
+    return `${this.docString(node)}export type ${node.name}${Generic} = ${Type};`;
   }
 
   generateVirtualClassFunction(node: GirVirtualClassFunction): string {
