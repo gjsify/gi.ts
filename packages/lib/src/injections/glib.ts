@@ -1,11 +1,11 @@
-import { GirNamespace } from "../gir/namespace";
+import { GirNamespace } from "../gir/namespace.js";
 import {
   GirConstructor,
   GirFunctionParameter,
   GirClassFunction,
   GirFunction,
   GirDirectAllocationConstructor
-} from "../gir/function";
+} from "../gir/function.js";
 import {
   NativeType,
   AnyType,
@@ -16,10 +16,10 @@ import {
   GenericType,
   TypeIdentifier,
   BinaryType
-} from "../gir";
+} from "../gir.js";
 import { Direction } from "@gi.ts/parser";
-import { GirNSRegistry } from "../gir/registry";
-import { GirRecord } from "../gir/class";
+import { GirNSRegistry } from "../gir/registry.js";
+import { GirRecord } from "../gir/class.js";
 
 export default {
   namespace: "GLib",

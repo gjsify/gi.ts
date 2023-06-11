@@ -1,5 +1,5 @@
-import { GirInterface } from "../gir/class";
-import { GirVisitor } from "../visitor";
+import { GirInterface } from "../gir/class.js";
+import { GirVisitor } from "../visitor.js";
 
 export class InterfaceVisitor extends GirVisitor {
     visitInterface = (node: GirInterface): GirInterface => {

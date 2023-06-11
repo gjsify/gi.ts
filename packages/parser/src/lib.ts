@@ -1,3 +1,3 @@
-export * as parser from "./parser";
+export * as parser from "./parser.js";
 
-export * from "./xml";
+export * from "./xml.js";

@@ -1,4 +1,4 @@
-import { GirNamespace } from "../../gir/namespace";
+import { GirNamespace } from "../../gir/namespace.js";
 
 export function override(node: GirNamespace) {
   // We provide manually written versions of these types below.

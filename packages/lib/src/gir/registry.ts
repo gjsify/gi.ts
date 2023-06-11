@@ -1,20 +1,20 @@
 import { GirXML } from "@gi.ts/parser";
-import { DefaultFormatter } from "../formatters/default";
-import { Formatter } from "../formatters/formatter";
-import { JSONFormatter } from "../formatters/json";
-import { DtsGenerator } from "../generators/dts";
-import { JsonGenerator } from "../generators/json";
-import { FormatGenerator } from "../generators/generator";
-import { generify } from "../generics/generify";
-import { inject } from "../injections/inject";
-import { GenerationOptions, LoadOptions, TransformOptions } from "../types";
-import { TwoKeyMap } from "../util";
-import { ClassVisitor } from "../validators/class";
-import { InterfaceVisitor } from "../validators/interface";
-import { GirVisitor } from "../visitor";
-import { GirNamespace } from "./namespace";
-import { DtsModuleGenerator } from "../generators/dts-modules";
-import { DtsInlineGenerator } from "../generators/dts-inline";
+import { DefaultFormatter } from "../formatters/default.js";
+import { Formatter } from "../formatters/formatter.js";
+import { JSONFormatter } from "../formatters/json.js";
+import { DtsGenerator } from "../generators/dts.js";
+import { JsonGenerator } from "../generators/json.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { generify } from "../generics/generify.js";
+import { inject } from "../injections/inject.js";
+import { GenerationOptions, LoadOptions, TransformOptions } from "../types.js";
+import { TwoKeyMap } from "../util.js";
+import { ClassVisitor } from "../validators/class.js";
+import { InterfaceVisitor } from "../validators/interface.js";
+import { GirVisitor } from "../visitor.js";
+import { GirNamespace } from "./namespace.js";
+import { DtsModuleGenerator } from "../generators/dts-modules.js";
+import { DtsInlineGenerator } from "../generators/dts-inline.js";
 
 export interface GirNSLoader {
   load(namespace: string, version: string): GirXML | null;

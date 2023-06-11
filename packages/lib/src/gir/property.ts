@@ -1,13 +1,14 @@
-import { GirBase, GirOptions, TypeExpression } from "../gir";
+import { TypeExpression } from "../gir.js";
+import {GirBase, GirOptions, GirMetadata} from './base.js';
 import { FieldElement, PropertyElement } from "@gi.ts/parser";
 
-import { getType, parseDoc, parseMetadata } from "./util";
-import { GirNamespace, isIntrospectable } from "./namespace";
-import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
-import { GirBaseClass } from "./class";
-import { GirEnum } from "./enum";
+import { getType, parseDoc, parseMetadata } from "./util.js";
+import { GirNamespace, isIntrospectable } from "./namespace.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
+import { GirBaseClass } from "./class.js";
+import { GirEnum } from "./enum.js";
 
 export class GirField extends GirBase {
   type: TypeExpression;

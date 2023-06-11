@@ -1,14 +1,16 @@
-import { GirBase, NumberType, TypeIdentifier } from "../gir";
+import {  NumberType, TypeIdentifier } from "../gir.js";
+
+import {GirBase, GirOptions, GirMetadata} from './base.js';
 import { MemberElement, EnumElement, BitfieldElement } from "@gi.ts/parser";
 
-import { GirComplexRecord, GirRecord } from "./class";
-import { GirField } from "./property";
-import { GirStaticClassFunction } from "./function";
-import { GirNamespace } from "./namespace";
-import { parseDoc, parseMetadata, sanitizeIdentifierName, sanitizeMemberName } from "./util";
-import { FormatGenerator } from "../generators/generator";
-import { LoadOptions } from "../types";
-import { GirVisitor } from "../visitor";
+import { GirComplexRecord, GirRecord } from "./class.js";
+import { GirField } from "./property.js";
+import { GirStaticClassFunction } from "./function.js";
+import { GirNamespace } from "./namespace.js";
+import { parseDoc, parseMetadata, sanitizeIdentifierName, sanitizeMemberName } from "./util.js";
+import { FormatGenerator } from "../generators/generator.js";
+import { LoadOptions } from "../types.js";
+import { GirVisitor } from "../visitor.js";
 
 export class GirEnum extends GirBase {
   members = new Map<string, GirEnumMember>();

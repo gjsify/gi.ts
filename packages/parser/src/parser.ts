@@ -1,5 +1,5 @@
 import { parse } from "fast-xml-parser";
-import { GirXML } from "./xml";
+import { GirXML } from "./xml.js";
 
 export function parseGir(contents: string): GirXML {
     return parse(contents, {

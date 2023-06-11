@@ -1,12 +1,12 @@
-import gio from "./gio";
-import glib from "./glib";
-import clutter from "./clutter";
-import st from "./st";
-import meta from "./meta";
+import gio from "./gio.js";
+import glib from "./glib.js";
+import clutter from "./clutter.js";
+import st from "./st.js";
+import meta from "./meta.js";
 
-import { GirNamespace } from "../gir/namespace";
-import { GirNSRegistry } from "../gir/registry";
-import { GenericVisitor } from "./visitor";
+import { GirNamespace } from "../gir/namespace.js";
+import { GirNSRegistry } from "../gir/registry.js";
+import { GenericVisitor } from "./visitor.js";
 
 type NamespaceModifier = (namespace: GirNamespace, inferGenerics: boolean) => void;
 

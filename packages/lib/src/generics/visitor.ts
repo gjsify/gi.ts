@@ -5,8 +5,8 @@ import {
   TypeIdentifier,
   GenerifiedTypeIdentifier,
   ThisType
-} from "../gir";
-import { GirClass, GirBaseClass, GirInterface } from "../gir/class";
+} from "../gir.js";
+import { GirClass, GirBaseClass, GirInterface } from "../gir/class.js";
 import {
   GirCallback,
   GirFunctionParameter,
@@ -14,11 +14,11 @@ import {
   GirClassFunction,
   GirStaticClassFunction,
   GirVirtualClassFunction
-} from "../gir/function";
-import { GenericNameGenerator } from "../gir/generics";
-import { GirNSRegistry } from "../gir/registry";
-import { resolveTypeIdentifier } from "../gir/util";
-import { GirVisitor } from "../visitor";
+} from "../gir/function.js";
+import { GenericNameGenerator } from "../gir/generics.js";
+import { GirNSRegistry } from "../gir/registry.js";
+import { resolveTypeIdentifier } from "../gir/util.js";
+import { GirVisitor } from "../visitor.js";
 
 export class GenericVisitor extends GirVisitor {
   registry: GirNSRegistry;

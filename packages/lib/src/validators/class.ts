@@ -1,11 +1,11 @@
-import { FormatGenerator } from "../generators";
-import { AnyType, ArrayType, GirBase, NativeType, TypeIdentifier } from "../gir";
-import { GirBaseClass, GirClass, GirInterface, GirRecord } from "../gir/class";
-import { GirEnum, GirError } from "../gir/enum";
-import { GirDirectAllocationConstructor } from "../gir/function";
-import { GirClassFunction, GirConstructor, GirStaticClassFunction } from "../gir/nodes";
-import { resolveTypeIdentifier } from "../gir/util";
-import { GirVisitor } from "../visitor";
+import { FormatGenerator } from "../generators/index.js";
+import { AnyType, ArrayType, GirBase, NativeType, TypeIdentifier } from "../gir.js";
+import { GirBaseClass, GirClass, GirInterface, GirRecord } from "../gir/class.js";
+import { GirEnum, GirError } from "../gir/enum.js";
+import { GirDirectAllocationConstructor } from "../gir/function.js";
+import { GirClassFunction, GirConstructor, GirStaticClassFunction } from "../gir/nodes.js";
+import { resolveTypeIdentifier } from "../gir/util.js";
+import { GirVisitor } from "../visitor.js";
 
 const filterIntrospectableClassMembers = <T extends GirBaseClass>(node: T): T => {
   node.fields = node.fields.filter(field => field.isIntrospectable);

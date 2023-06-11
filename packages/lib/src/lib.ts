@@ -1,21 +1,21 @@
-import { GirNSRegistry } from "./gir/registry";
-import { SanitizedIdentifiers } from "./gir/util";
+import { GirNSRegistry } from "./gir/registry.js";
+import { SanitizedIdentifiers } from "./gir/util.js";
 
-import { GenerationOptions, Metadata } from "./types";
+import { GenerationOptions, Metadata } from "./types.js";
 
-export * as dts from "./generators/dts-modules";
+export * as dts from "./generators/dts-modules.js";
 
-export * as json from "./generators/json";
+export * as json from "./generators/json.js";
 
-export * from "./generators";
+export * from "./generators/index.js";
 
-export * from "./types";
+export * from "./types.js";
 
-export * from "./gir";
-export * from "./gir/nodes";
+export * from "./gir.js";
+export * from "./gir/nodes.js";
 
-export { GirNSRegistry } from "./gir/registry";
-export { Formatter } from "./formatters/formatter";
+export { GirNSRegistry } from "./gir/registry.js";
+export { Formatter } from "./formatters/formatter.js";
 
 export function getSanitizedIdentifiers(): ReadonlyMap<string, string> {
   return SanitizedIdentifiers;

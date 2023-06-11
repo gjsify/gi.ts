@@ -1,53 +1,13 @@
-import { FormatGenerator } from "./generator";
-import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace";
+import { GirNamespace, promisifyNamespaceFunctions } from "../gir/namespace.js";
 
 import {
-  GirBaseClass,
-  GirRecord,
-  GirInterface,
-  GirClass,
-  filterConflicts,
-  filterFunctionConflict,
-  FilterBehavior,
-  promisifyFunctions
-} from "../gir/class";
-import { GirConst } from "../gir/const";
-import { GirEnum, GirError, GirEnumMember } from "../gir/enum";
-import { GirProperty, GirField } from "../gir/property";
-import { GirSignal, GirSignalType } from "../gir/signal";
-import {
-  GirFunction,
-  GirConstructor,
-  GirFunctionParameter,
-  GirCallback,
-  GirDirectAllocationConstructor
-} from "../gir/function";
-import { GirClassFunction, GirStaticClassFunction, GirVirtualClassFunction } from "../gir/function";
-import { sanitizeIdentifierName, isInvalid, resolveDirectedType } from "../gir/util";
-import {
-  TypeExpression,
-  TypeIdentifier,
-  NativeType,
-  AnyType,
-  VoidType,
-  StringType,
-  NumberType,
-  ArrayType,
-  GirBase,
-  AnyFunctionType,
-  Generic,
-  ConflictType,
-  TypeConflict,
-  BinaryType
-} from "../gir";
-import { Direction } from "@gi.ts/parser";
-import { GirAlias } from "../gir/alias";
-import { GenerationOptions } from "../types";
+  GirBase } from "../gir.js";
+import { GenerationOptions } from "../types.js";
 
-import { override as overrideGLib } from "./dts/glib";
-import { override as overrideGObject } from "./dts/gobject";
-import { override as overrideGio } from "./dts/gio";
-import { DtsGenerator } from "./dts";
+import { override as overrideGLib } from "./dts/glib.js";
+import { override as overrideGObject } from "./dts/gobject.js";
+import { override as overrideGio } from "./dts/gio.js";
+import { DtsGenerator } from "./dts.js";
 
 export class DtsModuleGenerator extends DtsGenerator {
   constructor(namespace: GirNamespace, options: GenerationOptions) {
