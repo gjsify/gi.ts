@@ -107,7 +107,7 @@ const reservedWords = [
 ];
 
 export function getAliasType(modName: string, _ns: GirNamespace, parameter: AliasElement): TypeExpression {
-  let name = parameter.type[0].$["name"] || "unknown";
+  let name = parameter.type?.[0].$["name"] || "unknown";
 
   let nameParts = name.split(" ");
 

@@ -97,8 +97,8 @@ export class GirNamespace {
   readonly c_prefixes: string[];
 
   private imports: Map<string, string> = new Map();
+  default_imports: Map<string, string> = new Map();
 
-  private _default_imports?: Map<string, string>;
   private _members?: Map<string, GirNSMember | GirNSMember[]>;
   private _enum_constants?: Map<string, readonly [string, string]>;
   private _resolve_names: Map<string, TypeIdentifier> = new Map();
@@ -111,6 +111,7 @@ export class GirNamespace {
     this.name = name;
     this.version = version;
     this.c_prefixes = [...prefixes];
+    this.package_version = ['0', '0'];
   }
 
   registerResolveName(resolveName: string, namespace: string, name: string) {
@@ -123,14 +124,6 @@ export class GirNamespace {
     }
 
     return this._members;
-  }
-
-  get default_imports(): Map<string, string> {
-    if (!this._default_imports) {
-      this._default_imports = new Map<string, string>();
-    }
-
-    return this._default_imports;
   }
 
   get enum_constants(): Map<string, readonly [string, string]> {
@@ -173,6 +166,18 @@ export class GirNamespace {
 
     if (name === this.name) {
       return this;
+    }
+
+    // TODO: Clean this up, but essentially try to resolve import versions
+    // using transitive imports (e.g. use GtkSource to find the version of Gtk)
+    if (!version) {
+     const entries =  [...this.default_imports.entries()].flatMap(([_name]) => {
+        const namespace = this._getImport(_name);
+
+        return [...namespace?.default_imports.entries() ?? []]
+      })
+
+      version = Object.fromEntries(entries)[name];
     }
 
     if (!version) {
@@ -230,14 +235,9 @@ export class GirNamespace {
     return [...this.imports.entries()].sort(([[a], [b]]) => a.localeCompare(b));
   }
 
-  addImport(ns_name: string, version?: string) {
-    if (ns_name !== this.name && !this.imports.has(ns_name)) {
-      if (!version) {
-        version = this.parent.assertDefaultVersionOf(ns_name) ?? undefined;
-      }
+  addImport(ns_name: string) {
 
-      this.imports.set(ns_name, version);
-    }
+    this._getImport(ns_name);
   }
 
   getMembers(name: string): GirBase[] {
@@ -383,12 +383,20 @@ export class GirNamespace {
 
     const building = new GirNamespace(modName, version, c_prefix);
     building.parent = registry;
+    // Set the namespace object here to prevent re-parsing the namespace if
+    // another namespace imports it.
+    registry.mapping.set(modName, version, building);
+
     const includes = repo.repository[0].include || [];
 
     includes
       .map(i => [i.$.name, i.$.version] as const)
       .forEach(([name, version]) => {
         if (version) {
+          if (options.verbose) {
+            console.debug(`Adding dependency ${name} ${version}...`);
+          }
+
           building.default_imports.set(name, version);
         }
       });
@@ -495,14 +503,13 @@ export class GirNamespace {
     }
 
     if (ns.alias) {
-      type NamedAlias = AliasElement & { $: { name: string } };
+      type NamedType = Type & { $: { name: string } };
 
       ns.alias
         ?.filter(isIntrospectable)
         // Avoid attempting to alias non-introspectable symbols.
         .map(b => {
-          b.type = b.type
-            .filter((t): t is NamedAlias => !!(t && t.$.name))
+          b.type = b.type?.filter((t): t is NamedType => !!(t && t.$.name))
             .map(t => {
               if (
                 t.$.name &&
@@ -523,37 +530,41 @@ export class GirNamespace {
         .forEach(c => building.members.set(c.name, c));
     }
 
-    let [major = null] = building.getMembers("MAJOR_VERSION");
-    let [minor = null] = building.getMembers("MINOR_VERSION");
-    let [micro = null] = building.getMembers("MICRO_VERSION");
+    try {
+      let [major = null] = building.getMembers("MAJOR_VERSION");
+      let [minor = null] = building.getMembers("MINOR_VERSION");
+      let [micro = null] = building.getMembers("MICRO_VERSION");
 
-    if (!major) {
-      major = building.getMembers("VERSION_MAJOR")[0] ?? null;
-    }
-
-    if (!minor) {
-      minor = building.getMembers("VERSION_MINOR")[0] ?? null;
-    }
-
-    if (!micro) {
-      micro = building.getMembers("VERSION_MICRO")[0] ?? null;
-    }
-
-    if (major instanceof GirConst && minor instanceof GirConst && major.value && minor.value) {
-      if (micro instanceof GirConst && micro.value) {
-        building.package_version = [major.value, minor.value, micro.value] as const;
-      } else {
-        building.package_version = [major.value, minor.value] as const;
+      if (!major) {
+        major = building.getMembers("VERSION_MAJOR")[0] ?? null;
       }
-    } else {
-      const [major = "", minor = "0", micro] = building.version.split(".").filter(v => v != "");
 
-      if (micro) {
-        building.package_version = [major, minor, micro];
-      } else {
-        building.package_version = [major, minor];
+      if (!minor) {
+        minor = building.getMembers("VERSION_MINOR")[0] ?? null;
       }
-    }
+
+      if (!micro) {
+        micro = building.getMembers("VERSION_MICRO")[0] ?? null;
+      }
+
+      if (major instanceof GirConst && minor instanceof GirConst && major.value && minor.value) {
+        if (micro instanceof GirConst && micro.value) {
+          building.package_version = [major.value, minor.value, micro.value] as const;
+        } else {
+          building.package_version = [major.value, minor.value] as const;
+        }
+      } else {
+        const [major = "", minor = "0", micro] = building.version.split(".").filter(v => v != "");
+
+        if (micro) {
+          building.package_version = [major, minor, micro];
+        } else {
+          building.package_version = [major, minor];
+        }
+      }
+  } catch (error) {
+    console.error(`Failed to parse package version for ${building.name} with version ${building.version}`);
+  }
 
     return building;
   }

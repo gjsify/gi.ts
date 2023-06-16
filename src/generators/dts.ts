@@ -765,7 +765,8 @@ ${this.docString(node)}export class ${name}${Generics}${Extends} {${node.indexSi
   }
 
   docString(node: GirBase) {
-    return node.doc && this.options.withDocs ? `/**
+    // TODO: Support node.doc not being a string?
+    return typeof node.doc === 'string' && this.options.withDocs ? `/**
 ${node.doc.split('\n').map(line => ` * ${line.trim()
   .replace('*/', '*\\/')
 .replace(/@([a-z_]+?)([. ])/g, '`$1$2`')}`
