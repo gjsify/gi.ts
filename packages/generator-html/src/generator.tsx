@@ -279,6 +279,10 @@ export class HtmlGenerator extends FormatGenerator<[Json, HtmlRenderer]> {
     return [json, this._jsonToHtmlGenerator.generateConstructor(json)];
   }
 
+  generateDirectAllocationConstructor(_node: GirDirectAllocationConstructor): [Json, HtmlRenderer] {
+    throw new Error('Method not implemented.');
+  }
+
   generateConstructorFunction(_node: GirConstructor): [Json, HtmlRenderer] {
     throw new Error('Method not implemented.');
   }
