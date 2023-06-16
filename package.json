@@ -1,6 +1,6 @@
 {
   "name": "@gi.ts/parser",
-  "version": "1.5.10",
+  "version": "2.0.0-alpha.0",
   "type": "module",
   "main": "dist/lib.js",
   "types": "dist/lib.d.ts",
