@@ -92,7 +92,7 @@ export const __version__: string;
 `;
 
       const moduleIdentifier = `gi://${name}`;
-      const versionedNamespaceIdentifier = `${name}${node.version.split('.')[0]}`;
+      const versionedNamespaceIdentifier = `${name}${node.version.split('.')[0].replace(/[^A-z0-9_]/g, '_')}`;
       const versionedModuleIdentifier = `${moduleIdentifier}?version=${node.version}`;
 
       const [versionedModuleHeader, versionedModuleSuffix] = [
