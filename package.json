@@ -28,7 +28,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@gi.ts/parser": "^1.5.10"
+    "@gi.ts/parser": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.1.3"
