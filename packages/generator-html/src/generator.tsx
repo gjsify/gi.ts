@@ -51,7 +51,8 @@ import {
   GirSignalType,
   GirStaticClassFunction,
   GirVirtualClassFunction,
-  GenerationOptions
+  GenerationOptions,
+  GirDirectAllocationConstructor,
 } from '@gi.ts/lib';
 import { basename, dirname, join } from 'path';
 import { renderElement } from './renderer.cjs';
@@ -169,6 +170,10 @@ export class JsonToHtmlGenerator {
   }
 
   generateSignal(_node: GirSignal, _type?: GirSignalType): HtmlRenderer {
+    throw new Error('Method not implemented.');
+  }
+
+  generateDirectAllocationConstructor(_node: GirDirectAllocationConstructor): HtmlRenderer {
     throw new Error('Method not implemented.');
   }
 
