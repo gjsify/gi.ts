@@ -10,7 +10,7 @@
         "./tests"
     ],
     "devDependencies": {
-        "lerna": "^3.22.1"
+        "lerna": "7.0.2"
     },
     "resolutions": {
         "@types/react": "16.9.56",
