@@ -3,6 +3,13 @@
   "version": "1.5.10",
   "main": "dist/loader.js",
   "types": "dist/loader.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/loader.d.ts",
+      "import": "./dist/loader.js"
+    }
+  },
   "files": [
     "dist",
     "package.json",
@@ -17,7 +24,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@gi.ts/parser": "^1.5.10",
+    "@gi.ts/parser": "workspace:*",
     "glob": "^7.1.6"
   },
   "devDependencies": {

@@ -1,9 +1,9 @@
-import { Command, flags } from '@oclif/command';
+import { Args, Command, Flags } from '@oclif/core';
 
 import * as fs from 'fs';
 
 import { generate, generateAll, GirInfo } from '@gi.ts/node-loader';
-import { loadDocsConfig } from './generate';
+import { loadDocsConfig } from './generate.js';
 
 export default class Config extends Command {
   static description = 'create docs configurations';
@@ -11,11 +11,11 @@ export default class Config extends Command {
   static examples = [`$ gi-ts config --lock`];
 
   static flags = {
-    help: flags.help(),
-    lock: flags.boolean()
+    help: Flags.help(),
+    lock: Flags.boolean()
   };
 
-  static args = [{ name: 'file' }];
+  static args = { file: Args.string() };
 
   async getInfo(file?: string) {
     const docs = loadDocsConfig(this.log.bind(this), file);
@@ -34,7 +34,7 @@ export default class Config extends Command {
   }
 
   async run() {
-    const { args, flags } = this.parse(Config);
+    const { args, flags } = await this.parse(Config);
 
     const compiled = await this.getInfo(args['file']);
 

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "module": "commonjs",
+    "module": "es2020",
     "moduleResolution": "node",
     "rootDir": "src",
     "outDir": "lib",
@@ -14,6 +14,9 @@
     "esModuleInterop": true,
     "lib": [
       "ES2019"
+    ],
+    "types": [
+      "node"
     ],
     "baseUrl": "./",
     "paths": {

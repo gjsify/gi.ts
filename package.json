@@ -1,14 +1,14 @@
 {
     "private": true,
-    "workspaces": [
-        "packages/cli",
-        "packages/lib",
-        "packages/parser",
-        "packages/generator-html",
-        "packages/node-loader",
-        "tests"
-    ],
     "name": "gi.ts",
+    "workspaces": [
+        "./packages/cli",
+        "./packages/lib",
+        "./packages/parser",
+        "./packages/generator-html",
+        "./packages/node-loader",
+        "./tests"
+    ],
     "devDependencies": {
         "lerna": "^3.22.1"
     },

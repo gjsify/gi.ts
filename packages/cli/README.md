@@ -18,7 +18,7 @@ The command line interface for gi.ts (type checking for GObject Introspection an
 $ npm install -g @gi.ts/cli
 $ gi-ts COMMAND
 running command...
-$ gi-ts (-v|--version|version)
+$ gi-ts (--version)
 @gi.ts/cli/1.5.10 linux-x64 node-v16.11.0
 $ gi-ts --help [COMMAND]
 USAGE
@@ -30,7 +30,7 @@ USAGE
 <!-- commands -->
 * [`gi-ts config [FILE]`](#gi-ts-config-file)
 * [`gi-ts generate [FILE]`](#gi-ts-generate-file)
-* [`gi-ts help [COMMAND]`](#gi-ts-help-command)
+* [`gi-ts help [COMMANDS]`](#gi-ts-help-commands)
 
 ## `gi-ts config [FILE]`
 
@@ -38,13 +38,16 @@ create docs configurations
 
 ```
 USAGE
-  $ gi-ts config [FILE]
+  $ gi-ts config [FILE] [--help] [--lock]
 
-OPTIONS
-  --help  show CLI help
+FLAGS
+  --help  Show CLI help.
   --lock
 
-EXAMPLE
+DESCRIPTION
+  create docs configurations
+
+EXAMPLES
   $ gi-ts config --lock
 ```
 
@@ -54,54 +57,53 @@ generate documentation files
 
 ```
 USAGE
-  $ gi-ts generate [FILE]
+  $ gi-ts generate [FILE] [--all] [--help] [--out <value>] [--format <value>] [--inferGenerics] [--promisify]
+    [--propertyCase both|underscore|camel] [--outputFormat file|folder] [--noPrettyPrint] [--noInitTypes] [--withDocs]
+    [--versionedOutput] [--versionedImports] [--importPrefix <value>] [--emitMetadata] [--noAdvancedVariants] [-v]
 
-OPTIONS
-  -v, --verbose                           prints detailed per-member generation info
-  --all                                   Generate all found libraries
+FLAGS
+  -v, --verbose            prints detailed per-member generation info
+  --all                    Generate all found libraries
   --emitMetadata
-  --format=format                         'dts' or 'json' are bundled, 'html' is available via @gi.ts/generator-html.
-  --help                                  show CLI help
-  --importPrefix=importPrefix
+  --format=<value>         'dts', 'dts-inline', or 'json' are bundled, 'html' is available via @gi.ts/generator-html.
+  --help                   Show CLI help.
+  --importPrefix=<value>
   --inferGenerics
   --noAdvancedVariants
-  --noInitTypes                           Disables strict typing for _init() functions in TypeScript files.
-
-  --noPrettyPrint                         Disables the pretty-printer. For .d.ts files this will significantly speed up
-                                          generation.
-
-  --out=out
-
-  --outputFormat=(file|folder)
-
+  --noInitTypes            Disables strict typing for _init() functions in TypeScript files.
+  --noPrettyPrint          Disables the pretty-printer. For .d.ts files this will significantly speed up generation.
+  --out=<value>
+  --outputFormat=<option>  <options: file|folder>
   --promisify
-
-  --propertyCase=(both|underscore|camel)
-
+  --propertyCase=<option>  <options: both|underscore|camel>
   --versionedImports
-
   --versionedOutput
-
   --withDocs
 
-EXAMPLE
+DESCRIPTION
+  generate documentation files
+
+EXAMPLES
   $ gi-ts generate
 ```
 
-## `gi-ts help [COMMAND]`
+## `gi-ts help [COMMANDS]`
 
 Display help for gi-ts.
 
 ```
 USAGE
-  $ gi-ts help [COMMAND]
+  $ gi-ts help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  Command to show help for.
+  COMMANDS  Command to show help for.
 
-OPTIONS
+FLAGS
   -n, --nested-commands  Include all nested commands in the output.
+
+DESCRIPTION
+  Display help for gi-ts.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
 <!-- commandsstop -->

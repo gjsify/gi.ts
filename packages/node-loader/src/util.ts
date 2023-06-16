@@ -1,5 +1,6 @@
 // Depends on fs.realpath, inflight, inherits, minimatch, once, path-is-absolute
-import { sync as Dirglob } from 'glob';
+import glob from 'glob';
+const { sync: Dirglob } = glob;
 
 import * as fs from 'fs';
 import * as path from 'path';

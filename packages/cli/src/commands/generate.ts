@@ -1,4 +1,4 @@
-import { Command, flags } from '@oclif/command';
+import { Command, Flags, Args } from '@oclif/core';
 
 import prettier from 'prettier';
 
@@ -115,43 +115,43 @@ export default class Generate extends Command {
   ];
 
   static flags = {
-    all: flags.boolean({ description: 'Generate all found libraries' }),
-    help: flags.help(),
-    out: flags.string({}),
-    format: flags.string({
+    all: Flags.boolean({ description: 'Generate all found libraries' }),
+    help: Flags.help(),
+    out: Flags.string({}),
+    format: Flags.string({
       description:
         "'dts', 'dts-inline', or 'json' are bundled, 'html' is available via @gi.ts/generator-html."
     }),
-    inferGenerics: flags.boolean({}),
-    promisify: flags.boolean({}),
-    propertyCase: flags.enum<PropertyCase | undefined>({
+    inferGenerics: Flags.boolean({}),
+    promisify: Flags.boolean({}),
+    propertyCase: Flags.string({
       options: ['both', 'underscore', 'camel']
     }),
-    outputFormat: flags.enum<lib.OutputFormat | undefined>({
+    outputFormat: Flags.string({
       options: ['file', 'folder']
     }),
-    noPrettyPrint: flags.boolean({
+    noPrettyPrint: Flags.boolean({
       description: 'Disables the pretty-printer. For .d.ts files this will significantly speed up generation.'
     }),
-    noInitTypes: flags.boolean({
+    noInitTypes: Flags.boolean({
       description: 'Disables strict typing for _init() functions in TypeScript files.'
     }),
-    withDocs: flags.boolean({}),
-    versionedOutput: flags.boolean({}),
-    versionedImports: flags.boolean({}),
-    importPrefix: flags.string({}),
-    emitMetadata: flags.boolean({}),
-    noAdvancedVariants: flags.boolean({}),
-    verbose: flags.boolean({
+    withDocs: Flags.boolean({}),
+    versionedOutput: Flags.boolean({}),
+    versionedImports: Flags.boolean({}),
+    importPrefix: Flags.string({}),
+    emitMetadata: Flags.boolean({}),
+    noAdvancedVariants: Flags.boolean({}),
+    verbose: Flags.boolean({
       char: 'v',
       description: 'prints detailed per-member generation info '
     })
   };
 
-  static args = [{ name: 'file' }];
+  static args = { file: Args.string() };
 
   async run() {
-    const { args, flags } = this.parse(Generate);
+    const { args, flags } = await this.parse(Generate);
 
     const docs = loadDocsConfig(this.log.bind(this), args['file']);
 
@@ -366,11 +366,11 @@ export default class Generate extends Command {
     }
 
     if (flags.propertyCase) {
-      propertyCase = flags.propertyCase;
+      propertyCase = flags.propertyCase as PropertyCase;
     }
 
     if (flags.outputFormat) {
-      outputFormat = flags.outputFormat;
+      outputFormat = flags.outputFormat as lib.OutputFormat;
     }
 
     if (flags.out) {
