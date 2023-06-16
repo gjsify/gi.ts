@@ -9,7 +9,8 @@ export {
   GirConstructor,
   GirStaticClassFunction,
   GirVirtualClassFunction,
-  GirFunctionParameter
+  GirFunctionParameter,
+  GirDirectAllocationConstructor,
 } from "./function.js";
 export { GirNamespace, GirNSMember } from "./namespace.js";
 export { GirNSRegistry, GirNSLoader } from "./registry.js";
