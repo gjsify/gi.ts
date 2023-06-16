@@ -78,6 +78,19 @@ export class DtsModuleGenerator extends DtsGenerator {
         )
         .join(`\n`);
 
+        const metadata = `
+        /**
+ * Name of the imported GIR library
+ * @see https://gitlab.gnome.org/GNOME/gjs/-/blob/master/gi/ns.cpp#L188
+ */
+export const __name__: string;
+/**
+ * Version of the imported GIR library
+ * @see https://gitlab.gnome.org/GNOME/gjs/-/blob/master/gi/ns.cpp#L189
+ */
+export const __version__: string;
+`;
+
       const moduleIdentifier = `gi://${name}`;
       const versionedNamespaceIdentifier = `${name}${node.version.split('.')[0]}`;
       const versionedModuleIdentifier = `${moduleIdentifier}?version=${node.version}`;
@@ -102,6 +115,7 @@ export class DtsModuleGenerator extends DtsGenerator {
         base,
         content,
         suffix,
+        metadata,
         versionedModuleSuffix,
         moduleDefinition
       ].join(`\n\n`);
