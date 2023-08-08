@@ -95,9 +95,9 @@ export const __version__: string;
       const versionedNamespaceIdentifier = `${name}${node.version.split('.')[0].replace(/[^A-z0-9_]/g, '_')}`;
       const versionedModuleIdentifier = `${moduleIdentifier}?version=${node.version}`;
 
-      const [versionedModuleHeader, versionedModuleSuffix] = [
-        `declare module "${versionedModuleIdentifier}" {
-          namespace ${versionedNamespaceIdentifier} {`,
+      const [versionedModuleDeclaration, versionModuleNamespace, versionedModuleSuffix] = [
+        `declare module "${versionedModuleIdentifier}" {`,
+        `namespace ${versionedNamespaceIdentifier} {`,
         `};
 
         export default ${versionedNamespaceIdentifier};
@@ -110,8 +110,9 @@ export const __version__: string;
       const output = [
         references,
         header,
-        versionedModuleHeader,
+        versionedModuleDeclaration,
         imports,
+        versionModuleNamespace,
         base,
         content,
         suffix,
