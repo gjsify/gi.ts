@@ -104,7 +104,7 @@ export const __version__: string;
       }`
       ];
       const moduleDefinition = `declare module "${moduleIdentifier}" {
-        export * from "${versionedModuleIdentifier}";
+        export { default } from "${versionedModuleIdentifier}";
       }`;
 
       const output = [
